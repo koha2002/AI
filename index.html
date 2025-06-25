@@ -3,129 +3,276 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tra Cứu Học Thuật & AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>Trợ Lý Học Tập & AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --main: #185adb;
+      --sub: #e5eaff;
+      --bg: #f5f8ff;
+      --menu: #fff;
+      --shadow: 0 8px 32px 0 #0002;
+      --radius: 16px;
+      --gradient: linear-gradient(120deg, #185adb 0%, #0a1931 100%);
+    }
     body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #232526 0%, #185adb 100%);
-      color: #fff;
       font-family: 'Montserrat', Arial, sans-serif;
-      overflow-x: hidden;
+      margin: 0; padding: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: #222;
     }
-    .star-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 540px;
-      margin: 60px auto 30px auto;
-      background: rgba(255,255,255,0.12);
-      border-radius: 24px;
-      box-shadow: 0 8px 32px 0 #0004;
-      padding: 40px 28px 28px 28px;
-      text-align: center;
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 2.4rem;
+    .header {
+      background: var(--gradient);
       color: #fff;
-      letter-spacing: 1px;
-      text-shadow: 0 2px 12px #185adb88;
+      padding: 26px 0 18px 0;
+      text-align: center;
+      box-shadow: var(--shadow);
     }
-    .slogan {
-      color: #d1e4fd;
-      font-size: 1.15rem;
-      margin-bottom: 20px;
-      letter-spacing: 0.5px;
+    .header h1 {
+      margin: 0; font-size: 2.2rem; font-weight: 700; letter-spacing: 1.5px;
+      text-shadow: 0 3px 14px #0004;
     }
-    .desc {
-      font-size: 1.08rem;
-      margin-bottom: 26px;
-      color: #e5eaff;
-      line-height: 1.5;
+    .header .slogan {
+      margin: 12px 0 0 0;
+      font-size: 1.12rem; color: #b7d2fa;
+      font-weight: 400;
     }
-    .chatbot-box {
-      margin: 28px auto 0;
-      max-width: 370px;
-      border-radius: 18px;
-      box-shadow: 0 2px 18px 0 #185adb33;
-      background: #ffffff18;
-      padding: 14px 0 8px 0;
+    nav {
+      background: var(--menu);
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 0;
+      box-shadow: 0 2px 12px #185adb22;
     }
-    @media (max-width: 700px) {
-      .container { margin: 20px 5px; padding: 25px 3vw; }
-      h1 { font-size: 1.3rem; }
-      .chatbot-box { max-width: 100vw; }
+    nav a {
+      display: block;
+      color: var(--main);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 12px 18px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      transition: background 0.2s, color 0.2s;
     }
-    /* Sao rơi */
-    .star-canvas { position: fixed; left:0; top:0; z-index:0; pointer-events:none; }
-    /* Scrollbar đẹp */
-    ::-webkit-scrollbar { width: 8px; background: #252525; }
-    ::-webkit-scrollbar-thumb { background: #185adb; border-radius: 8px; }
+    nav a.active, nav a:hover {
+      background: var(--main);
+      color: #fff;
+    }
+    .dashboard {
+      max-width: 950px;
+      margin: 42px auto 0 auto;
+      padding: 0 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      gap: 28px;
+    }
+    .feature {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 22px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      transition: transform .2s, box-shadow .2s;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .feature:hover {
+      transform: translateY(-6px) scale(1.025);
+      box-shadow: 0 8px 38px 0 #185adb33;
+      border: 2px solid var(--main);
+    }
+    .feature-icon {
+      font-size: 2.5rem;
+      background: var(--sub);
+      color: var(--main);
+      border-radius: 50%;
+      width: 58px;
+      height: 58px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px #185adb22;
+    }
+    .feature-title {
+      font-weight: 700;
+      font-size: 1.14rem;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .feature-desc {
+      font-size: .98rem;
+      color: #334b7a;
+      text-align: center;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    /* Popup AI Chat */
+    .popup-bg {
+      position: fixed; left:0; top:0; width:100vw; height:100vh;
+      background: #0006; z-index: 100; display: none; align-items: center; justify-content: center;
+    }
+    .popup-bg.active { display: flex; }
+    .popup {
+      background: #fff;
+      padding: 22px 10px 16px 10px;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px #185adb55;
+      max-width: 95vw; max-height: 92vh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .popup .close-btn {
+      background: var(--main);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 5px 18px;
+      font-size: 1.12rem;
+      cursor: pointer;
+      position: absolute; right: 28px; top: 22px;
+      transition: background 0.18s;
+      z-index: 2;
+    }
+    .popup .close-btn:hover {
+      background: #222;
+    }
+    .popup iframe {
+      border-radius: 12px; border: none;
+      box-shadow: 0 2px 12px #185adb30;
+      width: 350px; height: 480px;
+      background: #fff;
+      margin-top: 16px;
+      max-width: 90vw;
+    }
+    @media (max-width:800px) {
+      .dashboard { grid-template-columns: 1fr; margin-top: 18px; }
+      .feature { padding: 20px 10px 14px 10px;}
+    }
+    @media (max-width:450px) {
+      .popup iframe { width: 98vw; height: 60vh;}
+      .popup { padding: 10px 2vw;}
+    }
+    /* Hiệu ứng sao rơi đơn giản */
+    .star-canvas {
+      position: fixed; left:0; top:0; z-index:0; pointer-events:none; width:100vw; height:100vh;
+    }
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.css">
 </head>
 <body>
   <canvas class="star-canvas"></canvas>
-  <div class="container">
+  <div class="header">
     <h1>Tra Cứu Học Thuật & AI</h1>
-    <div class="slogan">Trợ lý AI – Học dễ dàng, tra cứu mọi nơi!</div>
-    <div class="desc">
-      Nền tảng hỗ trợ tìm kiếm tài liệu, hỏi đáp học thuật nhanh chóng cùng trợ lý AI.<br>
-      Hãy đặt câu hỏi hoặc tìm tài liệu bạn cần – AI sẽ giúp bạn ngay lập tức!
+    <div class="slogan">Nền tảng học tập & trợ lý AI – Dễ dàng, hiệu quả, thông minh!</div>
+  </div>
+  <nav>
+    <a href="#" class="active">Trang chủ</a>
+    <a href="#tailieu">Tài liệu học tập</a>
+    <a href="#ai-chat">Chat với AI</a>
+    <a href="#mindmap">Tạo mindmap</a>
+    <a href="#y-tuong">Gợi ý ý tưởng</a>
+    <a href="#vietlai">Viết lại nội dung</a>
+  </nav>
+  <div class="dashboard">
+    <div class="feature" onclick="openPopup('ai')">
+      <div class="feature-icon"><i class="lucide-message-circle"></i></div>
+      <div class="feature-title">Chat với AI</div>
+      <div class="feature-desc">Tra cứu, hỏi đáp nhanh mọi lĩnh vực học tập cùng trợ lý AI.</div>
     </div>
-    <div class="chatbot-box">
-      <!-- Chatbase AI -->
-      <iframe
-        src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_"
-        width="340"
-        height="480"
-        style="border-radius:14px;border:none;background:#fff;"
-        frameborder="0"
-      ></iframe>
+    <div class="feature" onclick="location.href='#tailieu'">
+      <div class="feature-icon"><i class="lucide-book-open"></i></div>
+      <div class="feature-title">Tài liệu học tập</div>
+      <div class="feature-desc">Cung cấp các tài liệu PDF, slide, đề cương, sách tham khảo miễn phí.</div>
+    </div>
+    <div class="feature" onclick="openPopup('mindmap')">
+      <div class="feature-icon"><i class="lucide-network"></i></div>
+      <div class="feature-title">Tạo mindmap thông minh</div>
+      <div class="feature-desc">Tạo sơ đồ tư duy online, hỗ trợ xuất ảnh hoặc PDF, miễn phí.</div>
+    </div>
+    <div class="feature" onclick="openPopup('idea')">
+      <div class="feature-icon"><i class="lucide-sparkles"></i></div>
+      <div class="feature-title">Gợi ý ý tưởng học tập</div>
+      <div class="feature-desc">AI gợi ý ý tưởng, chủ đề thuyết trình, nghiên cứu, bài tập nhóm…</div>
+    </div>
+    <div class="feature" onclick="openPopup('rewrite')">
+      <div class="feature-icon"><i class="lucide-pen"></i></div>
+      <div class="feature-title">Viết lại nội dung</div>
+      <div class="feature-desc">Nhờ AI diễn đạt lại văn bản, tóm tắt, tăng sự sáng tạo.</div>
+    </div>
+    <div class="feature" onclick="alert('Sắp ra mắt!')">
+      <div class="feature-icon"><i class="lucide-folder-open"></i></div>
+      <div class="feature-title">Quản lý file & đề thi</div>
+      <div class="feature-desc">Lưu trữ đề thi, bài kiểm tra, chia sẻ cho mọi người (sắp ra mắt).</div>
     </div>
   </div>
+
+  <!-- Popup chat AI -->
+  <div class="popup-bg" id="aiPopup">
+    <div class="popup">
+      <button class="close-btn" onclick="closePopup('ai')">Đóng</button>
+      <div style="font-weight:600;font-size:1.1rem;color:#185adb">Chat với AI hỗ trợ học tập</div>
+      <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_" allow="clipboard-write"></iframe>
+    </div>
+  </div>
+  <!-- Popup mindmap -->
+  <div class="popup-bg" id="mindmapPopup">
+    <div class="popup">
+      <button class="close-btn" onclick="closePopup('mindmap')">Đóng</button>
+      <div style="font-weight:600;font-size:1.1rem;color:#185adb">Tạo mindmap online (miễn phí)</div>
+      <iframe src="https://www.mindmeister.com/map/2750851527" title="Mindmap"></iframe>
+    </div>
+  </div>
+  <!-- Popup idea -->
+  <div class="popup-bg" id="ideaPopup">
+    <div class="popup">
+      <button class="close-btn" onclick="closePopup('idea')">Đóng</button>
+      <div style="font-weight:600;font-size:1.1rem;color:#185adb">AI gợi ý ý tưởng học tập</div>
+      <iframe src="https://yuntian-deng-chatgpt.hf.space" title="Gợi ý ý tưởng"></iframe>
+    </div>
+  </div>
+  <!-- Popup rewrite -->
+  <div class="popup-bg" id="rewritePopup">
+    <div class="popup">
+      <button class="close-btn" onclick="closePopup('rewrite')">Đóng</button>
+      <div style="font-weight:600;font-size:1.1rem;color:#185adb">AI Viết lại nội dung</div>
+      <iframe src="https://quillbot.com/" title="Viết lại nội dung"></iframe>
+    </div>
+  </div>
+
+  <!-- Hiệu ứng sao rơi đơn giản -->
   <script>
+    // Popups
+    function openPopup(id) {
+      document.getElementById(id+'Popup').classList.add('active');
+    }
+    function closePopup(id) {
+      document.getElementById(id+'Popup').classList.remove('active');
+    }
     // Hiệu ứng sao rơi
     const canvas = document.querySelector('.star-canvas');
     const ctx = canvas.getContext('2d');
     let w = window.innerWidth, h = window.innerHeight;
     canvas.width = w; canvas.height = h;
-
-    function resizeCanvas() {
-      w = window.innerWidth; h = window.innerHeight;
-      canvas.width = w; canvas.height = h;
-    }
-    window.addEventListener('resize', resizeCanvas);
-
-    // Sao rơi (shooting stars)
+    window.addEventListener('resize', ()=>{w=window.innerWidth;h=window.innerHeight;canvas.width=w;canvas.height=h;});
     let stars = [];
     function newStar() {
-      let speed = 4 + Math.random() * 3;
+      let speed = 3 + Math.random() * 2.5;
       return {
         x: Math.random() * w,
         y: -20,
-        l: 120 + Math.random()*100,
+        l: 90 + Math.random()*70,
         xs: speed,
         ys: speed * (0.3 + Math.random()*0.4),
-        opacity: 0.6 + Math.random()*0.3,
-        size: 1.2 + Math.random()*1.6
+        opacity: 0.55 + Math.random()*0.3,
+        size: 1 + Math.random()*1.6
       };
     }
     function drawStars() {
       ctx.clearRect(0,0,w,h);
-      for (let i=0;i<stars.length;i++) {
-        let s = stars[i];
+      for (let s of stars) {
         ctx.save();
         ctx.globalAlpha = s.opacity;
         ctx.strokeStyle = "#fff";
@@ -146,7 +293,7 @@
         stars[i].opacity -= 0.003;
         if (stars[i].y > h+30 || stars[i].opacity < 0) stars.splice(i,1), i--;
       }
-      if (Math.random() < 0.08) stars.push(newStar());
+      if (Math.random() < 0.09) stars.push(newStar());
     }
     function animate() {
       updateStars();
