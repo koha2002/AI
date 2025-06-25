@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo Sơ Đồ Tư Duy Online</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- jsPDF dùng cho xuất PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas dùng để chụp canvas thành ảnh -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+    <script>
+      fetch('header.html').then(res => res.text()).then(data => document.getElementById('header').innerHTML = data);
+    </script>
+
+    <!-- Content -->
+    <div class="container" style="min-height:60vh;">
+        <h2>Tạo Sơ Đồ Tư Duy (Mindmap)</h2>
+        <button id="addNodeBtn">Thêm node</button>
+        <button id="exportPDFBtn">Xuất PDF</button>
+        <div id="mindmapArea" style="width:100%;height:70vh;position:relative;background:#fafaff; border:1px solid #ccc;overflow:auto;">
+            <svg id="mindmapLines" width="100%" height="100%" style="position:absolute;top:0;left:0;z-index:0"></svg>
+            <div id="nodesContainer" style="position:relative;z-index:1"></div>
+        </div>
+        <small>Kéo thả node, click node để chọn, click 2 node để nối.</small>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+    <script>
+      fetch('footer.html').then(res => res.text()).then(data => document.getElementById('footer').innerHTML = data);
+    </script>
+
+    <script src="main.js"></script>
+</body>
+</html>
