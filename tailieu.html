@@ -6,7 +6,7 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
-    :root { --main: #185adb; --bg1: #eaf3ff; }
+    :root { --main: #185adb; }
 
     html, body {
       height: 100%;
@@ -15,18 +15,11 @@
     body {
       min-height: 100vh;
       font-family: 'Montserrat', Arial, sans-serif;
-      /* Gradient nền xanh nhạt -> xanh đậm */
-      background: linear-gradient(120deg, #eaf3ff 0%, #a0bfff 100%);
+      /* Nền xanh đen kiểu night sky */
+      background: radial-gradient(ellipse at 60% 40%, #233d61 0%, #0a1931 100%);
       display: flex; flex-direction: column;
       position: relative;
       overflow-x: hidden;
-    }
-    /* Thêm 1 lớp overlay mờ nhẹ (nếu thích) */
-    #bg-overlay {
-      position: fixed; left:0; top:0; width:100vw; height:100vh;
-      pointer-events: none; z-index: 1;
-      background: radial-gradient(circle at 60% 30%, #ffffff50 0%, #f0f6ff00 80%);
-      opacity: 0.66;
     }
     main {
       flex: 1 0 auto;
@@ -36,7 +29,6 @@
       z-index: 2;
     }
 
-    /* Nền động (canvas sao rơi) */
     #star-canvas {
       position: fixed;
       left: 0; top: 0;
@@ -52,7 +44,7 @@
       margin-left: -60px; margin-top: -60px;
       pointer-events: none;
       border-radius: 50%;
-      background: radial-gradient(circle, #99cbff77 0%, #fff0 80%);
+      background: radial-gradient(circle, #86bcff44 0%, #fff0 80%);
       mix-blend-mode: lighten;
       z-index: 10;
       transition: background 0.22s;
@@ -60,9 +52,9 @@
 
     .mini-header {
       display: flex; align-items: center;
-      background: #fff; box-shadow: 0 1px 8px #185adb09;
+      background: #192945d5; box-shadow: 0 1px 8px #185adb09;
       height: 47px; min-height: 40px; padding: 0 15px 0 7px;
-      border-bottom: 1.2px solid #e3e9f7;
+      border-bottom: 1.2px solid #233d61;
       position: sticky; top: 0; left: 0; right: 0; z-index: 20;
       gap: 14px;
     }
@@ -72,31 +64,31 @@
       cursor: pointer; border-radius:50%; width: 33px; height: 33px;
       margin-right: 7px; transition: background 0.14s;
     }
-    .home-btn:hover {background: #eaf3ff;}
+    .home-btn:hover {background: #253d62;}
     .home-btn img {width:21px;height:21px;}
-    .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
+    .mini-title {font-weight:700; font-size:1.07rem; color:#63aaff;}
 
     .doc-main {
       position: relative;
       z-index: 2;
       max-width: 430px;
       margin: 80px auto 60px auto;
-      background: rgba(255,255,255,0.97);
+      background: rgba(18,32,67,0.96);
       border-radius: 26px;
-      box-shadow: 0 6px 32px 0 #185adb1c, 0 1px 4px #185adb09;
+      box-shadow: 0 6px 32px 0 #12204385, 0 1px 4px #185adb09;
       padding: 38px 28px 34px 28px;
       display: flex; flex-direction: column; align-items: center;
       animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(2.5px);
     }
     .doc-title {
       font-size: 2.0rem;
       font-weight: 800;
-      color: #185adb;
+      color: #63aaff;
       margin-bottom: 34px;
       letter-spacing: 1.2px;
       text-align: center;
-      text-shadow: 0 2px 6px #185adb14;
+      text-shadow: 0 2px 12px #185adb34;
       animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
     }
     @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
@@ -114,8 +106,8 @@
       color: #fff;
       cursor: pointer;
       width: 100%;
-      background: linear-gradient(92deg, #4d82f4 15%, #00c9b6 85%);
-      box-shadow: 0 4px 18px #185adb24, 0 1.5px 7px #119caa17;
+      background: linear-gradient(92deg, #3864e6 15%, #2fc2ea 85%);
+      box-shadow: 0 4px 18px #13204334, 0 1.5px 7px #119caa17;
       text-decoration: none;
       transition: 
         transform 0.18s cubic-bezier(.59,1.4,.73,.96), 
@@ -131,9 +123,9 @@
     .doc-btn:nth-child(2) {animation-delay: .44s;}
     .doc-btn:nth-child(3) {animation-delay: .67s;}
     @keyframes fadebtn {from{opacity:0;transform:translateY(32px) scale(.97);} to{opacity:1;transform:none;}}
-    .doc-btn.epu { background: linear-gradient(90deg, #3468ee 18%, #46c9e0 100%);}
-    .doc-btn.english { background: linear-gradient(90deg, #fca53b 18%, #ff5c85 90%);}
-    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #23bfae 100%);}
+    .doc-btn.epu { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%);}
+    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%);}
+    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%);}
     .doc-btn .icon {
       margin-right: 10px; font-size: 1.35em;
       filter: drop-shadow(0 1px 4px #185adb23);
@@ -141,8 +133,8 @@
     }
     .doc-btn:hover, .doc-btn:focus {
       transform: scale(1.045) translateY(-2px) !important;
-      filter: brightness(1.11) drop-shadow(0 8px 20px #5adad544);
-      box-shadow: 0 14px 36px #185adb26, 0 2.5px 8px #23bfae11;
+      filter: brightness(1.13) drop-shadow(0 8px 20px #6dcfff44);
+      box-shadow: 0 14px 36px #263d63bb, 0 2.5px 8px #23bfae11;
       z-index: 2;
       outline: none;
     }
@@ -157,8 +149,8 @@
     }
 
     footer {
-      background: #132043;
-      color: #a5c4fa;
+      background: #122043;
+      color: #8ebeff;
       text-align: center;
       padding: 26px 10px 16px 10px;
       font-size: 1.08rem;
@@ -173,9 +165,8 @@
   </style>
 </head>
 <body>
-  <!-- Nền hiệu ứng động -->
+  <!-- Hiệu ứng nền động -->
   <canvas id="star-canvas"></canvas>
-  <div id="bg-overlay"></div>
   <div id="mouse-light"></div>
   <header class="mini-header">
     <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
@@ -202,61 +193,115 @@
   </main>
   <footer id="footer"></footer>
   <script>
-    // Hiệu ứng nền sao rơi màu trắng-xanh nhạt
-// Hiệu ứng nền sao rơi màu trắng + glow xanh cyan sáng
-const canvas = document.getElementById('star-canvas');
-const ctx = canvas.getContext('2d');
-let stars = [];
-let w = window.innerWidth, h = window.innerHeight;
+    // Hiệu ứng nền sao rơi và sao băng
+    const canvas = document.getElementById('star-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let shootingStars = [];
+    let w = window.innerWidth, h = window.innerHeight;
 
-function resize() {
-  w = window.innerWidth;
-  h = window.innerHeight;
-  canvas.width = w;
-  canvas.height = h;
-  createStars(w > 700 ? 160 : 60);
-}
-window.addEventListener('resize', resize);
-
-function randomStar() {
-  return {
-    x: Math.random() * w,
-    y: Math.random() * h,
-    r: Math.random() * 2.2 + 0.7,
-    s: Math.random() * 0.9 + 0.15,
-    a: Math.random() * 0.5 + 0.45 // Alpha/opacity
-  }
-}
-
-function createStars(count) {
-  stars = [];
-  for(let i=0; i<count; i++) stars.push(randomStar());
-}
-createStars(w > 700 ? 160 : 60);
-
-function animateStars() {
-  ctx.clearRect(0, 0, w, h);
-  for(let s of stars) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-    ctx.globalAlpha = s.a;
-    ctx.fillStyle = "#fff";
-    ctx.shadowBlur = 15 + Math.random()*10;
-    ctx.shadowColor = "#7ddaff";
-    ctx.fill();
-    ctx.restore();
-    s.x += s.s * 0.5;
-    s.y += s.s * 0.23;
-    if (s.x > w || s.y > h) {
-      Object.assign(s, randomStar());
-      if (Math.random() > 0.5) s.x = 0;
-      else s.y = 0;
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+      createStars(w > 900 ? 140 : 70);
+      createShootingStars(w > 900 ? 5 : 2);
     }
-  }
-  requestAnimationFrame(animateStars);
-}
-animateStars();
+    window.addEventListener('resize', resize);
+
+    function randomStar() {
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.3 + 0.3,
+        o: Math.random() * 0.5 + 0.4,
+        speed: Math.random() * 0.08 + 0.04,
+      }
+    }
+
+    function createStars(count) {
+      stars = [];
+      for(let i=0; i<count; i++) stars.push(randomStar());
+    }
+    createStars(w > 900 ? 140 : 70);
+
+    // Shooting star object
+    function randomShootingStar() {
+      const side = Math.random();
+      // Xuất phát từ top hoặc 2 bên
+      let x, y, vx, vy;
+      if (side < 0.5) {
+        x = Math.random() * w;
+        y = -50;
+        vx = Math.random() * 3 + 4;
+        vy = Math.random() * 2 + 3.5;
+      } else {
+        x = -60;
+        y = Math.random() * h * 0.5;
+        vx = Math.random() * 5 + 3;
+        vy = Math.random() * 2 + 2.5;
+      }
+      return {
+        x, y,
+        vx,
+        vy,
+        len: Math.random() * 110 + 80,
+        life: 0,
+        maxLife: Math.random() * 15 + 14,
+        alpha: Math.random() * 0.5 + 0.35
+      }
+    }
+
+    function createShootingStars(count) {
+      shootingStars = [];
+      for(let i=0; i<count; i++) shootingStars.push(randomShootingStar());
+    }
+    createShootingStars(w > 900 ? 5 : 2);
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      // Sao tĩnh
+      for(let s of stars) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+        ctx.globalAlpha = s.o;
+        ctx.fillStyle = "#fff";
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "#96e0ff";
+        ctx.fill();
+        ctx.restore();
+        s.x += s.speed * 0.6;
+        if (s.x > w) s.x = 0;
+      }
+
+      // Sao băng
+      for (let star of shootingStars) {
+        ctx.save();
+        ctx.globalAlpha = star.alpha * (1 - star.life / star.maxLife);
+        ctx.strokeStyle = "white";
+        ctx.shadowColor = "#b9eafe";
+        ctx.shadowBlur = 12;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(star.x, star.y);
+        ctx.lineTo(star.x - star.vx * star.len, star.y - star.vy * star.len);
+        ctx.stroke();
+        ctx.restore();
+
+        star.x += star.vx;
+        star.y += star.vy;
+        star.life++;
+        if (star.life > star.maxLife || star.x > w + 150 || star.y > h + 100) {
+          // Reset sao băng
+          Object.assign(star, randomShootingStar());
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
 
     // Mouse light effect
     const mouseLight = document.getElementById('mouse-light');
