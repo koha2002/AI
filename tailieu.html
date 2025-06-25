@@ -3,46 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>Tài liệu học tập</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;500;400&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
-    /* Hiệu ứng nền gradient động */
+    :root { --main: #185adb; --bg1: #f4f9ff; }
+    html, body { min-height: 100%; height: 100%; }
     body {
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      background: var(--bg1);
+      margin: 0; padding: 0;
       min-height: 100vh;
+      font-family: 'Montserrat', Arial, sans-serif;
+      display: flex; flex-direction: column;
+      box-sizing: border-box;
       position: relative;
-      background: linear-gradient(120deg, #eaf0ff 0%, #f8fafb 100%);
       overflow-x: hidden;
     }
-    .bg-animated {
-      position: fixed;
-      left: -60vw; top: -40vh;
-      width: 180vw; height: 140vh;
-      z-index: 0;
-      background: radial-gradient(circle at 20% 30%, #bfd8ffcc 0%, #e1ecff77 55%, transparent 90%);
-      animation: bg-move 10s ease-in-out infinite alternate;
-      pointer-events: none;
+    /* Header mini copy từ trang chat */
+    .mini-header {
+      display: flex; align-items: center;
+      background: #fff; box-shadow: 0 1px 8px #185adb09;
+      height: 47px; min-height: 40px; padding: 0 15px 0 7px;
+      border-bottom: 1.2px solid #e3e9f7;
+      position: sticky; top: 0; left: 0; right: 0; z-index: 30;
+      gap: 14px;
     }
-    @keyframes bg-move {
-      from { transform: translateY(0) scale(1); }
-      to { transform: translateY(30px) scale(1.04); }
+    .home-btn {
+      background: none; border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border-radius:50%; width: 33px; height: 33px;
+      margin-right: 7px; transition: background 0.14s;
     }
+    .home-btn:hover {background: #eaf3ff;}
+    .home-btn img {width:21px;height:21px;}
+    .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
 
+    /* Giao diện tài liệu */
     .doc-main {
       position: relative;
       z-index: 1;
-      max-width: 440px;
+      max-width: 430px;
       margin: 68px auto 60px auto;
       background: #fff;
       border-radius: 26px;
       box-shadow: 0 6px 32px 0 #185adb1c, 0 1px 4px #185adb09;
       padding: 38px 28px 34px 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      backdrop-filter: blur(0.5px);
+      display: flex; flex-direction: column; align-items: center;
+      animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
     }
     .doc-title {
       font-size: 2.0rem;
@@ -55,13 +61,8 @@
       animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
     }
     @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
-
     .doc-btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      width: 100%;
-      margin-top: 8px;
+      display: flex; flex-direction: column; gap: 28px; width: 100%; margin-top: 8px;
     }
     .doc-btn {
       display: flex; align-items: center; justify-content: center;
@@ -110,6 +111,18 @@
       transform: scale(0.96) translateY(1px) !important;
       filter: brightness(0.97);
     }
+    /* Footer copy từ trang chat */
+    .footer {
+      width: 100%; background: #fff;
+      border-top: 1.2px solid #e3e9f7;
+      box-shadow: 0 -2px 8px #185adb09;
+      padding: 16px 0 14px 0;
+      text-align: center;
+      font-size: 0.99rem;
+      color: #888;
+      margin-top: auto;
+      z-index: 20;
+    }
     @media (max-width: 600px) {
       .doc-main { padding: 10px 3px 25px 3px; max-width:98vw; }
       .doc-title { font-size: 1.22rem; }
@@ -118,24 +131,33 @@
   </style>
 </head>
 <body>
-  <div class="bg-animated"></div>
-  <!-- HEADER của bạn sẽ được nhúng ở đây -->
-
-  <div class="doc-main">
-    <div class="doc-title">Tài liệu học tập</div>
-    <div class="doc-btn-group">
-      <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EiVg0xnltrpModJPUdTCcOEBsUtIjA1haF4Jhb_Yv83mQA?e=ea78Ww" 
-        target="_blank" class="doc-btn epu">
-        <span class="icon">📚</span> Tài liệu EPU
-      </a>
-      <a href="https://your-link-tieng-anh" target="_blank" class="doc-btn english">
-        <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
-      </a>
-      <a href="https://your-link-tmu" target="_blank" class="doc-btn tmu">
-        <span class="icon">🏛️</span> Tài liệu TMU
-      </a>
+  <!-- Header copy y nguyên từ trang chat -->
+  <header class="mini-header">
+    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
+      <img src="logo.png" alt="Trang chủ">
+    </button>
+    <span class="mini-title">Tra Cứu Học Thuật & AI</span>
+  </header>
+  <main>
+    <div class="doc-main">
+      <div class="doc-title">Tài liệu học tập</div>
+      <div class="doc-btn-group">
+        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EiVg0xnltrpModJPUdTCcOEBsUtIjA1haF4Jhb_Yv83mQA?e=ea78Ww" 
+          target="_blank" class="doc-btn epu">
+          <span class="icon">📚</span> Tài liệu EPU
+        </a>
+        <a href="https://your-link-tieng-anh" target="_blank" class="doc-btn english">
+          <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
+        </a>
+        <a href="https://your-link-tmu" target="_blank" class="doc-btn tmu">
+          <span class="icon">🏛️</span> Tài liệu TMU
+        </a>
+      </div>
     </div>
-  </div>
-  <!-- FOOTER của bạn sẽ được nhúng ở đây -->
+  </main>
+  <!-- Footer copy y nguyên từ trang chat -->
+  <footer class="footer">
+    &copy; 2025 KoHa. All rights reserved. | Liên hệ: <a href="mailto:khanhhoa2002.hh@gmail.com">khanhhoa2002.hh@gmail.com</a>
+  </footer>
 </body>
 </html>
