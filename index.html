@@ -9,106 +9,148 @@
     :root {
       --main: #185adb;
       --sub: #e5eaff;
-      --bg: #f5f8ff;
-      --menu: #fff;
-      --shadow: 0 8px 32px 0 #0002;
-      --radius: 16px;
-      --gradient: linear-gradient(120deg, #185adb 0%, #0a1931 100%);
+      --bg1: #f5f8ff;
+      --bg2: #e2ebfa;
+      --radius: 18px;
+      --shadow: 0 8px 32px 0 #1d2b4420;
+      --gradient: linear-gradient(110deg, #185adb 0%, #0a1931 100%);
+      --card-gradient: linear-gradient(145deg, #ffffff 65%, #e8f0ff 100%);
+      --border: #e3e9fd;
     }
     body {
       font-family: 'Montserrat', Arial, sans-serif;
       margin: 0; padding: 0;
       min-height: 100vh;
-      background: var(--bg);
+      background: var(--bg1);
       color: #222;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      position: relative;
     }
+    /* Creative background left/right */
+    .bg-deco {
+      position: fixed; z-index: 0; pointer-events: none;
+      filter: blur(20px) brightness(1.07) opacity(0.85);
+    }
+    .bg-deco.left {
+      top: -60px; left: -120px; width: 350px; height: 680px;
+      background: radial-gradient(circle, #185adb66 0%, #f5f8ff00 90%);
+      border-radius: 56% 44% 46% 54% / 47% 42% 58% 53%;
+    }
+    .bg-deco.right {
+      bottom: -120px; right: -140px; width: 400px; height: 550px;
+      background: radial-gradient(circle, #b7d4fa66 0%, #f5f8ff00 100%);
+      border-radius: 56% 44% 54% 46% / 53% 47% 53% 47%;
+    }
+    /* Header & Menu */
     header {
       background: var(--gradient);
       color: #fff;
-      padding: 24px 0 10px 0;
+      padding: 30px 0 18px 0;
       text-align: center;
       box-shadow: var(--shadow);
+      position: relative;
+      z-index: 2;
+      border-radius: 0 0 34px 34px;
     }
-    header h1 {
-      margin: 0; font-size: 2.1rem; font-weight: 700; letter-spacing: 1px;
-      text-shadow: 0 3px 14px #0004;
+    .site-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 1.5px;
+      text-shadow: 0 4px 24px #0006;
     }
-    header .slogan {
+    .site-slogan {
+      font-size: 1.13rem;
       margin: 10px 0 0 0;
-      font-size: 1.12rem; color: #b7d2fa;
+      color: #b7d2fa;
       font-weight: 400;
     }
-    nav {
-      background: var(--menu);
+    .menu {
+      margin: 32px auto 0 auto;
       display: flex;
       justify-content: center;
-      gap: 30px;
-      box-shadow: 0 2px 12px #185adb22;
-      padding-bottom: 2px;
+      gap: 12px;
+      flex-wrap: wrap;
+      z-index: 3;
     }
-    nav a {
-      display: block;
-      color: var(--main);
+    .menu a {
+      display: inline-block;
+      color: #fff;
+      background: #185adb33;
       text-decoration: none;
       font-weight: 600;
-      font-size: 1.05rem;
-      padding: 12px 18px;
-      border-radius: var(--radius) var(--radius) 0 0;
-      transition: background 0.2s, color 0.2s;
+      font-size: 1.07rem;
+      padding: 10px 24px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.19s;
     }
-    nav a.active, nav a:hover {
-      background: var(--main);
-      color: #fff;
+    .menu a.active, .menu a:hover {
+      background: #fff;
+      color: #185adb;
+      box-shadow: 0 3px 16px 0 #185adb33;
     }
     main {
-      flex: 1;
-      max-width: 1050px;
-      margin: 46px auto 0 auto;
-      padding: 0 12px;
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 14px 12px 14px;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .intro {
+      font-size: 1.19rem; color: #185adb; text-align: center; margin-bottom: 24px; font-weight:600;
+      letter-spacing: .2px;
     }
     .dashboard {
+      width: 100%;
       display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-      gap: 28px;
-      margin-top: 16px;
+      grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
+      gap: 32px;
+      margin: 0 auto;
+      z-index: 2;
     }
     .feature {
-      background: #fff;
+      background: var(--card-gradient);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px 22px 22px 22px;
+      box-shadow: 0 2px 16px 0 #185adb1b;
+      padding: 32px 20px 22px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      transition: transform .2s, box-shadow .2s;
+      transition: transform .22s, box-shadow .22s;
       cursor: pointer;
-      border: 2px solid transparent;
+      border: 2px solid var(--border);
       text-align: center;
       text-decoration: none !important;
+      position: relative;
+      overflow: hidden;
     }
     .feature:hover {
-      transform: translateY(-6px) scale(1.025);
-      box-shadow: 0 8px 38px 0 #185adb33;
-      border: 2px solid var(--main);
+      transform: translateY(-7px) scale(1.032);
+      box-shadow: 0 10px 32px 0 #185adb38;
+      border: 2.5px solid #185adb;
+      background: #f7fbff;
     }
     .feature-img {
-      width: 64px; height: 64px; object-fit: cover;
+      width: 66px; height: 66px; object-fit: cover;
       border-radius: 50%;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       background: #f0f5ff;
       box-shadow: 0 2px 8px #185adb22;
       border: 2px solid #e4ebfd;
-      transition: box-shadow 0.2s;
+      transition: box-shadow 0.22s;
+      background-color: #fff;
     }
     .feature-title {
       font-weight: 700;
-      font-size: 1.13rem;
-      margin-bottom: 8px;
+      font-size: 1.15rem;
+      margin-bottom: 9px;
       color: #185adb;
+      letter-spacing: .1px;
     }
     .feature-desc {
       font-size: .98rem;
@@ -120,40 +162,45 @@
       background: #132043;
       color: #a5c4fa;
       text-align: center;
-      padding: 18px 10px 13px 10px;
-      font-size: 1.05rem;
-      margin-top: 28px;
+      padding: 22px 10px 16px 10px;
+      font-size: 1.08rem;
+      margin-top: 38px;
+      border-radius: 22px 22px 0 0;
+      letter-spacing: .2px;
     }
     /* Responsive */
-    @media (max-width:800px) {
-      .dashboard { grid-template-columns: 1fr; margin-top: 18px; }
-      .feature { padding: 20px 10px 14px 10px;}
+    @media (max-width:900px) {
+      .dashboard { grid-template-columns: 1fr 1fr;}
     }
-    @media (max-width:500px) {
-      header h1 { font-size: 1.15rem;}
-      .feature { padding: 13px 2vw 8px 2vw;}
-    }
-    .star-canvas {
-      position: fixed; left:0; top:0; z-index:0; pointer-events:none; width:100vw; height:100vh;
+    @media (max-width:650px) {
+      header {padding:18px 0 6px 0;}
+      .site-title {font-size: 1.25rem;}
+      .dashboard {grid-template-columns: 1fr;}
+      .feature {padding: 16px 3vw 11px 3vw;}
+      .menu {gap: 7px;}
     }
   </style>
 </head>
 <body>
-  <canvas class="star-canvas"></canvas>
+  <!-- Background sáng tạo hai bên -->
+  <div class="bg-deco left"></div>
+  <div class="bg-deco right"></div>
+  <!-- Header & Menu -->
   <header>
-    <h1>Tra Cứu Học Thuật & AI</h1>
-    <div class="slogan">Nền tảng học tập & trợ lý AI – Dễ dàng, hiệu quả, thông minh!</div>
+    <div class="site-title">Tra Cứu Học Thuật & AI</div>
+    <div class="site-slogan">Nền tảng học tập & trợ lý AI – Dễ dàng, hiệu quả, thông minh!</div>
+    <nav class="menu">
+      <a href="index.html" class="active">Trang chủ</a>
+      <a href="tailieu.html">Tài liệu học tập</a>
+      <a href="chat-ai.html">Chat với AI</a>
+      <a href="mindmap.html">Tạo mindmap</a>
+      <a href="y-tuong.html">Gợi ý ý tưởng</a>
+      <a href="viet-lai.html">Viết lại nội dung</a>
+      <a href="tu-moi.html">Học từ mới</a>
+    </nav>
   </header>
-  <nav>
-    <a href="index.html" class="active">Trang chủ</a>
-    <a href="tailieu.html">Tài liệu học tập</a>
-    <a href="chat-ai.html">Chat với AI</a>
-    <a href="mindmap.html">Tạo mindmap</a>
-    <a href="y-tuong.html">Gợi ý ý tưởng</a>
-    <a href="viet-lai.html">Viết lại nội dung</a>
-  </nav>
   <main>
-    <div style="font-size:1.13rem; color:#185adb; text-align:center; margin-bottom: 18px; font-weight:600;">
+    <div class="intro">
       Chào mừng bạn đến với nền tảng học tập tích hợp AI hỗ trợ – Hãy chọn chức năng bạn cần!
     </div>
     <div class="dashboard">
@@ -163,7 +210,7 @@
         <div class="feature-desc">Tra cứu, hỏi đáp mọi lĩnh vực học tập cùng trợ lý AI.</div>
       </a>
       <a class="feature" href="tailieu.html">
-        <img class="feature-img" src="https://cdn-icons-png.flaticon.com/512/281/281760.png" alt="Tài liệu">
+        <img class="feature-img" src="https://cdn-icons-png.flaticon.com/512/281/281760.png" alt="Tài liệu học tập">
         <div class="feature-title">Tài liệu học tập</div>
         <div class="feature-desc">Cung cấp tài liệu PDF, slide, đề cương, sách tham khảo miễn phí.</div>
       </a>
@@ -182,62 +229,15 @@
         <div class="feature-title">Viết lại nội dung</div>
         <div class="feature-desc">Nhờ AI diễn đạt lại văn bản, tóm tắt, tăng sự sáng tạo.</div>
       </a>
+      <a class="feature" href="tu-moi.html">
+        <img class="feature-img" src="38d89319-3315-485d-b765-f9d82994e432.png" alt="Học từ mới">
+        <div class="feature-title">Học từ mới</div>
+        <div class="feature-desc">Luyện tập, ghi nhớ và tra cứu từ mới mỗi ngày cùng các công cụ flashcard/AI.</div>
+      </a>
     </div>
   </main>
   <footer>
     &copy; 2025 Tra Cứu Học Thuật & AI &bull; Thiết kế bởi KoHa
   </footer>
-  <script>
-    // Hiệu ứng sao rơi
-    const canvas = document.querySelector('.star-canvas');
-    const ctx = canvas.getContext('2d');
-    let w = window.innerWidth, h = window.innerHeight;
-    canvas.width = w; canvas.height = h;
-    window.addEventListener('resize', ()=>{w=window.innerWidth;h=window.innerHeight;canvas.width=w;canvas.height=h;});
-    let stars = [];
-    function newStar() {
-      let speed = 3 + Math.random() * 2.5;
-      return {
-        x: Math.random() * w,
-        y: -20,
-        l: 90 + Math.random()*70,
-        xs: speed,
-        ys: speed * (0.3 + Math.random()*0.4),
-        opacity: 0.55 + Math.random()*0.3,
-        size: 1 + Math.random()*1.6
-      };
-    }
-    function drawStars() {
-      ctx.clearRect(0,0,w,h);
-      for (let s of stars) {
-        ctx.save();
-        ctx.globalAlpha = s.opacity;
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = s.size;
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(s.x - s.l, s.y - s.l * 0.3);
-        ctx.shadowColor = '#fff';
-        ctx.shadowBlur = 7;
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-    function updateStars() {
-      for (let i=0;i<stars.length;i++) {
-        stars[i].x += stars[i].xs;
-        stars[i].y += stars[i].ys;
-        stars[i].opacity -= 0.003;
-        if (stars[i].y > h+30 || stars[i].opacity < 0) stars.splice(i,1), i--;
-      }
-      if (Math.random() < 0.09) stars.push(newStar());
-    }
-    function animate() {
-      updateStars();
-      drawStars();
-      requestAnimationFrame(animate);
-    }
-    animate();
-  </script>
 </body>
 </html>
