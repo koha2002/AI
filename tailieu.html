@@ -24,7 +24,7 @@
       min-height: 70vh;
       display: flex; flex-direction: column;
     }
-    /* Header mini (giữ nguyên) */
+    /* Header mini */
     .mini-header {
       display: flex; align-items: center;
       background: #fff; box-shadow: 0 1px 8px #185adb09;
@@ -115,18 +115,6 @@
       transform: scale(0.96) translateY(1px) !important;
       filter: brightness(0.97);
     }
-    /* Footer (giống chat, bạn có thể sửa lại text nếu muốn) */
-    .footer {
-      width: 100%; background: #fff;
-      border-top: 1.2px solid #e3e9f7;
-      box-shadow: 0 -2px 8px #185adb09;
-      padding: 16px 0 14px 0;
-      text-align: center;
-      font-size: 0.99rem;
-      color: #888;
-      margin-top: auto;
-      z-index: 20;
-    }
     @media (max-width: 600px) {
       .doc-main { padding: 10px 3px 25px 3px; max-width:98vw; }
       .doc-title { font-size: 1.22rem; }
@@ -135,7 +123,7 @@
   </style>
 </head>
 <body>
-  <!-- Header giống trang chat -->
+  <!-- Header copy từ chat -->
   <header class="mini-header">
     <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
       <img src="logo.png" alt="Trang chủ">
@@ -159,9 +147,12 @@
       </div>
     </div>
   </main>
-  <!-- Footer giống chat -->
-  <footer class="footer">
-    &copy; 2025 KoHa. All rights reserved. | Liên hệ: <a href="mailto:khanhhoa2002.hh@gmail.com">khanhhoa2002.hh@gmail.com</a>
-  </footer>
+  <!-- Footer NHÚNG TỪ FILE, không code cứng! -->
+  <footer id="footer"></footer>
+  <script>
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
+  </script>
 </body>
 </html>
