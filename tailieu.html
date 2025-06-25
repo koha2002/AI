@@ -1,118 +1,141 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Tài liệu học tập</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            background: linear-gradient(120deg,#f0f4fc 0%,#eaf0ff 100%);
-            min-height: 100vh;
-        }
-        .doc-main {
-            max-width: 550px;
-            margin: 54px auto 48px auto;
-            background: #fff;
-            border-radius: 28px;
-            box-shadow: 0 6px 32px rgba(30,60,130,0.10), 0 1.5px 6px rgba(10,60,180,0.05);
-            padding: 38px 30px 30px 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .doc-title {
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: #2a49b5;
-            margin-bottom: 30px;
-            text-align: center;
-            letter-spacing: 1.2px;
-        }
-        .doc-btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            width: 100%;
-        }
-        .doc-btn {
-            padding: 20px 0;
-            border: none;
-            border-radius: 18px;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #fff;
-            background: linear-gradient(92deg, #3468ee 30%, #46c9e0 100%);
-            box-shadow: 0 2px 10px rgba(30,100,220,0.08);
-            cursor: pointer;
-            transition: background 0.2s, transform 0.13s, box-shadow 0.18s;
-            outline: none;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-        .doc-btn:active {
-            transform: scale(0.98);
-        }
-        .doc-btn.epu {
-            background: linear-gradient(92deg, #3468ee 30%, #46c9e0 100%);
-        }
-        .doc-btn.english {
-            background: linear-gradient(92deg, #fc7425 30%, #fdb84a 100%);
-        }
-        .doc-btn.tmu {
-            background: linear-gradient(92deg, #34ca7a 10%, #23bfae 100%);
-        }
-        .doc-btn .icon {
-            margin-right: 18px;
-            vertical-align: middle;
-            font-size: 1.5em;
-        }
-        .doc-btn:hover {
-            filter: brightness(1.09);
-            box-shadow: 0 3px 20px rgba(35, 80, 210, 0.14);
-        }
-        @media (max-width: 600px) {
-            .doc-main { padding: 15px 3px 25px 3px; }
-            .doc-title { font-size: 1.35rem; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Tài liệu học tập</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;500;400&display=swap" rel="stylesheet">
+  <style>
+    /* Hiệu ứng nền gradient động */
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+      background: linear-gradient(120deg, #eaf0ff 0%, #f8fafb 100%);
+      overflow-x: hidden;
+    }
+    .bg-animated {
+      position: fixed;
+      left: -60vw; top: -40vh;
+      width: 180vw; height: 140vh;
+      z-index: 0;
+      background: radial-gradient(circle at 20% 30%, #bfd8ffcc 0%, #e1ecff77 55%, transparent 90%);
+      animation: bg-move 10s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes bg-move {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(30px) scale(1.04); }
+    }
+
+    .doc-main {
+      position: relative;
+      z-index: 1;
+      max-width: 440px;
+      margin: 68px auto 60px auto;
+      background: #fff;
+      border-radius: 26px;
+      box-shadow: 0 6px 32px 0 #185adb1c, 0 1px 4px #185adb09;
+      padding: 38px 28px 34px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(0.5px);
+    }
+    .doc-title {
+      font-size: 2.0rem;
+      font-weight: 800;
+      color: #185adb;
+      margin-bottom: 34px;
+      letter-spacing: 1.2px;
+      text-align: center;
+      text-shadow: 0 2px 6px #185adb14;
+      animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
+    }
+    @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+
+    .doc-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .doc-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px;
+      padding: 20px 0;
+      border: none;
+      border-radius: 17px;
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      width: 100%;
+      background: linear-gradient(92deg, #4d82f4 15%, #00c9b6 85%);
+      box-shadow: 0 4px 18px #185adb24, 0 1.5px 7px #119caa17;
+      text-decoration: none;
+      transition: 
+        transform 0.18s cubic-bezier(.59,1.4,.73,.96), 
+        box-shadow 0.18s, 
+        filter 0.17s;
+      will-change: transform;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadebtn 0.9s cubic-bezier(.32,1.28,.56,1.12) forwards;
+    }
+    .doc-btn:nth-child(1) {animation-delay: .2s;}
+    .doc-btn:nth-child(2) {animation-delay: .44s;}
+    .doc-btn:nth-child(3) {animation-delay: .67s;}
+    @keyframes fadebtn {from{opacity:0;transform:translateY(32px) scale(.97);} to{opacity:1;transform:none;}}
+
+    .doc-btn.epu { background: linear-gradient(90deg, #3468ee 18%, #46c9e0 100%);}
+    .doc-btn.english { background: linear-gradient(90deg, #fca53b 18%, #ff5c85 90%);}
+    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #23bfae 100%);}
+    .doc-btn .icon {
+      margin-right: 10px; font-size: 1.35em;
+      filter: drop-shadow(0 1px 4px #185adb23);
+      user-select: none;
+    }
+    .doc-btn:hover, .doc-btn:focus {
+      transform: scale(1.035) translateY(-2px) !important;
+      filter: brightness(1.08) drop-shadow(0 6px 16px #5adad544);
+      box-shadow: 0 9px 32px #185adb23, 0 2.5px 8px #23bfae11;
+      z-index: 2;
+    }
+    .doc-btn:active {
+      transform: scale(0.96) translateY(1px) !important;
+      filter: brightness(0.97);
+    }
+    @media (max-width: 600px) {
+      .doc-main { padding: 10px 3px 25px 3px; max-width:98vw; }
+      .doc-title { font-size: 1.22rem; }
+      .doc-btn { font-size: 1.05rem; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Header sẽ tự động nhúng từ mini-header.html -->
-    <div id="header"></div>
+  <div class="bg-animated"></div>
+  <!-- HEADER của bạn sẽ được nhúng ở đây -->
 
-    <div class="doc-main">
-        <div class="doc-title">Tài liệu học tập</div>
-        <div class="doc-btn-group">
-            <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EiVg0xnltrpModJPUdTCcOEBsUtIjA1haF4Jhb_Yv83mQA?e=ea78Ww" target="_blank" class="doc-btn epu">
-                <span class="icon">📚</span> Tài liệu EPU
-            </a>
-            <a href="https://your-link-tieng-anh" target="_blank" class="doc-btn english">
-                <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
-            </a>
-            <a href="https://your-link-tmu" target="_blank" class="doc-btn tmu">
-                <span class="icon">🏛️</span> Tài liệu TMU
-            </a>
-        </div>
+  <div class="doc-main">
+    <div class="doc-title">Tài liệu học tập</div>
+    <div class="doc-btn-group">
+      <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EiVg0xnltrpModJPUdTCcOEBsUtIjA1haF4Jhb_Yv83mQA?e=ea78Ww" 
+        target="_blank" class="doc-btn epu">
+        <span class="icon">📚</span> Tài liệu EPU
+      </a>
+      <a href="https://your-link-tieng-anh" target="_blank" class="doc-btn english">
+        <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
+      </a>
+      <a href="https://your-link-tmu" target="_blank" class="doc-btn tmu">
+        <span class="icon">🏛️</span> Tài liệu TMU
+      </a>
     </div>
-
-    <!-- Footer sẽ tự động nhúng từ footer.html -->
-    <div id="footer"></div>
-
-    <script>
-        // Nhúng header mini
-        fetch('mini-header.html')
-          .then(res => res.text())
-          .then(data => document.getElementById('header').innerHTML = data);
-
-        // Nhúng footer
-        fetch('footer.html')
-          .then(res => res.text())
-          .then(data => document.getElementById('footer').innerHTML = data);
-    </script>
+  </div>
+  <!-- FOOTER của bạn sẽ được nhúng ở đây -->
 </body>
 </html>
