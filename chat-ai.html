@@ -6,31 +6,151 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .tab-choice {
+      display: flex; justify-content: center; gap: 14px; margin: 0 0 26px 0;
+    }
+    .tab-btn {
+      background: #f5f8ff; color: #185adb; font-weight: 700; border: 2px solid #cbe1ff;
+      padding: 12px 30px; border-radius: 15px 15px 0 0; font-size: 1.05rem;
+      cursor: pointer; transition: all .18s;
+      box-shadow: 0 2px 10px #185adb09;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: #185adb; color: #fff; border-color: #185adb;
+      box-shadow: 0 6px 22px #185adb22;
+      transform: translateY(-2px) scale(1.02);
+    }
+    .tab-content { background:#fff; border-radius:0 0 18px 18px; box-shadow:0 2px 18px #185adb19; padding:32px 16px 26px 16px; max-width:400px; margin:auto; min-height:300px;}
+    .apikey-box {margin-bottom:14px;text-align:center;}
+    .apikey-box input {padding:9px 10px;border:1.4px solid #b7caff;border-radius:9px;min-width:210px;}
+    .apikey-box label {font-size:1rem; color:#185adb; margin-bottom:7px; display:block;}
+    #messages {min-height:90px; margin-bottom:12px;font-size:1.08rem;}
+    #userMsg {width:72%;padding:9px;border-radius:7px;border:1px solid #ccc;}
+    .ai-btn {padding:9px 18px;border:none;border-radius:7px;background:#185adb;color:#fff;font-weight:600;}
+    .note-api {font-size:.95rem;color:#888;margin-bottom:6px;}
+    @media(max-width:520px){.tab-content{padding:16px 3vw;max-width:98vw;}}
+  </style>
 </head>
 <body>
-  <!-- Hiệu ứng nền, sao rơi -->
   <div class="bg-deco left"></div>
   <div class="bg-deco right"></div>
   <canvas class="star-canvas"></canvas>
-
   <div id="header"></div>
   <main>
-    <div class="intro" style="margin-bottom:26px;">
-      <img src="cc9d76f5-edac-47c3-b971-c0d6d027d729.png" style="width:68px;height:68px;border-radius:50%;background:#fff;margin-bottom:10px;box-shadow:0 2px 10px #185adb18;">
-      <div style="font-size:1.23rem;font-weight:700;color:#185adb;margin-bottom:10px;">Trợ lý AI hỗ trợ học tập</div>
-      <div style="font-size:1.09rem;color:#333;">Nhập câu hỏi hoặc chủ đề bạn muốn hỏi – AI sẽ trả lời nhanh chóng, chính xác và thân thiện.</div>
+    <div class="intro" style="margin-bottom:18px;">
+      <img src="icon-ai.png" style="width:62px;height:62px;border-radius:50%;background:#fff;margin-bottom:8px;box-shadow:0 2px 10px #185adb13;">
+      <div style="font-size:1.18rem;font-weight:700;color:#185adb;margin-bottom:6px;">Trợ lý AI hỗ trợ học tập</div>
+      <div style="font-size:1.07rem;color:#444;">Chọn chế độ chat bạn muốn!</div>
     </div>
-    <div style="display:flex;justify-content:center;">
-      <iframe
-        src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_"
-        width="350"
-        height="500"
-        style="border-radius:15px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 32px #185adb25;"
-        allow="clipboard-write"
-      ></iframe>
+    <div class="tab-choice">
+      <button class="tab-btn active" onclick="showTab('chatbase')">Chatbase</button>
+      <button class="tab-btn" onclick="showTab('gpt')">Chat GPT</button>
+      <button class="tab-btn" onclick="showTab('gemini')">Chat Gemini</button>
+    </div>
+    <!-- Chatbase iframe -->
+    <div class="tab-content" id="tab-chatbase">
+      <div style="text-align:center">
+        <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_" width="340" height="480"
+          style="border-radius:14px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 24px #185adb22;"
+          allow="clipboard-write"></iframe>
+      </div>
+    </div>
+    <!-- Chat GPT -->
+    <div class="tab-content" id="tab-gpt" style="display:none">
+      <div class="apikey-box">
+        <label for="gpt-key">Nhập OpenAI API Key của bạn:</label>
+        <input id="gpt-key" type="password" placeholder="sk-...">
+      </div>
+      <div class="note-api">API Key chỉ sử dụng trên trình duyệt của bạn, không lưu lại!</div>
+      <div id="messages-gpt"></div>
+      <input id="userMsg-gpt" type="text" placeholder="Nhập câu hỏi..." onkeydown="if(event.key==='Enter'){sendMsgGPT();}">
+      <button class="ai-btn" onclick="sendMsgGPT()">Gửi</button>
+    </div>
+    <!-- Chat Gemini -->
+    <div class="tab-content" id="tab-gemini" style="display:none">
+      <div class="apikey-box">
+        <label for="gemini-key">Nhập Google Gemini API Key của bạn:</label>
+        <input id="gemini-key" type="password" placeholder="AIza...">
+      </div>
+      <div class="note-api">API Key chỉ sử dụng trên trình duyệt của bạn, không lưu lại!</div>
+      <div id="messages-gemini"></div>
+      <input id="userMsg-gemini" type="text" placeholder="Nhập câu hỏi..." onkeydown="if(event.key==='Enter'){sendMsgGemini();}">
+      <button class="ai-btn" onclick="sendMsgGemini()">Gửi</button>
     </div>
   </main>
   <div id="footer"></div>
   <script src="main.js"></script>
+  <script>
+    // Tab switch
+    function showTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach((el, i) => {
+        el.classList.toggle('active', (tab === ['chatbase','gpt','gemini'][i]));
+      });
+      document.getElementById('tab-chatbase').style.display = tab === 'chatbase' ? 'block' : 'none';
+      document.getElementById('tab-gpt').style.display = tab === 'gpt' ? 'block' : 'none';
+      document.getElementById('tab-gemini').style.display = tab === 'gemini' ? 'block' : 'none';
+    }
+
+    // Chat GPT (OpenAI API)
+    async function sendMsgGPT() {
+      let key = document.getElementById('gpt-key').value.trim();
+      let msg = document.getElementById('userMsg-gpt').value.trim();
+      let box = document.getElementById('messages-gpt');
+      if (!key || !msg) return;
+      box.innerHTML += `<b>Bạn:</b> ${msg}<br>`;
+      document.getElementById('userMsg-gpt').value = '';
+      box.innerHTML += `<b>GPT:</b> <i>Đang trả lời...</i><br>`;
+      try {
+        let res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {role:"system",content:"Bạn là trợ lý AI học tập, trả lời ngắn gọn, thân thiện."},
+              {role:"user",content: msg}
+            ]
+          })
+        });
+        let data = await res.json();
+        let reply = data.choices?.[0]?.message?.content || "Có lỗi xảy ra!";
+        box.innerHTML = box.innerHTML.replace('<b>GPT:</b> <i>Đang trả lời...</i><br>', `<b>GPT:</b> ${reply}<br>`);
+      } catch (e) {
+        box.innerHTML = box.innerHTML.replace('<b>GPT:</b> <i>Đang trả lời...</i><br>', `<b>GPT:</b> Lỗi gọi API!<br>`);
+      }
+    }
+
+    // Chat Gemini (Google Gemini API)
+    async function sendMsgGemini() {
+      let key = document.getElementById('gemini-key').value.trim();
+      let msg = document.getElementById('userMsg-gemini').value.trim();
+      let box = document.getElementById('messages-gemini');
+      if (!key || !msg) return;
+      box.innerHTML += `<b>Bạn:</b> ${msg}<br>`;
+      document.getElementById('userMsg-gemini').value = '';
+      box.innerHTML += `<b>Gemini:</b> <i>Đang trả lời...</i><br>`;
+      try {
+        let res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              contents: [{parts: [{text: msg}]}]
+            })
+          }
+        );
+        let data = await res.json();
+        let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Có lỗi xảy ra!";
+        box.innerHTML = box.innerHTML.replace('<b>Gemini:</b> <i>Đang trả lời...</i><br>', `<b>Gemini:</b> ${reply}<br>`);
+      } catch (e) {
+        box.innerHTML = box.innerHTML.replace('<b>Gemini:</b> <i>Đang trả lời...</i><br>', `<b>Gemini:</b> Lỗi gọi API!<br>`);
+      }
+    }
+  </script>
 </body>
 </html>
