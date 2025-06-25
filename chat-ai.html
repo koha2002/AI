@@ -14,13 +14,15 @@
       min-height: 100vh;
       font-family: 'Montserrat', Arial, sans-serif;
       display: flex; flex-direction: column;
+      min-height: 100vh;
+      height: 100vh;
+      box-sizing: border-box;
     }
     main {
       flex: 1 0 auto;
       width: 100vw;
-      min-height: 80vh;
+      min-height: 70vh;
       display: flex; flex-direction: column;
-      align-items: stretch; justify-content: flex-start;
     }
     /* Header mini */
     .mini-header {
@@ -40,7 +42,6 @@
     .home-btn:hover {background: #eaf3ff;}
     .home-btn img {width:21px;height:21px;}
     .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
-    /* Tab ngang */
     .mode-switcher {
       display: flex; gap: 0;
       border-bottom:1.2px solid #e3e9f7;
@@ -77,7 +78,19 @@
       background: none; box-shadow: none;
     }
     /* Nếu là iframe chatbase thì cho nó full ngang */
-    #chatbase-chat iframe {width:100vw !important; max-width:100vw !important;}
+    #chatbase-chat iframe {
+      width: 100vw !important;
+      min-width: 100vw !important;
+      max-width: 100vw !important;
+      min-height: 520px !important;
+      height: calc(100vh - 135px) !important;
+      max-height: calc(100vh - 75px) !important;
+      border-radius: 10px;
+      border: 1.5px solid #eee;
+      background: #fff;
+      box-shadow: 0 4px 16px #185adb0d;
+      display: block;
+    }
     .msg-row {display: flex;}
     .msg-bubble {
       max-width: 900px; min-width: 46px;
@@ -135,16 +148,17 @@
     .popup-api-box button.cancel {background:#e7eaf6;color:#185adb;}
     .popup-api-box button:active {background:#133b86;}
     .popup-api-box .popup-desc {font-size:.98rem;color:#888;margin:7px 0 16px 0;}
-    #footer { flex-shrink: 0; margin-top: 15px; padding-bottom: 5px;}
+    #footer { flex-shrink: 0; margin-top: 0; padding-bottom: 0;}
     @media (max-width:1100px){
       .msg-bubble, .msg-user .msg-bubble, .msg-ai .msg-bubble {max-width:99vw;margin-left:7vw;margin-right:7vw;}
       .chat-input-bar input{width:90vw;}
+      #chatbase-chat iframe {height:calc(100vh - 115px) !important;}
     }
     @media (max-width:650px){
       .mini-header{padding:0 5px;}
       .msg-bubble, .msg-user .msg-bubble, .msg-ai .msg-bubble {margin-left:2vw;margin-right:2vw;}
       .chat-input-bar input{width:99vw;max-width:99vw;font-size:1.03rem;}
-      #chatbase-chat iframe {width:99vw !important;}
+      #chatbase-chat iframe {height:calc(100vh - 90px) !important;}
     }
   </style>
 </head>
@@ -170,8 +184,7 @@
     <div class="chat-body">
       <div id="chatbase-chat" class="chat-messages" style="display:block;text-align:center;padding:0;">
         <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_"
-          width="100%" height="850"
-          style="border-radius:10px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 16px #185adb0d;"
+          width="100%" 
           allow="clipboard-write"></iframe>
       </div>
       <div id="gpt-chat" class="chat-messages" style="display:none;"></div>
@@ -187,10 +200,7 @@
       <button onclick="sendMsgGemini()"><span>&#10148;</span></button>
     </div>
   </main>
-  <footer style="width:100vw; border: none; background: none; margin:0; padding:0;">
-  <iframe src="footer.html" style="width:100vw; height:60px; border:none; background:none;" scrolling="no"></iframe>
-</footer>
-
+  <footer id="footer"></footer>
   <!-- Popup nhập API Key -->
   <div class="popup-api-bg" id="popup-api" style="display:none;">
     <div class="popup-api-box">
@@ -204,8 +214,10 @@
       </div>
     </div>
   </div>
-  <!-- JS giữ nguyên như bản trước (renderApiBtns, switchMode, ... ) -->
   <script>
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
     let chatMode = 'chatbase';
     function renderApiBtns(mode) {
       const group = document.getElementById('api-btns-group');
