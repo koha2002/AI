@@ -7,30 +7,56 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
     :root { --main: #185adb; --bg1: #f4f9ff; }
-    html, body { height: 100%; min-height: 100%; }
-    body {
-      background: var(--bg1);
+
+    html, body {
+      height: 100%;
       margin: 0; padding: 0;
+    }
+    body {
       min-height: 100vh;
       font-family: 'Montserrat', Arial, sans-serif;
+      background: var(--bg1);
       display: flex; flex-direction: column;
-      min-height: 100vh;
-      height: 100vh;
-      box-sizing: border-box;
+      position: relative;
+      overflow-x: hidden;
     }
     main {
       flex: 1 0 auto;
       width: 100vw;
       min-height: 70vh;
       display: flex; flex-direction: column;
+      z-index: 2;
     }
-    /* Header mini */
+
+    /* Nền động (canvas sao rơi) */
+    #star-canvas {
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Hiệu ứng tròn sáng theo chuột */
+    #mouse-light {
+      position: fixed;
+      top: 0; left: 0;
+      width: 120px; height: 120px;
+      margin-left: -60px; margin-top: -60px;
+      pointer-events: none;
+      border-radius: 50%;
+      background: radial-gradient(circle, #88c9ff55 0%, #fff0 80%);
+      mix-blend-mode: lighten;
+      z-index: 10;
+      transition: background 0.22s;
+    }
+
     .mini-header {
       display: flex; align-items: center;
       background: #fff; box-shadow: 0 1px 8px #185adb09;
       height: 47px; min-height: 40px; padding: 0 15px 0 7px;
       border-bottom: 1.2px solid #e3e9f7;
-      position: sticky; top: 0; left: 0; right: 0; z-index: 30;
+      position: sticky; top: 0; left: 0; right: 0; z-index: 20;
       gap: 14px;
     }
     .home-btn {
@@ -42,18 +68,19 @@
     .home-btn:hover {background: #eaf3ff;}
     .home-btn img {width:21px;height:21px;}
     .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
-    /* Box tài liệu */
+
     .doc-main {
       position: relative;
       z-index: 1;
       max-width: 430px;
-      margin: 68px auto 60px auto;
-      background: #fff;
+      margin: 80px auto 60px auto;
+      background: rgba(255,255,255,0.93);
       border-radius: 26px;
       box-shadow: 0 6px 32px 0 #185adb1c, 0 1px 4px #185adb09;
       padding: 38px 28px 34px 28px;
       display: flex; flex-direction: column; align-items: center;
       animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
+      backdrop-filter: blur(2px);
     }
     .doc-title {
       font-size: 2.0rem;
@@ -66,6 +93,7 @@
       animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
     }
     @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+
     .doc-btn-group {
       display: flex; flex-direction: column; gap: 28px; width: 100%; margin-top: 8px;
     }
@@ -106,10 +134,11 @@
       user-select: none;
     }
     .doc-btn:hover, .doc-btn:focus {
-      transform: scale(1.035) translateY(-2px) !important;
-      filter: brightness(1.08) drop-shadow(0 6px 16px #5adad544);
-      box-shadow: 0 9px 32px #185adb23, 0 2.5px 8px #23bfae11;
+      transform: scale(1.045) translateY(-2px) !important;
+      filter: brightness(1.11) drop-shadow(0 8px 20px #5adad544);
+      box-shadow: 0 14px 36px #185adb26, 0 2.5px 8px #23bfae11;
       z-index: 2;
+      outline: none;
     }
     .doc-btn:active {
       transform: scale(0.96) translateY(1px) !important;
@@ -120,10 +149,29 @@
       .doc-title { font-size: 1.22rem; }
       .doc-btn { font-size: 1.05rem; }
     }
+
+    footer {
+      background: #132043;
+      color: #a5c4fa;
+      text-align: center;
+      padding: 26px 10px 16px 10px;
+      font-size: 1.08rem;
+      margin-top: 40px;
+      border-radius: 22px 22px 0 0;
+      letter-spacing: .22px;
+      box-shadow: 0 -3px 22px #0a193112;
+      flex-shrink: 0;
+      z-index: 2;
+      position: relative;
+    }
   </style>
 </head>
 <body>
-  <!-- Header copy từ chat -->
+  <!-- Hiệu ứng nền động -->
+  <canvas id="star-canvas"></canvas>
+  <!-- Hiệu ứng sáng theo chuột -->
+  <div id="mouse-light"></div>
+  <!-- Header mini -->
   <header class="mini-header">
     <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
       <img src="logo.png" alt="Trang chủ">
@@ -147,9 +195,76 @@
       </div>
     </div>
   </main>
-  <!-- Footer NHÚNG TỪ FILE, không code cứng! -->
   <footer id="footer"></footer>
   <script>
+    // Hiệu ứng nền sao rơi
+    const canvas = document.getElementById('star-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let w = window.innerWidth, h = window.innerHeight;
+
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function randomStar() {
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.2 + 0.4,
+        s: Math.random() * 0.8 + 0.1,
+        o: Math.random() * 0.55 + 0.3
+      }
+    }
+
+    function createStars(count) {
+      stars = [];
+      for(let i=0; i<count; i++) stars.push(randomStar());
+    }
+    createStars(w > 700 ? 120 : 50);
+
+    function animateStars() {
+      ctx.clearRect(0, 0, w, h);
+      for(let s of stars) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(24,90,219,${s.o})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#b7d6ff";
+        ctx.fill();
+        ctx.closePath();
+        s.x += s.s * 0.8;
+        s.y += s.s * 0.38;
+        if (s.x > w || s.y > h) {
+          Object.assign(s, randomStar());
+          if (Math.random() > 0.5) s.x = 0;
+          else s.y = 0;
+        }
+      }
+      ctx.shadowBlur = 0;
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
+
+    // Mouse light effect
+    const mouseLight = document.getElementById('mouse-light');
+    document.addEventListener('mousemove', (e) => {
+      mouseLight.style.left = e.clientX + 'px';
+      mouseLight.style.top = e.clientY + 'px';
+    });
+    document.addEventListener('mouseleave', () => {
+      mouseLight.style.opacity = 0;
+    });
+    document.addEventListener('mouseenter', () => {
+      mouseLight.style.opacity = 1;
+    });
+
+    // Footer nhúng từ file
     fetch('footer.html')
       .then(r => r.text())
       .then(html => { document.getElementById('footer').innerHTML = html; });
