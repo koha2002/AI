@@ -7,14 +7,16 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
-    body {background:var(--bg1);}
+    body {background: var(--bg1);}
+    main {margin:0;padding:0;}
+    /* Chat khổng lồ chuẩn chatgpt */
     .chat-main-card {
       margin: 32px auto 32px auto;
-      max-width: 900px;
-      min-height: 650px;
+      max-width: 1100px; width: 98vw;
+      min-height: 700px;
       background: #fff;
-      border-radius: 26px;
-      box-shadow: 0 8px 48px #185adb22;
+      border-radius: 30px;
+      box-shadow: 0 8px 48px #185adb1c;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -22,11 +24,11 @@
     }
     .mini-title-bar {
       font-weight: 700; color: #185adb; background: transparent;
-      padding: 16px 0 0 0; text-align: left; font-size: 1.10rem;
-      letter-spacing: .2px; margin-left:38px; margin-bottom:3px;
-      display: flex; align-items: center; gap: 9px;
+      padding: 12px 0 0 0; text-align: left; font-size: 1.08rem;
+      letter-spacing: .2px; margin-left:38px; margin-bottom:2px;
+      display: flex; align-items: center; gap: 8px;
     }
-    .mini-title-bar .icon {width: 26px; height: 26px; border-radius: 50%; background: #eaf3ff;}
+    .mini-title-bar .icon {width: 24px; height: 24px; border-radius: 50%; background: #eaf3ff;}
     .api-btns-group {
       margin-left:auto; display:flex; gap:7px; font-size:0.95rem;
     }
@@ -52,26 +54,26 @@
     }
     .chat-body {
       flex: 1; padding: 0; overflow-y: auto; background: #f7faff;
-      border-radius: 0 0 26px 26px;
+      border-radius: 0 0 30px 30px;
       display: flex; flex-direction: column;
-      min-height: 380px;
+      min-height: 420px;
     }
     .chat-messages {
-      padding: 32px 44px 8px 44px;
+      padding: 36px 48px 8px 48px;
       overflow-y: auto; flex: 1;
-      min-height: 320px;
-      font-size: 1.08rem;
+      min-height: 340px;
+      font-size: 1.11rem;
       display: flex; flex-direction: column;
       gap: 7px;
     }
     .msg-row {display: flex;}
     .msg-bubble {
-      max-width: 72vw; min-width: 50px;
-      padding: 13px 17px;
+      max-width: 80vw; min-width: 50px;
+      padding: 13px 19px;
       border-radius: 16px;
       font-size: 1.13rem;
       line-height: 1.7;
-      box-shadow: 0 1px 8px #185adb0c;
+      box-shadow: 0 1px 8px #185adb0b;
       white-space: pre-line;
       margin-bottom: 3px;
       word-break: break-word;
@@ -89,17 +91,17 @@
     .chat-input-bar {
       display: flex; align-items: flex-end;
       gap: 13px; background: #f4f7fa;
-      padding: 20px 36px 28px 36px;
-      border-radius: 0 0 26px 26px;
-      border-top: 1.2px solid #e7f0ff;
+      padding: 24px 44px 32px 44px;
+      border-radius: 0 0 30px 30px;
+      border-top: 1.3px solid #e7f0ff;
       box-shadow: 0 0.5px 0 #e6eef9;
     }
     .chat-input-bar input {
-      flex: 1; font-size: 1.11rem; padding: 15px 16px; border-radius: 14px;
-      border: 1.5px solid #bdd1f6; outline:none; box-shadow:0 1.5px 8px #185adb09;
+      flex: 1; font-size: 1.15rem; padding: 16px 18px; border-radius: 16px;
+      border: 1.7px solid #bdd1f6; outline:none; box-shadow:0 1.5px 8px #185adb09;
       background: #fff; transition: border 0.16s;
     }
-    .chat-input-bar input:focus {border:1.5px solid #185adb;}
+    .chat-input-bar input:focus {border:1.7px solid #185adb;}
     .chat-input-bar button {
       padding: 0 0 0 0; border: none; background: none;
       width: 52px; height: 52px; border-radius: 50%;
@@ -121,21 +123,17 @@
     .popup-api-box .popup-desc {font-size:.98rem;color:#888;margin:7px 0 16px 0;}
     @media (max-width:1200px) {.chat-main-card{max-width:99vw;}}
     @media (max-width:750px) {
-      .chat-main-card {margin:9px 2vw; border-radius:18px;}
+      .chat-main-card {margin:9px 2vw; border-radius:17px;}
       .chat-messages {padding:13px 2vw 7px 2vw;}
-      .chat-input-bar {padding:7px 2vw 12px 2vw; border-radius:0 0 18px 18px;}
+      .chat-input-bar {padding:7px 2vw 14px 2vw; border-radius:0 0 17px 17px;}
       .mode-switcher{padding-left:0;}
     }
   </style>
 </head>
 <body>
-  <div class="bg-deco left"></div>
-  <div class="bg-deco right"></div>
-  <canvas class="star-canvas"></canvas>
-  <div id="header"></div>
+  <div id="mini-header"></div>
   <main>
     <div class="chat-main-card">
-      <!-- Mini title bar, nhỏ như ChatGPT (hoặc ẩn nếu thích) -->
       <div class="mini-title-bar">
         <img class="icon" src="icon-ai.png" alt="AI">
         <span>Trợ lý AI học tập</span>
@@ -147,18 +145,14 @@
         <button class="mode-btn" onclick="switchMode('gemini')">Chat Gemini</button>
       </div>
       <div class="chat-body">
-        <!-- Chatbase -->
         <div id="chatbase-chat" class="chat-messages" style="display:block;text-align:center;">
           <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_" width="98%" height="420"
             style="border-radius:13px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 16px #185adb17;"
             allow="clipboard-write"></iframe>
         </div>
-        <!-- GPT Chat -->
         <div id="gpt-chat" class="chat-messages" style="display:none;"></div>
-        <!-- Gemini Chat -->
         <div id="gemini-chat" class="chat-messages" style="display:none;"></div>
       </div>
-      <!-- Ô nhập chat (không dùng với Chatbase) -->
       <div class="chat-input-bar" id="chatbase-input" style="display:none;"></div>
       <div class="chat-input-bar" id="gpt-input" style="display:none;">
         <input id="userMsg-gpt" type="text" placeholder="Nhập câu hỏi..." autocomplete="off" onkeydown="if(event.key==='Enter'){sendMsgGPT();}">
@@ -170,7 +164,7 @@
       </div>
     </div>
   </main>
-  <!-- Popup nhập API Key như trước -->
+  <!-- Popup nhập API Key như các bản trước -->
   <div class="popup-api-bg" id="popup-api" style="display:none;">
     <div class="popup-api-box">
       <label id="popup-label"></label>
@@ -183,10 +177,10 @@
       </div>
     </div>
   </div>
-  <div id="footer"></div>
-  <script src="main.js"></script>
   <script>
-    // --- Mode và render nút Key/link Key đúng chế độ ---
+    // Import header nhỏ
+    fetch('mini-header.html').then(r=>r.text()).then(d=>{document.getElementById('mini-header').innerHTML=d});
+    // Tab/nút key
     let chatMode = 'chatbase';
     function renderApiBtns(mode) {
       const group = document.getElementById('api-btns-group');
