@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
     :root { --main: #185adb; --bg1: #f4f9ff; }
-    html, body { min-height: 100%; height: 100%; }
+    html, body { height: 100%; min-height: 100%; }
     body {
       background: var(--bg1);
       margin: 0; padding: 0;
@@ -17,22 +17,32 @@
       min-height: 100vh;
       height: 100vh;
       box-sizing: border-box;
-      position: relative;
-      overflow-x: hidden;
     }
-    /* Nền gradient động */
-    .bg-animated {
-      position: fixed; left: -60vw; top: -40vh; width: 180vw; height: 140vh;
-      z-index: 0;
-      background: radial-gradient(circle at 20% 30%, #bfd8ffcc 0%, #e1ecff77 55%, transparent 90%);
-      animation: bg-move 10s ease-in-out infinite alternate;
-      pointer-events: none;
+    main {
+      flex: 1 0 auto;
+      width: 100vw;
+      min-height: 70vh;
+      display: flex; flex-direction: column;
     }
-    @keyframes bg-move {
-      from { transform: translateY(0) scale(1); }
-      to { transform: translateY(30px) scale(1.04); }
+    /* Header mini (giữ nguyên) */
+    .mini-header {
+      display: flex; align-items: center;
+      background: #fff; box-shadow: 0 1px 8px #185adb09;
+      height: 47px; min-height: 40px; padding: 0 15px 0 7px;
+      border-bottom: 1.2px solid #e3e9f7;
+      position: sticky; top: 0; left: 0; right: 0; z-index: 30;
+      gap: 14px;
     }
-    /* Nội dung tài liệu */
+    .home-btn {
+      background: none; border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border-radius:50%; width: 33px; height: 33px;
+      margin-right: 7px; transition: background 0.14s;
+    }
+    .home-btn:hover {background: #eaf3ff;}
+    .home-btn img {width:21px;height:21px;}
+    .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
+    /* Box tài liệu */
     .doc-main {
       position: relative;
       z-index: 1;
@@ -43,7 +53,6 @@
       box-shadow: 0 6px 32px 0 #185adb1c, 0 1px 4px #185adb09;
       padding: 38px 28px 34px 28px;
       display: flex; flex-direction: column; align-items: center;
-      backdrop-filter: blur(0.5px);
       animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
     }
     .doc-title {
@@ -57,7 +66,6 @@
       animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
     }
     @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
-
     .doc-btn-group {
       display: flex; flex-direction: column; gap: 28px; width: 100%; margin-top: 8px;
     }
@@ -89,7 +97,6 @@
     .doc-btn:nth-child(2) {animation-delay: .44s;}
     .doc-btn:nth-child(3) {animation-delay: .67s;}
     @keyframes fadebtn {from{opacity:0;transform:translateY(32px) scale(.97);} to{opacity:1;transform:none;}}
-
     .doc-btn.epu { background: linear-gradient(90deg, #3468ee 18%, #46c9e0 100%);}
     .doc-btn.english { background: linear-gradient(90deg, #fca53b 18%, #ff5c85 90%);}
     .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #23bfae 100%);}
@@ -108,6 +115,18 @@
       transform: scale(0.96) translateY(1px) !important;
       filter: brightness(0.97);
     }
+    /* Footer (giống chat, bạn có thể sửa lại text nếu muốn) */
+    .footer {
+      width: 100%; background: #fff;
+      border-top: 1.2px solid #e3e9f7;
+      box-shadow: 0 -2px 8px #185adb09;
+      padding: 16px 0 14px 0;
+      text-align: center;
+      font-size: 0.99rem;
+      color: #888;
+      margin-top: auto;
+      z-index: 20;
+    }
     @media (max-width: 600px) {
       .doc-main { padding: 10px 3px 25px 3px; max-width:98vw; }
       .doc-title { font-size: 1.22rem; }
@@ -116,36 +135,33 @@
   </style>
 </head>
 <body>
-  <div class="bg-animated"></div>
-  <!-- Header sẽ tự động nhúng -->
-  <header id="header"></header>
-
-  <div class="doc-main">
-    <div class="doc-title">Tài liệu học tập</div>
-    <div class="doc-btn-group">
-      <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EiVg0xnltrpModJPUdTCcOEBsUtIjA1haF4Jhb_Yv83mQA?e=ea78Ww" 
-        target="_blank" class="doc-btn epu">
-        <span class="icon">📚</span> Tài liệu EPU
-      </a>
-      <a href="https://your-link-tieng-anh" target="_blank" class="doc-btn english">
-        <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
-      </a>
-      <a href="https://your-link-tmu" target="_blank" class="doc-btn tmu">
-        <span class="icon">🏛️</span> Tài liệu TMU
-      </a>
+  <!-- Header giống trang chat -->
+  <header class="mini-header">
+    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
+      <img src="logo.png" alt="Trang chủ">
+    </button>
+    <span class="mini-title">Tra Cứu Học Thuật & AI</span>
+  </header>
+  <main>
+    <div class="doc-main">
+      <div class="doc-title">Tài liệu học tập</div>
+      <div class="doc-btn-group">
+        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EiVg0xnltrpModJPUdTCcOEBsUtIjA1haF4Jhb_Yv83mQA?e=ea78Ww" 
+          target="_blank" class="doc-btn epu">
+          <span class="icon">📚</span> Tài liệu EPU
+        </a>
+        <a href="https://your-link-tieng-anh" target="_blank" class="doc-btn english">
+          <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
+        </a>
+        <a href="https://your-link-tmu" target="_blank" class="doc-btn tmu">
+          <span class="icon">🏛️</span> Tài liệu TMU
+        </a>
+      </div>
     </div>
-  </div>
-
-  <!-- Footer sẽ tự động nhúng -->
-  <footer id="footer"></footer>
-  <script>
-    // Lấy header/footer như trang chat của bạn
-    fetch('mini-header.html')
-      .then(r => r.text())
-      .then(html => { document.getElementById('header').innerHTML = html; });
-    fetch('footer.html')
-      .then(r => r.text())
-      .then(html => { document.getElementById('footer').innerHTML = html; });
-  </script>
+  </main>
+  <!-- Footer giống chat -->
+  <footer class="footer">
+    &copy; 2025 KoHa. All rights reserved. | Liên hệ: <a href="mailto:khanhhoa2002.hh@gmail.com">khanhhoa2002.hh@gmail.com</a>
+  </footer>
 </body>
 </html>
