@@ -8,14 +8,12 @@
   <style>
     :root {
       --main: #185adb;
-      --sub: #e5eaff;
-      --bg1: #f5f8ff;
-      --bg2: #e2ebfa;
-      --radius: 18px;
+      --bg1: #f4f9ff;
+      --bg2: #eaf3ff;
+      --radius: 22px;
       --shadow: 0 8px 32px 0 #1d2b4420;
       --gradient: linear-gradient(110deg, #185adb 0%, #0a1931 100%);
-      --card-gradient: linear-gradient(145deg, #ffffff 65%, #e8f0ff 100%);
-      --border: #e3e9fd;
+      --card-gradient: linear-gradient(145deg, #fff 60%, #e5eeff 100%);
     }
     body {
       font-family: 'Montserrat', Arial, sans-serif;
@@ -24,160 +22,153 @@
       background: var(--bg1);
       color: #222;
       position: relative;
+      overflow-x: hidden;
     }
-    /* Creative background left/right */
     .bg-deco {
       position: fixed; z-index: 0; pointer-events: none;
-      filter: blur(20px) brightness(1.07) opacity(0.85);
+      filter: blur(32px) opacity(.78);
     }
     .bg-deco.left {
-      top: -60px; left: -120px; width: 350px; height: 680px;
-      background: radial-gradient(circle, #185adb66 0%, #f5f8ff00 90%);
+      top: -90px; left: -140px; width: 390px; height: 700px;
+      background: radial-gradient(circle, #185adb77 0%, #f4f9ff00 85%);
       border-radius: 56% 44% 46% 54% / 47% 42% 58% 53%;
     }
     .bg-deco.right {
-      bottom: -120px; right: -140px; width: 400px; height: 550px;
-      background: radial-gradient(circle, #b7d4fa66 0%, #f5f8ff00 100%);
-      border-radius: 56% 44% 54% 46% / 53% 47% 53% 47%;
+      bottom: -140px; right: -150px; width: 400px; height: 600px;
+      background: radial-gradient(circle, #9bc3ff99 0%, #f4f9ff00 100%);
+      border-radius: 53% 47% 59% 41% / 53% 47% 53% 47%;
     }
-    /* Header & Menu */
+    .star-canvas {
+      position: fixed; left:0; top:0; z-index:1; pointer-events:none; width:100vw; height:100vh;
+    }
     header {
       background: var(--gradient);
       color: #fff;
-      padding: 30px 0 18px 0;
+      padding: 36px 0 30px 0;
       text-align: center;
       box-shadow: var(--shadow);
       position: relative;
       z-index: 2;
-      border-radius: 0 0 34px 34px;
+      border-radius: 0 0 44px 44px;
+    }
+    .logo {
+      display: inline-block;
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 10px;
+      box-shadow: 0 3px 18px #fff5, 0 2px 18px #185adb55;
+      border: 2.5px solid #fff7;
+      background: #fff;
     }
     .site-title {
-      font-size: 2.25rem;
+      font-size: 2.15rem;
       font-weight: 700;
-      margin: 0;
-      letter-spacing: 1.5px;
-      text-shadow: 0 4px 24px #0006;
+      margin: 7px 0 0 0;
+      letter-spacing: 1.2px;
+      text-shadow: 0 4px 22px #0008;
     }
     .site-slogan {
-      font-size: 1.13rem;
-      margin: 10px 0 0 0;
+      font-size: 1.18rem;
+      margin: 9px 0 0 0;
       color: #b7d2fa;
       font-weight: 400;
-    }
-    .menu {
-      margin: 32px auto 0 auto;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      z-index: 3;
-    }
-    .menu a {
-      display: inline-block;
-      color: #fff;
-      background: #185adb33;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.07rem;
-      padding: 10px 24px;
-      border-radius: var(--radius);
-      margin-bottom: 8px;
-      transition: background 0.18s, color 0.18s, box-shadow 0.19s;
-    }
-    .menu a.active, .menu a:hover {
-      background: #fff;
-      color: #185adb;
-      box-shadow: 0 3px 16px 0 #185adb33;
+      text-shadow: 0 2px 18px #0002;
     }
     main {
       position: relative;
-      z-index: 1;
-      max-width: 1100px;
+      z-index: 2;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 48px 14px 12px 14px;
-      min-height: 600px;
+      padding: 54px 16px 12px 16px;
+      min-height: 630px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .intro {
-      font-size: 1.19rem; color: #185adb; text-align: center; margin-bottom: 24px; font-weight:600;
-      letter-spacing: .2px;
+      font-size: 1.23rem; color: #185adb; text-align: center; margin-bottom: 28px; font-weight:600;
+      letter-spacing: .3px;
     }
     .dashboard {
       width: 100%;
       display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
-      gap: 32px;
+      grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+      gap: 38px 32px;
       margin: 0 auto;
       z-index: 2;
+      padding-bottom: 38px;
     }
     .feature {
       background: var(--card-gradient);
       border-radius: var(--radius);
-      box-shadow: 0 2px 16px 0 #185adb1b;
-      padding: 32px 20px 22px 20px;
+      box-shadow: 0 2px 16px 0 #185adb22;
+      padding: 35px 20px 25px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      transition: transform .22s, box-shadow .22s;
+      transition: transform .23s, box-shadow .23s, border .22s;
       cursor: pointer;
-      border: 2px solid var(--border);
+      border: 2px solid #e7edfa;
       text-align: center;
       text-decoration: none !important;
       position: relative;
       overflow: hidden;
+      min-height: 220px;
     }
     .feature:hover {
-      transform: translateY(-7px) scale(1.032);
-      box-shadow: 0 10px 32px 0 #185adb38;
-      border: 2.5px solid #185adb;
+      transform: translateY(-7px) scale(1.035);
+      box-shadow: 0 14px 36px 0 #185adb38;
+      border: 2.7px solid #185adb;
       background: #f7fbff;
     }
     .feature-img {
-      width: 66px; height: 66px; object-fit: cover;
+      width: 70px; height: 70px; object-fit: cover;
       border-radius: 50%;
       margin-bottom: 16px;
       background: #f0f5ff;
-      box-shadow: 0 2px 8px #185adb22;
-      border: 2px solid #e4ebfd;
-      transition: box-shadow 0.22s;
+      box-shadow: 0 2px 14px #185adb25;
+      border: 2.5px solid #e4ebfd;
       background-color: #fff;
+      transition: box-shadow 0.22s;
     }
     .feature-title {
       font-weight: 700;
       font-size: 1.15rem;
-      margin-bottom: 9px;
+      margin-bottom: 10px;
       color: #185adb;
       letter-spacing: .1px;
     }
     .feature-desc {
-      font-size: .98rem;
+      font-size: .99rem;
       color: #334b7a;
-      margin-bottom: 6px;
-      line-height: 1.4;
+      margin-bottom: 7px;
+      line-height: 1.45;
+      min-height: 48px;
+      max-width: 90%;
+      margin-left: auto; margin-right: auto;
     }
     footer {
       background: #132043;
       color: #a5c4fa;
       text-align: center;
-      padding: 22px 10px 16px 10px;
+      padding: 26px 10px 16px 10px;
       font-size: 1.08rem;
-      margin-top: 38px;
+      margin-top: 40px;
       border-radius: 22px 22px 0 0;
-      letter-spacing: .2px;
+      letter-spacing: .22px;
+      box-shadow: 0 -3px 22px #0a193112;
     }
     /* Responsive */
     @media (max-width:900px) {
       .dashboard { grid-template-columns: 1fr 1fr;}
     }
     @media (max-width:650px) {
-      header {padding:18px 0 6px 0;}
-      .site-title {font-size: 1.25rem;}
+      header {padding:17px 0 7px 0;}
+      .site-title {font-size: 1.11rem;}
       .dashboard {grid-template-columns: 1fr;}
-      .feature {padding: 16px 3vw 11px 3vw;}
-      .menu {gap: 7px;}
+      .feature {padding: 15px 3vw 10px 3vw; min-height: 200px;}
     }
   </style>
 </head>
@@ -185,19 +176,14 @@
   <!-- Background sáng tạo hai bên -->
   <div class="bg-deco left"></div>
   <div class="bg-deco right"></div>
-  <!-- Header & Menu -->
+  <!-- Hiệu ứng sao rơi -->
+  <canvas class="star-canvas"></canvas>
+  <!-- Header -->
   <header>
+    <!-- Đổi src logo thành icon/logo của bạn, hoặc xóa nếu không có -->
+    <img src="de17e7c5-0155-4dc8-9a7e-24c82ff4f975.png" class="logo" alt="Logo">
     <div class="site-title">Tra Cứu Học Thuật & AI</div>
     <div class="site-slogan">Nền tảng học tập & trợ lý AI – Dễ dàng, hiệu quả, thông minh!</div>
-    <nav class="menu">
-      <a href="index.html" class="active">Trang chủ</a>
-      <a href="tailieu.html">Tài liệu học tập</a>
-      <a href="chat-ai.html">Chat với AI</a>
-      <a href="mindmap.html">Tạo mindmap</a>
-      <a href="y-tuong.html">Gợi ý ý tưởng</a>
-      <a href="viet-lai.html">Viết lại nội dung</a>
-      <a href="tu-moi.html">Học từ mới</a>
-    </nav>
   </header>
   <main>
     <div class="intro">
@@ -232,12 +218,64 @@
       <a class="feature" href="tu-moi.html">
         <img class="feature-img" src="38d89319-3315-485d-b765-f9d82994e432.png" alt="Học từ mới">
         <div class="feature-title">Học từ mới</div>
-        <div class="feature-desc">Luyện tập, ghi nhớ và tra cứu từ mới mỗi ngày cùng các công cụ flashcard/AI.</div>
+        <div class="feature-desc">Luyện tập, ghi nhớ, tra cứu từ mới mỗi ngày cùng flashcard & AI.</div>
       </a>
     </div>
   </main>
   <footer>
     &copy; 2025 Tra Cứu Học Thuật & AI &bull; Thiết kế bởi KoHa
   </footer>
+  <script>
+    // Hiệu ứng sao rơi
+    const canvas = document.querySelector('.star-canvas');
+    const ctx = canvas.getContext('2d');
+    let w = window.innerWidth, h = window.innerHeight;
+    canvas.width = w; canvas.height = h;
+    window.addEventListener('resize', ()=>{w=window.innerWidth;h=window.innerHeight;canvas.width=w;canvas.height=h;});
+    let stars = [];
+    function newStar() {
+      let speed = 3 + Math.random() * 2.5;
+      return {
+        x: Math.random() * w,
+        y: -20,
+        l: 90 + Math.random()*70,
+        xs: speed,
+        ys: speed * (0.3 + Math.random()*0.4),
+        opacity: 0.55 + Math.random()*0.3,
+        size: 1 + Math.random()*1.6
+      };
+    }
+    function drawStars() {
+      ctx.clearRect(0,0,w,h);
+      for (let s of stars) {
+        ctx.save();
+        ctx.globalAlpha = s.opacity;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = s.size;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x - s.l, s.y - s.l * 0.3);
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 7;
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+    function updateStars() {
+      for (let i=0;i<stars.length;i++) {
+        stars[i].x += stars[i].xs;
+        stars[i].y += stars[i].ys;
+        stars[i].opacity -= 0.003;
+        if (stars[i].y > h+30 || stars[i].opacity < 0) stars.splice(i,1), i--;
+      }
+      if (Math.random() < 0.09) stars.push(newStar());
+    }
+    function animate() {
+      updateStars();
+      drawStars();
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
