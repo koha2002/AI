@@ -224,15 +224,15 @@
       if(!group) return group.innerHTML = "";
       group.innerHTML = '';
       if(mode==='gpt') {
-        group.innerHTML = 
+        group.innerHTML = `
           <a class="getkey-btn" href="https://platform.openai.com/settings/organization/api-keys" target="_blank">🔗 Lấy GPT Key</a>
           <button class="api-btn" onclick="openAPIKeyPopup('gpt')">🔑 Nhập GPT Key</button>
-        ;
+        `;
       } else if(mode==='gemini') {
-        group.innerHTML = 
+        group.innerHTML = `
           <a class="getkey-btn" href="https://aistudio.google.com/apikey" target="_blank">🔗 Lấy Gemini Key</a>
           <button class="api-btn" onclick="openAPIKeyPopup('gemini')">🔑 Nhập Gemini Key</button>
-        ;
+        `;
       }
     }
     function switchMode(mode) {
@@ -311,7 +311,7 @@
       try {
         let res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json','Authorization': Bearer ${key}},
+          headers: {'Content-Type': 'application/json','Authorization': `Bearer ${key}`},
           body: JSON.stringify({
             model: "gpt-3.5-turbo",
             messages: [{role:"system",content:"Bạn là trợ lý AI học tập, trả lời ngắn gọn, thân thiện."},
@@ -336,7 +336,7 @@
       geminiMsgs.push({role:'assistant',content:'<i>Đang trả lời...</i>'});
       renderChat('gemini-chat', geminiMsgs); scrollToBottom();
       try {
-        let URL = https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key};
+        let URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
         let res = await fetch(URL, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -354,7 +354,7 @@
       let html = '';
       for(let m of msgs){
         let user = (m.role==='user');
-        html += <div class="msg-row ${user?'msg-user':'msg-ai'}"><div class="msg-bubble">${m.content}</div></div>;
+        html += `<div class="msg-row ${user?'msg-user':'msg-ai'}"><div class="msg-bubble">${m.content}</div></div>`;
       }
       document.getElementById(boxId).innerHTML = html;
     }
