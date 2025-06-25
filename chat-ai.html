@@ -15,7 +15,6 @@
       font-family: 'Montserrat', Arial, sans-serif;
       display: flex; flex-direction: column;
     }
-    #mini-header { flex-shrink: 0;}
     main {
       flex: 1 0 auto;
       width: 100vw;
@@ -23,31 +22,29 @@
       display: flex; flex-direction: column;
       align-items: stretch; justify-content: flex-start;
     }
-    /* Header ngang nhỏ gọn */
+    /* Header mini */
     .mini-header {
       display: flex; align-items: center;
       background: #fff; box-shadow: 0 1px 8px #185adb09;
-      height: 47px; min-height: 40px; padding: 0 20px 0 10px;
+      height: 47px; min-height: 40px; padding: 0 15px 0 7px;
       border-bottom: 1.2px solid #e3e9f7;
       position: sticky; top: 0; left: 0; right: 0; z-index: 30;
-      gap: 11px;
+      gap: 14px;
     }
     .home-btn {
       background: none; border: none;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; border-radius:50%;
-      width: 36px; height: 36px;
-      margin-right: 2px; transition: background 0.14s;
+      cursor: pointer; border-radius:50%; width: 33px; height: 33px;
+      margin-right: 7px; transition: background 0.14s;
     }
     .home-btn:hover {background: #eaf3ff;}
-    .home-btn img {width:22px;height:22px;}
-    .mini-logo {width: 27px; height: 27px; border-radius:50%; margin-right: 9px;}
+    .home-btn img {width:21px;height:21px;}
     .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
-    /* Tab ngang, tối giản */
+    /* Tab ngang */
     .mode-switcher {
       display: flex; gap: 0;
       border-bottom:1.2px solid #e3e9f7;
-      background: none; margin: 0 0 0 0;
+      background: none; margin: 0;
       width: 100%; justify-content: flex-start;
     }
     .mode-btn {
@@ -60,7 +57,6 @@
     .mode-btn.active, .mode-btn:focus {
       color: #185adb; border-bottom: 2.5px solid #185adb; background: none;
     }
-    /* Nút API Key & lấy key */
     .api-btns-group {margin-left:auto;display:flex;gap:8px;}
     .api-btn, .getkey-btn {
       background: #f4f7fe; color: #185adb; border: 1px solid #b7d2fa; border-radius: 7px;
@@ -68,20 +64,20 @@
       display: flex; align-items: center; gap: 5px; margin-left:5px; text-decoration:none;
     }
     .api-btn:hover, .getkey-btn:hover {background:#e7f0ff;}
-    /* Khung chat siêu rộng */
     .chat-body {
       flex: 1 1 auto; display: flex; flex-direction: column;
       min-height: 65vh; width: 100vw; background: none;
     }
     .chat-messages {
       width: 100vw; max-width: none;
-      padding: 32px 0 8px 0;
-      margin: 0;
+      padding: 0; margin: 0;
       min-height: 340px;
       font-size: 1.12rem;
       display: flex; flex-direction: column; gap: 10px;
       background: none; box-shadow: none;
     }
+    /* Nếu là iframe chatbase thì cho nó full ngang */
+    #chatbase-chat iframe {width:100vw !important; max-width:100vw !important;}
     .msg-row {display: flex;}
     .msg-bubble {
       max-width: 900px; min-width: 46px;
@@ -106,7 +102,6 @@
       color: #222; border-bottom-left-radius: 7px;
       margin-left: 48px; margin-right:auto;
     }
-    /* Input chat full width, không khung */
     .chat-input-bar {
       display: flex; align-items: flex-end; width:100vw; max-width:none;
       gap: 14px; background: none;
@@ -131,7 +126,6 @@
       transition: background 0.13s;
     }
     .chat-input-bar button:active {background:#153772;}
-    /* Popup nhập key */
     .popup-api-bg {position:fixed;left:0;top:0;width:100vw;height:100vh;background:#0007;z-index:999;display:flex;align-items:center;justify-content:center;}
     .popup-api-box {background:#fff;border-radius:13px;padding:32px 34px;box-shadow:0 10px 50px #185adb20;min-width:300px;max-width:94vw;text-align:center;}
     .popup-api-box label {font-size:1.14rem;color:#185adb;font-weight:700;}
@@ -141,7 +135,6 @@
     .popup-api-box button.cancel {background:#e7eaf6;color:#185adb;}
     .popup-api-box button:active {background:#133b86;}
     .popup-api-box .popup-desc {font-size:.98rem;color:#888;margin:7px 0 16px 0;}
-    /* Footer sát đáy */
     #footer { flex-shrink: 0; margin-top: 15px; padding-bottom: 5px;}
     @media (max-width:1100px){
       .msg-bubble, .msg-user .msg-bubble, .msg-ai .msg-bubble {max-width:99vw;margin-left:7vw;margin-right:7vw;}
@@ -151,15 +144,15 @@
       .mini-header{padding:0 5px;}
       .msg-bubble, .msg-user .msg-bubble, .msg-ai .msg-bubble {margin-left:2vw;margin-right:2vw;}
       .chat-input-bar input{width:99vw;max-width:99vw;font-size:1.03rem;}
+      #chatbase-chat iframe {width:99vw !important;}
     }
   </style>
 </head>
 <body>
   <header class="mini-header">
     <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
-      <img src="logo.png" alt="Home">
+      <img src="logo.png" alt="Trang chủ">
     </button>
-    <img src="logo.png" alt="Logo" class="mini-logo">
     <span class="mini-title">Tra Cứu Học Thuật & AI</span>
   </header>
   <main>
@@ -175,8 +168,9 @@
       <button class="mode-btn" onclick="switchMode('gemini')">Chat Gemini</button>
     </div>
     <div class="chat-body">
-      <div id="chatbase-chat" class="chat-messages" style="display:block;text-align:center;">
-        <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_" width="95%" height="420"
+      <div id="chatbase-chat" class="chat-messages" style="display:block;text-align:center;padding:0;">
+        <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_"
+          width="100%" height="420"
           style="border-radius:10px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 16px #185adb0d;"
           allow="clipboard-write"></iframe>
       </div>
@@ -207,8 +201,8 @@
       </div>
     </div>
   </div>
+  <!-- JS giữ nguyên như bản trước (renderApiBtns, switchMode, ... ) -->
   <script>
-    // Tab & API Key logic
     let chatMode = 'chatbase';
     function renderApiBtns(mode) {
       const group = document.getElementById('api-btns-group');
@@ -287,7 +281,7 @@
       alert('Đã lưu API key vào trình duyệt!');
       closeAPIKeyPopup();
     }
-    // Chat GPT/Gemini
+    // Chat GPT/Gemini giữ nguyên
     let gptMsgs = [], geminiMsgs = [];
     async function sendMsgGPT() {
       let key = getAPIKey('gpt');
