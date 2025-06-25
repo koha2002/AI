@@ -203,64 +203,60 @@
   <footer id="footer"></footer>
   <script>
     // Hiệu ứng nền sao rơi màu trắng-xanh nhạt
-    const canvas = document.getElementById('star-canvas');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-    let w = window.innerWidth, h = window.innerHeight;
+// Hiệu ứng nền sao rơi màu trắng + glow xanh cyan sáng
+const canvas = document.getElementById('star-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+let w = window.innerWidth, h = window.innerHeight;
 
-    function resize() {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
-      createStars(w > 700 ? 120 : 50);
-    }
-    window.addEventListener('resize', resize);
+function resize() {
+  w = window.innerWidth;
+  h = window.innerHeight;
+  canvas.width = w;
+  canvas.height = h;
+  createStars(w > 700 ? 160 : 60);
+}
+window.addEventListener('resize', resize);
 
-    function randomStar() {
-      const pastel = [
-        'rgba(255,255,255,0.84)',
-        'rgba(160,191,255,0.89)',
-        'rgba(199,227,255,0.67)',
-        'rgba(136,201,255,0.8)'
-      ];
-      return {
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 1.5 + 0.6,
-        s: Math.random() * 0.7 + 0.15,
-        o: pastel[Math.floor(Math.random() * pastel.length)]
-      }
-    }
+function randomStar() {
+  return {
+    x: Math.random() * w,
+    y: Math.random() * h,
+    r: Math.random() * 2.2 + 0.7,
+    s: Math.random() * 0.9 + 0.15,
+    a: Math.random() * 0.5 + 0.45 // Alpha/opacity
+  }
+}
 
-    function createStars(count) {
-      stars = [];
-      for(let i=0; i<count; i++) stars.push(randomStar());
-    }
-    createStars(w > 700 ? 120 : 50);
+function createStars(count) {
+  stars = [];
+  for(let i=0; i<count; i++) stars.push(randomStar());
+}
+createStars(w > 700 ? 160 : 60);
 
-    function animateStars() {
-      ctx.clearRect(0, 0, w, h);
-      for(let s of stars) {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-        ctx.fillStyle = s.o;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = "#e0edff";
-        ctx.fill();
-        ctx.closePath();
-        s.x += s.s * 0.5;
-        s.y += s.s * 0.25;
-        if (s.x > w || s.y > h) {
-          Object.assign(s, randomStar());
-          if (Math.random() > 0.5) s.x = 0;
-          else s.y = 0;
-        }
-      }
-      ctx.shadowBlur = 0;
-      requestAnimationFrame(animateStars);
+function animateStars() {
+  ctx.clearRect(0, 0, w, h);
+  for(let s of stars) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+    ctx.globalAlpha = s.a;
+    ctx.fillStyle = "#fff";
+    ctx.shadowBlur = 15 + Math.random()*10;
+    ctx.shadowColor = "#7ddaff";
+    ctx.fill();
+    ctx.restore();
+    s.x += s.s * 0.5;
+    s.y += s.s * 0.23;
+    if (s.x > w || s.y > h) {
+      Object.assign(s, randomStar());
+      if (Math.random() > 0.5) s.x = 0;
+      else s.y = 0;
     }
-    animateStars();
+  }
+  requestAnimationFrame(animateStars);
+}
+animateStars();
 
     // Mouse light effect
     const mouseLight = document.getElementById('mouse-light');
