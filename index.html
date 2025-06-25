@@ -1,57 +1,159 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra Cứu Học Thuật & AI</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f6f9ff;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 6px 32px 0 #0001;
-            padding: 32px;
-            text-align: center;
-        }
-        h1 {
-            color: #185adb;
-        }
-        .slogan {
-            color: #333;
-            margin-bottom: 24px;
-        }
-        .chatbot-box {
-            margin: 32px auto 0;
-            max-width: 350px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tra Cứu Học Thuật & AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #232526 0%, #185adb 100%);
+      color: #fff;
+      font-family: 'Montserrat', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    .star-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 540px;
+      margin: 60px auto 30px auto;
+      background: rgba(255,255,255,0.12);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px 0 #0004;
+      padding: 40px 28px 28px 28px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 2.4rem;
+      color: #fff;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 12px #185adb88;
+    }
+    .slogan {
+      color: #d1e4fd;
+      font-size: 1.15rem;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+    .desc {
+      font-size: 1.08rem;
+      margin-bottom: 26px;
+      color: #e5eaff;
+      line-height: 1.5;
+    }
+    .chatbot-box {
+      margin: 28px auto 0;
+      max-width: 370px;
+      border-radius: 18px;
+      box-shadow: 0 2px 18px 0 #185adb33;
+      background: #ffffff18;
+      padding: 14px 0 8px 0;
+    }
+    @media (max-width: 700px) {
+      .container { margin: 20px 5px; padding: 25px 3vw; }
+      h1 { font-size: 1.3rem; }
+      .chatbot-box { max-width: 100vw; }
+    }
+    /* Sao rơi */
+    .star-canvas { position: fixed; left:0; top:0; z-index:0; pointer-events:none; }
+    /* Scrollbar đẹp */
+    ::-webkit-scrollbar { width: 8px; background: #252525; }
+    ::-webkit-scrollbar-thumb { background: #185adb; border-radius: 8px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tra Cứu Học Thuật & AI</h1>
-        <div class="slogan">Trợ lý AI – Học dễ dàng, tra cứu mọi nơi!</div>
-        <div>
-            Chào mừng bạn đến với website học tập & AI hỗ trợ! <br>
-            Hãy hỏi bất cứ điều gì về tài liệu, kiến thức, AI sẽ hỗ trợ bạn.
-        </div>
-        <div class="chatbot-box">
-            <!-- Nhúng Chatbase AI của bạn -->
-            <iframe
-                src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_"
-                width="350"
-                height="500"
-                style="border-radius:16px;border:1px solid #eee;"
-                frameborder="0"
-            ></iframe>
-        </div>
+  <canvas class="star-canvas"></canvas>
+  <div class="container">
+    <h1>Tra Cứu Học Thuật & AI</h1>
+    <div class="slogan">Trợ lý AI – Học dễ dàng, tra cứu mọi nơi!</div>
+    <div class="desc">
+      Nền tảng hỗ trợ tìm kiếm tài liệu, hỏi đáp học thuật nhanh chóng cùng trợ lý AI.<br>
+      Hãy đặt câu hỏi hoặc tìm tài liệu bạn cần – AI sẽ giúp bạn ngay lập tức!
     </div>
+    <div class="chatbot-box">
+      <!-- Chatbase AI -->
+      <iframe
+        src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_"
+        width="340"
+        height="480"
+        style="border-radius:14px;border:none;background:#fff;"
+        frameborder="0"
+      ></iframe>
+    </div>
+  </div>
+  <script>
+    // Hiệu ứng sao rơi
+    const canvas = document.querySelector('.star-canvas');
+    const ctx = canvas.getContext('2d');
+    let w = window.innerWidth, h = window.innerHeight;
+    canvas.width = w; canvas.height = h;
+
+    function resizeCanvas() {
+      w = window.innerWidth; h = window.innerHeight;
+      canvas.width = w; canvas.height = h;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // Sao rơi (shooting stars)
+    let stars = [];
+    function newStar() {
+      let speed = 4 + Math.random() * 3;
+      return {
+        x: Math.random() * w,
+        y: -20,
+        l: 120 + Math.random()*100,
+        xs: speed,
+        ys: speed * (0.3 + Math.random()*0.4),
+        opacity: 0.6 + Math.random()*0.3,
+        size: 1.2 + Math.random()*1.6
+      };
+    }
+    function drawStars() {
+      ctx.clearRect(0,0,w,h);
+      for (let i=0;i<stars.length;i++) {
+        let s = stars[i];
+        ctx.save();
+        ctx.globalAlpha = s.opacity;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = s.size;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x - s.l, s.y - s.l * 0.3);
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 7;
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+    function updateStars() {
+      for (let i=0;i<stars.length;i++) {
+        stars[i].x += stars[i].xs;
+        stars[i].y += stars[i].ys;
+        stars[i].opacity -= 0.003;
+        if (stars[i].y > h+30 || stars[i].opacity < 0) stars.splice(i,1), i--;
+      }
+      if (Math.random() < 0.08) stars.push(newStar());
+    }
+    function animate() {
+      updateStars();
+      drawStars();
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
