@@ -7,29 +7,163 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    .tab-choice {
-      display: flex; justify-content: center; gap: 14px; margin: 0 0 26px 0;
+    .chat-outer {
+      width: 100%;
+      max-width: 700px;
+      margin: 34px auto 18px auto;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 6px 32px #185adb19;
+      padding: 0;
+      min-height: 520px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      z-index: 2;
     }
-    .tab-btn {
-      background: #f5f8ff; color: #185adb; font-weight: 700; border: 2px solid #cbe1ff;
-      padding: 12px 30px; border-radius: 15px 15px 0 0; font-size: 1.05rem;
-      cursor: pointer; transition: all .18s;
-      box-shadow: 0 2px 10px #185adb09;
+    .chat-header-bar {
+      padding: 0 24px;
+      height: 72px;
+      display: flex; align-items: center;
+      border-bottom: 1.5px solid #e9f1fb;
+      gap: 14px;
     }
-    .tab-btn.active, .tab-btn:hover {
-      background: #185adb; color: #fff; border-color: #185adb;
-      box-shadow: 0 6px 22px #185adb22;
-      transform: translateY(-2px) scale(1.02);
+    .chat-header-bar img {
+      width: 42px; height: 42px; border-radius: 50%;
+      box-shadow: 0 2px 8px #185adb18;
+      background: #f5f8ff;
     }
-    .tab-content { background:#fff; border-radius:0 0 18px 18px; box-shadow:0 2px 18px #185adb19; padding:32px 16px 26px 16px; max-width:400px; margin:auto; min-height:300px;}
-    .apikey-box {margin-bottom:14px;text-align:center;}
-    .apikey-box input {padding:9px 10px;border:1.4px solid #b7caff;border-radius:9px;min-width:210px;}
-    .apikey-box label {font-size:1rem; color:#185adb; margin-bottom:7px; display:block;}
-    #messages {min-height:90px; margin-bottom:12px;font-size:1.08rem;}
-    #userMsg {width:72%;padding:9px;border-radius:7px;border:1px solid #ccc;}
-    .ai-btn {padding:9px 18px;border:none;border-radius:7px;background:#185adb;color:#fff;font-weight:600;}
-    .note-api {font-size:.95rem;color:#888;margin-bottom:6px;}
-    @media(max-width:520px){.tab-content{padding:16px 3vw;max-width:98vw;}}
+    .chat-header-bar .chat-title {
+      font-weight: bold; font-size: 1.14rem; color: #185adb;
+      margin-left: 5px;
+      letter-spacing: .1px;
+    }
+    .chat-header-bar .api-btn {
+      margin-left: auto;
+      background: #f5f8ff;
+      color: #185adb;
+      border: 1.5px solid #b7d2fa;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-weight: 600;
+      font-size: 1.01rem;
+      cursor: pointer;
+      transition: background 0.16s, border 0.16s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .chat-header-bar .api-btn:hover {background:#e7f0ff;}
+    .mode-switcher {
+      display: flex; gap: 9px; margin: 20px 0 0 0; justify-content: center;
+    }
+    .mode-btn {
+      border-radius: 8px 8px 0 0;
+      background: #f6faff;
+      border: 1.5px solid #b7d2fa;
+      padding: 7px 23px;
+      color: #185adb;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.16s, color 0.14s, box-shadow .16s;
+      margin-bottom: -2px;
+    }
+    .mode-btn.active, .mode-btn:hover {
+      background: #185adb;
+      color: #fff;
+      box-shadow: 0 2px 16px #185adb20;
+      border-bottom: 2px solid #185adb;
+      z-index: 2;
+    }
+    .chat-body {
+      flex: 1;
+      padding: 0 0 0 0;
+      overflow-y: auto;
+      background: #f8fbff;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-messages {
+      padding: 24px 20px 12px 20px;
+      overflow-y: auto;
+      min-height: 340px;
+      flex: 1;
+    }
+    .msg-row {
+      display: flex; margin-bottom: 16px;
+    }
+    .msg-bubble {
+      max-width: 85%; min-width: 58px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 1.06rem;
+      line-height: 1.5;
+      box-shadow: 0 2px 10px #185adb14;
+      white-space: pre-line;
+    }
+    .msg-user {justify-content: flex-end;}
+    .msg-user .msg-bubble {
+      background: linear-gradient(120deg, #185adb 0%, #3a67ee 100%);
+      color: #fff; border-bottom-right-radius: 7px;
+    }
+    .msg-ai {justify-content: flex-start;}
+    .msg-ai .msg-bubble {
+      background: #eaf3ff;
+      color: #222; border-bottom-left-radius: 7px;
+    }
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px 18px 20px;
+      border-top: 1.2px solid #e7f0ff;
+      gap: 8px;
+      background: #f6faff;
+    }
+    .chat-input-bar input {
+      flex: 1;
+      padding: 11px 13px;
+      border-radius: 9px;
+      border: 1.3px solid #bdd1f6;
+      font-size: 1.06rem;
+      outline: none;
+    }
+    .chat-input-bar button {
+      padding: 11px 19px;
+      border-radius: 8px;
+      border: none;
+      background: #185adb;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background 0.16s;
+      box-shadow: 0 1px 8px #185adb14;
+    }
+    .chat-input-bar button:active {background:#153772;}
+    /* Popup */
+    .popup-api-bg {
+      position:fixed;left:0;top:0;width:100vw;height:100vh;background:#0006;z-index:999;display:flex;align-items:center;justify-content:center;
+    }
+    .popup-api-box {
+      background:#fff;border-radius:13px;padding:30px 32px;box-shadow:0 8px 40px #185adb22;min-width:280px;max-width:94vw;text-align:center;
+    }
+    .popup-api-box label {font-size:1.09rem;color:#185adb;font-weight:700;}
+    .popup-api-box input {
+      margin-top:10px;padding:10px 12px;border-radius:8px;border:1.5px solid #bdd1f6;font-size:1rem;width:85%;max-width:300px;
+    }
+    .popup-api-box .popup-btns {margin-top:22px;display:flex;justify-content:center;gap:14px;}
+    .popup-api-box button {
+      padding:9px 20px;border-radius:7px;font-weight:600;font-size:1.01rem;border:none;cursor:pointer;background:#185adb;color:#fff;
+      transition:background 0.15s;
+    }
+    .popup-api-box button.cancel {background:#e7eaf6;color:#185adb;}
+    .popup-api-box button:active {background:#133b86;}
+    @media (max-width:820px) {.chat-outer{max-width:97vw;}}
+    @media (max-width:530px) {
+      .chat-outer {margin:9px 2vw;}
+      .chat-header-bar {padding:0 7px;}
+      .chat-messages {padding:13px 4vw 7px 4vw;}
+      .chat-input-bar {padding:7px 4vw 7px 4vw;}
+    }
   </style>
 </head>
 <body>
@@ -37,70 +171,123 @@
   <div class="bg-deco right"></div>
   <canvas class="star-canvas"></canvas>
   <div id="header"></div>
-  <main>
-    <div class="intro" style="margin-bottom:18px;">
-      <img src="icon-ai.png" style="width:62px;height:62px;border-radius:50%;background:#fff;margin-bottom:8px;box-shadow:0 2px 10px #185adb13;">
-      <div style="font-size:1.18rem;font-weight:700;color:#185adb;margin-bottom:6px;">Trợ lý AI hỗ trợ học tập</div>
-      <div style="font-size:1.07rem;color:#444;">Chọn chế độ chat bạn muốn!</div>
-    </div>
-    <div class="tab-choice">
-      <button class="tab-btn active" onclick="showTab('chatbase')">Chatbase</button>
-      <button class="tab-btn" onclick="showTab('gpt')">Chat GPT</button>
-      <button class="tab-btn" onclick="showTab('gemini')">Chat Gemini</button>
-    </div>
-    <!-- Chatbase iframe -->
-    <div class="tab-content" id="tab-chatbase">
-      <div style="text-align:center">
-        <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_" width="340" height="480"
-          style="border-radius:14px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 24px #185adb22;"
-          allow="clipboard-write"></iframe>
+
+  <main style="margin:0;padding:0;">
+    <div class="chat-outer">
+      <div class="chat-header-bar">
+        <img src="icon-ai.png" alt="AI">
+        <span class="chat-title">Trợ lý AI học tập</span>
+        <button class="api-btn" onclick="openAPIKeyPopup()">
+          <span>🔑 Nhập API Key</span>
+        </button>
       </div>
-    </div>
-    <!-- Chat GPT -->
-    <div class="tab-content" id="tab-gpt" style="display:none">
-      <div class="apikey-box">
-        <label for="gpt-key">Nhập OpenAI API Key của bạn:</label>
-        <input id="gpt-key" type="password" placeholder="sk-...">
+      <div class="mode-switcher">
+        <button class="mode-btn active" onclick="switchMode('chatbase')">Chatbase</button>
+        <button class="mode-btn" onclick="switchMode('gpt')">Chat GPT</button>
+        <button class="mode-btn" onclick="switchMode('gemini')">Chat Gemini</button>
       </div>
-      <div class="note-api">API Key chỉ sử dụng trên trình duyệt của bạn, không lưu lại!</div>
-      <div id="messages-gpt"></div>
-      <input id="userMsg-gpt" type="text" placeholder="Nhập câu hỏi..." onkeydown="if(event.key==='Enter'){sendMsgGPT();}">
-      <button class="ai-btn" onclick="sendMsgGPT()">Gửi</button>
-    </div>
-    <!-- Chat Gemini -->
-    <div class="tab-content" id="tab-gemini" style="display:none">
-      <div class="apikey-box">
-        <label for="gemini-key">Nhập Google Gemini API Key của bạn:</label>
-        <input id="gemini-key" type="password" placeholder="AIza...">
+      <div class="chat-body">
+        <!-- Chatbase -->
+        <div id="chatbase-chat" class="chat-messages" style="display:block;text-align:center;">
+          <iframe src="https://www.chatbase.co/chatbot-iframe/LqqF_1Q5mDRgBiRX2Kpb_" width="97%" height="420"
+            style="border-radius:13px;border:1.5px solid #eee;background:#fff;box-shadow:0 4px 16px #185adb19;"
+            allow="clipboard-write"></iframe>
+        </div>
+        <!-- GPT Chat -->
+        <div id="gpt-chat" class="chat-messages" style="display:none;"></div>
+        <!-- Gemini Chat -->
+        <div id="gemini-chat" class="chat-messages" style="display:none;"></div>
       </div>
-      <div class="note-api">API Key chỉ sử dụng trên trình duyệt của bạn, không lưu lại!</div>
-      <div id="messages-gemini"></div>
-      <input id="userMsg-gemini" type="text" placeholder="Nhập câu hỏi..." onkeydown="if(event.key==='Enter'){sendMsgGemini();}">
-      <button class="ai-btn" onclick="sendMsgGemini()">Gửi</button>
+      <div class="chat-input-bar" id="chatbase-input" style="display:none;"></div>
+      <div class="chat-input-bar" id="gpt-input" style="display:none;">
+        <input id="userMsg-gpt" type="text" placeholder="Nhập câu hỏi..." autocomplete="off" onkeydown="if(event.key==='Enter'){sendMsgGPT();}">
+        <button onclick="sendMsgGPT()">Gửi</button>
+      </div>
+      <div class="chat-input-bar" id="gemini-input" style="display:none;">
+        <input id="userMsg-gemini" type="text" placeholder="Nhập câu hỏi..." autocomplete="off" onkeydown="if(event.key==='Enter'){sendMsgGemini();}">
+        <button onclick="sendMsgGemini()">Gửi</button>
+      </div>
     </div>
   </main>
+
+  <!-- Popup nhập API Key -->
+  <div class="popup-api-bg" id="popup-api" style="display:none;">
+    <div class="popup-api-box">
+      <label for="popup-api-key">API Key của bạn</label>
+      <div style="font-size:.95rem;color:#888;margin:6px 0 14px 0;">
+        <b>OpenAI:</b> bắt đầu bằng <code>sk-</code><br>
+        <b>Gemini:</b> bắt đầu bằng <code>AIza</code><br>
+        (Lưu vào trình duyệt, không gửi đi đâu)
+      </div>
+      <input id="popup-api-key" type="password" placeholder="Dán API Key ở đây...">
+      <div class="popup-btns">
+        <button onclick="saveAPIKey()">Lưu Key</button>
+        <button class="cancel" onclick="closeAPIKeyPopup()">Hủy</button>
+        <button class="cancel" onclick="removeAPIKey()" style="background:#ffebe7;color:#c44;">Xóa key</button>
+      </div>
+    </div>
+  </div>
+
   <div id="footer"></div>
   <script src="main.js"></script>
   <script>
-    // Tab switch
-    function showTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach((el, i) => {
-        el.classList.toggle('active', (tab === ['chatbase','gpt','gemini'][i]));
+    // Tab chế độ chat
+    let chatMode = 'chatbase';
+    function switchMode(mode) {
+      chatMode = mode;
+      document.querySelectorAll('.mode-btn').forEach((el,i)=>{
+        el.classList.toggle('active', (['chatbase','gpt','gemini'][i]===mode));
       });
-      document.getElementById('tab-chatbase').style.display = tab === 'chatbase' ? 'block' : 'none';
-      document.getElementById('tab-gpt').style.display = tab === 'gpt' ? 'block' : 'none';
-      document.getElementById('tab-gemini').style.display = tab === 'gemini' ? 'block' : 'none';
+      document.getElementById('chatbase-chat').style.display = mode==='chatbase'?'block':'none';
+      document.getElementById('chatbase-input').style.display = 'none'; // Chatbase không dùng input custom
+      document.getElementById('gpt-chat').style.display = mode==='gpt'?'block':'none';
+      document.getElementById('gpt-input').style.display = mode==='gpt'?'flex':'none';
+      document.getElementById('gemini-chat').style.display = mode==='gemini'?'block':'none';
+      document.getElementById('gemini-input').style.display = mode==='gemini'?'flex':'none';
+      scrollToBottom();
     }
 
-    // Chat GPT (OpenAI API)
+    // ---- API Key lưu vào LocalStorage ----
+    function getAPIKey() {
+      return localStorage.getItem('ai_api_key')||'';
+    }
+    function setAPIKey(key) {
+      localStorage.setItem('ai_api_key', key.trim());
+    }
+    function removeAPIKey() {
+      localStorage.removeItem('ai_api_key');
+      document.getElementById('popup-api-key').value = '';
+      alert('Đã xóa API key khỏi trình duyệt.');
+      closeAPIKeyPopup();
+    }
+    function openAPIKeyPopup() {
+      document.getElementById('popup-api-key').value = getAPIKey();
+      document.getElementById('popup-api').style.display = 'flex';
+    }
+    function closeAPIKeyPopup() {
+      document.getElementById('popup-api').style.display = 'none';
+    }
+    function saveAPIKey() {
+      const val = document.getElementById('popup-api-key').value;
+      if(val.length < 10) return alert('API key không hợp lệ!');
+      setAPIKey(val);
+      alert('Đã lưu API key vào trình duyệt!');
+      closeAPIKeyPopup();
+    }
+
+    // ------ Chat GPT ------
+    let gptMsgs = [];
     async function sendMsgGPT() {
-      let key = document.getElementById('gpt-key').value.trim();
+      let key = getAPIKey();
       let msg = document.getElementById('userMsg-gpt').value.trim();
-      let box = document.getElementById('messages-gpt');
-      if (!key || !msg) return;
-      box.innerHTML += `<b>Bạn:</b> ${msg}<br>`;
+      if (!key || !msg) { openAPIKeyPopup(); return; }
+      gptMsgs.push({role:'user',content:msg});
+      renderChat('gpt-chat', gptMsgs);
       document.getElementById('userMsg-gpt').value = '';
-      box.innerHTML += `<b>GPT:</b> <i>Đang trả lời...</i><br>`;
+      gptMsgs.push({role:'assistant',content:'<i>Đang trả lời...</i>'});
+      renderChat('gpt-chat', gptMsgs);
+      scrollToBottom();
+
       try {
         let res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -112,27 +299,36 @@
             model: "gpt-3.5-turbo",
             messages: [
               {role:"system",content:"Bạn là trợ lý AI học tập, trả lời ngắn gọn, thân thiện."},
-              {role:"user",content: msg}
+              ...gptMsgs.filter(m=>m.role==='user')
             ]
           })
         });
         let data = await res.json();
+        gptMsgs.pop(); // Xóa dòng "Đang trả lời..."
         let reply = data.choices?.[0]?.message?.content || "Có lỗi xảy ra!";
-        box.innerHTML = box.innerHTML.replace('<b>GPT:</b> <i>Đang trả lời...</i><br>', `<b>GPT:</b> ${reply}<br>`);
+        gptMsgs.push({role:'assistant',content:reply});
+        renderChat('gpt-chat', gptMsgs);
+        scrollToBottom();
       } catch (e) {
-        box.innerHTML = box.innerHTML.replace('<b>GPT:</b> <i>Đang trả lời...</i><br>', `<b>GPT:</b> Lỗi gọi API!<br>`);
+        gptMsgs.pop();
+        gptMsgs.push({role:'assistant',content:'Lỗi gọi API!'});
+        renderChat('gpt-chat', gptMsgs);
       }
     }
 
-    // Chat Gemini (Google Gemini API)
+    // ------ Chat Gemini ------
+    let geminiMsgs = [];
     async function sendMsgGemini() {
-      let key = document.getElementById('gemini-key').value.trim();
+      let key = getAPIKey();
       let msg = document.getElementById('userMsg-gemini').value.trim();
-      let box = document.getElementById('messages-gemini');
-      if (!key || !msg) return;
-      box.innerHTML += `<b>Bạn:</b> ${msg}<br>`;
+      if (!key || !msg) { openAPIKeyPopup(); return; }
+      geminiMsgs.push({role:'user',content:msg});
+      renderChat('gemini-chat', geminiMsgs);
       document.getElementById('userMsg-gemini').value = '';
-      box.innerHTML += `<b>Gemini:</b> <i>Đang trả lời...</i><br>`;
+      geminiMsgs.push({role:'assistant',content:'<i>Đang trả lời...</i>'});
+      renderChat('gemini-chat', geminiMsgs);
+      scrollToBottom();
+
       try {
         let res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
@@ -145,12 +341,40 @@
           }
         );
         let data = await res.json();
+        geminiMsgs.pop();
         let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Có lỗi xảy ra!";
-        box.innerHTML = box.innerHTML.replace('<b>Gemini:</b> <i>Đang trả lời...</i><br>', `<b>Gemini:</b> ${reply}<br>`);
+        geminiMsgs.push({role:'assistant',content:reply});
+        renderChat('gemini-chat', geminiMsgs);
+        scrollToBottom();
       } catch (e) {
-        box.innerHTML = box.innerHTML.replace('<b>Gemini:</b> <i>Đang trả lời...</i><br>', `<b>Gemini:</b> Lỗi gọi API!<br>`);
+        geminiMsgs.pop();
+        geminiMsgs.push({role:'assistant',content:'Lỗi gọi API!'});
+        renderChat('gemini-chat', geminiMsgs);
       }
     }
+
+    // ------ Hiển thị lịch sử chat ------
+    function renderChat(boxId, msgs) {
+      let html = '';
+      for(let m of msgs){
+        let user = (m.role==='user');
+        html += `<div class="msg-row ${user?'msg-user':'msg-ai'}">
+          <div class="msg-bubble">${m.content}</div>
+        </div>`;
+      }
+      document.getElementById(boxId).innerHTML = html;
+    }
+    function scrollToBottom() {
+      setTimeout(()=>{
+        document.querySelectorAll('.chat-messages').forEach(box=>{box.scrollTop = box.scrollHeight+77;});
+      }, 70);
+    }
+
+    // ---- Auto nhớ API key đã nhập ----
+    window.onload = function() {
+      let key = getAPIKey();
+      if(key) document.getElementById('popup-api-key').value = key;
+    };
   </script>
 </body>
 </html>
