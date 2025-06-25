@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trợ Lý Học Tập & AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.css">
   <style>
     :root {
       --main: #185adb;
@@ -96,21 +95,20 @@
       box-shadow: 0 8px 38px 0 #185adb33;
       border: 2px solid var(--main);
     }
-    .feature-icon {
-      font-size: 2.5rem;
-      background: var(--sub);
-      color: var(--main);
+    .feature-img {
+      width: 64px; height: 64px; object-fit: cover;
       border-radius: 50%;
-      width: 58px;
-      height: 58px;
-      display: flex; align-items: center; justify-content: center;
       margin-bottom: 14px;
+      background: #f0f5ff;
       box-shadow: 0 2px 8px #185adb22;
+      border: 2px solid #e4ebfd;
+      transition: box-shadow 0.2s;
     }
     .feature-title {
       font-weight: 700;
       font-size: 1.13rem;
       margin-bottom: 8px;
+      color: #185adb;
     }
     .feature-desc {
       font-size: .98rem;
@@ -160,27 +158,27 @@
     </div>
     <div class="dashboard">
       <a class="feature" href="chat-ai.html">
-        <div class="feature-icon"><i class="lucide-message-circle"></i></div>
+        <img class="feature-img" src="de17e7c5-0155-4dc8-9a7e-24c82ff4f975.png" alt="AI Chat">
         <div class="feature-title">Chat với AI</div>
         <div class="feature-desc">Tra cứu, hỏi đáp mọi lĩnh vực học tập cùng trợ lý AI.</div>
       </a>
       <a class="feature" href="tailieu.html">
-        <div class="feature-icon"><i class="lucide-book-open"></i></div>
+        <img class="feature-img" src="https://cdn-icons-png.flaticon.com/512/281/281760.png" alt="Tài liệu">
         <div class="feature-title">Tài liệu học tập</div>
         <div class="feature-desc">Cung cấp tài liệu PDF, slide, đề cương, sách tham khảo miễn phí.</div>
       </a>
       <a class="feature" href="mindmap.html">
-        <div class="feature-icon"><i class="lucide-network"></i></div>
+        <img class="feature-img" src="https://cdn-icons-png.flaticon.com/512/3105/3105816.png" alt="Mindmap">
         <div class="feature-title">Tạo mindmap thông minh</div>
         <div class="feature-desc">Tạo sơ đồ tư duy online, hỗ trợ xuất ảnh hoặc PDF, miễn phí.</div>
       </a>
       <a class="feature" href="y-tuong.html">
-        <div class="feature-icon"><i class="lucide-sparkles"></i></div>
+        <img class="feature-img" src="https://cdn-icons-png.flaticon.com/512/1998/1998611.png" alt="Gợi ý ý tưởng">
         <div class="feature-title">Gợi ý ý tưởng học tập</div>
         <div class="feature-desc">AI gợi ý ý tưởng, chủ đề thuyết trình, nghiên cứu, bài tập nhóm…</div>
       </a>
       <a class="feature" href="viet-lai.html">
-        <div class="feature-icon"><i class="lucide-pen"></i></div>
+        <img class="feature-img" src="https://cdn-icons-png.flaticon.com/512/2919/2919600.png" alt="Viết lại nội dung">
         <div class="feature-title">Viết lại nội dung</div>
         <div class="feature-desc">Nhờ AI diễn đạt lại văn bản, tóm tắt, tăng sự sáng tạo.</div>
       </a>
