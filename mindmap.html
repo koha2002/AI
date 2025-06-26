@@ -10,23 +10,22 @@
   <style>
     body {font-family: 'Montserrat', Arial, sans-serif;background:#0a1931;color:#222;margin:0;}
     #header, #footer {background: #192945; color:#aee4ff;padding:9px 20px;}
-    #toolbar {display:flex;gap:12px;padding:8px;background:#133360;}
+    #toolbar {display:flex;gap:12px;padding:8px;background:#133360;flex-wrap:wrap;}
     #tabs {display:flex;gap:5px;}
     .tab {background:#2761ad;color:#fff;padding:7px 14px 7px 10px;border-radius:12px 12px 0 0;margin-right:4px;cursor:pointer;position:relative;}
     .tab.selected {background:#fff;color:#2761ad;border:2px solid #185adb;border-bottom:0;}
     .tab .close {position:absolute;right:4px;top:2px;color:#e22;font-size:15px;font-weight:bold;cursor:pointer;}
     #canvasWrap {background:#f5f7fa;overflow:auto;position:relative;margin:0 auto 20px auto;border-radius:22px;box-shadow:0 5px 20px #123;}
     #nodeLayer {position:absolute;left:0;top:0;}
-    .node {position:absolute;min-width:60px;min-height:32px;max-width:500px;max-height:200px;padding:10px 15px;background:#fff;border:2px solid #bcd;box-shadow:0 2px 12px #0002;border-radius:15px;z-index:10;cursor:pointer;user-select:text;transition:box-shadow .13s;resize:both;overflow:auto;}
+    .node {position:absolute;min-width:60px;min-height:32px;max-width:500px;max-height:200px;padding:10px 15px;background:#fff;border:2px solid #bcd;box-shadow:0 2px 12px #0002;border-radius:15px;z-index:10;user-select:text;resize:both;overflow:auto;}
     .node.selected {border:2.5px solid #185adb;box-shadow:0 5px 20px #185adb2e;}
     .node .plus {position:absolute;width:18px;height:18px;background:#277fd7;color:#fff;border-radius:50%;right:-12px;top:50%;margin-top:-9px;text-align:center;line-height:18px;font-weight:bold;font-size:15px;cursor:pointer;box-shadow:0 1px 5px #185adb44;}
     .node .plus:hover {background:#47aaff;}
-    .conn {position:absolute;pointer-events:none;}
+    .node .txt {width:100%;min-height:1em;outline:none;text-align:center;}
     .multi-selected {background:#1dc9b3cc!important;border:2.2px solid #26b7a7;}
     #selectBox {border:2px dashed #2196f3;background:rgba(33,150,243,0.09);position:absolute;display:none;z-index:20;}
     #menu {position:fixed;right:24px;top:70px;background:#fff;border:1.7px solid #185adb;border-radius:11px;box-shadow:0 2px 20px #0a1a34cc;padding:10px 24px;}
     #menu button {margin:6px;}
-    #saveMsg {color:green;font-weight:600;}
     .node .shape-rect {border-radius:13px;}
     .node .shape-round {border-radius:30px;}
     .node .shape-diamond {transform:rotate(45deg);}
@@ -47,7 +46,6 @@
     #colorBtns span {width:20px;height:20px;display:inline-block;border-radius:50%;margin-right:5px;cursor:pointer;border:2px solid #fff;}
     #colorBtns .sel {border:2.5px solid #185adb;}
     #shapeSel {padding:5px 13px;border-radius:8px;margin:0 7px;}
-    #saveMsg {margin-left:24px;}
     #tabAdd {margin-left:13px;}
     #zoomInd {position:fixed;bottom:18px;left:15px;background:#1d2e62;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.1rem;z-index:100;}
     #undoBtn,#redoBtn {background:#f4f7ff;border-radius:7px;border:1.3px solid #bed5f6;padding:5px 13px;font-weight:700;margin-right:6px;cursor:pointer;}
@@ -108,12 +106,12 @@
 fetch('mini-header.html').then(r=>r.text()).then(html=>document.getElementById('header').innerHTML=html);
 fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
 
-let TABS_KEY = "mindmap_tabs_v5";
+let TABS_KEY = "mindmap_tabs_v6";
 let tabs = loadTabs();
 let currentTab = 0;
-let clipboardNode = null;
+let clipboardNodes = [];
 let connFrom = null;
-let selectBoxMode = false, selecting = false, selectStart={};
+let selectBoxMode = false, selecting = false;
 let zoom = 1;
 let undoStack = [[]], redoStack = [[]];
 
@@ -177,19 +175,26 @@ function addNode(txt) {
   let id = Date.now() + Math.floor(Math.random()*10000);
   let color = document.querySelector('#colorBtns .sel')?.dataset.c || 'blue';
   let shape = document.getElementById('shapeSel').value;
-  tab.nodes.push({id,x:200+Math.random()*300,y:160+Math.random()*200,text:txt||"Ý mới",shape,color,w:110,h:36,});
+  tab.nodes.push({id,x:200+Math.random()*300,y:160+Math.random()*200,text:txt||"Ý mới",shape,color,w:110,h:36,selected:false});
   saveTabs(); pushHistory(); renderMindmap();
 }
 function copyNode() {
   let tab = tabs[currentTab];
-  let n = tab.nodes.find(n=>n.selected);
-  if(n) clipboardNode = {...n};
+  let nodes = tab.nodes.filter(n=>n.selected);
+  if(nodes.length) clipboardNodes = nodes.map(n=>({...n}));
 }
 function pasteNode() {
   let tab = tabs[currentTab];
-  if(clipboardNode){
-    let nn = {...clipboardNode, id:Date.now()+Math.floor(Math.random()*10000), x:clipboardNode.x+40, y:clipboardNode.y+40};
-    tab.nodes.push(nn);
+  if(clipboardNodes.length){
+    let offset = 40;
+    let newIds = [];
+    clipboardNodes.forEach(orig=>{
+      let nn = {...orig, id:Date.now()+Math.floor(Math.random()*10000), x:orig.x+offset, y:orig.y+offset, selected:true};
+      newIds.push(nn.id);
+      tab.nodes.push(nn);
+    });
+    // Select các node paste mới
+    tab.nodes.forEach(n=>n.selected=newIds.includes(n.id));
     saveTabs(); pushHistory(); renderMindmap();
   }
 }
@@ -232,7 +237,7 @@ function renderMindmap() {
     let nd = document.createElement("div");
     nd.className = `node ${n.color||'blue'} shape-${n.shape||'rect'}` + (n.selected?" selected":"");
     nd.style.left = n.x+"px"; nd.style.top = n.y+"px"; nd.style.width=n.w+"px"; nd.style.height=n.h+"px";
-    nd.innerHTML = `<div class="txt" contenteditable="true" style="width:100%;height:100%;outline:none;text-align:center;">${n.text||''}</div>
+    nd.innerHTML = `<div class="txt" contenteditable="true">${n.text||''}</div>
       <div class="plus" title="Kết nối node">+</div>`;
     // Drag
     let drag = false, dragOff={};
@@ -241,7 +246,12 @@ function renderMindmap() {
       if (e.offsetX > nd.offsetWidth-15 && e.offsetY > nd.offsetHeight-15) return; // Không drag ở góc resize
       drag = true;
       dragOff = {x:e.offsetX, y:e.offsetY};
-      n.selected = true;
+      if(!e.ctrlKey && !e.metaKey){
+        tab.nodes.forEach(nn=>nn.selected=false);
+        n.selected = true;
+      } else {
+        n.selected = !n.selected;
+      }
       renderMindmap();
       document.body.style.userSelect="none";
     };
@@ -265,10 +275,10 @@ function renderMindmap() {
     nd.querySelector('.txt').onkeydown = function(e){
       if(e.key==="Enter"){e.preventDefault();nd.querySelector('.txt').blur();}
     }
-    // Select node
+    // Select node (multi select Ctrl/Cmd)
     nd.onclick = function(e){
       if(!e.ctrlKey && !e.metaKey){
-        tab.nodes.forEach(nn=>delete nn.selected);
+        tab.nodes.forEach(nn=>nn.selected=false);
         n.selected = true;
       } else {
         n.selected = !n.selected;
@@ -303,12 +313,12 @@ function renderMindmap() {
       renderMindmap(); saveTabsDebounced();pushHistory();
     }
     // Copy/Paste bằng Ctrl+C/Ctrl+V
-    nd.oncopy = (e)=>{clipboardNode={...n};}
+    nd.oncopy = (e)=>{clipboardNodes = [ {...n} ]; }
     nd.onpaste = (e)=>{pasteNode();e.preventDefault();}
     nLayer.appendChild(nd);
   });
   document.getElementById("canvasWrap").onclick = function(){
-    tab.nodes.forEach(nn=>delete nn.selected);
+    tab.nodes.forEach(nn=>nn.selected=false);
     renderMindmap();
   }
 }
@@ -455,10 +465,12 @@ document.addEventListener('mousemove',function(e){
   }
 });
 document.addEventListener('mouseup',function(){panActive=false;document.getElementById('canvasWrap').style.cursor="";});
-// Copy/paste toàn canvas Ctrl+C/V, Delete node chọn
+// Copy/paste Ctrl+C/V, Delete node chọn, Undo/Redo
 document.addEventListener('keydown',function(e){
   if(e.ctrlKey&&e.key==='c'){copyNode();}
   if(e.ctrlKey&&e.key==='v'){pasteNode();}
+  if(e.ctrlKey&&(e.key==='z')){undo();}
+  if(e.ctrlKey&&(e.key==='y')){redo();}
   if((e.key==="Delete"||e.key==="Backspace")) {
     let tab = tabs[currentTab];
     let sel = tab.nodes.filter(n=>n.selected);
