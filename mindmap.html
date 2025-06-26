@@ -3,37 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <title>Tạo Sơ Đồ Tư Duy Online</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- jsPDF dùng cho xuất PDF -->
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7fafd; margin: 0; padding: 0;}
+        .container { max-width: 1200px; margin: 32px auto 20px auto; background: #fff; border-radius: 12px; padding: 32px 24px; box-shadow: 0 4px 20px #0066ff08; }
+        h2 { margin-bottom: 20px; color: #0074d9;}
+        #mindmapArea {
+            width: 100%;
+            min-height: 60vh;
+            height: 70vh;
+            position: relative;
+            background: #fafaff;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            overflow: auto;
+            margin-bottom: 12px;
+        }
+        #nodesContainer {
+            position: relative;
+            z-index: 1;
+        }
+        .mindmap-node {
+            position: absolute;
+            min-width: 90px;
+            min-height: 36px;
+            background: #f0f8ff;
+            border: 2px solid #0074d9;
+            border-radius: 10px;
+            padding: 8px;
+            cursor: move;
+            box-shadow: 0 2px 8px #0001;
+            user-select: text;
+            font-size: 1rem;
+            transition: box-shadow 0.2s;
+        }
+        .mindmap-node:focus {
+            outline: 2px solid #39c;
+            box-shadow: 0 4px 12px #0096ff33;
+        }
+        button {
+            margin-right: 10px;
+            background: #0074d9;
+            border: none;
+            color: #fff;
+            padding: 10px 18px;
+            font-size: 1rem;
+            border-radius: 7px;
+            cursor: pointer;
+            margin-bottom: 14px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #005fa3;}
+        small { color: #666;}
+        /* Header Footer fake for demo */
+        #header, #footer {
+            background: linear-gradient(90deg, #0074d9 30%, #f0f8ff 90%);
+            color: #fff;
+            padding: 14px 24px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        #footer { background: #0074d9; color: #f0f8ff; text-align: center; font-size: 1rem; border-radius:0 0 12px 12px; }
+    </style>
+    <!-- jsPDF & html2canvas CDN để xuất PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- html2canvas dùng để chụp canvas thành ảnh -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <div id="header"></div>
-    <script>
-      fetch('mini-header.html').then(res => res.text()).then(data => document.getElementById('header').innerHTML = data);
-    </script>
-
-    <!-- Content -->
-    <div class="container" style="min-height:60vh;">
+    <!-- HEADER (Có thể đổi lại đoạn này nếu bạn có header riêng) -->
+    <div id="header">TẠO SƠ ĐỒ TƯ DUY ONLINE</div>
+    <div class="container">
         <h2>Tạo Sơ Đồ Tư Duy (Mindmap)</h2>
         <button id="addNodeBtn">Thêm node</button>
         <button id="exportPDFBtn">Xuất PDF</button>
-        <div id="mindmapArea" style="width:100%;height:70vh;position:relative;background:#fafaff; border:1px solid #ccc;overflow:auto;">
+        <div id="mindmapArea">
             <svg id="mindmapLines" width="100%" height="100%" style="position:absolute;top:0;left:0;z-index:0"></svg>
-            <div id="nodesContainer" style="position:relative;z-index:1"></div>
+            <div id="nodesContainer"></div>
         </div>
-        <small>Kéo thả node, click node để chọn, click 2 node để nối.</small>
+        <small>Kéo thả node, click 2 node liên tiếp để nối đường giữa các ý.</small>
     </div>
+    <!-- FOOTER (Có thể đổi lại đoạn này nếu bạn có footer riêng) -->
+    <div id="footer">© 2025 Sơ đồ tư duy - koha2002/AI | Powered by OpenAI & jsPDF</div>
 
-    <!-- Footer -->
-    <div id="footer"></div>
     <script>
-      fetch('footer.html').then(res => res.text()).then(data => document.getElementById('footer').innerHTML = data);
-    </script>
+    // ============ MINDMAP LOGIC ============
+    let nodes = [];
+    let lines = [];
+    let nodeId = 0;
+    let selectedNode = null;
+    let linkStartNode = null;
 
-    <script src="main.js"></script>
+    const nodesContainer = document.getElementById('nodesContainer');
+    const mindmapLines = document.getElementById('mindmapLines');
+    const mindmapArea = document.getElementById('mindmapArea');
+
+    function createNode(x, y, text = 'Ý chính') {
+        let id = nodeId++;
+        let nodeDiv = document.createElement('div');
+        nodeDiv.className = 'mindmap-node';
+        nodeDiv.contentEditable = true;
+        nodeDiv.innerText = text;
+        nodeDiv.style.left = x + 'px';
+        nodeDiv.style.top = y + 'px';
+        nodeDiv.dataset.id = id;
+        nodeDiv.onclick = (e) => {
+            e.stopPropagation();
+            if(linkStartNode && linkStartNode !== id){
+                lines.push([linkStartNode, id]);
+                linkStartNode = null;
+                renderLines();
+            } else {
+                linkStartNode = id;
+            }
+        };
+        nodeDiv.onmousedown = (e) => {
+            selectedNode = {id, offsetX: e.offsetX, offsetY: e.offsetY};
+            e.stopPropagation();
+        };
+        nodeDiv.oninput = () => {
+            let node = nodes.find(n=>n.id === id);
+            if(node) node.text = nodeDiv.innerText;
+        };
+        nodesContainer.appendChild(nodeDiv);
+        nodes.push({id, x, y, text, el: nodeDiv});
+        updateSvgSize();
+    }
+
+    mindmapArea.onmousedown = () => { selectedNode = null; linkStartNode = null; };
+
+    mindmapArea.onmousemove = (e) => {
+        if(selectedNode){
+            let rect = mindmapArea.getBoundingClientRect();
+            let nx = e.clientX - rect.left - selectedNode.offsetX + mindmapArea.scrollLeft;
+            let ny = e.clientY - rect.top - selectedNode.offsetY + mindmapArea.scrollTop;
+            let node = nodes.find(n=>n.id === selectedNode.id);
+            node.x = nx; node.y = ny;
+            node.el.style.left = nx + 'px';
+            node.el.style.top = ny + 'px';
+            renderLines();
+            updateSvgSize();
+        }
+    };
+
+    document.onmouseup = () => { selectedNode = null; };
+
+    function renderLines(){
+        mindmapLines.innerHTML = '';
+        for(let [from, to] of lines){
+            let nf = nodes.find(n=>n.id===from);
+            let nt = nodes.find(n=>n.id===to);
+            if(nf && nt){
+                let x1 = nf.x + nf.el.offsetWidth/2;
+                let y1 = nf.y + nf.el.offsetHeight/2;
+                let x2 = nt.x + nt.el.offsetWidth/2;
+                let y2 = nt.y + nt.el.offsetHeight/2;
+                let line = document.createElementNS("http://www.w3.org/2000/svg","line");
+                line.setAttribute("x1", x1);
+                line.setAttribute("y1", y1);
+                line.setAttribute("x2", x2);
+                line.setAttribute("y2", y2);
+                line.setAttribute("stroke", "#0074D9");
+                line.setAttribute("stroke-width", 2);
+                mindmapLines.appendChild(line);
+            }
+        }
+    }
+
+    function updateSvgSize(){
+        // svg auto fit theo kích thước nodes
+        let minX = 0, minY = 0, maxX = 800, maxY = 600;
+        for(let n of nodes){
+            minX = Math.min(minX, n.x);
+            minY = Math.min(minY, n.y);
+            maxX = Math.max(maxX, n.x + n.el.offsetWidth);
+            maxY = Math.max(maxY, n.y + n.el.offsetHeight);
+        }
+        mindmapLines.setAttribute('width', maxX - minX + 100);
+        mindmapLines.setAttribute('height', maxY - minY + 100);
+        mindmapLines.style.width = (maxX - minX + 100) + 'px';
+        mindmapLines.style.height = (maxY - minY + 100) + 'px';
+    }
+
+    document.getElementById('addNodeBtn').onclick = function() {
+        // Thêm node ở vị trí ngẫu nhiên
+        let px = 80 + Math.random()*300;
+        let py = 40 + Math.random()*200;
+        createNode(px, py);
+        renderLines();
+    };
+
+    document.getElementById('exportPDFBtn').onclick = function() {
+        // Ẩn scrollbar, chụp màn hình vùng mindmapArea (cả svg+nodes)
+        html2canvas(mindmapArea, {backgroundColor:'#fff'}).then(canvas => {
+            let imgData = canvas.toDataURL('image/png');
+            const pdf = new window.jspdf.jsPDF({
+                orientation: 'landscape',
+                unit: 'pt',
+                format: [canvas.width, canvas.height]
+            });
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save('so-do-tu-duy.pdf');
+        });
+    };
+
+    // Auto fit khi resize
+    window.addEventListener('resize', () => {
+        updateSvgSize();
+        renderLines();
+    });
+
+    // Tạo sẵn 1 node trung tâm mẫu
+    window.onload = () => {
+        createNode(250, 120, "Chủ đề chính");
+    };
+    </script>
 </body>
 </html>
