@@ -15,9 +15,9 @@
     .tab {background:#2761ad;color:#fff;padding:7px 14px 7px 10px;border-radius:12px 12px 0 0;margin-right:4px;cursor:pointer;position:relative;}
     .tab.selected {background:#fff;color:#2761ad;border:2px solid #185adb;border-bottom:0;}
     .tab .close {position:absolute;right:4px;top:2px;color:#e22;font-size:15px;font-weight:bold;cursor:pointer;}
-    #canvasWrap {background:#f5f7fa;width:95vw;height:78vh;overflow:auto;position:relative;margin:0 auto 20px auto;border-radius:22px;box-shadow:0 5px 20px #123;}
-    #nodeLayer {position:absolute;left:0;top:0;width:3000px;height:1800px;}
-    .node {position:absolute;min-width:60px;min-height:32px;padding:10px 15px;background:#fff;border:2px solid #bcd;box-shadow:0 2px 12px #0002;border-radius:15px;z-index:10;cursor:pointer;user-select:text;transition:box-shadow .13s;}
+    #canvasWrap {background:#f5f7fa;overflow:auto;position:relative;margin:0 auto 20px auto;border-radius:22px;box-shadow:0 5px 20px #123;}
+    #nodeLayer {position:absolute;left:0;top:0;}
+    .node {position:absolute;min-width:60px;min-height:32px;max-width:500px;max-height:200px;padding:10px 15px;background:#fff;border:2px solid #bcd;box-shadow:0 2px 12px #0002;border-radius:15px;z-index:10;cursor:pointer;user-select:text;transition:box-shadow .13s;resize:both;overflow:auto;}
     .node.selected {border:2.5px solid #185adb;box-shadow:0 5px 20px #185adb2e;}
     .node .plus {position:absolute;width:18px;height:18px;background:#277fd7;color:#fff;border-radius:50%;right:-12px;top:50%;margin-top:-9px;text-align:center;line-height:18px;font-weight:bold;font-size:15px;cursor:pointer;box-shadow:0 1px 5px #185adb44;}
     .node .plus:hover {background:#47aaff;}
@@ -52,6 +52,9 @@
     #zoomInd {position:fixed;bottom:18px;left:15px;background:#1d2e62;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.1rem;z-index:100;}
     #undoBtn,#redoBtn {background:#f4f7ff;border-radius:7px;border:1.3px solid #bed5f6;padding:5px 13px;font-weight:700;margin-right:6px;cursor:pointer;}
     #importPDF {margin-left:11px;}
+    #paperSel {margin-left:10px;padding:5px 15px;border-radius:8px;}
+    @media (max-width:1100px){ #canvasWrap{width:99vw;} }
+    @media (max-width:600px){ #toolbar{flex-wrap:wrap;} }
   </style>
 </head>
 <body>
@@ -76,10 +79,18 @@
   <button id="redoBtn" onclick="redo()">⟳ Redo</button>
   <button onclick="saveTabs()">💾 Lưu</button>
   <button onclick="showExportMenu()">PDF</button>
+  <select id="paperSel">
+    <option value="a4">A4 dọc</option>
+    <option value="a4_landscape">A4 ngang</option>
+    <option value="a3">A3 dọc</option>
+    <option value="a3_landscape">A3 ngang</option>
+    <option value="letter">Letter</option>
+    <option value="free">Không giới hạn</option>
+  </select>
   <input type="file" id="importPDF" accept=".pdf" style="display:none">
   <button onclick="document.getElementById('importPDF').click()">Import PDF</button>
 </div>
-<div id="canvasWrap">
+<div id="canvasWrap" style="width:794px;height:1123px;">
   <svg id="connLayer" width="3000" height="1800" style="position:absolute;left:0;top:0;z-index:1;"></svg>
   <div id="nodeLayer"></div>
   <div id="selectBox"></div>
@@ -97,18 +108,40 @@
 fetch('mini-header.html').then(r=>r.text()).then(html=>document.getElementById('header').innerHTML=html);
 fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
 
-let TABS_KEY = "mindmap_tabs_v4";
+let TABS_KEY = "mindmap_tabs_v5";
 let tabs = loadTabs();
 let currentTab = 0;
 let clipboardNode = null;
 let connFrom = null;
 let selectBoxMode = false, selecting = false, selectStart={};
-let selectedNodes = new Set();
 let zoom = 1;
-// Undo/Redo stack cho mỗi tab
 let undoStack = [[]], redoStack = [[]];
 
 const COLORS = ['blue','green','yellow','pink','orange','purple','gray','red','cyan','lime'];
+const paperSizes = {
+  a4:      {w: 210*3.78, h: 297*3.78},
+  a4_landscape: {w: 297*3.78, h: 210*3.78},
+  a3:      {w: 297*3.78, h: 420*3.78},
+  a3_landscape: {w: 420*3.78, h: 297*3.78},
+  letter:  {w: 215.9*3.78, h: 279.4*3.78},
+  free:    {w: "99vw", h: "70vh"}
+};
+function updatePaperSize() {
+  let val = document.getElementById('paperSel').value;
+  let area = document.getElementById('canvasWrap');
+  if(val==="free") {
+    area.style.width = "99vw";
+    area.style.height = "70vh";
+    area.style.maxWidth = "none";
+    area.style.maxHeight = "none";
+  } else {
+    area.style.width = paperSizes[val].w+"px";
+    area.style.height = paperSizes[val].h+"px";
+    area.style.maxWidth = paperSizes[val].w+"px";
+    area.style.maxHeight = paperSizes[val].h+"px";
+  }
+}
+document.getElementById('paperSel').onchange = updatePaperSize;
 
 function renderTabs() {
   let html = '';
@@ -180,6 +213,12 @@ function renderMindmap() {
   let cLayer = document.getElementById("connLayer");
   nLayer.innerHTML = '';
   cLayer.innerHTML = '';
+  // Layer size luôn đúng khổ giấy
+  let cw = document.getElementById('canvasWrap').clientWidth;
+  let ch = document.getElementById('canvasWrap').clientHeight;
+  nLayer.style.width = cw+"px"; nLayer.style.height = ch+"px";
+  cLayer.setAttribute('width',cw);cLayer.setAttribute('height',ch);
+
   // Render connections
   tab.lines.forEach(line=>{
     let from = tab.nodes.find(n=>n.id===line[0]), to = tab.nodes.find(n=>n.id===line[1]);
@@ -199,6 +238,7 @@ function renderMindmap() {
     let drag = false, dragOff={};
     nd.onmousedown = e=>{
       if(e.target.classList.contains("plus")||e.target.classList.contains("txt")) return;
+      if (e.offsetX > nd.offsetWidth-15 && e.offsetY > nd.offsetHeight-15) return; // Không drag ở góc resize
       drag = true;
       dragOff = {x:e.offsetX, y:e.offsetY};
       n.selected = true;
@@ -208,19 +248,15 @@ function renderMindmap() {
     document.addEventListener("mousemove",function(e){
       if(!drag) return;
       let wrapRect = document.getElementById("canvasWrap").getBoundingClientRect();
-      n.x = (e.clientX - wrapRect.left - dragOff.x)/zoom;
-      n.y = (e.clientY - wrapRect.top - dragOff.y)/zoom;
+      let nx = (e.clientX - wrapRect.left - dragOff.x)/zoom, ny = (e.clientY - wrapRect.top - dragOff.y)/zoom;
+      n.x = Math.max(0, Math.min(nx, cw-n.w)); n.y = Math.max(0, Math.min(ny, ch-n.h));
       nd.style.left = n.x+"px"; nd.style.top = n.y+"px";
       renderMindmap();
     });
     document.addEventListener("mouseup",()=>{if(drag){drag=false;pushHistory();document.body.style.userSelect="";}});
-    // Resize node
-    nd.onwheel = e=>{
-      if(e.ctrlKey) return;
-      if(e.deltaY<0) { n.w+=12;n.h+=4; }
-      else { n.w=Math.max(60,n.w-12);n.h=Math.max(32,n.h-4);}
-      renderMindmap();
-    }
+    // Resize: Giới hạn
+    nd.onmouseup = ()=>{ n.w=Math.max(60,Math.min(nd.offsetWidth,500)); n.h=Math.max(32,Math.min(nd.offsetHeight,200)); pushHistory(); };
+    nd.onresize = nd.onmouseup;
     // Edit text
     nd.querySelector('.txt').oninput = (e)=>{
       n.text = nd.querySelector('.txt').innerText;
@@ -276,8 +312,6 @@ function renderMindmap() {
     renderMindmap();
   }
 }
-function getSelectedNodes(tab) { return tab.nodes.filter(n=>n.selected); }
-
 function startSelectBox(){
   selectBoxMode = true;
   let selectBox = document.getElementById("selectBox");
@@ -293,7 +327,8 @@ function startSelectBox(){
       selectBox.style.left=lx+"px";selectBox.style.top=ty+"px";selectBox.style.width=w+"px";selectBox.style.height=h+"px";
       let tab = tabs[currentTab];
       tab.nodes.forEach(n=>{
-        let inside = n.x>lx-15&&n.x<n.x+n.w&&n.x+n.w<lx+w+35&&n.y>ty-10&&n.y+n.h<ty+h+25;
+        let nx = n.x, ny = n.y, nw = n.w, nh = n.h;
+        let inside = nx+nw>lx && nx<lx+w && ny+nh>ty && ny<ty+h;
         n.selected = inside;
       });
       renderMindmap();
@@ -321,7 +356,6 @@ function doExportPDF(selectedOnly){
   setTimeout(()=>{
     if(!confirm("Bạn muốn xuất PDF ngay bây giờ? Hãy kiểm tra lại sơ đồ!")) return;
     let wrap = document.getElementById("canvasWrap");
-    let rect = wrap.getBoundingClientRect();
     let config = {backgroundColor:'#fff', scale:2, useCORS:true};
     if(selectedOnly){
       let tab = tabs[currentTab];
@@ -333,6 +367,11 @@ function doExportPDF(selectedOnly){
       if(maxX<0) return alert("Không có node nào được chọn!");
       config.x = minX; config.y = minY;
       config.width = maxX-minX+50; config.height = maxY-minY+40;
+    } else {
+      let val = document.getElementById('paperSel').value;
+      if(val!=="free"){
+        config.width = paperSizes[val].w; config.height = paperSizes[val].h;
+      }
     }
     html2canvas(wrap, config).then(canvas=>{
       let pdf = new window.jspdf.jsPDF({
@@ -344,7 +383,6 @@ function doExportPDF(selectedOnly){
     });
   },120);
 }
-
 function saveTabs(){
   localStorage.setItem(TABS_KEY,JSON.stringify(tabs));
 }
@@ -357,7 +395,6 @@ function loadTabs(){
   if(d) return JSON.parse(d);
   return [{name:"Sơ đồ 1", nodes:[], lines:[]}];
 }
-
 // Undo/Redo
 function pushHistory(){
   if(!undoStack[currentTab])undoStack[currentTab]=[];
@@ -383,7 +420,6 @@ function resetHistory(){
   undoStack[currentTab]=[JSON.stringify(tabs[currentTab])];
   redoStack[currentTab]=[];
 }
-
 // ZOOM
 function showZoom(){document.getElementById('zoomInd').style.display="block";}
 function hideZoom(){document.getElementById('zoomInd').style.display="none";}
@@ -400,7 +436,6 @@ document.getElementById('canvasWrap').addEventListener('wheel',function(e){
     window.zoomTimeout = setTimeout(hideZoom,1200);
   }
 },{passive:false});
-
 // PAN bằng chuột giữa
 let panActive=false, panStart={x:0,y:0}, scrollStart={x:0,y:0};
 document.getElementById('canvasWrap').addEventListener('mousedown',function(e){
@@ -420,7 +455,6 @@ document.addEventListener('mousemove',function(e){
   }
 });
 document.addEventListener('mouseup',function(){panActive=false;document.getElementById('canvasWrap').style.cursor="";});
-
 // Copy/paste toàn canvas Ctrl+C/V, Delete node chọn
 document.addEventListener('keydown',function(e){
   if(e.ctrlKey&&e.key==='c'){copyNode();}
@@ -438,7 +472,6 @@ document.addEventListener('keydown',function(e){
     }
   }
 });
-
 // ===== IMPORT PDF =====
 document.getElementById('importPDF').addEventListener('change', function(e){
   let file = e.target.files[0];
@@ -467,12 +500,14 @@ document.getElementById('importPDF').addEventListener('change', function(e){
   };
   reader.readAsArrayBuffer(file);
 });
-
-renderTabs();
-renderColorBtns();
-renderMindmap();
-resetHistory();
-
+window.onload = ()=>{
+  renderTabs();
+  renderColorBtns();
+  renderMindmap();
+  resetHistory();
+  updatePaperSize();
+};
+window.addEventListener('resize',()=>{updatePaperSize();renderMindmap();});
 </script>
 </body>
 </html>
