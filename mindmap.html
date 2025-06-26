@@ -21,9 +21,10 @@
     #mindmapArea { background: linear-gradient(125deg, #f8fafc 70%, #e2edff 100%); border: 1.5px solid #185adb3a; border-radius: 22px; margin: 0 auto 34px auto; box-shadow: 0 8px 44px #173c7146; position: relative; overflow: auto; transition: box-shadow 0.15s;}
     #mindmapLines { position: absolute; top:0; left:0; z-index: 0; pointer-events: none;}
     #nodesContainer { position: relative; z-index: 1; min-width: 100%; min-height: 100%;}
-    .mindmap-node { position: absolute; min-width: 66px; min-height: 30px; max-width: 440px; max-height: 160px; padding: 11px 15px; font-size: 1.02rem; font-weight: 500; box-shadow: 0 2px 10px #0a1e3130; cursor: move; outline: none; border: 2.3px solid #fff6; user-select: text; transition: box-shadow 0.2s, border 0.2s; display: flex; align-items: center; justify-content: center; word-break: break-word; z-index: 2; background: #fff; resize: both; overflow: auto;}
+    .mindmap-node { position: absolute; min-width: 66px; min-height: 30px; max-width: 440px; max-height: 160px; padding: 11px 15px; font-size: 1.02rem; font-weight: 500; box-shadow: 0 2px 10px #0a1e3130; cursor: grab; outline: none; border: 2.3px solid #fff6; user-select: text; transition: box-shadow 0.2s, border 0.2s; display: flex; align-items: center; justify-content: center; word-break: break-word; z-index: 2; background: #fff; resize: both; overflow: auto;}
     .mindmap-node.selected { border: 2.7px solid #185adb; box-shadow: 0 4px 18px #3199e555;}
     .mindmap-node .node-text { width: 100%; text-align: center; outline: none; resize: none; background: none; border: none; font-family: inherit; font-size: inherit; color: inherit; display: block; padding: 0; margin: 0; line-height: 1.2; word-break: break-word;}
+    .mindmap-node:active { cursor: grabbing; }
     /* Shapes */
     .node-rect { border-radius: 13px; }
     .node-round { border-radius: 30px; }
@@ -52,7 +53,7 @@
     #deleteNodeBtn.show {display: block;}
     #select-region-btn { margin-left:10px; background:#fff8; border:1px solid #bed5f6; border-radius:7px; font-size:1rem; cursor:pointer; padding:6px 13px;}
     #select-region-btn.active {background:#d1ecfa;}
-    #selected-region { position:absolute; border:2px dashed #2196f3; background:rgba(33,150,243,0.08); pointer-events:none; display:none;}
+    #selected-region { position:absolute; border:2px dashed #2196f3; background:rgba(33,150,243,0.0); pointer-events:none; display:none;}
     #zoom-indicator { position:fixed; bottom:25px; left:25px; background:rgba(40,80,170,0.87); color:#fff; border-radius:7px; padding:6px 18px; font-size:1rem; font-weight:700; z-index:111; user-select:none; opacity:0.93;}
     @media (max-width: 600px) {
       #mindmapArea { min-height: 400px; height: 420px;}
@@ -90,7 +91,7 @@
       <div id="nodesContainer"></div>
       <div id="selected-region"></div>
     </div>
-    <div class="tip">Kéo thả, chọn node để sửa, chọn màu/hình dạng trên thanh công cụ, click 2 node để nối ý. Zoom bằng lăn chuột. Nhấn Xóa hoặc phím Delete để xóa node.</div>
+    <div class="tip">Kéo thả, chọn node để sửa, chọn màu/hình dạng trên thanh công cụ, click 2 node để nối ý. Zoom bằng lăn chuột. Giữ chuột giữa để di chuyển vùng nhìn như CAD.</div>
     <button id="deleteNodeBtn">🗑 Xóa node</button>
     <div id="zoom-indicator" style="display:none;">100%</div>
   </main>
@@ -99,7 +100,6 @@
 fetch('mini-header.html').then(res=>res.text()).then(t=>document.getElementById('header').innerHTML=t);
 fetch('footer.html').then(res=>res.text()).then(t=>document.getElementById('footer').innerHTML=t);
 
-/* ==== MÀU & HÌNH DẠNG ==== */
 const COLORS = [
   {code:'blue', val:'#c9e7ff'}, {code:'green', val:'#defde0'},
   {code:'yellow', val:'#fff7c6'}, {code:'pink', val:'#ffd4e5'},
@@ -120,17 +120,20 @@ const SHAPES = [
   {cls:'node-file', name:'File', icon:'📄'},
   {cls:'node-star', name:'Ngôi sao', icon:'★'},
 ];
-let curColor = 'blue', curShape = 'node-rect';
+
+let defaultShape = 'node-rect', defaultColor = 'blue';
+let curShape = defaultShape, curColor = defaultColor;
 const colorList = document.getElementById('color-list');
 COLORS.forEach(c=>{
   let d = document.createElement('span');
-  d.className = 'color-pick node-color-' + c.code + (c.code===curColor?' selected':'');
+  d.className = 'color-pick node-color-' + c.code + (c.code===defaultColor?' selected':'');
   d.style.background = c.val;
   d.title = c.code.charAt(0).toUpperCase()+c.code.slice(1);
   d.onclick = ()=>{
     curColor = c.code;
     document.querySelectorAll('.color-pick').forEach(x=>x.classList.remove('selected'));
     d.classList.add('selected');
+    // Đổi màu node đang chọn
     if(selectedNodeId !== null) setNodeColor(selectedNodeId, c.code);
   };
   colorList.appendChild(d);
@@ -146,17 +149,17 @@ SHAPES.forEach((s, idx)=>{
 });
 shapeSel.onchange = function() {
   curShape = this.value;
+  // Chỉ đổi node đang chọn, node khác giữ nguyên
   if(selectedNodeId !== null) setNodeShape(selectedNodeId, curShape);
 };
 
-/* ==== KHỔ GIẤY ==== */
 const paperSizes = {
-  a4:      {w: 210*3.78, h: 297*3.78}, // px: 1mm ~ 3.78px
+  a4:      {w: 210*3.78, h: 297*3.78},
   a4_landscape: {w: 297*3.78, h: 210*3.78},
   a3:      {w: 297*3.78, h: 420*3.78},
   a3_landscape: {w: 420*3.78, h: 297*3.78},
   letter:  {w: 215.9*3.78, h: 279.4*3.78},
-  free:    {w: "100vw", h: "100vh"}
+  free:    {w: "98vw", h: "75vh"}
 };
 const paperSel = document.getElementById("paper-size-selector");
 const mindmapArea = document.getElementById('mindmapArea');
@@ -183,7 +186,6 @@ const nodesContainer = document.getElementById('nodesContainer');
 const mindmapLines = document.getElementById('mindmapLines');
 const deleteBtn = document.getElementById('deleteNodeBtn');
 
-/* Tạo node mới */
 function createNode(x, y, text = 'Ý chính', color = curColor, shape = curShape) {
   let id = nodeId++;
   let nodeDiv = document.createElement('div');
@@ -196,6 +198,33 @@ function createNode(x, y, text = 'Ý chính', color = curColor, shape = curShape
   nodeDiv.style.minWidth = "66px"; nodeDiv.style.minHeight = "30px";
   nodeDiv.style.maxWidth = "440px"; nodeDiv.style.maxHeight = "160px";
 
+  let dragActive = false, dragOffset = {x:0,y:0};
+  // Drag di chuyển node (chỉ khi không resize)
+  nodeDiv.addEventListener('mousedown', function(e) {
+    if(e.button === 1) return; // chuột giữa là pan, không phải node drag
+    if(e.target.className === 'node-text') return; // Đang sửa nội dung thì không drag
+    if (e.offsetX > nodeDiv.offsetWidth-14 && e.offsetY > nodeDiv.offsetHeight-14) return; // Không drag khi ở góc resize
+    dragActive = true;
+    dragOffset.x = e.offsetX; dragOffset.y = e.offsetY;
+    selectNode(id, nodeDiv);
+    document.body.style.userSelect = "none";
+    e.stopPropagation();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragActive) return;
+    let areaRect = mindmapArea.getBoundingClientRect();
+    let nx = e.clientX - areaRect.left - dragOffset.x + mindmapArea.scrollLeft;
+    let ny = e.clientY - areaRect.top - dragOffset.y + mindmapArea.scrollTop;
+    nodeDiv.style.left = nx+"px";
+    nodeDiv.style.top = ny+"px";
+    let node = nodes.find(n=>n.id===id);
+    node.x = nx; node.y = ny;
+    renderLines();
+    updateSvgSize();
+    showDeleteBtn(nodeDiv);
+  });
+  document.addEventListener('mouseup', function(){ dragActive=false; document.body.style.userSelect = ""; });
+
   nodeDiv.onclick = (e) => {
     e.stopPropagation();
     selectNode(id, nodeDiv);
@@ -206,14 +235,6 @@ function createNode(x, y, text = 'Ý chính', color = curColor, shape = curShape
     } else {
       linkStartNode = id;
     }
-  };
-  nodeDiv.onmousedown = (e) => {
-    if(e.target.className === 'node-text') return;
-    dragState.dragId = id;
-    dragState.offsetX = e.offsetX;
-    dragState.offsetY = e.offsetY;
-    selectNode(id, nodeDiv);
-    e.stopPropagation();
   };
   nodeDiv.querySelector('.node-text').oninput = () => {
     let node = nodes.find(n=>n.id===id);
@@ -252,9 +273,48 @@ function setNodeShape(id, shape){
   newDiv.style.minWidth = "66px"; newDiv.style.minHeight = "30px";
   newDiv.style.maxWidth = "440px"; newDiv.style.maxHeight = "160px";
   newDiv.style.width = w+"px"; newDiv.style.height = h+"px";
-  newDiv.onclick = node.el.onclick;
-  newDiv.onmousedown = node.el.onmousedown;
-  newDiv.querySelector('.node-text').oninput = node.el.querySelector('.node-text').oninput;
+  // Gắn lại event di chuyển
+  let dragActive = false, dragOffset = {x:0,y:0};
+  newDiv.addEventListener('mousedown', function(e) {
+    if(e.button === 1) return;
+    if(e.target.className === 'node-text') return;
+    if (e.offsetX > newDiv.offsetWidth-14 && e.offsetY > newDiv.offsetHeight-14) return;
+    dragActive = true;
+    dragOffset.x = e.offsetX; dragOffset.y = e.offsetY;
+    selectNode(node.id, newDiv);
+    document.body.style.userSelect = "none";
+    e.stopPropagation();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragActive) return;
+    let areaRect = mindmapArea.getBoundingClientRect();
+    let nx = e.clientX - areaRect.left - dragOffset.x + mindmapArea.scrollLeft;
+    let ny = e.clientY - areaRect.top - dragOffset.y + mindmapArea.scrollTop;
+    newDiv.style.left = nx+"px";
+    newDiv.style.top = ny+"px";
+    let nd = nodes.find(n=>n.id===node.id);
+    nd.x = nx; nd.y = ny;
+    renderLines();
+    updateSvgSize();
+    showDeleteBtn(newDiv);
+  });
+  document.addEventListener('mouseup', function(){ dragActive=false; document.body.style.userSelect = ""; });
+
+  newDiv.onclick = (e) => {
+    e.stopPropagation();
+    selectNode(node.id, newDiv);
+    if(linkStartNode!==null && linkStartNode!==node.id){
+      lines.push([linkStartNode, node.id]);
+      linkStartNode = null;
+      renderLines();
+    } else {
+      linkStartNode = node.id;
+    }
+  };
+  newDiv.querySelector('.node-text').oninput = () => {
+    let nd = nodes.find(n=>n.id===node.id);
+    if(nd) nd.text = newDiv.querySelector('.node-text').innerText;
+  };
   newDiv.onresize = ()=>{updateSvgSize();renderLines();};
   newDiv.addEventListener("mouseup", ()=>{ updateSvgSize(); renderLines(); });
   nodesContainer.replaceChild(newDiv, node.el);
@@ -290,26 +350,28 @@ function removeNode(id){
   }
 }
 
-/* Kéo thả node (drag & drop) */
-let dragState = {dragId:null, offsetX:0, offsetY:0};
-mindmapArea.onmousedown = () => { dragState.dragId = null; linkStartNode = null; selectedNodeId=null; nodes.forEach(n=>n.el.classList.remove('selected')); hideDeleteBtn();};
-mindmapArea.onmousemove = (e) => {
-  if(dragState.dragId!==null){
-    let rect = mindmapArea.getBoundingClientRect();
-    let nx = e.clientX - rect.left - dragState.offsetX + mindmapArea.scrollLeft;
-    let ny = e.clientY - rect.top - dragState.offsetY + mindmapArea.scrollTop;
-    let node = nodes.find(n=>n.id === dragState.dragId);
-    node.x = nx; node.y = ny;
-    node.el.style.left = nx + 'px';
-    node.el.style.top = ny + 'px';
-    renderLines();
-    updateSvgSize();
-    showDeleteBtn(node.el);
+/* Kéo thả toàn vùng mindmap với chuột giữa (pan như CAD) */
+let panActive = false, panStart = {x:0, y:0}, scrollStart = {x:0,y:0};
+mindmapArea.addEventListener('mousedown', function(e){
+  if(e.button===1){ // chuột giữa
+    panActive = true;
+    panStart.x = e.clientX;
+    panStart.y = e.clientY;
+    scrollStart.x = mindmapArea.scrollLeft;
+    scrollStart.y = mindmapArea.scrollTop;
+    mindmapArea.style.cursor = "grab";
+    e.preventDefault();
   }
-};
-document.onmouseup = () => { dragState.dragId = null; };
+});
+document.addEventListener('mousemove', function(e){
+  if(panActive){
+    mindmapArea.scrollLeft = scrollStart.x - (panStart.x - e.clientX);
+    mindmapArea.scrollTop = scrollStart.y - (panStart.y - e.clientY);
+  }
+});
+document.addEventListener('mouseup', function(){ panActive=false; mindmapArea.style.cursor=""; });
 
-/* Vẽ line SVG */
+/* Draw line */
 function renderLines(){
   mindmapLines.innerHTML = '';
   for(let [from, to] of lines){
@@ -364,7 +426,7 @@ selectRegionBtn.onclick = function() {
   if(!selectingRegion) selectedRegionDiv.style.display="none";
 };
 mindmapArea.addEventListener("mousedown", function(e){
-  if(!selectingRegion) return;
+  if(!selectingRegion || e.button!==0) return;
   regionStart = {x:e.offsetX, y:e.offsetY};
   selectedRegionDiv.style.left = regionStart.x+"px";
   selectedRegionDiv.style.top = regionStart.y+"px";
@@ -393,13 +455,13 @@ document.getElementById('exportPDFBtn').onclick = function() {
     backgroundColor:'#fff', scale:scale, useCORS: true
   };
   if(useRegion) {
-    // xuất đúng vùng chọn
     let rect = selectedRegionDiv.getBoundingClientRect();
     let areaRect = area.getBoundingClientRect();
     config.x = rect.left - areaRect.left + area.scrollLeft;
     config.y = rect.top - areaRect.top + area.scrollTop;
     config.width = parseInt(selectedRegionDiv.style.width);
     config.height = parseInt(selectedRegionDiv.style.height);
+    selectedRegionDiv.style.visibility = "hidden"; // Ẩn vùng chọn khi chụp PDF!
   }
   html2canvas(area, config).then(canvas => {
     let imgData = canvas.toDataURL('image/png');
@@ -414,10 +476,11 @@ document.getElementById('exportPDFBtn').onclick = function() {
       pdf.addImage(imgData, 'PNG', 0, 0, pw*scale, ph*scale);
     }
     pdf.save('so-do-tu-duy.pdf');
+    if(useRegion) selectedRegionDiv.style.visibility = "visible";
   });
 };
 
-/* ======================= ZOOM bằng con lăn ===================== */
+/* =============== ZOOM bằng con lăn =============== */
 let zoom = 1;
 const zoomIndicator = document.getElementById('zoom-indicator');
 mindmapArea.addEventListener('wheel', function(e){
@@ -445,7 +508,7 @@ document.addEventListener('keydown', function(e) {
 /* ============= Tự động update paper khi load ============= */
 window.onload = () => {
   updatePaperSize();
-  createNode(250, 120, "Chủ đề chính", curColor, curShape);
+  createNode(250, 120, "Chủ đề chính", defaultColor, defaultShape);
   renderLines();
 };
 window.addEventListener('resize', () => { updateSvgSize(); renderLines(); });
