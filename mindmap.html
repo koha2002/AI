@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>Mindmap Pro</title>
   <link rel="icon" href="logo.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body {font-family:sans-serif;background:#0a1931;color:#222;margin:0;}
+    body {font-family: 'Montserrat', Arial, sans-serif;background:#0a1931;color:#222;margin:0;}
     #header, #footer {background: #192945; color:#aee4ff;padding:9px 20px;}
     #toolbar {display:flex;gap:12px;padding:8px;background:#133360;}
     #tabs {display:flex;gap:5px;}
@@ -47,10 +50,12 @@
     #saveMsg {margin-left:24px;}
     #tabAdd {margin-left:13px;}
     #zoomInd {position:fixed;bottom:18px;left:15px;background:#1d2e62;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.1rem;z-index:100;}
+    #undoBtn,#redoBtn {background:#f4f7ff;border-radius:7px;border:1.3px solid #bed5f6;padding:5px 13px;font-weight:700;margin-right:6px;cursor:pointer;}
+    #importPDF {margin-left:11px;}
   </style>
 </head>
 <body>
-<div id="header">Mindmap Pro (Demo) | <span id="saveMsg"></span></div>
+<div id="header"></div>
 <div id="toolbar">
   <button onclick="addTab()" id="tabAdd">+ Sơ đồ mới</button>
   <div id="tabs"></div>
@@ -67,15 +72,19 @@
   <button onclick="copyNode()">Copy</button>
   <button onclick="pasteNode()">Paste</button>
   <button onclick="startSelectBox()">Khoanh vùng xóa</button>
+  <button id="undoBtn" onclick="undo()">⎌ Undo</button>
+  <button id="redoBtn" onclick="redo()">⟳ Redo</button>
   <button onclick="saveTabs()">💾 Lưu</button>
   <button onclick="showExportMenu()">PDF</button>
+  <input type="file" id="importPDF" accept=".pdf" style="display:none">
+  <button onclick="document.getElementById('importPDF').click()">Import PDF</button>
 </div>
 <div id="canvasWrap">
   <svg id="connLayer" width="3000" height="1800" style="position:absolute;left:0;top:0;z-index:1;"></svg>
   <div id="nodeLayer"></div>
   <div id="selectBox"></div>
 </div>
-<div id="footer">Footer demo</div>
+<div id="footer"></div>
 <div id="menu" style="display:none;">
   <b>Xuất PDF</b><br>
   <button onclick="doExportPDF(true)">Chỉ vùng chọn</button>
@@ -83,10 +92,12 @@
   <button onclick="closeExportMenu()">Huỷ</button>
 </div>
 <div id="zoomInd" style="display:none;">100%</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-let TABS_KEY = "mindmap_tabs_v3";
+// ===== HEADER/FOOTER =====
+fetch('mini-header.html').then(r=>r.text()).then(html=>document.getElementById('header').innerHTML=html);
+fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
+
+let TABS_KEY = "mindmap_tabs_v4";
 let tabs = loadTabs();
 let currentTab = 0;
 let clipboardNode = null;
@@ -94,6 +105,8 @@ let connFrom = null;
 let selectBoxMode = false, selecting = false, selectStart={};
 let selectedNodes = new Set();
 let zoom = 1;
+// Undo/Redo stack cho mỗi tab
+let undoStack = [[]], redoStack = [[]];
 
 const COLORS = ['blue','green','yellow','pink','orange','purple','gray','red','cyan','lime'];
 
@@ -110,6 +123,7 @@ function addTab() {
   tabs.push({name, nodes:[], lines:[]});
   currentTab = tabs.length-1;
   saveTabs();
+  resetHistory();
   renderTabs();
   renderMindmap();
 }
@@ -117,20 +131,21 @@ function closeTab(idx) {
   if(!confirm("Xác nhận xoá sơ đồ này?")) return;
   tabs.splice(idx,1);
   currentTab = Math.max(0, currentTab-1);
-  saveTabs(); renderTabs(); renderMindmap();
+  saveTabs(); resetHistory(); renderTabs(); renderMindmap();
 }
 function switchTab(idx) {
   currentTab = idx;
+  resetHistory();
   renderTabs();
   renderMindmap();
 }
-function addNode() {
+function addNode(txt) {
   let tab = tabs[currentTab];
   let id = Date.now() + Math.floor(Math.random()*10000);
   let color = document.querySelector('#colorBtns .sel')?.dataset.c || 'blue';
   let shape = document.getElementById('shapeSel').value;
-  tab.nodes.push({id,x:200+Math.random()*300,y:160+Math.random()*200,text:"Ý mới",shape,color,w:110,h:36,});
-  saveTabs(); renderMindmap();
+  tab.nodes.push({id,x:200+Math.random()*300,y:160+Math.random()*200,text:txt||"Ý mới",shape,color,w:110,h:36,});
+  saveTabs(); pushHistory(); renderMindmap();
 }
 function copyNode() {
   let tab = tabs[currentTab];
@@ -142,7 +157,7 @@ function pasteNode() {
   if(clipboardNode){
     let nn = {...clipboardNode, id:Date.now()+Math.floor(Math.random()*10000), x:clipboardNode.x+40, y:clipboardNode.y+40};
     tab.nodes.push(nn);
-    saveTabs(); renderMindmap();
+    saveTabs(); pushHistory(); renderMindmap();
   }
 }
 function renderColorBtns(){
@@ -198,7 +213,7 @@ function renderMindmap() {
       nd.style.left = n.x+"px"; nd.style.top = n.y+"px";
       renderMindmap();
     });
-    document.addEventListener("mouseup",()=>{drag=false;document.body.style.userSelect="";});
+    document.addEventListener("mouseup",()=>{if(drag){drag=false;pushHistory();document.body.style.userSelect="";}});
     // Resize node
     nd.onwheel = e=>{
       if(e.ctrlKey) return;
@@ -209,7 +224,7 @@ function renderMindmap() {
     // Edit text
     nd.querySelector('.txt').oninput = (e)=>{
       n.text = nd.querySelector('.txt').innerText;
-      saveTabsDebounced();
+      saveTabsDebounced();pushHistory();
     };
     nd.querySelector('.txt').onkeydown = function(e){
       if(e.key==="Enter"){e.preventDefault();nd.querySelector('.txt').blur();}
@@ -236,7 +251,7 @@ function renderMindmap() {
           let nid = tab.nodes[nodeEls.indexOf(found)].id;
           if(nid!==connFrom) {
             tab.lines.push([connFrom,nid]);
-            saveTabs(); renderMindmap();
+            saveTabs(); pushHistory(); renderMindmap();
           }
         }
         connFrom = null; document.body.style.cursor=""; document.getElementById("canvasWrap").onclick=null;
@@ -249,14 +264,13 @@ function renderMindmap() {
       if(shape) {n.shape=shape;}
       let color = prompt("Màu: "+COLORS.join(','),n.color);
       if(color) {n.color=color;}
-      renderMindmap(); saveTabsDebounced();
+      renderMindmap(); saveTabsDebounced();pushHistory();
     }
     // Copy/Paste bằng Ctrl+C/Ctrl+V
     nd.oncopy = (e)=>{clipboardNode={...n};}
     nd.onpaste = (e)=>{pasteNode();e.preventDefault();}
     nLayer.appendChild(nd);
   });
-  // Multi-select
   document.getElementById("canvasWrap").onclick = function(){
     tab.nodes.forEach(nn=>delete nn.selected);
     renderMindmap();
@@ -293,17 +307,15 @@ function startSelectBox(){
           let ids = tab.nodes.filter(n=>n.selected).map(n=>n.id);
           tab.nodes = tab.nodes.filter(n=>!n.selected);
           tab.lines = tab.lines.filter(l=>!ids.includes(l[0])&&!ids.includes(l[1]));
-          saveTabs(); renderMindmap();
+          saveTabs(); pushHistory(); renderMindmap();
         }
         selectBox.style.display="none";selectBoxMode=false;
       },180);
     }
   }
 }
-
 function showExportMenu(){ document.getElementById('menu').style.display='block'; }
 function closeExportMenu(){ document.getElementById('menu').style.display='none'; }
-
 function doExportPDF(selectedOnly){
   closeExportMenu();
   setTimeout(()=>{
@@ -335,8 +347,6 @@ function doExportPDF(selectedOnly){
 
 function saveTabs(){
   localStorage.setItem(TABS_KEY,JSON.stringify(tabs));
-  document.getElementById('saveMsg').innerText = "Đã lưu!";
-  setTimeout(()=>{document.getElementById('saveMsg').innerText=''},1400);
 }
 function saveTabsDebounced(){
   clearTimeout(window.__saveDebounced);
@@ -346,6 +356,32 @@ function loadTabs(){
   let d = localStorage.getItem(TABS_KEY);
   if(d) return JSON.parse(d);
   return [{name:"Sơ đồ 1", nodes:[], lines:[]}];
+}
+
+// Undo/Redo
+function pushHistory(){
+  if(!undoStack[currentTab])undoStack[currentTab]=[];
+  undoStack[currentTab].push(JSON.stringify(tabs[currentTab]));
+  redoStack[currentTab]=[]; // clear redo khi thay đổi
+}
+function undo(){
+  if(undoStack[currentTab]&&undoStack[currentTab].length>1){
+    redoStack[currentTab].push(undoStack[currentTab].pop());
+    tabs[currentTab]=JSON.parse(undoStack[currentTab][undoStack[currentTab].length-1]);
+    saveTabs(); renderMindmap();
+  }
+}
+function redo(){
+  if(redoStack[currentTab]&&redoStack[currentTab].length){
+    let st = redoStack[currentTab].pop();
+    undoStack[currentTab].push(st);
+    tabs[currentTab]=JSON.parse(st);
+    saveTabs(); renderMindmap();
+  }
+}
+function resetHistory(){
+  undoStack[currentTab]=[JSON.stringify(tabs[currentTab])];
+  redoStack[currentTab]=[];
 }
 
 // ZOOM
@@ -385,11 +421,10 @@ document.addEventListener('mousemove',function(e){
 });
 document.addEventListener('mouseup',function(){panActive=false;document.getElementById('canvasWrap').style.cursor="";});
 
-// Copy/paste toàn canvas Ctrl+C/V
+// Copy/paste toàn canvas Ctrl+C/V, Delete node chọn
 document.addEventListener('keydown',function(e){
   if(e.ctrlKey&&e.key==='c'){copyNode();}
   if(e.ctrlKey&&e.key==='v'){pasteNode();}
-  // Delete để xóa node chọn
   if((e.key==="Delete"||e.key==="Backspace")) {
     let tab = tabs[currentTab];
     let sel = tab.nodes.filter(n=>n.selected);
@@ -398,15 +433,45 @@ document.addEventListener('keydown',function(e){
         let ids = sel.map(n=>n.id);
         tab.nodes = tab.nodes.filter(n=>!ids.includes(n.id));
         tab.lines = tab.lines.filter(l=>!ids.includes(l[0])&&!ids.includes(l[1]));
-        saveTabs(); renderMindmap();
+        saveTabs(); pushHistory(); renderMindmap();
       }
     }
   }
 });
 
+// ===== IMPORT PDF =====
+document.getElementById('importPDF').addEventListener('change', function(e){
+  let file = e.target.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = function(){
+    pdfjsLib.getDocument({data:new Uint8Array(reader.result)}).promise.then(pdf=>{
+      let allText = "";
+      let getPage = function(pn){
+        if(pn>pdf.numPages) {
+          if(!allText.trim()) return alert("Không có text trong file PDF!");
+          let lines = allText.split('\n').map(s=>s.trim()).filter(s=>!!s);
+          lines.forEach(txt=>addNode(txt));
+          pushHistory();renderMindmap();
+          return;
+        }
+        pdf.getPage(pn).then(page=>{
+          page.getTextContent().then(tc=>{
+            allText+=tc.items.map(i=>i.str).join(' ')+'\n';
+            getPage(pn+1);
+          });
+        });
+      }
+      getPage(1);
+    });
+  };
+  reader.readAsArrayBuffer(file);
+});
+
 renderTabs();
 renderColorBtns();
 renderMindmap();
+resetHistory();
 
 </script>
 </body>
