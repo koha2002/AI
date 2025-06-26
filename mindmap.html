@@ -2,81 +2,63 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap Pro</title>
+  <title>Mindmap CAD Pro</title>
   <link rel="icon" href="logo.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body {font-family: 'Montserrat', Arial, sans-serif;background:#0a1931;color:#222;margin:0;}
+    body {font-family: 'Montserrat', Arial, sans-serif; background: #0a1931; color: #222; margin:0;}
     #header, #footer {background: #192945; color:#aee4ff;padding:9px 20px;}
-    #toolbar {display:flex;gap:12px;padding:8px;background:#133360;flex-wrap:wrap;}
+    #toolbar {display:flex;gap:10px;padding:8px;background:#133360;flex-wrap:wrap;}
     #tabs {display:flex;gap:5px;}
     .tab {background:#2761ad;color:#fff;padding:7px 14px 7px 10px;border-radius:12px 12px 0 0;margin-right:4px;cursor:pointer;position:relative;}
     .tab.selected {background:#fff;color:#2761ad;border:2px solid #185adb;border-bottom:0;}
     .tab .close {position:absolute;right:4px;top:2px;color:#e22;font-size:15px;font-weight:bold;cursor:pointer;}
-    #canvasWrap {background:#f5f7fa;overflow:auto;position:relative;margin:0 auto 20px auto;border-radius:22px;box-shadow:0 5px 20px #123;}
-    #nodeLayer {position:absolute;left:0;top:0;}
-    .node {position:absolute;min-width:60px;min-height:32px;max-width:500px;max-height:200px;padding:10px 15px;background:#fff;border:2px solid #bcd;box-shadow:0 2px 12px #0002;border-radius:15px;z-index:10;user-select:text;resize:both;overflow:auto;}
-    .node.selected {border:2.5px solid #185adb;box-shadow:0 5px 20px #185adb2e;}
-    .node .plus {position:absolute;width:18px;height:18px;background:#277fd7;color:#fff;border-radius:50%;right:-12px;top:50%;margin-top:-9px;text-align:center;line-height:18px;font-weight:bold;font-size:15px;cursor:pointer;box-shadow:0 1px 5px #185adb44;}
-    .node .plus:hover {background:#47aaff;}
-    .node .txt {width:100%;min-height:1em;outline:none;text-align:center;}
-    .multi-selected {background:#1dc9b3cc!important;border:2.2px solid #26b7a7;}
-    #selectBox {border:2px dashed #2196f3;background:rgba(33,150,243,0.09);position:absolute;display:none;z-index:20;}
+    #cad-canvas {background:#f7fafb;border-radius:18px;box-shadow:0 4px 28px #0a225040;width:96vw;height:73vh;display:block;margin:14px auto 14px auto;touch-action:none;}
     #menu {position:fixed;right:24px;top:70px;background:#fff;border:1.7px solid #185adb;border-radius:11px;box-shadow:0 2px 20px #0a1a34cc;padding:10px 24px;}
     #menu button {margin:6px;}
-    .node .shape-rect {border-radius:13px;}
-    .node .shape-round {border-radius:30px;}
-    .node .shape-diamond {transform:rotate(45deg);}
-    .node .shape-diamond .txt {transform:rotate(-45deg);}
-    .node .shape-note {border-radius: 6px 32px 6px 14px; border-style: dashed;background: linear-gradient(107deg,#fff7 70%,#fbeecb 100%);}
-    .node .shape-cloud {border-radius: 40% 55% 44% 54% / 48% 44% 56% 52%;box-shadow: 0 4px 22px #b8e4ff24;}
-    .node .shape-star {clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);}
-    .node.blue {background:#c9e7ff;}
-    .node.green {background:#defde0;}
-    .node.yellow {background:#fff7c6;}
-    .node.pink {background:#ffd4e5;}
-    .node.orange {background:#ffe5c2;}
-    .node.purple {background:#efe0ff;}
-    .node.gray {background:#e7ebef;}
-    .node.red {background:#ffdad6;}
-    .node.cyan {background:#ccf8f4;}
-    .node.lime {background:#e6ffd8;}
-    #colorBtns span {width:20px;height:20px;display:inline-block;border-radius:50%;margin-right:5px;cursor:pointer;border:2px solid #fff;}
-    #colorBtns .sel {border:2.5px solid #185adb;}
-    #shapeSel {padding:5px 13px;border-radius:8px;margin:0 7px;}
-    #tabAdd {margin-left:13px;}
-    #zoomInd {position:fixed;bottom:18px;left:15px;background:#1d2e62;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.1rem;z-index:100;}
-    #undoBtn,#redoBtn {background:#f4f7ff;border-radius:7px;border:1.3px solid #bed5f6;padding:5px 13px;font-weight:700;margin-right:6px;cursor:pointer;}
-    #importPDF {margin-left:11px;}
-    #paperSel {margin-left:10px;padding:5px 15px;border-radius:8px;}
-    @media (max-width:1100px){ #canvasWrap{width:99vw;} }
-    @media (max-width:600px){ #toolbar{flex-wrap:wrap;} }
+    #shapeSel, #colorSel, #paperSel {padding:5px 13px;border-radius:8px;margin-right:7px;}
+    .toolbar-btn {padding:6px 15px;border-radius:7px;border:1px solid #bed5f6;background:#f3f9ff;cursor:pointer;font-weight:600;}
+    #zoomInd {position:fixed;bottom:12px;left:20px;background:#183e88;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.05rem;z-index:100;}
+    @media (max-width: 900px) { #cad-canvas{height:57vw;min-height:280px;} }
+    @media (max-width: 600px) { #toolbar{gap:4px;} }
   </style>
 </head>
 <body>
 <div id="header"></div>
 <div id="toolbar">
-  <button onclick="addTab()" id="tabAdd">+ Sơ đồ mới</button>
+  <button onclick="addTab()" class="toolbar-btn">+ Sơ đồ mới</button>
   <div id="tabs"></div>
-  <button onclick="addNode()">+ Node</button>
-  <span id="colorBtns"></span>
+  <button onclick="mode='draw-node'" class="toolbar-btn">+ Node</button>
   <select id="shapeSel">
     <option value="rect">Chữ nhật</option>
-    <option value="round">Bo tròn</option>
+    <option value="ellipse">Ellipse</option>
     <option value="diamond">Thoi</option>
     <option value="note">Note</option>
     <option value="cloud">Mây</option>
     <option value="star">Sao</option>
   </select>
-  <button onclick="copyNode()">Copy</button>
-  <button onclick="pasteNode()">Paste</button>
-  <button onclick="startSelectBox()">Khoanh vùng xóa</button>
-  <button id="undoBtn" onclick="undo()">⎌ Undo</button>
-  <button id="redoBtn" onclick="redo()">⟳ Redo</button>
-  <button onclick="saveTabs()">💾 Lưu</button>
-  <button onclick="showExportMenu()">PDF</button>
+  <select id="colorSel">
+    <option value="#c9e7ff">Xanh</option>
+    <option value="#defde0">Xanh lá</option>
+    <option value="#ffd4e5">Hồng</option>
+    <option value="#ffe5c2">Cam</option>
+    <option value="#fff7c6">Vàng</option>
+    <option value="#efe0ff">Tím</option>
+    <option value="#e7ebef">Xám</option>
+    <option value="#ffdad6">Đỏ</option>
+    <option value="#ccf8f4">Cyan</option>
+    <option value="#e6ffd8">Lime</option>
+  </select>
+  <button onclick="mode='draw-conn'" class="toolbar-btn">+ Kết nối</button>
+  <button onclick="copyNodes()" class="toolbar-btn">Copy</button>
+  <button onclick="pasteNodes()" class="toolbar-btn">Paste</button>
+  <button onclick="startRectSel()" class="toolbar-btn">Khoanh vùng</button>
+  <button onclick="undo()" class="toolbar-btn">⎌ Undo</button>
+  <button onclick="redo()" class="toolbar-btn">⟳ Redo</button>
+  <button onclick="saveTabs()" class="toolbar-btn">💾 Lưu</button>
+  <button onclick="showExportMenu()" class="toolbar-btn">PDF</button>
   <select id="paperSel">
     <option value="a4">A4 dọc</option>
     <option value="a4_landscape">A4 ngang</option>
@@ -86,13 +68,9 @@
     <option value="free">Không giới hạn</option>
   </select>
   <input type="file" id="importPDF" accept=".pdf" style="display:none">
-  <button onclick="document.getElementById('importPDF').click()">Import PDF</button>
+  <button onclick="document.getElementById('importPDF').click()" class="toolbar-btn">Import PDF</button>
 </div>
-<div id="canvasWrap" style="width:794px;height:1123px;">
-  <svg id="connLayer" width="3000" height="1800" style="position:absolute;left:0;top:0;z-index:1;"></svg>
-  <div id="nodeLayer"></div>
-  <div id="selectBox"></div>
-</div>
+<canvas id="cad-canvas" width="2500" height="1800" tabindex="0"></canvas>
 <div id="footer"></div>
 <div id="menu" style="display:none;">
   <b>Xuất PDF</b><br>
@@ -102,44 +80,29 @@
 </div>
 <div id="zoomInd" style="display:none;">100%</div>
 <script>
-// ===== HEADER/FOOTER =====
+// Giao diện phụ trợ
 fetch('mini-header.html').then(r=>r.text()).then(html=>document.getElementById('header').innerHTML=html);
 fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
 
-let TABS_KEY = "mindmap_tabs_v6";
+// --- Dữ liệu ---
+const TABS_KEY = "mindmap_cad_tabs";
 let tabs = loadTabs();
 let currentTab = 0;
-let clipboardNodes = [];
-let connFrom = null;
-let selectBoxMode = false, selecting = false;
-let zoom = 1;
+let mode = 'select'; // draw-node, draw-conn, select, rect-sel
+let pan = {x:0, y:0}, zoom=1, mouse={};
+let dragNode = null, dragOff={x:0,y:0}, dragResize=false, dragResizeDir=null;
+let selNodes = new Set();
+let connTempStart = null, connTempEnd = null;
+let copyClip = null;
 let undoStack = [[]], redoStack = [[]];
-
-const COLORS = ['blue','green','yellow','pink','orange','purple','gray','red','cyan','lime'];
 const paperSizes = {
   a4:      {w: 210*3.78, h: 297*3.78},
   a4_landscape: {w: 297*3.78, h: 210*3.78},
   a3:      {w: 297*3.78, h: 420*3.78},
   a3_landscape: {w: 420*3.78, h: 297*3.78},
   letter:  {w: 215.9*3.78, h: 279.4*3.78},
-  free:    {w: "99vw", h: "70vh"}
+  free:    {w: 2500, h: 1800}
 };
-function updatePaperSize() {
-  let val = document.getElementById('paperSel').value;
-  let area = document.getElementById('canvasWrap');
-  if(val==="free") {
-    area.style.width = "99vw";
-    area.style.height = "70vh";
-    area.style.maxWidth = "none";
-    area.style.maxHeight = "none";
-  } else {
-    area.style.width = paperSizes[val].w+"px";
-    area.style.height = paperSizes[val].h+"px";
-    area.style.maxWidth = paperSizes[val].w+"px";
-    area.style.maxHeight = paperSizes[val].h+"px";
-  }
-}
-document.getElementById('paperSel').onchange = updatePaperSize;
 
 function renderTabs() {
   let html = '';
@@ -154,258 +117,310 @@ function addTab() {
   tabs.push({name, nodes:[], lines:[]});
   currentTab = tabs.length-1;
   saveTabs();
-  resetHistory();
+  pushHistory();
   renderTabs();
-  renderMindmap();
+  draw();
 }
 function closeTab(idx) {
   if(!confirm("Xác nhận xoá sơ đồ này?")) return;
   tabs.splice(idx,1);
   currentTab = Math.max(0, currentTab-1);
-  saveTabs(); resetHistory(); renderTabs(); renderMindmap();
+  saveTabs(); pushHistory(); renderTabs(); draw();
 }
 function switchTab(idx) {
   currentTab = idx;
-  resetHistory();
+  pushHistory();
   renderTabs();
-  renderMindmap();
+  draw();
 }
-function addNode(txt) {
-  let tab = tabs[currentTab];
-  let id = Date.now() + Math.floor(Math.random()*10000);
-  let color = document.querySelector('#colorBtns .sel')?.dataset.c || 'blue';
-  let shape = document.getElementById('shapeSel').value;
-  tab.nodes.push({id,x:200+Math.random()*300,y:160+Math.random()*200,text:txt||"Ý mới",shape,color,w:110,h:36,selected:false});
-  saveTabs(); pushHistory(); renderMindmap();
-}
-function copyNode() {
-  let tab = tabs[currentTab];
-  let nodes = tab.nodes.filter(n=>n.selected);
-  if(nodes.length) clipboardNodes = nodes.map(n=>({...n}));
-}
-function pasteNode() {
-  let tab = tabs[currentTab];
-  if(clipboardNodes.length){
-    let offset = 40;
-    let newIds = [];
-    clipboardNodes.forEach(orig=>{
-      let nn = {...orig, id:Date.now()+Math.floor(Math.random()*10000), x:orig.x+offset, y:orig.y+offset, selected:true};
-      newIds.push(nn.id);
-      tab.nodes.push(nn);
-    });
-    // Select các node paste mới
-    tab.nodes.forEach(n=>n.selected=newIds.includes(n.id));
-    saveTabs(); pushHistory(); renderMindmap();
-  }
-}
-function renderColorBtns(){
-  let html = COLORS.map(c=>`<span style="background:${getColorVal(c)};" data-c="${c}" ${c==='blue'?'class="sel"':''}></span>`).join('');
-  document.getElementById('colorBtns').innerHTML = html;
-  document.querySelectorAll('#colorBtns span').forEach(btn=>{
-    btn.onclick = ()=>{document.querySelectorAll('#colorBtns span').forEach(x=>x.classList.remove('sel'));btn.classList.add('sel');};
-  });
-}
-function getColorVal(c){
-  return {
-    blue:'#c9e7ff',green:'#defde0',yellow:'#fff7c6',pink:'#ffd4e5',
-    orange:'#ffe5c2',purple:'#efe0ff',gray:'#e7ebef',red:'#ffdad6',
-    cyan:'#ccf8f4',lime:'#e6ffd8'
-  }[c]||'#fff';
-}
-function renderMindmap() {
-  let tab = tabs[currentTab];
-  let nLayer = document.getElementById("nodeLayer");
-  let cLayer = document.getElementById("connLayer");
-  nLayer.innerHTML = '';
-  cLayer.innerHTML = '';
-  // Layer size luôn đúng khổ giấy
-  let cw = document.getElementById('canvasWrap').clientWidth;
-  let ch = document.getElementById('canvasWrap').clientHeight;
-  nLayer.style.width = cw+"px"; nLayer.style.height = ch+"px";
-  cLayer.setAttribute('width',cw);cLayer.setAttribute('height',ch);
-
-  // Render connections
-  tab.lines.forEach(line=>{
-    let from = tab.nodes.find(n=>n.id===line[0]), to = tab.nodes.find(n=>n.id===line[1]);
-    if(!from||!to) return;
-    let fx=from.x+from.w/2, fy=from.y+from.h/2, tx=to.x+to.w/2, ty=to.y+to.h/2;
-    let path = `<line x1="${fx}" y1="${fy}" x2="${tx}" y2="${ty}" stroke="#185adb" stroke-width="2.8" opacity="0.85" />`;
-    cLayer.innerHTML += path;
-  });
-  // Render nodes
-  tab.nodes.forEach(n=>{
-    let nd = document.createElement("div");
-    nd.className = `node ${n.color||'blue'} shape-${n.shape||'rect'}` + (n.selected?" selected":"");
-    nd.style.left = n.x+"px"; nd.style.top = n.y+"px"; nd.style.width=n.w+"px"; nd.style.height=n.h+"px";
-    nd.innerHTML = `<div class="txt" contenteditable="true">${n.text||''}</div>
-      <div class="plus" title="Kết nối node">+</div>`;
-    // Drag
-    let drag = false, dragOff={};
-    nd.onmousedown = e=>{
-      if(e.target.classList.contains("plus")||e.target.classList.contains("txt")) return;
-      if (e.offsetX > nd.offsetWidth-15 && e.offsetY > nd.offsetHeight-15) return; // Không drag ở góc resize
-      drag = true;
-      dragOff = {x:e.offsetX, y:e.offsetY};
-      if(!e.ctrlKey && !e.metaKey){
-        tab.nodes.forEach(nn=>nn.selected=false);
-        n.selected = true;
-      } else {
-        n.selected = !n.selected;
-      }
-      renderMindmap();
-      document.body.style.userSelect="none";
-    };
-    document.addEventListener("mousemove",function(e){
-      if(!drag) return;
-      let wrapRect = document.getElementById("canvasWrap").getBoundingClientRect();
-      let nx = (e.clientX - wrapRect.left - dragOff.x)/zoom, ny = (e.clientY - wrapRect.top - dragOff.y)/zoom;
-      n.x = Math.max(0, Math.min(nx, cw-n.w)); n.y = Math.max(0, Math.min(ny, ch-n.h));
-      nd.style.left = n.x+"px"; nd.style.top = n.y+"px";
-      renderMindmap();
-    });
-    document.addEventListener("mouseup",()=>{if(drag){drag=false;pushHistory();document.body.style.userSelect="";}});
-    // Resize: Giới hạn
-    nd.onmouseup = ()=>{ n.w=Math.max(60,Math.min(nd.offsetWidth,500)); n.h=Math.max(32,Math.min(nd.offsetHeight,200)); pushHistory(); };
-    nd.onresize = nd.onmouseup;
-    // Edit text
-    nd.querySelector('.txt').oninput = (e)=>{
-      n.text = nd.querySelector('.txt').innerText;
-      saveTabsDebounced();pushHistory();
-    };
-    nd.querySelector('.txt').onkeydown = function(e){
-      if(e.key==="Enter"){e.preventDefault();nd.querySelector('.txt').blur();}
-    }
-    // Select node (multi select Ctrl/Cmd)
-    nd.onclick = function(e){
-      if(!e.ctrlKey && !e.metaKey){
-        tab.nodes.forEach(nn=>nn.selected=false);
-        n.selected = true;
-      } else {
-        n.selected = !n.selected;
-      }
-      renderMindmap();
-      e.stopPropagation();
-    }
-    // Kết nối node (+)
-    nd.querySelector('.plus').onclick = function(e){
-      connFrom = n.id;
-      document.body.style.cursor="crosshair";
-      document.getElementById("canvasWrap").onclick = function(ev){
-        let nodeEls = Array.from(document.querySelectorAll('.node'));
-        let found = nodeEls.find(el=>el.contains(ev.target));
-        if(found){
-          let nid = tab.nodes[nodeEls.indexOf(found)].id;
-          if(nid!==connFrom) {
-            tab.lines.push([connFrom,nid]);
-            saveTabs(); pushHistory(); renderMindmap();
-          }
-        }
-        connFrom = null; document.body.style.cursor=""; document.getElementById("canvasWrap").onclick=null;
-      }
-      e.stopPropagation();
-    }
-    // Double click để sửa shape/màu
-    nd.ondblclick = function(){
-      let shape = prompt("Shape: rect,round,diamond,note,cloud,star",n.shape);
-      if(shape) {n.shape=shape;}
-      let color = prompt("Màu: "+COLORS.join(','),n.color);
-      if(color) {n.color=color;}
-      renderMindmap(); saveTabsDebounced();pushHistory();
-    }
-    // Copy/Paste bằng Ctrl+C/Ctrl+V
-    nd.oncopy = (e)=>{clipboardNodes = [ {...n} ]; }
-    nd.onpaste = (e)=>{pasteNode();e.preventDefault();}
-    nLayer.appendChild(nd);
-  });
-  document.getElementById("canvasWrap").onclick = function(){
-    tab.nodes.forEach(nn=>nn.selected=false);
-    renderMindmap();
-  }
-}
-function startSelectBox(){
-  selectBoxMode = true;
-  let selectBox = document.getElementById("selectBox");
-  selectBox.style.display = "block";
-  let nodeLayer = document.getElementById("nodeLayer");
-  nodeLayer.onmousedown = function(e){
-    selecting = true;
-    let sx = e.offsetX, sy = e.offsetY;
-    selectBox.style.left = sx+"px"; selectBox.style.top = sy+"px"; selectBox.style.width="0px"; selectBox.style.height="0px";
-    nodeLayer.onmousemove = function(ev){
-      let ex = ev.offsetX, ey = ev.offsetY;
-      let lx=Math.min(sx,ex), ty=Math.min(sy,ey), w=Math.abs(sx-ex), h=Math.abs(sy-ey);
-      selectBox.style.left=lx+"px";selectBox.style.top=ty+"px";selectBox.style.width=w+"px";selectBox.style.height=h+"px";
-      let tab = tabs[currentTab];
-      tab.nodes.forEach(n=>{
-        let nx = n.x, ny = n.y, nw = n.w, nh = n.h;
-        let inside = nx+nw>lx && nx<lx+w && ny+nh>ty && ny<ty+h;
-        n.selected = inside;
-      });
-      renderMindmap();
-    }
-    nodeLayer.onmouseup = function(){
-      nodeLayer.onmousemove=null;
-      selecting=false;
-      setTimeout(()=>{ // Xác nhận xóa
-        if(confirm("Xoá tất cả các node đang chọn?")){
-          let tab = tabs[currentTab];
-          let ids = tab.nodes.filter(n=>n.selected).map(n=>n.id);
-          tab.nodes = tab.nodes.filter(n=>!n.selected);
-          tab.lines = tab.lines.filter(l=>!ids.includes(l[0])&&!ids.includes(l[1]));
-          saveTabs(); pushHistory(); renderMindmap();
-        }
-        selectBox.style.display="none";selectBoxMode=false;
-      },180);
-    }
-  }
-}
-function showExportMenu(){ document.getElementById('menu').style.display='block'; }
-function closeExportMenu(){ document.getElementById('menu').style.display='none'; }
-function doExportPDF(selectedOnly){
-  closeExportMenu();
-  setTimeout(()=>{
-    if(!confirm("Bạn muốn xuất PDF ngay bây giờ? Hãy kiểm tra lại sơ đồ!")) return;
-    let wrap = document.getElementById("canvasWrap");
-    let config = {backgroundColor:'#fff', scale:2, useCORS:true};
-    if(selectedOnly){
-      let tab = tabs[currentTab];
-      let minX=99999,minY=99999,maxX=-1,maxY=-1;
-      tab.nodes.filter(n=>n.selected).forEach(n=>{
-        minX=Math.min(minX,n.x);minY=Math.min(minY,n.y);
-        maxX=Math.max(maxX,n.x+n.w);maxY=Math.max(maxY,n.y+n.h);
-      });
-      if(maxX<0) return alert("Không có node nào được chọn!");
-      config.x = minX; config.y = minY;
-      config.width = maxX-minX+50; config.height = maxY-minY+40;
-    } else {
-      let val = document.getElementById('paperSel').value;
-      if(val!=="free"){
-        config.width = paperSizes[val].w; config.height = paperSizes[val].h;
-      }
-    }
-    html2canvas(wrap, config).then(canvas=>{
-      let pdf = new window.jspdf.jsPDF({
-        orientation:canvas.width>canvas.height?'landscape':'portrait',
-        unit:'pt',format:[canvas.width,canvas.height]
-      });
-      pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,canvas.width,canvas.height);
-      pdf.save('mindmap.pdf');
-    });
-  },120);
-}
-function saveTabs(){
-  localStorage.setItem(TABS_KEY,JSON.stringify(tabs));
-}
-function saveTabsDebounced(){
-  clearTimeout(window.__saveDebounced);
-  window.__saveDebounced = setTimeout(saveTabs,500);
-}
+function saveTabs() { localStorage.setItem(TABS_KEY,JSON.stringify(tabs)); }
 function loadTabs(){
   let d = localStorage.getItem(TABS_KEY);
   if(d) return JSON.parse(d);
   return [{name:"Sơ đồ 1", nodes:[], lines:[]}];
 }
-// Undo/Redo
+
+// --- Main canvas logic ---
+const canvas = document.getElementById('cad-canvas');
+const ctx = canvas.getContext('2d');
+function getPaperWH(){
+  let v = document.getElementById('paperSel').value;
+  return v==="free"?{w:2500,h:1800}:paperSizes[v];
+}
+function draw(){
+  let {w,h} = getPaperWH();
+  canvas.width = w; canvas.height = h;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,w,h);
+  ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
+  // Draw grid
+  ctx.save();
+  ctx.strokeStyle="#dce6f7"; ctx.lineWidth=1;
+  for(let x=0;x<w;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  ctx.restore();
+
+  // Draw connections
+  let tab = tabs[currentTab];
+  for(let l of tab.lines){
+    let n1 = tab.nodes.find(n=>n.id===l.from), n2 = tab.nodes.find(n=>n.id===l.to);
+    if(!n1||!n2) continue;
+    ctx.save();
+    ctx.strokeStyle="#185adb";ctx.lineWidth=3.1;
+    ctx.globalAlpha=0.82;
+    ctx.beginPath();
+    ctx.moveTo(n1.x+n1.w/2, n1.y+n1.h/2);
+    ctx.lineTo(n2.x+n2.w/2, n2.y+n2.h/2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // Temp conn
+  if(mode==='draw-conn'&&connTempStart){
+    ctx.save();
+    ctx.strokeStyle="#ef5b1b";ctx.setLineDash([7,5]);
+    ctx.lineWidth=2.5;
+    ctx.beginPath();
+    ctx.moveTo(connTempStart.x,connTempStart.y);
+    ctx.lineTo(mouse.x,mouse.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // Draw nodes
+  for(let n of tab.nodes){
+    drawNode(ctx, n, selNodes.has(n.id));
+  }
+  // Rect select
+  if(mode==="rect-sel"&&rectSelBox){
+    ctx.save();
+    ctx.strokeStyle="#2196f3";ctx.setLineDash([7,7]);
+    ctx.lineWidth=2.5; ctx.globalAlpha=0.55;
+    ctx.strokeRect(rectSelBox.x,rectSelBox.y,rectSelBox.w,rectSelBox.h);
+    ctx.restore();
+  }
+}
+function drawNode(ctx, n, selected){
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = n.color||'#c9e7ff';
+  ctx.strokeStyle = selected?"#185adb":"#bcd";
+  ctx.lineWidth = selected?3:2;
+  switch(n.shape){
+    case "rect":
+    default: ctx.roundRect(n.x, n.y, n.w, n.h, 14); break;
+    case "ellipse": ctx.ellipse(n.x+n.w/2,n.y+n.h/2,n.w/2,n.h/2,0,0,Math.PI*2); break;
+    case "diamond":
+      ctx.moveTo(n.x+n.w/2, n.y);
+      ctx.lineTo(n.x+n.w, n.y+n.h/2);
+      ctx.lineTo(n.x+n.w/2, n.y+n.h);
+      ctx.lineTo(n.x, n.y+n.h/2);
+      ctx.closePath();
+      break;
+    case "star":
+      let cx=n.x+n.w/2, cy=n.y+n.h/2, r=Math.min(n.w,n.h)/2;
+      for(let i=0;i<5;i++){
+        let a = Math.PI/2+i*2*Math.PI/5, a2 = a+Math.PI/5;
+        let x1=cx+r*Math.cos(a), y1=cy-r*Math.sin(a);
+        let x2=cx+r*0.45*Math.cos(a2), y2=cy-r*0.45*Math.sin(a2);
+        if(i===0)ctx.moveTo(x1,y1); else ctx.lineTo(x1,y1);
+        ctx.lineTo(x2,y2);
+      } ctx.closePath(); break;
+    case "note":
+      ctx.roundRect(n.x, n.y, n.w, n.h, [9,30,13,20]); ctx.setLineDash([2,6]); break;
+    case "cloud":
+      for(let i=0;i<5;i++)ctx.arc(n.x+n.w*(0.2*i+0.13),n.y+n.h*0.5,Math.min(n.w,n.h)*0.18,0,Math.PI*2);
+      break;
+  }
+  ctx.globalAlpha=0.97;
+  ctx.fill(); ctx.stroke();
+  // Text
+  ctx.globalAlpha=1;
+  ctx.font = "bold 17px Montserrat";
+  ctx.fillStyle="#183655";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  let t = n.text.split('\n');
+  for(let i=0;i<t.length;i++){
+    ctx.fillText(t[i], n.x+n.w/2, n.y+n.h/2+(i-t.length/2)*21+13);
+  }
+  // Resize box (góc)
+  ctx.save();
+  ctx.globalAlpha=selected?0.8:0.3;
+  ctx.strokeStyle="#185adb"; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  ctx.rect(n.x+n.w-9, n.y+n.h-9, 12, 12); ctx.stroke();
+  ctx.restore();
+  ctx.restore();
+}
+
+// -- Mouse/canvas event ---
+let rectSelBox = null;
+canvas.onmousedown = function(e){
+  let p = toWorld(e.offsetX, e.offsetY);
+  mouse = {...p};
+  if(e.button===1||spacePan) { // Pan
+    isPanning = true; panStart={x:e.clientX-pan.x, y:e.clientY-pan.y}; return;
+  }
+  if(mode==='draw-node'){
+    let n = {
+      id:Date.now()+Math.floor(Math.random()*1e4),
+      x:p.x-60,y:p.y-30,w:120,h:54,
+      shape:document.getElementById('shapeSel').value,
+      color:document.getElementById('colorSel').value,
+      text:'Node'
+    };
+    tabs[currentTab].nodes.push(n); saveTabs(); pushHistory(); mode='select'; draw(); return;
+  }
+  if(mode==='draw-conn'){
+    let hit = hitNode(p);
+    if(hit){
+      if(!connTempStart){
+        connTempStart={x:hit.x+hit.w/2,y:hit.y+hit.h/2,node:hit.id};
+      }else{
+        tabs[currentTab].lines.push({from:connTempStart.node,to:hit.id});
+        connTempStart=null; saveTabs(); pushHistory(); mode='select'; draw();
+      }
+      return;
+    }
+  }
+  // Select node or start drag/resize
+  let hit = hitNode(p,true);
+  if(hit){
+    let isResize = Math.abs(p.x-(hit.x+hit.w))<16 && Math.abs(p.y-(hit.y+hit.h))<16;
+    if(isResize){
+      dragResize=true; dragNode=hit; dragResizeDir={x:1,y:1}; return;
+    }
+    dragNode=hit; dragOff={x:p.x-hit.x,y:p.y-hit.y};
+    if(e.ctrlKey||e.metaKey){
+      if(selNodes.has(hit.id)) selNodes.delete(hit.id); else selNodes.add(hit.id);
+    } else{
+      selNodes.clear(); selNodes.add(hit.id);
+    }
+    draw(); return;
+  }
+  // Khung chọn
+  if(mode==='rect-sel'){
+    rectSelBox={x:p.x,y:p.y,w:1,h:1}; selecting=true;
+    draw(); return;
+  }
+  // Click ngoài: clear chọn
+  selNodes.clear(); draw();
+};
+canvas.onmousemove = function(e){
+  let p = toWorld(e.offsetX, e.offsetY);
+  mouse = {...p};
+  if(isPanning){
+    pan.x = e.clientX-panStart.x; pan.y = e.clientY-panStart.y; draw(); return;
+  }
+  if(dragResize&&dragNode){
+    dragNode.w = Math.max(48,p.x-dragNode.x); dragNode.h = Math.max(28,p.y-dragNode.y);
+    draw(); return;
+  }
+  if(dragNode){
+    let dx=p.x-dragOff.x,dy=p.y-dragOff.y;
+    let dxAll = dx-dragNode.x, dyAll=dy-dragNode.y;
+    for(let id of selNodes){let n=tabs[currentTab].nodes.find(nn=>nn.id===id); n.x+=dxAll; n.y+=dyAll;}
+    draw(); dragOff.x+=dxAll; dragOff.y+=dyAll;
+    return;
+  }
+  if(selecting&&rectSelBox){
+    rectSelBox.w=p.x-rectSelBox.x; rectSelBox.h=p.y-rectSelBox.y;
+    draw(); return;
+  }
+};
+canvas.onmouseup = function(e){
+  if(isPanning){isPanning=false;return;}
+  if(dragResize||dragNode){dragResize=false;dragNode=null;pushHistory();saveTabs();}
+  if(selecting&&rectSelBox){
+    let x0=rectSelBox.x,x1=rectSelBox.x+rectSelBox.w,y0=rectSelBox.y,y1=rectSelBox.y+rectSelBox.h;
+    if(x1<x0) [x0,x1]=[x1,x0]; if(y1<y0)[y0,y1]=[y1,y0];
+    selNodes.clear();
+    for(let n of tabs[currentTab].nodes){
+      if(n.x+n.w>x0 && n.x<x1 && n.y+n.h>y0 && n.y<y1) selNodes.add(n.id);
+    }
+    rectSelBox = null; selecting=false; mode='select'; draw();
+  }
+};
+canvas.ondblclick = function(e){
+  let p = toWorld(e.offsetX, e.offsetY);
+  let n = hitNode(p,true);
+  if(!n) return;
+  let t = prompt("Nội dung node:", n.text); if(t!==null) { n.text=t; saveTabs();pushHistory();draw();}
+};
+canvas.onwheel = function(e){
+  let z = zoom + (e.deltaY>0?-0.08:0.08); z=Math.max(0.3,Math.min(z,3.3));
+  let p = toWorld(e.offsetX,e.offsetY);
+  pan.x -= (p.x* (z-zoom));
+  pan.y -= (p.y* (z-zoom));
+  zoom=z; draw();
+  document.getElementById('zoomInd').innerText=Math.round(zoom*100)+"%";
+  document.getElementById('zoomInd').style.display='block';
+  clearTimeout(window.zoomTimeout); window.zoomTimeout = setTimeout(()=>{document.getElementById('zoomInd').style.display='none';},1200);
+  e.preventDefault();
+};
+
+let isPanning=false, panStart={};
+let spacePan=false;
+window.onkeydown=function(e){
+  if(e.code==='Space'){spacePan=true;}
+  if((e.ctrlKey||e.metaKey)&&e.key==='c') copyNodes();
+  if((e.ctrlKey||e.metaKey)&&e.key==='v') pasteNodes();
+  if((e.ctrlKey||e.metaKey)&&e.key==='z') undo();
+  if((e.ctrlKey||e.metaKey)&&e.key==='y') redo();
+  if(e.key==="Delete"||e.key==="Backspace") deleteNodes();
+};
+window.onkeyup=function(e){ if(e.code==='Space'){spacePan=false;} }
+
+function toWorld(x,y){ return {x: (x-pan.x)/zoom, y: (y-pan.y)/zoom}; }
+function hitNode(p, loose=false){
+  let arr = tabs[currentTab].nodes;
+  for(let i=arr.length-1;i>=0;i--){
+    let n=arr[i];
+    let mx=n.x,my=n.y,mw=n.w,mh=n.h;
+    if(loose)mw+=10,mh+=10;
+    if(p.x>=mx&&p.x<=mx+mw&&p.y>=my&&p.y<=my+mh) return n;
+  }
+  return null;
+}
+function copyNodes(){
+  if(selNodes.size) copyClip = tabs[currentTab].nodes.filter(n=>selNodes.has(n.id)).map(n=>({...n}));
+}
+function pasteNodes(){
+  if(!copyClip||!copyClip.length) return;
+  let arr = tabs[currentTab].nodes, ids=[];
+  for(let n of copyClip){
+    let nn={...n,id:Date.now()+Math.floor(Math.random()*1e4),x:n.x+35,y:n.y+30};
+    arr.push(nn); ids.push(nn.id);
+  }
+  selNodes=new Set(ids); saveTabs(); pushHistory(); draw();
+}
+function deleteNodes(){
+  if(!selNodes.size) return;
+  if(!confirm("Xóa các node đã chọn?")) return;
+  let arr = tabs[currentTab].nodes;
+  arr = arr.filter(n=>!selNodes.has(n.id));
+  tabs[currentTab].nodes=arr;
+  tabs[currentTab].lines=tabs[currentTab].lines.filter(l=>arr.find(n=>n.id===l.from)&&arr.find(n=>n.id===l.to));
+  selNodes.clear();
+  saveTabs();pushHistory();draw();
+}
+function startRectSel(){mode='rect-sel';}
+function showExportMenu(){document.getElementById('menu').style.display='block';}
+function closeExportMenu(){document.getElementById('menu').style.display='none';}
+function doExportPDF(sel){
+  closeExportMenu();
+  setTimeout(()=>{
+    if(!confirm("Bạn muốn xuất PDF ngay bây giờ? Hãy kiểm tra lại sơ đồ!")) return;
+    html2canvas(canvas).then(c=>{
+      let pdf = new window.jspdf.jsPDF({
+        orientation:c.width>c.height?'landscape':'portrait',
+        unit:'pt',format:[c.width,c.height]
+      });
+      pdf.addImage(c.toDataURL('image/png'),'PNG',0,0,c.width,c.height);
+      pdf.save('mindmap.pdf');
+    });
+  },120);
+}
+// Undo/Redo logic
 function pushHistory(){
   if(!undoStack[currentTab])undoStack[currentTab]=[];
   undoStack[currentTab].push(JSON.stringify(tabs[currentTab]));
@@ -415,7 +430,7 @@ function undo(){
   if(undoStack[currentTab]&&undoStack[currentTab].length>1){
     redoStack[currentTab].push(undoStack[currentTab].pop());
     tabs[currentTab]=JSON.parse(undoStack[currentTab][undoStack[currentTab].length-1]);
-    saveTabs(); renderMindmap();
+    saveTabs(); draw();
   }
 }
 function redo(){
@@ -423,68 +438,11 @@ function redo(){
     let st = redoStack[currentTab].pop();
     undoStack[currentTab].push(st);
     tabs[currentTab]=JSON.parse(st);
-    saveTabs(); renderMindmap();
+    saveTabs(); draw();
   }
 }
-function resetHistory(){
-  undoStack[currentTab]=[JSON.stringify(tabs[currentTab])];
-  redoStack[currentTab]=[];
-}
-// ZOOM
-function showZoom(){document.getElementById('zoomInd').style.display="block";}
-function hideZoom(){document.getElementById('zoomInd').style.display="none";}
-document.getElementById('canvasWrap').addEventListener('wheel',function(e){
-  if (e.ctrlKey || !e.altKey) {
-    e.preventDefault();
-    zoom += e.deltaY > 0 ? -0.1 : 0.1;
-    zoom = Math.max(0.3, Math.min(zoom, 3.2));
-    document.getElementById('nodeLayer').style.transform = "scale("+zoom+")";
-    document.getElementById('connLayer').style.transform = "scale("+zoom+")";
-    document.getElementById('zoomInd').innerText = Math.round(zoom*100)+"%";
-    showZoom();
-    clearTimeout(window.zoomTimeout);
-    window.zoomTimeout = setTimeout(hideZoom,1200);
-  }
-},{passive:false});
-// PAN bằng chuột giữa
-let panActive=false, panStart={x:0,y:0}, scrollStart={x:0,y:0};
-document.getElementById('canvasWrap').addEventListener('mousedown',function(e){
-  if(e.button===1){
-    panActive=true;
-    panStart={x:e.clientX,y:e.clientY};
-    scrollStart={x:this.scrollLeft,y:this.scrollTop};
-    this.style.cursor="grab";
-    e.preventDefault();
-  }
-});
-document.addEventListener('mousemove',function(e){
-  if(panActive){
-    let wrap=document.getElementById('canvasWrap');
-    wrap.scrollLeft=scrollStart.x-(panStart.x-e.clientX);
-    wrap.scrollTop=scrollStart.y-(panStart.y-e.clientY);
-  }
-});
-document.addEventListener('mouseup',function(){panActive=false;document.getElementById('canvasWrap').style.cursor="";});
-// Copy/paste Ctrl+C/V, Delete node chọn, Undo/Redo
-document.addEventListener('keydown',function(e){
-  if(e.ctrlKey&&e.key==='c'){copyNode();}
-  if(e.ctrlKey&&e.key==='v'){pasteNode();}
-  if(e.ctrlKey&&(e.key==='z')){undo();}
-  if(e.ctrlKey&&(e.key==='y')){redo();}
-  if((e.key==="Delete"||e.key==="Backspace")) {
-    let tab = tabs[currentTab];
-    let sel = tab.nodes.filter(n=>n.selected);
-    if(sel.length){
-      if(confirm('Xóa các node đang chọn?')){
-        let ids = sel.map(n=>n.id);
-        tab.nodes = tab.nodes.filter(n=>!ids.includes(n.id));
-        tab.lines = tab.lines.filter(l=>!ids.includes(l[0])&&!ids.includes(l[1]));
-        saveTabs(); pushHistory(); renderMindmap();
-      }
-    }
-  }
-});
-// ===== IMPORT PDF =====
+
+// PDF import
 document.getElementById('importPDF').addEventListener('change', function(e){
   let file = e.target.files[0];
   if(!file) return;
@@ -496,8 +454,18 @@ document.getElementById('importPDF').addEventListener('change', function(e){
         if(pn>pdf.numPages) {
           if(!allText.trim()) return alert("Không có text trong file PDF!");
           let lines = allText.split('\n').map(s=>s.trim()).filter(s=>!!s);
-          lines.forEach(txt=>addNode(txt));
-          pushHistory();renderMindmap();
+          lines.forEach(txt=>{
+            tabs[currentTab].nodes.push({
+              id:Date.now()+Math.floor(Math.random()*1e4),
+              x:200+Math.random()*300,
+              y:120+Math.random()*400,
+              w:150,h:48,
+              shape:document.getElementById('shapeSel').value,
+              color:document.getElementById('colorSel').value,
+              text:txt
+            });
+          });
+          pushHistory();saveTabs();draw();
           return;
         }
         pdf.getPage(pn).then(page=>{
@@ -512,14 +480,14 @@ document.getElementById('importPDF').addEventListener('change', function(e){
   };
   reader.readAsArrayBuffer(file);
 });
-window.onload = ()=>{
-  renderTabs();
-  renderColorBtns();
-  renderMindmap();
-  resetHistory();
-  updatePaperSize();
-};
-window.addEventListener('resize',()=>{updatePaperSize();renderMindmap();});
+
+// Lần đầu
+renderTabs();
+draw();
+pushHistory();
+document.getElementById('paperSel').onchange=draw;
+window.addEventListener('resize',draw);
+
 </script>
 </body>
 </html>
