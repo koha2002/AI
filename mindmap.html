@@ -9,24 +9,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {font-family: 'Montserrat', Arial, sans-serif; background: #0a1931; color: #222; margin:0;}
-    #header, #footer {background: #192945; color:#aee4ff;padding:9px 20px;}
-    #toolbar {display:flex;gap:10px;padding:8px;background:#133360;flex-wrap:wrap;}
+    #toolbar {display:flex;gap:10px;padding:8px 10px;background:#133360;flex-wrap:wrap;}
     #tabs {display:flex;gap:5px;}
     .tab {background:#2761ad;color:#fff;padding:7px 14px 7px 10px;border-radius:12px 12px 0 0;margin-right:4px;cursor:pointer;position:relative;}
     .tab.selected {background:#fff;color:#2761ad;border:2px solid #185adb;border-bottom:0;}
     .tab .close {position:absolute;right:4px;top:2px;color:#e22;font-size:15px;font-weight:bold;cursor:pointer;}
-    #cad-canvas {background:#f7fafb;border-radius:18px;box-shadow:0 4px 28px #0a225040;width:96vw;height:73vh;display:block;margin:14px auto 14px auto;touch-action:none;}
+    #cad-canvas {background:#f7fafb;border-radius:18px;box-shadow:0 4px 28px #0a225040;width:97vw;height:76vh;display:block;margin:14px auto 14px auto;touch-action:none;}
     #menu {position:fixed;right:24px;top:70px;background:#fff;border:1.7px solid #185adb;border-radius:11px;box-shadow:0 2px 20px #0a1a34cc;padding:10px 24px;}
     #menu button {margin:6px;}
     #shapeSel, #colorSel, #paperSel {padding:5px 13px;border-radius:8px;margin-right:7px;}
     .toolbar-btn {padding:6px 15px;border-radius:7px;border:1px solid #bed5f6;background:#f3f9ff;cursor:pointer;font-weight:600;}
     #zoomInd {position:fixed;bottom:12px;left:20px;background:#183e88;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.05rem;z-index:100;}
-    @media (max-width: 900px) { #cad-canvas{height:57vw;min-height:280px;} }
-    @media (max-width: 600px) { #toolbar{gap:4px;} }
   </style>
 </head>
 <body>
-<div id="header"></div>
 <div id="toolbar">
   <button onclick="addTab()" class="toolbar-btn">+ Sơ đồ mới</button>
   <div id="tabs"></div>
@@ -70,8 +66,7 @@
   <input type="file" id="importPDF" accept=".pdf" style="display:none">
   <button onclick="document.getElementById('importPDF').click()" class="toolbar-btn">Import PDF</button>
 </div>
-<canvas id="cad-canvas" width="2500" height="1800" tabindex="0"></canvas>
-<div id="footer"></div>
+<canvas id="cad-canvas" width="2400" height="1600" tabindex="0"></canvas>
 <div id="menu" style="display:none;">
   <b>Xuất PDF</b><br>
   <button onclick="doExportPDF(true)">Chỉ vùng chọn</button>
@@ -80,19 +75,15 @@
 </div>
 <div id="zoomInd" style="display:none;">100%</div>
 <script>
-// Giao diện phụ trợ
-fetch('mini-header.html').then(r=>r.text()).then(html=>document.getElementById('header').innerHTML=html);
-fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
-
-// --- Dữ liệu ---
+// --- Data và logic canvas ---
 const TABS_KEY = "mindmap_cad_tabs";
 let tabs = loadTabs();
 let currentTab = 0;
 let mode = 'select'; // draw-node, draw-conn, select, rect-sel
 let pan = {x:0, y:0}, zoom=1, mouse={};
-let dragNode = null, dragOff={x:0,y:0}, dragResize=false, dragResizeDir=null;
+let dragNode = null, dragOff={x:0,y:0}, dragResize=false;
 let selNodes = new Set();
-let connTempStart = null, connTempEnd = null;
+let connTempStart = null;
 let copyClip = null;
 let undoStack = [[]], redoStack = [[]];
 const paperSizes = {
@@ -101,7 +92,7 @@ const paperSizes = {
   a3:      {w: 297*3.78, h: 420*3.78},
   a3_landscape: {w: 420*3.78, h: 297*3.78},
   letter:  {w: 215.9*3.78, h: 279.4*3.78},
-  free:    {w: 2500, h: 1800}
+  free:    {w: 2400, h: 1600}
 };
 
 function renderTabs() {
@@ -145,7 +136,7 @@ const canvas = document.getElementById('cad-canvas');
 const ctx = canvas.getContext('2d');
 function getPaperWH(){
   let v = document.getElementById('paperSel').value;
-  return v==="free"?{w:2500,h:1800}:paperSizes[v];
+  return v==="free"?{w:2400,h:1600}:paperSizes[v];
 }
 function draw(){
   let {w,h} = getPaperWH();
@@ -155,7 +146,7 @@ function draw(){
   ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
   // Draw grid
   ctx.save();
-  ctx.strokeStyle="#dce6f7"; ctx.lineWidth=1;
+  ctx.strokeStyle="#e4eefa"; ctx.lineWidth=1;
   for(let x=0;x<w;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
   for(let y=0;y<h;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
   ctx.restore();
@@ -166,8 +157,7 @@ function draw(){
     let n1 = tab.nodes.find(n=>n.id===l.from), n2 = tab.nodes.find(n=>n.id===l.to);
     if(!n1||!n2) continue;
     ctx.save();
-    ctx.strokeStyle="#185adb";ctx.lineWidth=3.1;
-    ctx.globalAlpha=0.82;
+    ctx.strokeStyle="#185adb";ctx.lineWidth=3.1;ctx.globalAlpha=0.8;
     ctx.beginPath();
     ctx.moveTo(n1.x+n1.w/2, n1.y+n1.h/2);
     ctx.lineTo(n2.x+n2.w/2, n2.y+n2.h/2);
@@ -287,7 +277,7 @@ canvas.onmousedown = function(e){
   if(hit){
     let isResize = Math.abs(p.x-(hit.x+hit.w))<16 && Math.abs(p.y-(hit.y+hit.h))<16;
     if(isResize){
-      dragResize=true; dragNode=hit; dragResizeDir={x:1,y:1}; return;
+      dragResize=true; dragNode=hit; return;
     }
     dragNode=hit; dragOff={x:p.x-hit.x,y:p.y-hit.y};
     if(e.ctrlKey||e.metaKey){
@@ -335,7 +325,7 @@ canvas.onmouseup = function(e){
     if(x1<x0) [x0,x1]=[x1,x0]; if(y1<y0)[y0,y1]=[y1,y0];
     selNodes.clear();
     for(let n of tabs[currentTab].nodes){
-      if(n.x+n.w>x0 && n.x<x1 && n.y+n.h>y0 && n.y<y1) selNodes.add(n.id);
+      if(n.x+n.w>x0 && n.x<x1 && n.y+n.h>y0 && n.y<ty+h) selNodes.add(n.id);
     }
     rectSelBox = null; selecting=false; mode='select'; draw();
   }
@@ -487,7 +477,6 @@ draw();
 pushHistory();
 document.getElementById('paperSel').onchange=draw;
 window.addEventListener('resize',draw);
-
 </script>
 </body>
 </html>
