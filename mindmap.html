@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Sơ Đồ Tư Duy Online</title>
-  <!-- Favicon/logo cho tab web -->
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -116,30 +115,49 @@
       word-break: break-word;
       z-index: 2;
       background: #fff;
+      resize: both;
+      overflow: auto;
+      max-width: 340px;
+      min-width: 66px;
+      min-height: 30px;
     }
     .mindmap-node.selected {
       border: 2.7px solid #185adb;
       box-shadow: 0 4px 18px #3199e555;
     }
+    .mindmap-node .node-text {
+      width: 100%;
+      text-align: center;
+      outline: none;
+      resize: none;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+      display: block;
+      padding: 0;
+      margin: 0;
+      line-height: 1.2;
+      word-break: break-word;
+    }
     /* ====== Hình dạng (shapes) ====== */
     .node-rect { border-radius: 13px; }
     .node-round { border-radius: 30px; }
-    .node-circle { border-radius: 50%; min-width:56px; min-height:56px; width:60px; height:60px; text-align:center; padding:9px;}
-    .node-ellipse { border-radius: 50%/35%; width:96px; min-width:80px; height:44px; min-height:35px;}
+    .node-circle { border-radius: 50%; width:66px; height:66px; min-width:66px; min-height:66px; max-width:110px; max-height:110px;}
+    .node-ellipse { border-radius: 50%/35%; width:110px; min-width:80px; height:46px; min-height:35px; max-width:220px; max-height:100px;}
     .node-diamond {
-      width: 70px; min-width: 60px; height: 60px; min-height: 44px;
+      width: 66px; min-width: 55px; height: 66px; min-height: 55px; max-width:120px; max-height:120px;
       background: inherit;
       border-radius: 8px;
       transform: rotate(45deg);
-      text-align: center;
-      justify-content: center;
-      align-items: center;
-      display: flex;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0;
     }
-    .node-diamond > span, .node-arrow-right > span, .node-note > span, .node-explode > span, .node-star > span, .node-file > span {
-      display: block;
+    .node-diamond .node-text {
       transform: rotate(-45deg);
-      width: 100%; text-align: center;
+      width: 85%;
+      background: none;
     }
     .node-cloud {
       border-radius: 40% 55% 44% 54% / 48% 44% 56% 52%;
@@ -149,8 +167,8 @@
     }
     .node-arrow-right {
       clip-path: polygon(0% 0%, 80% 0%, 80% 25%, 100% 50%, 80% 75%, 80% 100%, 0% 100%);
-      background: inherit;
       min-width: 80px; min-height: 36px; padding-right:28px;
+      display: flex; align-items: center; justify-content: center;
     }
     .node-note {
       border-radius: 6px 32px 6px 14px;
@@ -183,9 +201,29 @@
     .node-color-lime { background: #e6ffd8; color: #3a7034;}
     /* Tooltip */
     .tip { font-size: .98rem; color: #1b2949c0; margin: 0 0 13px 6px;}
+    /* Nút xóa node */
+    #deleteNodeBtn {
+      position: fixed;
+      z-index: 1111;
+      background: #d61c1c;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.04rem;
+      border: none;
+      border-radius: 13px;
+      padding: 7px 17px 8px 12px;
+      box-shadow: 0 2px 12px #9004;
+      cursor: pointer;
+      left: -1000px; top: -1000px;
+      transition: left .15s, top .15s, opacity .2s;
+      display: none;
+      outline: none;
+    }
+    #deleteNodeBtn.show {display: block;}
     @media (max-width: 600px) {
       #mindmapArea { min-height: 400px; height: 420px;}
       #mindmap-toolbar {flex-direction: column; gap:8px; margin: 14px 0 7px 0;}
+      #deleteNodeBtn {font-size:.95rem; padding: 7px 11px;}
     }
   </style>
 </head>
@@ -207,7 +245,8 @@
       <svg id="mindmapLines" width="100%" height="100%"></svg>
       <div id="nodesContainer"></div>
     </div>
-    <div class="tip">Kéo thả, chọn node để sửa, chọn màu/hình dạng trên thanh công cụ, click 2 node để nối ý. Xuất PDF nét cao.</div>
+    <div class="tip">Kéo thả, chọn node để sửa, chọn màu/hình dạng trên thanh công cụ, click 2 node để nối ý. Nhấn Xóa hoặc phím Delete để xóa node.</div>
+    <button id="deleteNodeBtn">🗑 Xóa node</button>
   </main>
   <!-- FOOTER động -->
   <div id="footer"></div>
@@ -240,7 +279,6 @@ const SHAPES = [
 ];
 let curColor = 'blue', curShape = 'node-rect';
 
-/* Thanh chọn màu */
 const colorList = document.getElementById('color-list');
 COLORS.forEach(c=>{
   let d = document.createElement('span');
@@ -281,26 +319,22 @@ let linkStartNode = null;
 const nodesContainer = document.getElementById('nodesContainer');
 const mindmapLines = document.getElementById('mindmapLines');
 const mindmapArea = document.getElementById('mindmapArea');
+const deleteBtn = document.getElementById('deleteNodeBtn');
 
 /* Tạo node mới */
 function createNode(x, y, text = 'Ý chính', color = curColor, shape = curShape) {
   let id = nodeId++;
   let nodeDiv = document.createElement('div');
   nodeDiv.className = `mindmap-node node-color-${color} ${shape}`;
-  // Nhiều shape cần nội dung bọc span xoay lại (ví dụ thoi, note, mũi tên,...)
-  if(['node-diamond','node-arrow-right','node-note','node-explode','node-star','node-file'].includes(shape)) {
-    nodeDiv.innerHTML = `<span contenteditable="true">${text}</span>`;
-  } else {
-    nodeDiv.innerText = text;
-  }
-  nodeDiv.contentEditable = !nodeDiv.querySelector('span');
+  nodeDiv.innerHTML = `<div class="node-text" contenteditable="true">${text}</div>`;
   nodeDiv.style.left = x + 'px';
   nodeDiv.style.top = y + 'px';
   nodeDiv.dataset.id = id;
   nodeDiv.spellcheck = false;
+
   nodeDiv.onclick = (e) => {
     e.stopPropagation();
-    selectNode(id);
+    selectNode(id, nodeDiv);
     if(linkStartNode!==null && linkStartNode!==id){
       lines.push([linkStartNode, id]);
       linkStartNode = null;
@@ -310,24 +344,24 @@ function createNode(x, y, text = 'Ý chính', color = curColor, shape = curShape
     }
   };
   nodeDiv.onmousedown = (e) => {
+    if(e.target.className === 'node-text') return; // Không drag khi đang sửa nội dung
     dragState.dragId = id;
     dragState.offsetX = e.offsetX;
     dragState.offsetY = e.offsetY;
-    selectNode(id);
+    selectNode(id, nodeDiv);
     e.stopPropagation();
   };
-  // Sửa nội dung node
-  if(nodeDiv.querySelector('span')) {
-    nodeDiv.querySelector('span').oninput = () => {
-      let node = nodes.find(n=>n.id===id);
-      if(node) node.text = nodeDiv.querySelector('span').innerText;
-    };
-  } else {
-    nodeDiv.oninput = () => {
-      let node = nodes.find(n=>n.id===id);
-      if(node) node.text = nodeDiv.innerText;
-    };
+  nodeDiv.querySelector('.node-text').oninput = () => {
+    let node = nodes.find(n=>n.id===id);
+    if(node) node.text = nodeDiv.querySelector('.node-text').innerText;
+  };
+
+  // Cho phép resize mọi shape, không ép size với các shape đặc biệt
+  if(['node-circle','node-ellipse','node-diamond','node-arrow-right','node-note','node-explode','node-file','node-star'].includes(shape)){
+    nodeDiv.style.resize = "both";
+    nodeDiv.style.overflow = "auto";
   }
+
   nodesContainer.appendChild(nodeDiv);
   nodes.push({id, x, y, text, el: nodeDiv, color, shape});
   renderNodeClass(id);
@@ -346,45 +380,69 @@ function setNodeColor(id, color){
 }
 function setNodeShape(id, shape){
   let node = nodes.find(n=>n.id===id); if(!node) return;
-  // Lấy lại nội dung cũ
+  // Lấy lại nội dung cũ và toạ độ, giữ size
   let text = node.text;
+  let {x,y} = node;
+  let w = node.el.offsetWidth, h = node.el.offsetHeight;
   node.shape = shape;
   // Thay thế node DOM
   let newDiv = document.createElement('div');
   newDiv.className = `mindmap-node node-color-${node.color} ${shape}`+(selectedNodeId===id?' selected':'');
-  newDiv.style.left = node.x + 'px'; newDiv.style.top = node.y + 'px';
+  newDiv.innerHTML = `<div class="node-text" contenteditable="true">${text}</div>`;
+  newDiv.style.left = x + 'px'; newDiv.style.top = y + 'px';
   newDiv.dataset.id = node.id;
   newDiv.spellcheck = false;
-  if(['node-diamond','node-arrow-right','node-note','node-explode','node-star','node-file'].includes(shape)) {
-    newDiv.innerHTML = `<span contenteditable="true">${text}</span>`;
-    newDiv.querySelector('span').oninput = () => {
-      let nd = nodes.find(n=>n.id===node.id);
-      if(nd) nd.text = newDiv.querySelector('span').innerText;
-    };
-  } else {
-    newDiv.innerText = text;
-    newDiv.contentEditable = true;
-    newDiv.oninput = () => {
-      let nd = nodes.find(n=>n.id===node.id);
-      if(nd) nd.text = newDiv.innerText;
-    };
+  if(['node-circle','node-ellipse','node-diamond','node-arrow-right','node-note','node-explode','node-file','node-star'].includes(shape)){
+    newDiv.style.resize = "both";
+    newDiv.style.overflow = "auto";
+    newDiv.style.width = w+"px"; newDiv.style.height = h+"px";
   }
   newDiv.onclick = node.el.onclick;
   newDiv.onmousedown = node.el.onmousedown;
+  newDiv.querySelector('.node-text').oninput = node.el.querySelector('.node-text').oninput;
   nodesContainer.replaceChild(newDiv, node.el);
   node.el = newDiv;
   renderNodeClass(node.id);
   renderLines();
   updateSvgSize();
+  if(selectedNodeId === node.id) showDeleteBtn(newDiv);
 }
-function selectNode(id){
+function selectNode(id, el) {
   selectedNodeId = id;
   nodes.forEach(n=>n.el.classList.toggle('selected', n.id===id));
+  showDeleteBtn(el || nodes.find(n=>n.id===id).el);
+}
+function showDeleteBtn(el){
+  if(!el) {deleteBtn.classList.remove("show"); deleteBtn.style.left="-1000px"; return;}
+  let rect = el.getBoundingClientRect();
+  deleteBtn.style.left = (rect.right + window.scrollX + 8)+"px";
+  deleteBtn.style.top = (rect.top + window.scrollY - 6)+"px";
+  deleteBtn.classList.add("show");
+}
+function hideDeleteBtn() {
+  deleteBtn.classList.remove("show");
+  deleteBtn.style.left = "-1000px";
+}
+deleteBtn.onclick = () => {
+  if(selectedNodeId!=null) removeNode(selectedNodeId);
+  hideDeleteBtn();
+};
+function removeNode(id){
+  let idx = nodes.findIndex(n=>n.id===id);
+  if(idx!==-1) {
+    nodesContainer.removeChild(nodes[idx].el);
+    nodes.splice(idx,1);
+    // Xóa các line liên quan
+    lines = lines.filter(pair=>pair[0]!==id&&pair[1]!==id);
+    renderLines();
+    selectedNodeId = null;
+    hideDeleteBtn();
+  }
 }
 
 /* Kéo thả node (drag & drop) - dùng object lưu trạng thái */
 let dragState = {dragId:null, offsetX:0, offsetY:0};
-mindmapArea.onmousedown = () => { dragState.dragId = null; linkStartNode = null; selectedNodeId=null; nodes.forEach(n=>n.el.classList.remove('selected'));};
+mindmapArea.onmousedown = () => { dragState.dragId = null; linkStartNode = null; selectedNodeId=null; nodes.forEach(n=>n.el.classList.remove('selected')); hideDeleteBtn();};
 mindmapArea.onmousemove = (e) => {
   if(dragState.dragId!==null){
     let rect = mindmapArea.getBoundingClientRect();
@@ -396,6 +454,7 @@ mindmapArea.onmousemove = (e) => {
     node.el.style.top = ny + 'px';
     renderLines();
     updateSvgSize();
+    showDeleteBtn(node.el);
   }
 };
 document.onmouseup = () => { dragState.dragId = null; };
@@ -426,7 +485,6 @@ function renderLines(){
 
 /* SVG auto fit */
 function updateSvgSize(){
-  // svg auto fit theo kích thước nodes
   let minX = 0, minY = 0, maxX = 800, maxY = 600;
   for(let n of nodes){
     minX = Math.min(minX, n.x);
@@ -447,16 +505,14 @@ document.getElementById('addNodeBtn').onclick = function() {
   renderLines();
 };
 document.getElementById('exportPDFBtn').onclick = function() {
-  // Tạo canvas độ phân giải cao ~2x, fix nhòe PDF
   let area = mindmapArea;
   let w = area.scrollWidth, h = area.scrollHeight;
   html2canvas(area, {
     backgroundColor:'#fff',
-    scale: 2, // scale lớn hơn để nét, không nhòe
+    scale: 2,
     useCORS: true
   }).then(canvas => {
     let imgData = canvas.toDataURL('image/png');
-    // PDF đúng tỷ lệ, không bị nén/nhòe
     const pdf = new window.jspdf.jsPDF({
       orientation: w > h ? 'landscape' : 'portrait',
       unit: 'pt',
@@ -468,6 +524,14 @@ document.getElementById('exportPDFBtn').onclick = function() {
 };
 /* Tự co kéo svg khi resize màn hình */
 window.addEventListener('resize', () => { updateSvgSize(); renderLines(); });
+
+/* Phím Delete/xóa node */
+document.addEventListener('keydown', function(e) {
+  if((e.key==="Delete"||e.key==="Backspace") && selectedNodeId!==null && document.activeElement.contentEditable!=="true") {
+    removeNode(selectedNodeId);
+    hideDeleteBtn();
+  }
+});
 
 /* Tạo node trung tâm mẫu */
 window.onload = () => {
