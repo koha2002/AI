@@ -3,77 +3,49 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mindmap nâng cao kiểu Creately</title>
+<title>Mindmap full-featured demo</title>
 <style>
   html, body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
+    margin: 0; height: 100%; overflow: hidden;
     font-family: Arial, sans-serif;
     user-select: none;
   }
   #toolbar {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    background: #ffffffcc;
-    border-radius: 8px;
+    top: 10px; left: 10px;
+    background: #fffdfddd;
     padding: 8px 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    z-index: 10;
-    display: flex;
-    gap: 8px;
-    align-items: center;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    z-index: 50;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
   }
-  #toolbar button {
-    background: #1d72b8;
-    border: none;
-    color: white;
-    padding: 6px 12px;
+  #toolbar > * {
     font-size: 14px;
-    border-radius: 4px;
+  }
+  #toolbar button, #toolbar select, #toolbar input[type=color], #toolbar input[type=text] {
     cursor: pointer;
+    padding: 5px 8px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: white;
   }
   #toolbar button:disabled {
-    background: #cccccc;
     cursor: default;
+    background: #eee;
+    color: #999;
   }
   #canvas {
-    background: #fafafa;
+    background: #f9f9f9;
     display: block;
     width: 100vw;
     height: 100vh;
     cursor: grab;
   }
-  #contextMenu {
-    position: fixed;
-    background: white;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    border-radius: 6px;
-    display: none;
-    z-index: 20;
-    min-width: 150px;
-  }
-  #contextMenu button {
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  #contextMenu button:hover {
-    background: #1d72b8;
-    color: white;
-  }
   #exportArea {
     position: fixed;
-    bottom: 10px;
-    left: 10px;
-    width: 30vw;
-    height: 140px;
+    bottom: 10px; left: 10px;
+    width: 35vw; height: 140px;
     font-family: monospace;
     font-size: 12px;
     padding: 6px;
@@ -82,17 +54,38 @@
     resize: vertical;
     background: #fff;
     overflow: auto;
-    z-index: 10;
+    z-index: 50;
   }
   #fileInput {
     display: none;
+  }
+  #groupRect {
+    position: absolute;
+    border: 2px dashed #2ecc71aa;
+    pointer-events: none;
+    display: none;
+    z-index: 100;
+    border-radius: 6px;
   }
 </style>
 </head>
 <body>
 
 <div id="toolbar">
-  <button id="addNodeBtn">Thêm nút gốc</button>
+  <button id="addRootNodeBtn">Thêm nút gốc</button>
+  <select id="shapeSelector" title="Chọn hình dạng node">
+    <option value="circle">Hình tròn</option>
+    <option value="rect">Hình chữ nhật</option>
+    <option value="ellipse">Hình elip</option>
+    <option value="diamond">Hình thoi</option>
+  </select>
+  <input type="text" id="iconInput" placeholder="Emoji/Icon" maxlength="2" title="Emoji hoặc ký tự biểu tượng" style="width: 50px;"/>
+  <input type="color" id="fillColorPicker" value="#4466ff" title="Màu nền node"/>
+  <input type="color" id="strokeColorPicker" value="#333333" title="Màu viền node"/>
+  <button id="addChildBtn" disabled>Thêm con</button>
+  <button id="deleteNodeBtn" disabled>Xóa nút</button>
+  <button id="deleteLinkBtn" disabled>Xóa liên kết</button>
+  <button id="autoLayoutBtn">Tự động sắp xếp</button>
   <button id="undoBtn" disabled>Undo</button>
   <button id="redoBtn" disabled>Redo</button>
   <button id="exportBtn">Xuất JSON</button>
@@ -100,18 +93,21 @@
   <button id="exportPngBtn">Xuất ảnh PNG</button>
 </div>
 
+<div id="groupRect"></div>
+
 <canvas id="canvas" tabindex="0"></canvas>
 <textarea id="exportArea" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây" readonly></textarea>
 <input type="file" id="fileInput" accept=".json" />
-
-<div id="contextMenu"></div>
 
 <script>
 (() => {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const toolbar = document.getElementById('toolbar');
-  const addNodeBtn = document.getElementById('addNodeBtn');
+  const addRootNodeBtn = document.getElementById('addRootNodeBtn');
+  const addChildBtn = document.getElementById('addChildBtn');
+  const deleteNodeBtn = document.getElementById('deleteNodeBtn');
+  const deleteLinkBtn = document.getElementById('deleteLinkBtn');
+  const autoLayoutBtn = document.getElementById('autoLayoutBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
   const exportBtn = document.getElementById('exportBtn');
@@ -119,37 +115,66 @@
   const exportPngBtn = document.getElementById('exportPngBtn');
   const exportArea = document.getElementById('exportArea');
   const fileInput = document.getElementById('fileInput');
-  const contextMenu = document.getElementById('contextMenu');
+  const shapeSelector = document.getElementById('shapeSelector');
+  const iconInput = document.getElementById('iconInput');
+  const fillColorPicker = document.getElementById('fillColorPicker');
+  const strokeColorPicker = document.getElementById('strokeColorPicker');
+  const groupRect = document.getElementById('groupRect');
 
-  // Resize canvas to fill window
+  let width, height;
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
     draw();
   }
   window.addEventListener('resize', resize);
   resize();
 
+  // Viewport (pan & zoom)
+  let offsetX = 0, offsetY = 0, scale = 1;
+  let draggingCanvas = false, dragCanvasStart = null, dragCanvasOffset = null;
+
   // Data structures
   let nodes = [];
   let links = [];
+  let groups = [];
+
+  // Selection
   let selectedNode = null;
   let selectedLink = null;
   let draggingNode = null;
   let dragOffsetX = 0;
   let dragOffsetY = 0;
 
-  // History for undo/redo
+  // Multi-select for group
+  let selectingGroup = false;
+  let groupSelectStart = null;
+  let groupSelectEnd = null;
+  let selectedGroupNodes = [];
+
+  // History undo/redo
   let history = [];
   let historyIndex = -1;
   function saveHistory() {
     const state = {
       nodes: JSON.parse(JSON.stringify(nodes)),
-      links: JSON.parse(JSON.stringify(links))
+      links: JSON.parse(JSON.stringify(links)),
+      groups: JSON.parse(JSON.stringify(groups))
     };
     history = history.slice(0, historyIndex + 1);
     history.push(state);
     historyIndex++;
+    updateUndoRedoButtons();
+  }
+  function restoreState(state) {
+    nodes = state.nodes;
+    links = state.links;
+    groups = state.groups;
+    selectedNode = null;
+    selectedLink = null;
+    draggingNode = null;
+    selectedGroupNodes = [];
+    draw();
     updateUndoRedoButtons();
   }
   function undo() {
@@ -162,50 +187,97 @@
     historyIndex++;
     restoreState(history[historyIndex]);
   }
-  function restoreState(state) {
-    nodes = state.nodes;
-    links = state.links;
-    selectedNode = null;
-    selectedLink = null;
-    draggingNode = null;
-    draw();
-    updateUndoRedoButtons();
-  }
   function updateUndoRedoButtons() {
     undoBtn.disabled = historyIndex <= 0;
     redoBtn.disabled = historyIndex >= history.length - 1;
   }
 
-  // Viewport controls for pan and zoom
-  let offsetX = 0;
-  let offsetY = 0;
-  let scale = 1;
-  let draggingCanvas = false;
-  let dragCanvasStart = null;
-  let dragCanvasOffset = null;
-
-  function toWorld(x, y) {
-    return { x: (x - offsetX) / scale, y: (y - offsetY) / scale };
+  // Utility funcs
+  function toWorld(x,y) { return { x:(x - offsetX)/scale, y:(y - offsetY)/scale }; }
+  function toScreen(x,y) { return { x:x*scale + offsetX, y:y*scale + offsetY }; }
+  function dist(a,b) { return Math.hypot(a.x-b.x,a.y-b.y); }
+  function pointInRect(px,py, rx,ry, rw,rh) {
+    return px >= rx && px <= rx+rw && py >= ry && py <= ry+rh;
   }
-  function toScreen(x, y) {
-    return { x: x * scale + offsetX, y: y * scale + offsetY };
+  function rectIntersect(r1, r2) {
+    return !(r2.x > r1.x+r1.w || r2.x+r2.w < r1.x || r2.y > r1.y+r1.h || r2.y+r2.h < r1.y);
   }
-
   // Node class
   class Node {
-    constructor(id, text, x, y) {
+    constructor(id,text,x,y,shape='circle',fillColor='#4466ff',strokeColor='#333',icon='') {
       this.id = id;
       this.text = text;
       this.x = x;
       this.y = y;
       this.radius = 50;
-      this.color = '#4466ff';
-      this.textColor = '#fff';
+      this.width = 120;
+      this.height = 70;
+      this.shape = shape;
+      this.fillColor = fillColor;
+      this.strokeColor = strokeColor;
+      this.icon = icon;
     }
     contains(px, py) {
       const dx = px - this.x;
       const dy = py - this.y;
-      return dx * dx + dy * dy <= this.radius * this.radius;
+      switch(this.shape) {
+        case 'circle':
+          return dx*dx + dy*dy <= this.radius*this.radius;
+        case 'rect':
+          return pointInRect(px, py, this.x-this.width/2, this.y-this.height/2, this.width, this.height);
+        case 'ellipse':
+          return (dx*dx)/(this.width*this.width/4) + (dy*dy)/(this.height*this.height/4) <= 1;
+        case 'diamond':
+          return Math.abs(dx)/(this.width/2) + Math.abs(dy)/(this.height/2) <= 1;
+        default: return false;
+      }
+    }
+    draw(ctx, selected=false) {
+      ctx.beginPath();
+      ctx.fillStyle = this.fillColor;
+      ctx.strokeStyle = selected ? '#f39c12' : this.strokeColor;
+      ctx.lineWidth = selected ? 4 : 2;
+      ctx.shadowColor = 'rgba(0,0,0,0.2)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      switch(this.shape) {
+        case 'circle':
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+          break;
+        case 'rect':
+          ctx.rect(this.x - this.width/2, this.y - this.height/2, this.width, this.height);
+          break;
+        case 'ellipse':
+          ctx.ellipse(this.x, this.y, this.width/2, this.height/2, 0, 0, Math.PI*2);
+          break;
+        case 'diamond':
+          ctx.moveTo(this.x, this.y - this.height/2);
+          ctx.lineTo(this.x + this.width/2, this.y);
+          ctx.lineTo(this.x, this.y + this.height/2);
+          ctx.lineTo(this.x - this.width/2, this.y);
+          ctx.closePath();
+          break;
+      }
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.stroke();
+
+      // Draw icon if exists (emoji or unicode char)
+      if(this.icon) {
+        ctx.font = '28px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = 'black';
+        ctx.fillText(this.icon, this.x, this.y - this.height/2 - 32);
+      }
+
+      // Draw text inside node
+      ctx.fillStyle = selected ? '#000' : '#fff';
+      ctx.font = 'bold 16px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      wrapText(ctx, this.text, this.x, this.y, this.width-30, 20);
     }
   }
 
@@ -217,14 +289,59 @@
     }
   }
 
-  // Draw functions
+  // Group class
+  class Group {
+    constructor(id, name, nodeIds) {
+      this.id = id;
+      this.name = name;
+      this.nodeIds = nodeIds; // array of node ids
+    }
+    getBounds(nodes) {
+      if(this.nodeIds.length === 0) return null;
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      this.nodeIds.forEach(id => {
+        const n = nodes.find(x => x.id === id);
+        if(!n) return;
+        minX = Math.min(minX, n.x - n.width/2);
+        maxX = Math.max(maxX, n.x + n.width/2);
+        minY = Math.min(minY, n.y - n.height/2);
+        maxY = Math.max(maxY, n.y + n.height/2);
+      });
+      return { x: minX - 10, y: minY - 10, w: maxX - minX + 20, h: maxY - minY + 20 };
+    }
+    draw(ctx, nodes) {
+      const bounds = this.getBounds(nodes);
+      if(!bounds) return;
+      ctx.save();
+      ctx.strokeStyle = '#27ae60';
+      ctx.fillStyle = 'rgba(39, 174, 96, 0.1)';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = 'rgba(0,0,0,0.2)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+
+      ctx.fillStyle = '#27ae60';
+      ctx.font = 'bold 14px Arial';
+      ctx.textBaseline = 'top';
+      ctx.fillText(this.name, bounds.x + 8, bounds.y + 4);
+      ctx.restore();
+    }
+  }
+
+  // Draw everything
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, width, height);
     ctx.save();
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
 
-    // Draw links first
+    // Draw groups behind nodes
+    groups.forEach(g => g.draw(ctx, nodes));
+
+    // Draw links behind nodes
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#666';
     ctx.fillStyle = '#666';
@@ -237,53 +354,42 @@
 
     // Draw nodes
     nodes.forEach(node => {
-      drawNode(node);
+      node.draw(ctx, node === selectedNode);
     });
 
+    // Draw multi-select rectangle if active
+    if(selectingGroup && groupSelectStart && groupSelectEnd) {
+      const sx = Math.min(groupSelectStart.x, groupSelectEnd.x);
+      const sy = Math.min(groupSelectStart.y, groupSelectEnd.y);
+      const sw = Math.abs(groupSelectEnd.x - groupSelectStart.x);
+      const sh = Math.abs(groupSelectEnd.y - groupSelectStart.y);
+      ctx.strokeStyle = '#2ecc71';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6,4]);
+      ctx.strokeRect(sx, sy, sw, sh);
+      ctx.setLineDash([]);
+    }
+
     ctx.restore();
-  }
-
-  function drawNode(node) {
-    ctx.beginPath();
-    ctx.fillStyle = node.color;
-    ctx.strokeStyle = selectedNode === node ? '#f39c12' : '#333';
-    ctx.lineWidth = selectedNode === node ? 4 : 2;
-    ctx.shadowColor = 'rgba(0,0,0,0.25)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 3;
-    ctx.shadowOffsetY = 3;
-    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
-    ctx.stroke();
-
-    // Draw text
-    ctx.fillStyle = node.textColor;
-    ctx.font = 'bold 16px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    wrapText(ctx, node.text, node.x, node.y, node.radius * 1.8, 20);
   }
 
   function drawCurvedLink(fromNode, toNode) {
     const dx = toNode.x - fromNode.x;
     const dy = toNode.y - fromNode.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 10) return;
-    // Control points for cubic Bezier curve
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist < 10) return;
     const cp1x = fromNode.x + dx * 0.3;
     const cp1y = fromNode.y;
     const cp2x = fromNode.x + dx * 0.7;
     const cp2y = toNode.y;
 
     ctx.beginPath();
-    ctx.strokeStyle = selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id ? '#e74c3c' : '#666';
-    ctx.lineWidth = selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id ? 4 : 3;
+    ctx.strokeStyle = (selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id) ? '#e74c3c' : '#666';
+    ctx.lineWidth = (selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id) ? 4 : 3;
     ctx.moveTo(fromNode.x, fromNode.y);
     ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, toNode.x, toNode.y);
     ctx.stroke();
 
-    // Draw arrowhead at end
     drawArrowhead(toNode.x, toNode.y, Math.atan2(dy, dx));
   }
 
@@ -294,23 +400,22 @@
     ctx.rotate(angle);
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.lineTo(-size, size / 2);
-    ctx.lineTo(-size, -size / 2);
+    ctx.lineTo(-size, size/2);
+    ctx.lineTo(-size, -size/2);
     ctx.closePath();
     ctx.fillStyle = ctx.strokeStyle;
     ctx.fill();
     ctx.restore();
   }
 
-  // Wrap text in multiple lines inside node
   function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
-    let lines = [];
-    for (let i=0; i<words.length; i++) {
+    const lines = [];
+    for(let i=0; i<words.length; i++) {
       const testLine = line + words[i] + ' ';
       const metrics = ctx.measureText(testLine);
-      if(metrics.width > maxWidth && i > 0) {
+      if(metrics.width > maxWidth && i>0) {
         lines.push(line);
         line = words[i] + ' ';
       } else {
@@ -321,13 +426,13 @@
 
     const totalHeight = lines.length * lineHeight;
     let startY = y - totalHeight/2 + lineHeight/2;
-
     for(let i=0; i<lines.length; i++) {
-      ctx.fillText(lines[i].trim(), x, startY + i * lineHeight);
+      ctx.fillText(lines[i].trim(), x, startY + i*lineHeight);
     }
   }
 
-  // Event handlers
+  // Interaction handlers
+
   let lastMousePos = { x: 0, y: 0 };
   let isDragging = false;
 
@@ -337,8 +442,7 @@
     const mouseY = e.clientY - rect.top;
     lastMousePos = { x: mouseX, y: mouseY };
 
-    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-      // Pan mode
+    if(e.button === 1 || (e.button === 0 && e.shiftKey)) {
       draggingCanvas = true;
       dragCanvasStart = { x: mouseX, y: mouseY };
       dragCanvasOffset = { x: offsetX, y: offsetY };
@@ -348,23 +452,28 @@
 
     const worldPos = toWorld(mouseX, mouseY);
 
-    // Check if clicked on node
-    let clickedNode = null;
-    for (const node of nodes) {
-      if (node.contains(worldPos.x, worldPos.y)) {
-        clickedNode = node;
-        break;
-      }
-    }
-
-    if (clickedNode) {
-      draggingNode = clickedNode;
-      dragOffsetX = worldPos.x - clickedNode.x;
-      dragOffsetY = worldPos.y - clickedNode.y;
-      selectedNode = clickedNode;
-      selectedLink = null;
+    // Multi-select start (alt + drag)
+    if(e.altKey) {
+      selectingGroup = true;
+      groupSelectStart = worldPos;
+      groupSelectEnd = worldPos;
+      selectedGroupNodes = [];
       draw();
       return;
+    }
+
+    // Check if clicked on node (top to bottom)
+    for(let i=nodes.length-1; i>=0; i--) {
+      if(nodes[i].contains(worldPos.x, worldPos.y)) {
+        draggingNode = nodes[i];
+        dragOffsetX = worldPos.x - draggingNode.x;
+        dragOffsetY = worldPos.y - draggingNode.y;
+        selectedNode = draggingNode;
+        selectedLink = null;
+        updateButtons();
+        draw();
+        return;
+      }
     }
 
     // Check if clicked on link
@@ -372,13 +481,14 @@
     if(clickedLink) {
       selectedLink = clickedLink;
       selectedNode = null;
+      updateButtons();
       draw();
       return;
     }
 
-    // Clicked empty space
     selectedNode = null;
     selectedLink = null;
+    updateButtons();
     draw();
   });
 
@@ -386,17 +496,34 @@
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    if (draggingNode) {
+
+    if(draggingNode) {
       const worldPos = toWorld(mouseX, mouseY);
       draggingNode.x = worldPos.x - dragOffsetX;
       draggingNode.y = worldPos.y - dragOffsetY;
       draw();
       return;
     }
-    if (draggingCanvas) {
+
+    if(draggingCanvas) {
       offsetX = dragCanvasOffset.x + mouseX - dragCanvasStart.x;
       offsetY = dragCanvasOffset.y + mouseY - dragCanvasStart.y;
       draw();
+      return;
+    }
+
+    if(selectingGroup) {
+      groupSelectEnd = toWorld(mouseX, mouseY);
+      selectedGroupNodes = nodes.filter(n => {
+        return (
+          n.x >= Math.min(groupSelectStart.x, groupSelectEnd.x) &&
+          n.x <= Math.max(groupSelectStart.x, groupSelectEnd.x) &&
+          n.y >= Math.min(groupSelectStart.y, groupSelectEnd.y) &&
+          n.y <= Math.max(groupSelectStart.y, groupSelectEnd.y)
+        );
+      });
+      draw();
+      return;
     }
   });
 
@@ -409,6 +536,23 @@
       draggingCanvas = false;
       canvas.style.cursor = 'grab';
     }
+    if(selectingGroup) {
+      selectingGroup = false;
+      groupSelectStart = null;
+      groupSelectEnd = null;
+      // Create group if multiple nodes selected
+      if(selectedGroupNodes.length > 1) {
+        const groupName = prompt('Nhập tên nhóm:');
+        if(groupName) {
+          const groupId = 'group-'+Date.now();
+          groups.push(new Group(groupId, groupName, selectedGroupNodes.map(n => n.id)));
+          saveHistory();
+          draw();
+        }
+      }
+      selectedGroupNodes = [];
+    }
+    updateButtons();
   });
 
   canvas.addEventListener('mouseleave', e => {
@@ -420,6 +564,12 @@
       draggingCanvas = false;
       canvas.style.cursor = 'grab';
     }
+    if(selectingGroup) {
+      selectingGroup = false;
+      selectedGroupNodes = [];
+      updateButtons();
+      draw();
+    }
   });
 
   canvas.addEventListener('wheel', e => {
@@ -427,9 +577,9 @@
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    const wheelDelta = e.deltaY < 0 ? 1.1 : 0.9;
+    const delta = e.deltaY < 0 ? 1.1 : 0.9;
     const worldBefore = toWorld(mouseX, mouseY);
-    scale *= wheelDelta;
+    scale *= delta;
     scale = Math.min(Math.max(scale, 0.3), 3);
     const worldAfter = toWorld(mouseX, mouseY);
     offsetX += (worldAfter.x - worldBefore.x) * scale;
@@ -439,119 +589,118 @@
 
   // Keyboard shortcuts
   canvas.addEventListener('keydown', e => {
-    if (document.activeElement !== canvas) return;
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      if(selectedNode) {
-        deleteNode(selectedNode);
-        e.preventDefault();
-      } else if(selectedLink) {
-        deleteLink(selectedLink);
-        e.preventDefault();
-      }
-    } else if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
+    if(document.activeElement !== canvas) return;
+    if(e.key === 'Delete' || e.key === 'Backspace') {
+      if(selectedNode) deleteNode(selectedNode);
+      else if(selectedLink) deleteLink(selectedLink);
+      e.preventDefault();
+    } else if(e.key === 'Enter' && selectedNode) {
+      addChildNode(selectedNode);
+      e.preventDefault();
+    } else if((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
       if(e.shiftKey) redo();
       else undo();
       e.preventDefault();
-    } else if ((e.key === 'y' || e.key === 'Y') && (e.ctrlKey || e.metaKey)) {
+    } else if((e.key === 'y' || e.key === 'Y') && (e.ctrlKey || e.metaKey)) {
       redo();
       e.preventDefault();
-    } else if (e.key === 'Enter' && selectedNode) {
-      addChildNode(selectedNode);
-      e.preventDefault();
     }
   });
 
-  // Context menu on right click node
-  canvas.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const worldPos = toWorld(mouseX, mouseY);
-    let clickedNode = null;
-    for (const node of nodes) {
-      if (node.contains(worldPos.x, worldPos.y)) {
-        clickedNode = node;
-        break;
+  // Toolbar button handlers
+  addRootNodeBtn.onclick = () => {
+    addRootNode();
+    canvas.focus();
+  };
+  addChildBtn.onclick = () => {
+    if(selectedNode) addChildNode(selectedNode);
+    canvas.focus();
+  };
+  deleteNodeBtn.onclick = () => {
+    if(selectedNode) deleteNode(selectedNode);
+    canvas.focus();
+  };
+  deleteLinkBtn.onclick = () => {
+    if(selectedLink) deleteLink(selectedLink);
+    canvas.focus();
+  };
+  autoLayoutBtn.onclick = () => {
+    autoLayout();
+    canvas.focus();
+  };
+  undoBtn.onclick = () => { undo(); canvas.focus(); };
+  redoBtn.onclick = () => { redo(); canvas.focus(); };
+  exportBtn.onclick = () => {
+    exportArea.value = JSON.stringify({nodes,links,groups}, null, 2);
+    canvas.focus();
+  };
+  importBtn.onclick = () => fileInput.click();
+  exportPngBtn.onclick = () => exportPNG();
+
+  fileInput.addEventListener('change', e => {
+    if(!fileInput.files.length) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if(data.nodes && data.links) {
+          nodes = data.nodes.map(n => Object.assign(new Node(), n));
+          links = data.links.map(l => Object.assign(new Link(), l));
+          groups = (data.groups || []).map(g => Object.assign(new Group(), g));
+          selectedNode = null;
+          selectedLink = null;
+          saveHistory();
+          draw();
+          alert('Tải dữ liệu thành công!');
+          canvas.focus();
+        } else {
+          alert('File JSON không hợp lệ!');
+        }
+      } catch {
+        alert('Không thể đọc file!');
       }
-    }
-    if (!clickedNode) {
-      hideContextMenu();
-      return;
-    }
-    selectedNode = clickedNode;
-    selectedLink = null;
-    draw();
-    showContextMenu(e.clientX, e.clientY, [
-      { label: 'Thêm con', action: () => addChildNode(selectedNode) },
-      { label: 'Sửa nội dung', action: () => editNodeText(selectedNode) },
-      { label: 'Xóa nút', action: () => deleteNode(selectedNode) },
-      { label: 'Tạo liên kết...', action: () => startLinkCreation(selectedNode) },
-    ]);
+    };
+    reader.readAsText(fileInput.files[0]);
   });
 
-  // Hide context menu if clicking elsewhere
-  window.addEventListener('click', e => {
-    if (e.target.closest('#contextMenu') === null) {
-      hideContextMenu();
-    }
-  });
-
-  // Show context menu
-  function showContextMenu(x, y, items) {
-    contextMenu.innerHTML = '';
-    items.forEach(item => {
-      const btn = document.createElement('button');
-      btn.textContent = item.label;
-      btn.onclick = () => {
-        item.action();
-        hideContextMenu();
-      };
-      contextMenu.appendChild(btn);
-    });
-    contextMenu.style.left = x + 'px';
-    contextMenu.style.top = y + 'px';
-    contextMenu.style.display = 'block';
-  }
-  function hideContextMenu() {
-    contextMenu.style.display = 'none';
-  }
-
-  // Node operations
+  // Node and link operations
   function addRootNode() {
     const text = prompt('Nhập nội dung nút gốc:');
-    if (!text) return;
-    const center = toWorld(canvas.width/2, canvas.height/2);
+    if(!text) return;
+    const center = toWorld(width/2, height/2);
     const id = Date.now().toString();
-    nodes.push(new Node(id, text, center.x, center.y));
+    const shape = shapeSelector.value;
+    const fillColor = fillColorPicker.value;
+    const strokeColor = strokeColorPicker.value;
+    const icon = iconInput.value.trim();
+    nodes.push(new Node(id, text, center.x, center.y, shape, fillColor, strokeColor, icon));
     saveHistory();
     draw();
   }
-  function addChildNode(parentNode) {
+  function addChildNode(parent) {
     const text = prompt('Nhập nội dung nút con:');
-    if (!text) return;
+    if(!text) return;
     const offset = 140;
-    // Place child near parent
-    const childX = parentNode.x + (Math.random() * 2 - 1) * offset;
-    const childY = parentNode.y + offset;
+    const childX = parent.x + (Math.random()*2 -1)*offset;
+    const childY = parent.y + offset;
     const id = Date.now().toString();
-    const childNode = new Node(id, text, childX, childY);
-    nodes.push(childNode);
-    links.push(new Link(parentNode.id, id));
+    const shape = shapeSelector.value;
+    const fillColor = fillColorPicker.value;
+    const strokeColor = strokeColorPicker.value;
+    const icon = iconInput.value.trim();
+    const child = new Node(id, text, childX, childY, shape, fillColor, strokeColor, icon);
+    nodes.push(child);
+    links.push(new Link(parent.id, id));
     saveHistory();
     draw();
-  }
-  function editNodeText(node) {
-    const newText = prompt('Chỉnh sửa nội dung nút:', node.text);
-    if (newText !== null) {
-      node.text = newText.trim() || node.text;
-      saveHistory();
-      draw();
-    }
   }
   function deleteNode(node) {
     nodes = nodes.filter(n => n.id !== node.id);
     links = links.filter(l => l.from !== node.id && l.to !== node.id);
+    // Remove from groups
+    groups.forEach(g => {
+      g.nodeIds = g.nodeIds.filter(id => id !== node.id);
+    });
     selectedNode = null;
     saveHistory();
     draw();
@@ -563,54 +712,53 @@
     draw();
   }
 
-  // Link creation via context menu
-  let linkingFromNode = null;
-  function startLinkCreation(fromNode) {
-    linkingFromNode = fromNode;
-    alert('Chọn nút đích để tạo liên kết (bấm vào node đó)');
-  }
-  canvas.addEventListener('click', e => {
-    if (!linkingFromNode) return;
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const worldPos = toWorld(mouseX, mouseY);
-    for (const node of nodes) {
-      if (node.contains(worldPos.x, worldPos.y)) {
-        if (node.id !== linkingFromNode.id) {
-          // Add link if not exist
-          if (!links.some(l => (l.from === linkingFromNode.id && l.to === node.id))) {
-            links.push(new Link(linkingFromNode.id, node.id));
-            saveHistory();
-            draw();
-          }
-        }
-        break;
-      }
+  // Auto layout (simple tree)
+  function autoLayout() {
+    const levels = {};
+    function dfs(id, level) {
+      if(levels[id] !== undefined) return;
+      levels[id] = level;
+      links.filter(l => l.from === id).forEach(l => dfs(l.to, level+1));
     }
-    linkingFromNode = null;
-  });
+    const allTo = new Set(links.map(l => l.to));
+    const roots = nodes.filter(n => !allTo.has(n.id));
+    roots.forEach(r => dfs(r.id, 0));
+    const levelGroups = {};
+    Object.entries(levels).forEach(([id,lvl]) => {
+      levelGroups[lvl] = levelGroups[lvl] || [];
+      const node = nodes.find(n => n.id === id);
+      if(node) levelGroups[lvl].push(node);
+    });
+    const vGap = 160;
+    const hGap = 180;
+    Object.entries(levelGroups).forEach(([lvl,group]) => {
+      group.forEach((node,i) => {
+        node.y = lvl*vGap + 100;
+        node.x = i*hGap + 100;
+      });
+    });
+    saveHistory();
+    draw();
+  }
 
-  // Find link near point (for selection)
-  function findLinkAt(point) {
-    const tolerance = 10 / scale;
-    for (const link of links) {
-      const fromNode = nodes.find(n => n.id === link.from);
-      const toNode = nodes.find(n => n.id === link.to);
-      if (!fromNode || !toNode) continue;
-      if (pointNearBezier(point, fromNode, toNode, tolerance)) return link;
+  // Link detection near point
+  function findLinkAt(p) {
+    const tol = 10 / scale;
+    for(const l of links) {
+      const fromNode = nodes.find(n => n.id === l.from);
+      const toNode = nodes.find(n => n.id === l.to);
+      if(!fromNode || !toNode) continue;
+      if(pointNearBezier(p, fromNode, toNode, tol)) return l;
     }
     return null;
   }
-  // Check if point near bezier curve
   function pointNearBezier(p, fromNode, toNode, tol) {
-    // Approximate bezier with small segments and check distance
     const steps = 30;
-    let prev = { x: fromNode.x, y: fromNode.y };
-    for (let t = 0; t <= 1; t += 1 / steps) {
+    let prev = {x: fromNode.x, y: fromNode.y};
+    for(let t=0; t<=1; t+=1/steps) {
       const pt = cubicBezierPoint(fromNode, toNode, t);
-      const dist = distancePointToSegment(p, prev, pt);
-      if (dist < tol) return true;
+      const dist = distPointSegment(p, prev, pt);
+      if(dist < tol) return true;
       prev = pt;
     }
     return false;
@@ -623,90 +771,50 @@
     const cp2x = fromNode.x + dx * 0.7;
     const cp2y = toNode.y;
 
-    const x = cubicBezier(t, fromNode.x, cp1x, cp2x, toNode.x);
-    const y = cubicBezier(t, fromNode.y, cp1y, cp2y, toNode.y);
-    return { x, y };
+    return {
+      x: cubicBezier(t, fromNode.x, cp1x, cp2x, toNode.x),
+      y: cubicBezier(t, fromNode.y, cp1y, cp2y, toNode.y)
+    };
   }
   function cubicBezier(t, p0, p1, p2, p3) {
     const c = 3 * (p1 - p0);
     const b = 3 * (p2 - p1) - c;
     const a = p3 - p0 - c - b;
-    return ((a * t + b) * t + c) * t + p0;
+    return ((a*t + b)*t + c)*t + p0;
   }
-  function distancePointToSegment(p, v, w) {
-    const l2 = (v.x - w.x) * (v.x - w.x) + (v.y - w.y) * (v.y - w.y);
-    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
-    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
-    return Math.hypot(p.x - proj.x, p.y - proj.y);
+  function distPointSegment(p, v, w) {
+    const l2 = (v.x-w.x)*(v.x-w.x)+(v.y-w.y)*(v.y-w.y);
+    if(l2===0) return Math.hypot(p.x-v.x,p.y-v.y);
+    let t = ((p.x-v.x)*(w.x-v.x)+(p.y-v.y)*(w.y-v.y))/l2;
+    t = Math.max(0, Math.min(1,t));
+    return Math.hypot(p.x-(v.x+t*(w.x-v.x)), p.y-(v.y+t*(w.y-v.y)));
   }
-
-  // Export / Import JSON
-  exportBtn.onclick = () => {
-    const data = { nodes, links };
-    exportArea.value = JSON.stringify(data, null, 2);
-  };
-  importBtn.onclick = () => {
-    fileInput.click();
-  };
-  fileInput.addEventListener('change', e => {
-    const file = fileInput.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        if (data.nodes && data.links) {
-          nodes = data.nodes.map(n => Object.assign(new Node(), n));
-          links = data.links.map(l => Object.assign(new Link(), l));
-          selectedNode = null;
-          selectedLink = null;
-          saveHistory();
-          draw();
-          alert('Tải dữ liệu thành công!');
-        } else {
-          alert('File không hợp lệ!');
-        }
-      } catch {
-        alert('Không thể đọc file!');
-      }
-    };
-    reader.readAsText(file);
-  });
 
   // Export PNG
-  exportPngBtn.onclick = () => {
+  function exportPNG() {
     const dataURL = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataURL;
     a.download = 'mindmap.png';
     a.click();
-  };
+  }
 
-  // Add root node button
-  addNodeBtn.onclick = addRootNode;
-  undoBtn.onclick = undo;
-  redoBtn.onclick = redo;
+  // Update toolbar button states
+  function updateButtons() {
+    deleteNodeBtn.disabled = !selectedNode;
+    addChildBtn.disabled = !selectedNode;
+    deleteLinkBtn.disabled = !selectedLink;
+  }
 
-  // Initial state save
+  // Initialization
   saveHistory();
-
-  // Draw initial empty canvas
   draw();
+  updateButtons();
 
-  // Focus canvas for keyboard shortcuts
+  // Focus canvas for keyboard support
   canvas.tabIndex = 0;
   canvas.style.outline = 'none';
 
-  // Helper: debounce function
-  function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-  }
 })();
 </script>
 
