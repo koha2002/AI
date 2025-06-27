@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap/Flowchart Pro All-in-One</title>
+  <title>Mindmap/Flowchart Pro - Pan Zoom chuẩn</title>
   <style>
     html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
     body{font-family:system-ui,sans-serif;background:#f5f7fb;}
@@ -48,7 +48,6 @@
   </style>
 </head>
 <body>
-  <!-- SIDEBAR -->
   <div id="sidebar" class="open">
     <div class="toggle" onclick="toggleSidebar()" title="Ẩn/hiện thanh công cụ">&#9776;</div>
     <div class="shapes">
@@ -72,7 +71,6 @@
       <div class="sticker" draggable="true" data-sticker="📝" title="Ghi chú">📝</div>
     </div>
   </div>
-  <!-- TOOLBAR -->
   <div id="toolbar">
     <button onclick="addNode()" title="Thêm node (Insert)">➕ Node</button>
     <button onclick="deleteNode()" title="Xóa node đã chọn (Del)">🗑️ Xóa</button>
@@ -93,13 +91,11 @@
     <span style="color:#ffd700;font-size:14px;margin-left:14px;">Pan, link, lasso, resize, sticker, undo/redo, đổi font, branch collapse, tìm kiếm, outline...</span>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="openFile(event)">
   </div>
-  <!-- CANVAS + RESIZE + LASSO -->
   <div id="canvasWrap">
     <canvas id="mindCanvas"></canvas>
     <div id="resizeHandle"></div>
     <div id="lasso"></div>
   </div>
-  <!-- PANEL THUỘC TÍNH -->
   <div id="sideRight">
     <div class="row"><label>Text: <input type="text" id="propText" onchange="updateProp('text',this.value)"></label></div>
     <div class="row"><label>Shape: <select id="propShape" onchange="updateProp('shape',this.value)">
@@ -143,8 +139,7 @@
   </div>
   <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- DÁN PHẦN 2/3 TIẾP THEO Ở ĐÂY -->
-<script>
+  <script>
 let nodes=[{
   id:1,text:"Ý chính",x:600,y:400,w:140,h:62,shape:"ellipse",
   color:"#ffe066",border:"#37474f",borderType:"solid",icon:"",img:null,stickers:[],
@@ -226,14 +221,11 @@ function redraw(){
     if(n.borderType==="dashed")ctx.setLineDash([7,6]);
     else if(n.borderType==="dotted")ctx.setLineDash([2,6]);
     ctx.shadowColor="#aaa";ctx.shadowBlur=7;ctx.fill();ctx.shadowBlur=0;ctx.stroke();ctx.setLineDash([]);
-    // Text
     ctx.font=(n.bold?"bold ":"")+(n.italic?"italic ":"")+" "+(n.fontSize||17)+"px "+(n.font||"Arial");
     ctx.fillStyle=n.fontColor||"#212121";ctx.textAlign="center";ctx.textBaseline="middle";
     ctx.fillText((n.icon?n.icon+" ":"")+n.text,n.x,n.y);
-    // Ảnh
     if(n.img){let img=new window.Image();img.onload=()=>{ctx.drawImage(img,n.x-n.w/2+6,n.y-n.h/2+6,n.w-12,n.h-12);};img.src=n.img;if(img.complete)img.onload();}
     ctx.restore();
-    // Resize handle
     if(selected.length===1&&selected[0]===n){
       let scr=toScreen(n.x+n.w/2,n.y+n.h/2);
       handle.style.left=(scr.x-9)+"px";handle.style.top=(scr.y-9)+"px";handle.style.display="block";
@@ -274,7 +266,6 @@ canvas.onmousedown=function(e){
     dragging=n;dragOffset={x:x-n.x,y:y-n.y};
   }else selected=[];
   redraw();
-  // Drag node ngay khi giữ chuột
   if(n){canvas.onmousemove=function(ev){
     let {x:xx,y:yy}=fromScreen(ev.clientX,ev.clientY);
     if(selected.length>1){
@@ -323,11 +314,15 @@ canvas.onmousemove=function(e){
   }
 };
 canvas.onwheel=function(e){
-  if(e.ctrlKey){e.preventDefault();
-    let mx=(e.offsetX-pan.x)/zoom,my=(e.offsetY-pan.y)/zoom;
+  if(e.ctrlKey){
+    e.preventDefault();
+    let mx=(e.offsetX-pan.x)/zoom;
+    let my=(e.offsetY-pan.y)/zoom;
     if(e.deltaY<0&&zoom<maxZoom)zoom*=1.14;
     if(e.deltaY>0&&zoom>minZoom)zoom/=1.14;
-    pan.x=e.offsetX-mx*zoom; pan.y=e.offsetY-my*zoom;redraw();
+    pan.x=e.offsetX-mx*zoom;
+    pan.y=e.offsetY-my*zoom;
+    redraw();
   }
 };
 canvas.ondblclick=function(e){
@@ -505,6 +500,6 @@ function uploadNodeImg(e){
   reader.readAsDataURL(file);e.target.value="";
 }
 window.addEventListener('resize',redraw);saveState();redraw();
-</script>
+  </script>
 </body>
 </html>
