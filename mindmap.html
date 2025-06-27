@@ -1,482 +1,641 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Mindmap CAD Pro</title>
-  <link rel="icon" href="logo.png">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body {font-family: 'Montserrat', Arial, sans-serif; background: #0a1931; color: #222; margin:0;}
-    #toolbar {display:flex;gap:10px;padding:8px 10px;background:#133360;flex-wrap:wrap;}
-    #tabs {display:flex;gap:5px;}
-    .tab {background:#2761ad;color:#fff;padding:7px 14px 7px 10px;border-radius:12px 12px 0 0;margin-right:4px;cursor:pointer;position:relative;}
-    .tab.selected {background:#fff;color:#2761ad;border:2px solid #185adb;border-bottom:0;}
-    .tab .close {position:absolute;right:4px;top:2px;color:#e22;font-size:15px;font-weight:bold;cursor:pointer;}
-    #cad-canvas {background:#f7fafb;border-radius:18px;box-shadow:0 4px 28px #0a225040;width:97vw;height:76vh;display:block;margin:14px auto 14px auto;touch-action:none;}
-    #menu {position:fixed;right:24px;top:70px;background:#fff;border:1.7px solid #185adb;border-radius:11px;box-shadow:0 2px 20px #0a1a34cc;padding:10px 24px;}
-    #menu button {margin:6px;}
-    #shapeSel, #colorSel, #paperSel {padding:5px 13px;border-radius:8px;margin-right:7px;}
-    .toolbar-btn {padding:6px 15px;border-radius:7px;border:1px solid #bed5f6;background:#f3f9ff;cursor:pointer;font-weight:600;}
-    #zoomInd {position:fixed;bottom:12px;left:20px;background:#183e88;color:#fff;border-radius:8px;padding:6px 16px;font-size:1.05rem;z-index:100;}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mindmap nâng cao - zoom, undo, xóa, layout, export</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 10px; }
+  #toolbar {
+    margin-bottom: 10px;
+  }
+  button {
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  #canvas {
+    border: 1px solid #ccc;
+    background: #fefefe;
+    cursor: grab;
+  }
+  #exportArea {
+    width: 100%;
+    height: 100px;
+    margin-top: 10px;
+    font-family: monospace;
+  }
+</style>
 </head>
 <body>
+
+<h2>Mindmap nâng cao</h2>
+
 <div id="toolbar">
-  <button onclick="addTab()" class="toolbar-btn">+ Sơ đồ mới</button>
-  <div id="tabs"></div>
-  <button onclick="mode='draw-node'" class="toolbar-btn">+ Node</button>
-  <select id="shapeSel">
-    <option value="rect">Chữ nhật</option>
-    <option value="ellipse">Ellipse</option>
-    <option value="diamond">Thoi</option>
-    <option value="note">Note</option>
-    <option value="cloud">Mây</option>
-    <option value="star">Sao</option>
-  </select>
-  <select id="colorSel">
-    <option value="#c9e7ff">Xanh</option>
-    <option value="#defde0">Xanh lá</option>
-    <option value="#ffd4e5">Hồng</option>
-    <option value="#ffe5c2">Cam</option>
-    <option value="#fff7c6">Vàng</option>
-    <option value="#efe0ff">Tím</option>
-    <option value="#e7ebef">Xám</option>
-    <option value="#ffdad6">Đỏ</option>
-    <option value="#ccf8f4">Cyan</option>
-    <option value="#e6ffd8">Lime</option>
-  </select>
-  <button onclick="mode='draw-conn'" class="toolbar-btn">+ Kết nối</button>
-  <button onclick="copyNodes()" class="toolbar-btn">Copy</button>
-  <button onclick="pasteNodes()" class="toolbar-btn">Paste</button>
-  <button onclick="startRectSel()" class="toolbar-btn">Khoanh vùng</button>
-  <button onclick="undo()" class="toolbar-btn">⎌ Undo</button>
-  <button onclick="redo()" class="toolbar-btn">⟳ Redo</button>
-  <button onclick="saveTabs()" class="toolbar-btn">💾 Lưu</button>
-  <button onclick="showExportMenu()" class="toolbar-btn">PDF</button>
-  <select id="paperSel">
-    <option value="a4">A4 dọc</option>
-    <option value="a4_landscape">A4 ngang</option>
-    <option value="a3">A3 dọc</option>
-    <option value="a3_landscape">A3 ngang</option>
-    <option value="letter">Letter</option>
-    <option value="free">Không giới hạn</option>
-  </select>
-  <input type="file" id="importPDF" accept=".pdf" style="display:none">
-  <button onclick="document.getElementById('importPDF').click()" class="toolbar-btn">Import PDF</button>
+  <button id="addNodeBtn">Thêm nút</button>
+  <button id="deleteNodeBtn" disabled>Xóa nút</button>
+  <button id="deleteLinkBtn" disabled>Xóa liên kết</button>
+  <button id="autoLayoutBtn">Tự động sắp xếp</button>
+  <button id="undoBtn" disabled>Undo</button>
+  <button id="redoBtn" disabled>Redo</button>
+  <button id="exportBtn">Xuất dữ liệu JSON</button>
+  <button id="importBtn">Tải dữ liệu JSON</button>
+  <button id="exportPngBtn">Xuất ảnh PNG</button>
+  <input type="file" id="fileInput" style="display:none" accept=".json" />
 </div>
-<canvas id="cad-canvas" width="2400" height="1600" tabindex="0"></canvas>
-<div id="menu" style="display:none;">
-  <b>Xuất PDF</b><br>
-  <button onclick="doExportPDF(true)">Chỉ vùng chọn</button>
-  <button onclick="doExportPDF(false)">Toàn sơ đồ</button>
-  <button onclick="closeExportMenu()">Huỷ</button>
-</div>
-<div id="zoomInd" style="display:none;">100%</div>
+
+<canvas id="canvas" width="900" height="600"></canvas>
+<textarea id="exportArea" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây" readonly></textarea>
+
 <script>
-// --- Data và logic canvas ---
-const TABS_KEY = "mindmap_cad_tabs";
-let tabs = loadTabs();
-let currentTab = 0;
-let mode = 'select'; // draw-node, draw-conn, select, rect-sel
-let pan = {x:0, y:0}, zoom=1, mouse={};
-let dragNode = null, dragOff={x:0,y:0}, dragResize=false;
-let selNodes = new Set();
-let connTempStart = null;
-let copyClip = null;
-let undoStack = [[]], redoStack = [[]];
-const paperSizes = {
-  a4:      {w: 210*3.78, h: 297*3.78},
-  a4_landscape: {w: 297*3.78, h: 210*3.78},
-  a3:      {w: 297*3.78, h: 420*3.78},
-  a3_landscape: {w: 420*3.78, h: 297*3.78},
-  letter:  {w: 215.9*3.78, h: 279.4*3.78},
-  free:    {w: 2400, h: 1600}
-};
+(() => {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
 
-function renderTabs() {
-  let html = '';
-  tabs.forEach((tab, i) => {
-    html += `<div class="tab${i===currentTab?' selected':''}" onclick="switchTab(${i})">${tab.name} <span class="close" onclick="event.stopPropagation();closeTab(${i});">&times;</span></div>`;
-  });
-  document.getElementById('tabs').innerHTML = html;
-}
-function addTab() {
-  let name = prompt("Tên sơ đồ?");
-  if (!name) return;
-  tabs.push({name, nodes:[], lines:[]});
-  currentTab = tabs.length-1;
-  saveTabs();
-  pushHistory();
-  renderTabs();
-  draw();
-}
-function closeTab(idx) {
-  if(!confirm("Xác nhận xoá sơ đồ này?")) return;
-  tabs.splice(idx,1);
-  currentTab = Math.max(0, currentTab-1);
-  saveTabs(); pushHistory(); renderTabs(); draw();
-}
-function switchTab(idx) {
-  currentTab = idx;
-  pushHistory();
-  renderTabs();
-  draw();
-}
-function saveTabs() { localStorage.setItem(TABS_KEY,JSON.stringify(tabs)); }
-function loadTabs(){
-  let d = localStorage.getItem(TABS_KEY);
-  if(d) return JSON.parse(d);
-  return [{name:"Sơ đồ 1", nodes:[], lines:[]}];
-}
+  // Toolbar buttons
+  const addNodeBtn = document.getElementById('addNodeBtn');
+  const deleteNodeBtn = document.getElementById('deleteNodeBtn');
+  const deleteLinkBtn = document.getElementById('deleteLinkBtn');
+  const autoLayoutBtn = document.getElementById('autoLayoutBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const exportPngBtn = document.getElementById('exportPngBtn');
+  const fileInput = document.getElementById('fileInput');
+  const exportArea = document.getElementById('exportArea');
 
-// --- Main canvas logic ---
-const canvas = document.getElementById('cad-canvas');
-const ctx = canvas.getContext('2d');
-function getPaperWH(){
-  let v = document.getElementById('paperSel').value;
-  return v==="free"?{w:2400,h:1600}:paperSizes[v];
-}
-function draw(){
-  let {w,h} = getPaperWH();
-  canvas.width = w; canvas.height = h;
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.clearRect(0,0,w,h);
-  ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
-  // Draw grid
-  ctx.save();
-  ctx.strokeStyle="#e4eefa"; ctx.lineWidth=1;
-  for(let x=0;x<w;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-  for(let y=0;y<h;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  ctx.restore();
+  // Data structures
+  let nodes = [];
+  let links = [];
 
-  // Draw connections
-  let tab = tabs[currentTab];
-  for(let l of tab.lines){
-    let n1 = tab.nodes.find(n=>n.id===l.from), n2 = tab.nodes.find(n=>n.id===l.to);
-    if(!n1||!n2) continue;
-    ctx.save();
-    ctx.strokeStyle="#185adb";ctx.lineWidth=3.1;ctx.globalAlpha=0.8;
-    ctx.beginPath();
-    ctx.moveTo(n1.x+n1.w/2, n1.y+n1.h/2);
-    ctx.lineTo(n2.x+n2.w/2, n2.y+n2.h/2);
-    ctx.stroke();
-    ctx.restore();
-  }
-  // Temp conn
-  if(mode==='draw-conn'&&connTempStart){
-    ctx.save();
-    ctx.strokeStyle="#ef5b1b";ctx.setLineDash([7,5]);
-    ctx.lineWidth=2.5;
-    ctx.beginPath();
-    ctx.moveTo(connTempStart.x,connTempStart.y);
-    ctx.lineTo(mouse.x,mouse.y);
-    ctx.stroke();
-    ctx.restore();
-  }
-  // Draw nodes
-  for(let n of tab.nodes){
-    drawNode(ctx, n, selNodes.has(n.id));
-  }
-  // Rect select
-  if(mode==="rect-sel"&&rectSelBox){
-    ctx.save();
-    ctx.strokeStyle="#2196f3";ctx.setLineDash([7,7]);
-    ctx.lineWidth=2.5; ctx.globalAlpha=0.55;
-    ctx.strokeRect(rectSelBox.x,rectSelBox.y,rectSelBox.w,rectSelBox.h);
-    ctx.restore();
-  }
-}
-function drawNode(ctx, n, selected){
-  ctx.save();
-  ctx.beginPath();
-  ctx.fillStyle = n.color||'#c9e7ff';
-  ctx.strokeStyle = selected?"#185adb":"#bcd";
-  ctx.lineWidth = selected?3:2;
-  switch(n.shape){
-    case "rect":
-    default: ctx.roundRect(n.x, n.y, n.w, n.h, 14); break;
-    case "ellipse": ctx.ellipse(n.x+n.w/2,n.y+n.h/2,n.w/2,n.h/2,0,0,Math.PI*2); break;
-    case "diamond":
-      ctx.moveTo(n.x+n.w/2, n.y);
-      ctx.lineTo(n.x+n.w, n.y+n.h/2);
-      ctx.lineTo(n.x+n.w/2, n.y+n.h);
-      ctx.lineTo(n.x, n.y+n.h/2);
-      ctx.closePath();
-      break;
-    case "star":
-      let cx=n.x+n.w/2, cy=n.y+n.h/2, r=Math.min(n.w,n.h)/2;
-      for(let i=0;i<5;i++){
-        let a = Math.PI/2+i*2*Math.PI/5, a2 = a+Math.PI/5;
-        let x1=cx+r*Math.cos(a), y1=cy-r*Math.sin(a);
-        let x2=cx+r*0.45*Math.cos(a2), y2=cy-r*0.45*Math.sin(a2);
-        if(i===0)ctx.moveTo(x1,y1); else ctx.lineTo(x1,y1);
-        ctx.lineTo(x2,y2);
-      } ctx.closePath(); break;
-    case "note":
-      ctx.roundRect(n.x, n.y, n.w, n.h, [9,30,13,20]); ctx.setLineDash([2,6]); break;
-    case "cloud":
-      for(let i=0;i<5;i++)ctx.arc(n.x+n.w*(0.2*i+0.13),n.y+n.h*0.5,Math.min(n.w,n.h)*0.18,0,Math.PI*2);
-      break;
-  }
-  ctx.globalAlpha=0.97;
-  ctx.fill(); ctx.stroke();
-  // Text
-  ctx.globalAlpha=1;
-  ctx.font = "bold 17px Montserrat";
-  ctx.fillStyle="#183655";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  let t = n.text.split('\n');
-  for(let i=0;i<t.length;i++){
-    ctx.fillText(t[i], n.x+n.w/2, n.y+n.h/2+(i-t.length/2)*21+13);
-  }
-  // Resize box (góc)
-  ctx.save();
-  ctx.globalAlpha=selected?0.8:0.3;
-  ctx.strokeStyle="#185adb"; ctx.lineWidth=2.2;
-  ctx.beginPath();
-  ctx.rect(n.x+n.w-9, n.y+n.h-9, 12, 12); ctx.stroke();
-  ctx.restore();
-  ctx.restore();
-}
+  // History stacks for undo/redo
+  let history = [];
+  let historyIndex = -1;
 
-// -- Mouse/canvas event ---
-let rectSelBox = null;
-canvas.onmousedown = function(e){
-  let p = toWorld(e.offsetX, e.offsetY);
-  mouse = {...p};
-  if(e.button===1||spacePan) { // Pan
-    isPanning = true; panStart={x:e.clientX-pan.x, y:e.clientY-pan.y}; return;
+  // Viewport transform
+  let offsetX = 0;
+  let offsetY = 0;
+  let scale = 1;
+
+  // Interaction state
+  let draggingNode = null;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  let draggingCanvas = false;
+  let dragCanvasStartX = 0;
+  let dragCanvasStartY = 0;
+  let dragCanvasOffsetX = 0;
+  let dragCanvasOffsetY = 0;
+
+  let selectedNode = null;
+  let selectedLink = null;
+  let linkStartNode = null;
+
+  // Constants
+  const NODE_RADIUS = 40;
+
+  // Classes
+  class Node {
+    constructor(id, text, x, y) {
+      this.id = id;
+      this.text = text;
+      this.x = x;
+      this.y = y;
+      this.radius = NODE_RADIUS;
+    }
+    isPointInside(px, py) {
+      const dx = px - this.x;
+      const dy = py - this.y;
+      return dx * dx + dy * dy <= this.radius * this.radius;
+    }
   }
-  if(mode==='draw-node'){
-    let n = {
-      id:Date.now()+Math.floor(Math.random()*1e4),
-      x:p.x-60,y:p.y-30,w:120,h:54,
-      shape:document.getElementById('shapeSel').value,
-      color:document.getElementById('colorSel').value,
-      text:'Node'
+
+  function saveHistory() {
+    // Save current state (deep clone)
+    const state = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      links: JSON.parse(JSON.stringify(links))
     };
-    tabs[currentTab].nodes.push(n); saveTabs(); pushHistory(); mode='select'; draw(); return;
+    // Remove redo history if we add new action
+    history = history.slice(0, historyIndex + 1);
+    history.push(state);
+    historyIndex++;
+    updateUndoRedoButtons();
   }
-  if(mode==='draw-conn'){
-    let hit = hitNode(p);
-    if(hit){
-      if(!connTempStart){
-        connTempStart={x:hit.x+hit.w/2,y:hit.y+hit.h/2,node:hit.id};
-      }else{
-        tabs[currentTab].lines.push({from:connTempStart.node,to:hit.id});
-        connTempStart=null; saveTabs(); pushHistory(); mode='select'; draw();
+
+  function undo() {
+    if (historyIndex <= 0) return;
+    historyIndex--;
+    restoreState(history[historyIndex]);
+    updateUndoRedoButtons();
+  }
+
+  function redo() {
+    if (historyIndex >= history.length - 1) return;
+    historyIndex++;
+    restoreState(history[historyIndex]);
+    updateUndoRedoButtons();
+  }
+
+  function restoreState(state) {
+    nodes = JSON.parse(JSON.stringify(state.nodes));
+    links = JSON.parse(JSON.stringify(state.links));
+    selectedNode = null;
+    selectedLink = null;
+    draw();
+  }
+
+  function updateUndoRedoButtons() {
+    undoBtn.disabled = historyIndex <= 0;
+    redoBtn.disabled = historyIndex >= history.length - 1;
+  }
+
+  // Coordinate conversion (canvas to world and vice versa)
+  function toWorld(x, y) {
+    return {
+      x: (x - offsetX) / scale,
+      y: (y - offsetY) / scale
+    };
+  }
+
+  function toScreen(x, y) {
+    return {
+      x: x * scale + offsetX,
+      y: y * scale + offsetY
+    };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw links
+    ctx.lineWidth = 2;
+    links.forEach(link => {
+      const from = nodes.find(n => n.id === link.from);
+      const to = nodes.find(n => n.id === link.to);
+      if (from && to) {
+        const fromScreen = toScreen(from.x, from.y);
+        const toScreenPos = toScreen(to.x, to.y);
+        ctx.strokeStyle = (selectedLink === link) ? '#e74c3c' : '#555';
+        ctx.beginPath();
+        ctx.moveTo(fromScreen.x, fromScreen.y);
+        ctx.lineTo(toScreenPos.x, toScreenPos.y);
+        ctx.stroke();
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const screenPos = toScreen(node.x, node.y);
+      ctx.beginPath();
+      ctx.fillStyle = (node === selectedNode) ? '#ffec99' : '#fff';
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba(0,0,0,0.15)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.arc(screenPos.x, screenPos.y, node.radius * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.stroke();
+
+      // Text
+      ctx.fillStyle = '#000';
+      ctx.font = `${14 * scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      wrapText(ctx, node.text, screenPos.x, screenPos.y, node.radius * 3 * scale, 18 * scale);
+    });
+  }
+
+  // Wrap text for multi-line inside node
+  function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    const lines = [];
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i] + ' ';
+      const metrics = context.measureText(testLine);
+      if (metrics.width > maxWidth && i > 0) {
+        lines.push(line);
+        line = words[i] + ' ';
+      } else {
+        line = testLine;
+      }
+    }
+    lines.push(line);
+
+    const totalHeight = lines.length * lineHeight;
+    let startY = y - totalHeight / 2 + lineHeight / 2;
+
+    for (let i = 0; i < lines.length; i++) {
+      context.fillText(lines[i].trim(), x, startY + i * lineHeight);
+    }
+  }
+
+  // Add node handler
+  function addNode() {
+    const text = prompt('Nhập nội dung cho nút:');
+    if (!text) return;
+    // Place node in center view
+    const centerX = (canvas.width / 2 - offsetX) / scale;
+    const centerY = (canvas.height / 2 - offsetY) / scale;
+    const id = Date.now().toString();
+    nodes.push(new Node(id, text, centerX, centerY));
+    saveHistory();
+    draw();
+  }
+
+  // Get node at screen coordinates
+  function getNodeAtPos(screenX, screenY) {
+    const worldPos = toWorld(screenX, screenY);
+    return nodes.find(node => {
+      const dx = worldPos.x - node.x;
+      const dy = worldPos.y - node.y;
+      return dx * dx + dy * dy <= (node.radius * node.radius);
+    });
+  }
+
+  // Get link near point (within certain tolerance)
+  function getLinkAtPos(screenX, screenY) {
+    const worldPos = toWorld(screenX, screenY);
+    const tolerance = 10 / scale;
+    for (const link of links) {
+      const from = nodes.find(n => n.id === link.from);
+      const to = nodes.find(n => n.id === link.to);
+      if (!from || !to) continue;
+      if (pointNearLine(worldPos, from, to, tolerance)) {
+        return link;
+      }
+    }
+    return null;
+  }
+
+  function pointNearLine(p, a, b, tol) {
+    // Check if point p is within tol distance from segment a-b
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const lengthSq = dx * dx + dy * dy;
+    if (lengthSq === 0) return false;
+    let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq;
+    t = Math.max(0, Math.min(1, t));
+    const projX = a.x + t * dx;
+    const projY = a.y + t * dy;
+    const distSq = (p.x - projX) ** 2 + (p.y - projY) ** 2;
+    return distSq <= tol * tol;
+  }
+
+  // Mouse interaction handlers
+  canvas.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      // Middle click or Shift + Left click: drag canvas
+      draggingCanvas = true;
+      dragCanvasStartX = x;
+      dragCanvasStartY = y;
+      dragCanvasOffsetX = offsetX;
+      dragCanvasOffsetY = offsetY;
+      canvas.style.cursor = 'grabbing';
+      return;
+    }
+
+    // Ctrl + click to create links between nodes
+    if (e.ctrlKey && e.button === 0) {
+      const node = getNodeAtPos(x, y);
+      if (!node) return;
+      if (!linkStartNode) {
+        linkStartNode = node;
+        alert('Chọn nút thứ hai (Ctrl + click) để nối liên kết');
+      } else if (linkStartNode.id !== node.id) {
+        // Check if link exists
+        const exists = links.some(l => 
+          (l.from === linkStartNode.id && l.to === node.id) ||
+          (l.from === node.id && l.to === linkStartNode.id)
+        );
+        if (!exists) {
+          links.push({ from: linkStartNode.id, to: node.id });
+          saveHistory();
+        }
+        linkStartNode = null;
+        draw();
       }
       return;
     }
-  }
-  // Select node or start drag/resize
-  let hit = hitNode(p,true);
-  if(hit){
-    let isResize = Math.abs(p.x-(hit.x+hit.w))<16 && Math.abs(p.y-(hit.y+hit.h))<16;
-    if(isResize){
-      dragResize=true; dragNode=hit; return;
-    }
-    dragNode=hit; dragOff={x:p.x-hit.x,y:p.y-hit.y};
-    if(e.ctrlKey||e.metaKey){
-      if(selNodes.has(hit.id)) selNodes.delete(hit.id); else selNodes.add(hit.id);
-    } else{
-      selNodes.clear(); selNodes.add(hit.id);
-    }
-    draw(); return;
-  }
-  // Khung chọn
-  if(mode==='rect-sel'){
-    rectSelBox={x:p.x,y:p.y,w:1,h:1}; selecting=true;
-    draw(); return;
-  }
-  // Click ngoài: clear chọn
-  selNodes.clear(); draw();
-};
-canvas.onmousemove = function(e){
-  let p = toWorld(e.offsetX, e.offsetY);
-  mouse = {...p};
-  if(isPanning){
-    pan.x = e.clientX-panStart.x; pan.y = e.clientY-panStart.y; draw(); return;
-  }
-  if(dragResize&&dragNode){
-    dragNode.w = Math.max(48,p.x-dragNode.x); dragNode.h = Math.max(28,p.y-dragNode.y);
-    draw(); return;
-  }
-  if(dragNode){
-    let dx=p.x-dragOff.x,dy=p.y-dragOff.y;
-    let dxAll = dx-dragNode.x, dyAll=dy-dragNode.y;
-    for(let id of selNodes){let n=tabs[currentTab].nodes.find(nn=>nn.id===id); n.x+=dxAll; n.y+=dyAll;}
-    draw(); dragOff.x+=dxAll; dragOff.y+=dyAll;
-    return;
-  }
-  if(selecting&&rectSelBox){
-    rectSelBox.w=p.x-rectSelBox.x; rectSelBox.h=p.y-rectSelBox.y;
-    draw(); return;
-  }
-};
-canvas.onmouseup = function(e){
-  if(isPanning){isPanning=false;return;}
-  if(dragResize||dragNode){dragResize=false;dragNode=null;pushHistory();saveTabs();}
-  if(selecting&&rectSelBox){
-    let x0=rectSelBox.x,x1=rectSelBox.x+rectSelBox.w,y0=rectSelBox.y,y1=rectSelBox.y+rectSelBox.h;
-    if(x1<x0) [x0,x1]=[x1,x0]; if(y1<y0)[y0,y1]=[y1,y0];
-    selNodes.clear();
-    for(let n of tabs[currentTab].nodes){
-      if(n.x+n.w>x0 && n.x<x1 && n.y+n.h>y0 && n.y<ty+h) selNodes.add(n.id);
-    }
-    rectSelBox = null; selecting=false; mode='select'; draw();
-  }
-};
-canvas.ondblclick = function(e){
-  let p = toWorld(e.offsetX, e.offsetY);
-  let n = hitNode(p,true);
-  if(!n) return;
-  let t = prompt("Nội dung node:", n.text); if(t!==null) { n.text=t; saveTabs();pushHistory();draw();}
-};
-canvas.onwheel = function(e){
-  let z = zoom + (e.deltaY>0?-0.08:0.08); z=Math.max(0.3,Math.min(z,3.3));
-  let p = toWorld(e.offsetX,e.offsetY);
-  pan.x -= (p.x* (z-zoom));
-  pan.y -= (p.y* (z-zoom));
-  zoom=z; draw();
-  document.getElementById('zoomInd').innerText=Math.round(zoom*100)+"%";
-  document.getElementById('zoomInd').style.display='block';
-  clearTimeout(window.zoomTimeout); window.zoomTimeout = setTimeout(()=>{document.getElementById('zoomInd').style.display='none';},1200);
-  e.preventDefault();
-};
 
-let isPanning=false, panStart={};
-let spacePan=false;
-window.onkeydown=function(e){
-  if(e.code==='Space'){spacePan=true;}
-  if((e.ctrlKey||e.metaKey)&&e.key==='c') copyNodes();
-  if((e.ctrlKey||e.metaKey)&&e.key==='v') pasteNodes();
-  if((e.ctrlKey||e.metaKey)&&e.key==='z') undo();
-  if((e.ctrlKey||e.metaKey)&&e.key==='y') redo();
-  if(e.key==="Delete"||e.key==="Backspace") deleteNodes();
-};
-window.onkeyup=function(e){ if(e.code==='Space'){spacePan=false;} }
+    // Check if clicked on a node
+    const node = getNodeAtPos(x, y);
+    if (node) {
+      draggingNode = node;
+      selectedNode = node;
+      selectedLink = null;
+      dragOffsetX = toWorld(x, y).x - node.x;
+      dragOffsetY = toWorld(x, y).y - node.y;
+      deleteNodeBtn.disabled = false;
+      deleteLinkBtn.disabled = true;
+      draw();
+      return;
+    }
 
-function toWorld(x,y){ return {x: (x-pan.x)/zoom, y: (y-pan.y)/zoom}; }
-function hitNode(p, loose=false){
-  let arr = tabs[currentTab].nodes;
-  for(let i=arr.length-1;i>=0;i--){
-    let n=arr[i];
-    let mx=n.x,my=n.y,mw=n.w,mh=n.h;
-    if(loose)mw+=10,mh+=10;
-    if(p.x>=mx&&p.x<=mx+mw&&p.y>=my&&p.y<=my+mh) return n;
-  }
-  return null;
-}
-function copyNodes(){
-  if(selNodes.size) copyClip = tabs[currentTab].nodes.filter(n=>selNodes.has(n.id)).map(n=>({...n}));
-}
-function pasteNodes(){
-  if(!copyClip||!copyClip.length) return;
-  let arr = tabs[currentTab].nodes, ids=[];
-  for(let n of copyClip){
-    let nn={...n,id:Date.now()+Math.floor(Math.random()*1e4),x:n.x+35,y:n.y+30};
-    arr.push(nn); ids.push(nn.id);
-  }
-  selNodes=new Set(ids); saveTabs(); pushHistory(); draw();
-}
-function deleteNodes(){
-  if(!selNodes.size) return;
-  if(!confirm("Xóa các node đã chọn?")) return;
-  let arr = tabs[currentTab].nodes;
-  arr = arr.filter(n=>!selNodes.has(n.id));
-  tabs[currentTab].nodes=arr;
-  tabs[currentTab].lines=tabs[currentTab].lines.filter(l=>arr.find(n=>n.id===l.from)&&arr.find(n=>n.id===l.to));
-  selNodes.clear();
-  saveTabs();pushHistory();draw();
-}
-function startRectSel(){mode='rect-sel';}
-function showExportMenu(){document.getElementById('menu').style.display='block';}
-function closeExportMenu(){document.getElementById('menu').style.display='none';}
-function doExportPDF(sel){
-  closeExportMenu();
-  setTimeout(()=>{
-    if(!confirm("Bạn muốn xuất PDF ngay bây giờ? Hãy kiểm tra lại sơ đồ!")) return;
-    html2canvas(canvas).then(c=>{
-      let pdf = new window.jspdf.jsPDF({
-        orientation:c.width>c.height?'landscape':'portrait',
-        unit:'pt',format:[c.width,c.height]
-      });
-      pdf.addImage(c.toDataURL('image/png'),'PNG',0,0,c.width,c.height);
-      pdf.save('mindmap.pdf');
-    });
-  },120);
-}
-// Undo/Redo logic
-function pushHistory(){
-  if(!undoStack[currentTab])undoStack[currentTab]=[];
-  undoStack[currentTab].push(JSON.stringify(tabs[currentTab]));
-  redoStack[currentTab]=[]; // clear redo khi thay đổi
-}
-function undo(){
-  if(undoStack[currentTab]&&undoStack[currentTab].length>1){
-    redoStack[currentTab].push(undoStack[currentTab].pop());
-    tabs[currentTab]=JSON.parse(undoStack[currentTab][undoStack[currentTab].length-1]);
-    saveTabs(); draw();
-  }
-}
-function redo(){
-  if(redoStack[currentTab]&&redoStack[currentTab].length){
-    let st = redoStack[currentTab].pop();
-    undoStack[currentTab].push(st);
-    tabs[currentTab]=JSON.parse(st);
-    saveTabs(); draw();
-  }
-}
+    // Check if clicked on a link
+    const link = getLinkAtPos(x, y);
+    if (link) {
+      selectedLink = link;
+      selectedNode = null;
+      deleteLinkBtn.disabled = false;
+      deleteNodeBtn.disabled = true;
+      draw();
+      return;
+    }
 
-// PDF import
-document.getElementById('importPDF').addEventListener('change', function(e){
-  let file = e.target.files[0];
-  if(!file) return;
-  let reader = new FileReader();
-  reader.onload = function(){
-    pdfjsLib.getDocument({data:new Uint8Array(reader.result)}).promise.then(pdf=>{
-      let allText = "";
-      let getPage = function(pn){
-        if(pn>pdf.numPages) {
-          if(!allText.trim()) return alert("Không có text trong file PDF!");
-          let lines = allText.split('\n').map(s=>s.trim()).filter(s=>!!s);
-          lines.forEach(txt=>{
-            tabs[currentTab].nodes.push({
-              id:Date.now()+Math.floor(Math.random()*1e4),
-              x:200+Math.random()*300,
-              y:120+Math.random()*400,
-              w:150,h:48,
-              shape:document.getElementById('shapeSel').value,
-              color:document.getElementById('colorSel').value,
-              text:txt
-            });
-          });
-          pushHistory();saveTabs();draw();
-          return;
-        }
-        pdf.getPage(pn).then(page=>{
-          page.getTextContent().then(tc=>{
-            allText+=tc.items.map(i=>i.str).join(' ')+'\n';
-            getPage(pn+1);
-          });
-        });
-      }
-      getPage(1);
-    });
+    // Clicked empty space
+    selectedNode = null;
+    selectedLink = null;
+    deleteNodeBtn.disabled = true;
+    deleteLinkBtn.disabled = true;
+    draw();
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (draggingNode) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const worldPos = toWorld(x, y);
+      draggingNode.x = worldPos.x - dragOffsetX;
+      draggingNode.y = worldPos.y - dragOffsetY;
+      draw();
+    } else if (draggingCanvas) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      offsetX = dragCanvasOffsetX + (x - dragCanvasStartX);
+      offsetY = dragCanvasOffsetY + (y - dragCanvasStartY);
+      draw();
+    }
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    if (draggingNode) {
+      draggingNode = null;
+      saveHistory();
+    }
+    if (draggingCanvas) {
+      draggingCanvas = false;
+      canvas.style.cursor = 'grab';
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    if (draggingNode) {
+      draggingNode = null;
+      saveHistory();
+    }
+    if (draggingCanvas) {
+      draggingCanvas = false;
+      canvas.style.cursor = 'grab';
+    }
+  });
+
+  // Zoom with mouse wheel
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const wheel = e.deltaY < 0 ? 1.1 : 0.9;
+
+    // Zoom relative to mouse pointer
+    const worldPosBefore = toWorld(mouseX, mouseY);
+    scale *= wheel;
+    scale = Math.min(Math.max(scale, 0.2), 3);
+    const worldPosAfter = toWorld(mouseX, mouseY);
+
+    // Adjust offset to keep mouse position stable
+    offsetX += (worldPosAfter.x - worldPosBefore.x) * scale;
+    offsetY += (worldPosAfter.y - worldPosBefore.y) * scale;
+
+    draw();
+  });
+
+  // Double click to edit node text
+  canvas.addEventListener('dblclick', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const node = getNodeAtPos(x, y);
+    if (!node) return;
+    const newText = prompt('Chỉnh sửa nội dung nút:', node.text);
+    if (newText !== null) {
+      node.text = newText.trim() || node.text;
+      saveHistory();
+      draw();
+    }
+  });
+
+  // Toolbar buttons events
+  addNodeBtn.onclick = addNode;
+
+  deleteNodeBtn.onclick = () => {
+    if (!selectedNode) return;
+    // Remove related links
+    links = links.filter(l => l.from !== selectedNode.id && l.to !== selectedNode.id);
+    nodes = nodes.filter(n => n.id !== selectedNode.id);
+    selectedNode = null;
+    deleteNodeBtn.disabled = true;
+    saveHistory();
+    draw();
   };
-  reader.readAsArrayBuffer(file);
-});
 
-// Lần đầu
-renderTabs();
-draw();
-pushHistory();
-document.getElementById('paperSel').onchange=draw;
-window.addEventListener('resize',draw);
+  deleteLinkBtn.onclick = () => {
+    if (!selectedLink) return;
+    links = links.filter(l => l !== selectedLink);
+    selectedLink = null;
+    deleteLinkBtn.disabled = true;
+    saveHistory();
+    draw();
+  };
+
+  undoBtn.onclick = undo;
+  redoBtn.onclick = redo;
+
+  exportBtn.onclick = () => {
+    const data = { nodes, links };
+    const jsonStr = JSON.stringify(data, null, 2);
+    exportArea.value = jsonStr;
+  };
+
+  importBtn.onclick = () => {
+    fileInput.click();
+  };
+
+  fileInput.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = event => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (data.nodes && data.links) {
+          nodes = data.nodes.map(n => new Node(n.id, n.text, n.x, n.y));
+          links = data.links;
+          selectedNode = null;
+          selectedLink = null;
+          offsetX = 0;
+          offsetY = 0;
+          scale = 1;
+          saveHistory();
+          draw();
+          alert('Dữ liệu đã được tải thành công!');
+        } else {
+          alert('File JSON không hợp lệ!');
+        }
+      } catch (err) {
+        alert('Lỗi đọc file JSON!');
+      }
+    };
+    reader.readAsText(file);
+    fileInput.value = '';
+  };
+
+  exportPngBtn.onclick = () => {
+    // Temporary scale to 2x for better resolution
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width * 2;
+    tempCanvas.height = canvas.height * 2;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.scale(2, 2);
+    // Copy current drawing
+    // Use the same draw function but draw to tempCtx with adjusted scale and offset
+    tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Draw links
+    tempCtx.lineWidth = 2;
+    links.forEach(link => {
+      const from = nodes.find(n => n.id === link.from);
+      const to = nodes.find(n => n.id === link.to);
+      if (from && to) {
+        const fromScreen = {
+          x: from.x * scale + offsetX,
+          y: from.y * scale + offsetY
+        };
+        const toScreenPos = {
+          x: to.x * scale + offsetX,
+          y: to.y * scale + offsetY
+        };
+        tempCtx.strokeStyle = '#555';
+        tempCtx.beginPath();
+        tempCtx.moveTo(fromScreen.x, fromScreen.y);
+        tempCtx.lineTo(toScreenPos.x, toScreenPos.y);
+        tempCtx.stroke();
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const screenPos = {
+        x: node.x * scale + offsetX,
+        y: node.y * scale + offsetY
+      };
+      tempCtx.beginPath();
+      tempCtx.fillStyle = '#fff';
+      tempCtx.strokeStyle = '#333';
+      tempCtx.lineWidth = 2;
+      tempCtx.shadowColor = 'rgba(0,0,0,0.15)';
+      tempCtx.shadowBlur = 6;
+      tempCtx.shadowOffsetX = 2;
+      tempCtx.shadowOffsetY = 2;
+      tempCtx.arc(screenPos.x, screenPos.y, node.radius * scale, 0, Math.PI * 2);
+      tempCtx.fill();
+      tempCtx.shadowColor = 'transparent';
+      tempCtx.stroke();
+
+      // Text
+      tempCtx.fillStyle = '#000';
+      tempCtx.font = `${14 * scale}px Arial`;
+      tempCtx.textAlign = 'center';
+      tempCtx.textBaseline = 'middle';
+      wrapText(tempCtx, node.text, screenPos.x, screenPos.y, node.radius * 3 * scale, 18 * scale);
+    });
+
+    // Generate PNG image
+    const dataURL = tempCanvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataURL;
+    a.download = 'mindmap.png';
+    a.click();
+  };
+
+  // Simple auto-layout function - arrange nodes in tree layout
+  // Root node is one with no incoming links
+  function autoLayout() {
+    // Find roots (nodes with no incoming links)
+    const incoming = {};
+    nodes.forEach(n => incoming[n.id] = 0);
+    links.forEach(l => incoming[l.to] = (incoming[l.to] || 0) + 1);
+    const roots = nodes.filter(n => incoming[n.id] === 0);
+    if (roots.length === 0) {
+      alert('Không tìm thấy nút gốc để tự động sắp xếp!');
+      return;
+    }
+    // For simplicity, layout each root subtree vertically
+    const levelGap = 120;
+    const siblingGap = 150;
+
+    let currentX = 0;
+
+    function layoutSubtree(node, depth) {
+      node.y = depth * levelGap;
+      const children = links.filter(l => l.from === node.id).map(l => nodes.find(n => n.id === l.to));
+      if (children.length === 0) {
+        node.x = currentX;
+        currentX += siblingGap;
+        return [node.x, node.x];
+      }
+      let minX = Infinity, maxX = -Infinity;
+      children.forEach(child => {
+        const [childMin, childMax] = layoutSubtree(child, depth + 1);
+        minX = Math.min(minX, childMin);
+        maxX = Math.max(maxX, childMax);
+      });
+      node.x = (minX + maxX) / 2;
+      return [minX, maxX];
+    }
+
+    roots.forEach(root => layoutSubtree(root, 0));
+
+    saveHistory();
+    draw();
+  }
+
+  autoLayoutBtn.onclick = autoLayout;
+
+  // Initialize history
+  saveHistory();
+
+  // Initial draw
+  draw();
+
+  // Instructions in console
+  console.log('Hướng dẫn Mindmap nâng cao:');
+  console.log('- Thêm nút: nút "Thêm nút"');
+  console.log('- Kéo thả nút để di chuyển');
+  console.log('- Ctrl + click hai nút để nối liên kết');
+  console.log('- Chọn nút hoặc liên kết rồi nhấn "Xóa" tương ứng để xoá');
+  console.log('- Shift + click hoặc giữa click và kéo để di chuyển canvas');
+  console.log('- Cuộn chuột để zoom (phóng to/thu nhỏ)');
+  console.log('- Double click nút để sửa text');
+  console.log('- Undo/Redo các thao tác');
+  console.log('- Tự động sắp xếp theo cây');
+  console.log('- Xuất JSON và tải JSON để lưu/tiếp tục chỉnh sửa');
+  console.log('- Xuất ảnh PNG');
+
+})();
 </script>
+
 </body>
 </html>
