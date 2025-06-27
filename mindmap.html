@@ -2,84 +2,86 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap/Flowchart Pro All-in-One</title>
+  <title>Mindmap/Flowchart CAD-Pro – All-in-One</title>
   <style>
     html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
     body{font-family:sans-serif;background:#f5f7fb;}
-    #sidebar{position:absolute;top:0;left:0;width:78px;height:100%;background:#263238;z-index:11;transition:width 0.3s;}
+    #sidebar{position:absolute;top:0;left:0;width:80px;height:100%;background:#263238;z-index:11;transition:width 0.3s;}
     #sidebar.open{width:230px;}
-    #sidebar .toggle{position:absolute;top:7px;right:-18px;z-index:16;width:28px;height:28px;border-radius:8px 0 0 8px;background:#37474f;color:#fff;cursor:pointer;line-height:29px;text-align:center;font-size:21px;}
+    #sidebar .toggle{position:absolute;top:10px;right:-18px;z-index:16;width:28px;height:28px;border-radius:8px 0 0 8px;background:#37474f;color:#fff;cursor:pointer;line-height:29px;text-align:center;font-size:21px;}
     #sidebar .shapes{margin:55px 7px 0 8px;display:flex;flex-direction:column;gap:15px;}
     #sidebar .shapeicon{background:#fff;border:2px solid #bbb;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:grab;}
     #sidebar.open .shapeicon{width:65px;height:65px;}
     #sidebar .label{display:none;margin-left:10px;}
     #sidebar.open .label{display:inline;font-size:15px;color:#fff;}
-    #sidebar .stickers{margin:26px 7px 0 8px;display:flex;flex-wrap:wrap;gap:9px;}
-    #sidebar .sticker{background:#fff;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:grab;font-size:21px;}
+    #sidebar .stickers{margin:26px 7px 0 8px;display:flex;flex-wrap:wrap;gap:13px;}
+    #sidebar .sticker{background:#fff;width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:grab;font-size:23px;}
     #sidebar.open .sticker{width:46px;height:46px;font-size:32px;}
     #toolbar{
-      position:fixed;top:0;left:78px;right:0;z-index:10;
-      background:#222;color:#fff;height:46px;display:flex;align-items:center;gap:9px;padding:8px 13px;
+      position:fixed;top:0;left:80px;right:0;z-index:10;
+      background:#222;color:#fff;height:46px;display:flex;align-items:center;gap:10px;padding:8px 16px;
       transition:left 0.3s;
     }
     #sidebar.open ~ #toolbar{left:230px;}
     #toolbar button,#toolbar select{
-      margin-right:3px;padding:7px 13px;font-size:15px;background:#37474f;color:#fff;border:none;border-radius:4px;cursor:pointer;
+      margin-right:3px;padding:8px 13px;font-size:16px;background:#37474f;color:#fff;border:none;border-radius:5px;cursor:pointer;
     }
     #toolbar button:hover{background:#111;}
-    #canvasWrap{position:absolute;top:46px;left:0;right:0;bottom:0;}
+    #canvasWrap{position:absolute;top:46px;left:0;right:0;bottom:0;background:#fff;}
     #sidebar.open ~ #canvasWrap{left:230px;}
     #mindCanvas{background:#fff;width:100vw;height:calc(100vh - 46px);}
-    #resizeHandle{
-      position:absolute;z-index:99;width:16px;height:16px;background:#fff;border:2px solid #1976d2;border-radius:4px;display:none;cursor:nwse-resize;
-    }
-    #lasso{position:absolute;border:2px dashed #1976d2;background:rgba(25,118,210,0.08);z-index:20;pointer-events:none;display:none;}
-    #sideRight {position:absolute;top:52px;right:16px;background:#fff;box-shadow:0 2px 10px #0001;border-radius:12px;padding:14px 14px 8px 16px;z-index:100;min-width:175px;display:none;}
-    #sideRight label{font-size:14px;}
-    #sideRight input[type="color"], #sideRight select, #sideRight input[type="number"]{margin-left:6px;margin-right:10px;}
-    #sideRight input[type="text"]{margin-left:6px;margin-right:10px;width:80px;}
-    #groupCheck{margin-left:8px;margin-right:3px;}
+    #resizeHandle{position:absolute;z-index:99;width:18px;height:18px;background:#fff;border:2.5px solid #1976d2;border-radius:5px;display:none;cursor:nwse-resize;}
+    #lasso{position:absolute;border:2px dashed #1976d2;background:rgba(25,118,210,0.09);z-index:20;pointer-events:none;display:none;}
+    #sideRight {position:absolute;top:56px;right:20px;background:#fff;box-shadow:0 4px 18px #0002;border-radius:13px;padding:14px 14px 10px 16px;z-index:100;min-width:190px;display:none;}
+    #sideRight label{font-size:15px;}
+    #sideRight input[type="color"], #sideRight select, #sideRight input[type="number"]{margin-left:6px;margin-right:11px;}
+    #sideRight input[type="text"]{margin-left:6px;margin-right:10px;width:88px;}
+    #groupCheck{margin-left:8px;margin-right:5px;}
     #canvasWrap::-webkit-scrollbar{display:none;}
   </style>
 </head>
 <body>
 <div id="sidebar" class="open">
-  <div class="toggle" onclick="toggleSidebar()">&#9776;</div>
-  <div class="shapes">
-    <div class="shapeicon" draggable="true" data-shape="rect" title="Vuông"><svg width="28" height="28"><rect x="4" y="4" width="20" height="20" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
-    <div class="shapeicon" draggable="true" data-shape="ellipse" title="Tròn"><svg width="28" height="28"><ellipse cx="14" cy="14" rx="10" ry="10" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
-    <div class="shapeicon" draggable="true" data-shape="diamond" title="Thoi"><svg width="28" height="28"><polygon points="14,4 24,14 14,24 4,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
-    <div class="shapeicon" draggable="true" data-shape="parallelogram" title="Bình hành"><svg width="28" height="28"><polygon points="7,24 4,14 21,4 24,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
-    <div class="shapeicon" draggable="true" data-shape="hexagon" title="Lục giác"><svg width="28" height="28"><polygon points="7,4 21,4 27,14 21,24 7,24 1,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
-    <div class="shapeicon" draggable="true" data-shape="star" title="Ngôi sao"><svg width="28" height="28"><polygon points="14,2 17,10 26,10 18,16 20,24 14,19 8,24 10,16 2,10 11,10" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
+  <div class="toggle" onclick="toggleSidebar()" title="Ẩn/hiện thanh công cụ">&#9776;</div>
+  <div class="shapes" style="padding-bottom:16px;border-bottom:1px solid #405060;">
+    <div class="shapeicon" draggable="true" data-shape="rect" title="Vuông"><svg width="32" height="32"><rect x="4" y="4" width="24" height="24" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
+    <div class="shapeicon" draggable="true" data-shape="ellipse" title="Tròn"><svg width="32" height="32"><ellipse cx="16" cy="16" rx="12" ry="12" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
+    <div class="shapeicon" draggable="true" data-shape="diamond" title="Thoi"><svg width="32" height="32"><polygon points="16,4 28,16 16,28 4,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
+    <div class="shapeicon" draggable="true" data-shape="parallelogram" title="Bình hành"><svg width="32" height="32"><polygon points="8,28 4,16 24,4 28,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
+    <div class="shapeicon" draggable="true" data-shape="hexagon" title="Lục giác"><svg width="32" height="32"><polygon points="8,4 24,4 30,16 24,28 8,28 2,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
+    <div class="shapeicon" draggable="true" data-shape="star" title="Ngôi sao"><svg width="32" height="32"><polygon points="16,2 20,12 30,12 22,18 24,28 16,22 8,28 10,18 2,12 12,12" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
   </div>
-  <div style="margin-top:24px;color:#b3e5fc;font-size:13px;font-weight:bold;text-align:center;">Sticker/Icon</div>
+  <div style="margin-top:18px;color:#b3e5fc;font-size:14px;font-weight:bold;text-align:center;">Sticker/Icon</div>
   <div class="stickers">
-    <div class="sticker" draggable="true" data-sticker="💡">💡</div>
-    <div class="sticker" draggable="true" data-sticker="🚀">🚀</div>
-    <div class="sticker" draggable="true" data-sticker="⭐">⭐</div>
-    <div class="sticker" draggable="true" data-sticker="✅">✅</div>
-    <div class="sticker" draggable="true" data-sticker="🔥">🔥</div>
-    <div class="sticker" draggable="true" data-sticker="📅">📅</div>
-    <div class="sticker" draggable="true" data-sticker="⚡">⚡</div>
-    <div class="sticker" draggable="true" data-sticker="📦">📦</div>
-    <div class="sticker" draggable="true" data-sticker="📝">📝</div>
+    <div class="sticker" draggable="true" data-sticker="💡" title="Ý tưởng">💡</div>
+    <div class="sticker" draggable="true" data-sticker="🚀" title="Tăng tốc">🚀</div>
+    <div class="sticker" draggable="true" data-sticker="⭐" title="Đặc biệt">⭐</div>
+    <div class="sticker" draggable="true" data-sticker="✅" title="Hoàn thành">✅</div>
+    <div class="sticker" draggable="true" data-sticker="🔥" title="Hot">🔥</div>
+    <div class="sticker" draggable="true" data-sticker="📅" title="Lịch">📅</div>
+    <div class="sticker" draggable="true" data-sticker="⚡" title="Nhanh">⚡</div>
+    <div class="sticker" draggable="true" data-sticker="📦" title="Kho">📦</div>
+    <div class="sticker" draggable="true" data-sticker="📝" title="Ghi chú">📝</div>
   </div>
 </div>
 <div id="toolbar">
-  <button onclick="addNode()">Node mới</button>
-  <button onclick="deleteNode()">Xóa node</button>
-  <button onclick="exportPNG()">PNG</button>
-  <button onclick="exportSVG()">SVG</button>
-  <button onclick="exportPDF()">PDF</button>
-  <button onclick="exportXLSX()">Excel</button>
-  <button onclick="saveFile()">Lưu</button>
-  <button onclick="loadFile()">Tải</button>
-  <button onclick="fitView()">Fit</button>
-  <button onclick="toggleSidebar()">Hiện/Ẩn Sidebar</button>
-  <label><input type="checkbox" id="groupCheck" onchange="toggleGroup(this.checked)">Group</label>
-  <button onclick="showSideRight()">Tùy chỉnh node</button>
-  <span style="color:#ffd700;font-size:14px;">Giữ Ctrl: chọn nhiều/link. Space+chuột/Pan. Nhấp đúp sửa node. Kéo-thả shape/sticker, lasso, resize.</span>
+  <button onclick="addNode()" title="Thêm node (Insert)">➕ Node</button>
+  <button onclick="deleteNode()" title="Xóa node đã chọn (Del)">🗑️ Xóa</button>
+  <button onclick="exportPNG()" title="Xuất ảnh PNG">🖼️ PNG</button>
+  <button onclick="exportSVG()" title="Xuất SVG vector">🔷 SVG</button>
+  <button onclick="exportPDF()" title="Xuất PDF">📄 PDF</button>
+  <button onclick="exportXLSX()" title="Xuất Excel">📊 Excel</button>
+  <button onclick="saveFile()" title="Lưu file JSON">💾 Lưu</button>
+  <button onclick="loadFile()" title="Tải file JSON">📂 Tải</button>
+  <button onclick="fitView()" title="Fit/Zoom tự động">🔍 Fit</button>
+  <button onclick="toggleSidebar()" title="Hiện/Ẩn Sidebar">☰ Sidebar</button>
+  <button onclick="undo()" title="Undo (Ctrl+Z)">↶</button>
+  <button onclick="redo()" title="Redo (Ctrl+Y)">↷</button>
+  <label style="margin:0 10px 0 10px;user-select:none;">
+    <input type="checkbox" id="groupCheck" onchange="toggleGroup(this.checked)"> Group
+  </label>
+  <button onclick="showSideRight()" title="Thuộc tính node (F2)">⚙️ Tùy chỉnh</button>
+  <span style="color:#ffd700;font-size:14px;margin-left:14px;">Chuột giữa/Pan/Space, Ctrl+Nhấp/Link, Shift+Kéo/Lasso, Resize, Sticker, Undo/Redo, dán ảnh, v.v.</span>
   <input type="file" id="fileInput" accept=".json" style="display:none" onchange="openFile(event)">
 </div>
 <div id="canvasWrap">
@@ -112,11 +114,12 @@
   <label>Ảnh: <input type="file" id="propImg" accept="image/*" onchange="uploadNodeImg(event)"></label><br>
   <label>Rộng: <input type="number" id="propW" min="32" max="420" onchange="updateProp('w',this.value)"></label>
   <label>Cao: <input type="number" id="propH" min="24" max="250" onchange="updateProp('h',this.value)"></label>
-  <button onclick="hideSideRight()" style="float:right;margin:7px 5px 0 0;">Đóng</button>
+  <button onclick="hideSideRight()" style="float:right;margin:7px 5px 0 0;background:#eaeaea;border-radius:7px;">Đóng</button>
 </div>
 <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+/* ---- KHỞI TẠO STATE ---- */
 let nodes=[
   {id:1,text:"Ý chính",x:600,y:400,w:140,h:60,shape:"ellipse",color:"#ffe066",border:"#37474f",borderType:"solid",icon:"",img:null,stickers:[],collapsed:false}
 ];
@@ -128,16 +131,12 @@ let lasso=null,lassoStart=null;
 let groupMode=false;
 let canvas=document.getElementById('mindCanvas'),ctx=canvas.getContext('2d');
 let handle=document.getElementById('resizeHandle');
-// --- Sidebar drag/drop shape/sticker
+/* ---- DRAG/DROP SHAPE/STICKER ---- */
 document.querySelectorAll('.shapeicon').forEach(el=>{
-  el.ondragstart = function(e){
-    e.dataTransfer.setData("shape", el.dataset.shape);
-  };
+  el.ondragstart = function(e){e.dataTransfer.setData("shape", el.dataset.shape);};
 });
 document.querySelectorAll('.sticker').forEach(el=>{
-  el.ondragstart = function(e){
-    e.dataTransfer.setData("sticker", el.dataset.sticker);
-  };
+  el.ondragstart = function(e){e.dataTransfer.setData("sticker", el.dataset.sticker);};
 });
 document.getElementById('canvasWrap').ondragover = function(e){e.preventDefault();};
 document.getElementById('canvasWrap').ondrop = function(e){
@@ -165,12 +164,13 @@ function addSticker(sticker, x, y){
   nodes.push({id, text:"", shape:"sticker", x, y, w:40, h:40, color:"transparent", border:"transparent", borderType:"solid", icon:sticker, img:null, parent:null, collapsed:false,stickers:[]});
   redraw();
 }
+/* ---- VẼ ---- */
 function redraw(){
   canvas.width=document.getElementById('canvasWrap').clientWidth;
   canvas.height=document.getElementById('canvasWrap').clientHeight;
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
-  // Draw links
+  // Links
   links.forEach(l=>{
     let a=nodes.find(n=>n.id===l.from),b=nodes.find(n=>n.id===l.to);
     if(!a||!b)return;
@@ -182,7 +182,7 @@ function redraw(){
     ctx.stroke();ctx.setLineDash([]);
     ctx.restore();
   });
-  // Draw nodes
+  // Nodes
   nodes.forEach(n=>{
     ctx.save();
     if(n.shape==="sticker"){
@@ -215,20 +215,8 @@ function redraw(){
       img.onload=()=>{ctx.drawImage(img,n.x-n.w/2+5,n.y-n.h/2+5,n.w-10,n.h-10);};
       img.src=n.img;if(img.complete)img.onload();
     }
-    // Draw collapse
-    if(nodeHasChild(n)){
-      ctx.beginPath();ctx.arc(n.x+n.w/2-12,n.y-n.h/2+14,12,0,2*Math.PI);
-      ctx.fillStyle="#ab47bc";ctx.fill();
-      ctx.fillStyle="#fff";ctx.font="16px Arial";
-      ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillText(n.collapsed?"▶":"▼",n.x+n.w/2-12,n.y-n.h/2+14);
-    }
-    // Draw sticker trên node
-    if(n.stickers) n.stickers.forEach((st,i)=>{
-      ctx.font="23px Arial"; ctx.fillText(st,n.x-n.w/2+22+i*24,n.y+n.h/2-15);
-    });
     ctx.restore();
-    // Draw resize handle
+    // Resize handle
     if(selected.length===1&&selected[0]===n){
       let scr=toScreen(n.x+n.w/2,n.y+n.h/2);
       handle.style.left=(scr.x-8)+"px";handle.style.top=(scr.y-8)+"px";handle.style.display="block";
@@ -236,6 +224,7 @@ function redraw(){
   });
   if(selected.length!==1)handle.style.display="none";
 }
+/* ---- UTILS ---- */
 function toScreen(x,y){let rect=canvas.getBoundingClientRect();return {x:x*zoom+pan.x+rect.left,y:y*zoom+pan.y+rect.top};}
 function fromScreen(x,y){let rect=canvas.getBoundingClientRect();return {x:(x-rect.left-pan.x)/zoom,y:(y-rect.top-pan.y)/zoom};}
 function getNodeAt(mx,my){
@@ -250,7 +239,8 @@ function saveState(){
   if(undoStack.length>50)undoStack.shift();
   redoStack=[];
 }
-function nodeHasChild(node){return links.some(l=>l.from===node.id);}
+/* ---- PAN/ZOOM/SELECT/DRAG/LASSO/RESIZE ---- */
+let isPanning=false,panStart={x:0,y:0},lastPointer={};
 canvas.onmousedown=function(e){
   let {x,y}=fromScreen(e.clientX,e.clientY);
   let n=getNodeAt(x,y);
@@ -367,6 +357,7 @@ handle.onmousedown=function(e){
 document.onmousedown=function(e){if(e.target!==canvas)handle.style.display="none";};
 document.onmouseup=function(){handle.style.display="none";};
 canvas.onmouseleave=function(){isPanning=false;dragging=null;};
+/* ---- PHÍM TẮT & HOTKEY ---- */
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
   if(e.code==="Space"){mode="pan";}
@@ -478,9 +469,8 @@ function undo(){
 function redo(){
   if(redoStack.length>0){let st=redoStack.pop();let d=JSON.parse(st);nodes=d.nodes;links=d.links;pan=d.pan;zoom=d.zoom;redraw();undoStack.push(st);}
 }
-// Group
 function toggleGroup(b){groupMode=b;redraw();}
-// Property panel
+/* ---- PROPERTY PANEL ---- */
 function showSideRight(){
   let s = selected[0];
   if(!s) return;
