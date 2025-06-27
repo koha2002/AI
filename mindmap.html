@@ -2,23 +2,24 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap Pro - Resize & Hình Dạng Node</title>
+  <title>Mindmap Pro Đầy Đủ - Node Dashed/Icon/Collapse/Font PDF</title>
   <style>
     html,body {margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
     body {font-family:Arial,sans-serif;background:#f2f3fa;}
-    #toolbar {
-      background:#263238;color:#fff;padding:10px 8px;display:flex;align-items:center;gap:8px;font-size:15px;z-index:2;position:relative;
-    }
-    #toolbar button, #toolbar select, #toolbar input[type="file"], #toolbar input[type="color"] {
-      background:#37474f;color:#fff;border:none;border-radius:4px;padding:7px 15px;cursor:pointer;font-size:15px;margin-right:4px;
+    #toolbar {background:#263238;color:#fff;padding:10px 8px;display:flex;align-items:center;gap:8px;font-size:15px;z-index:2;position:relative;}
+    #toolbar button, #toolbar select, #toolbar input[type="file"], #toolbar input[type="color"], #toolbar input[type="number"] {
+      background:#37474f;color:#fff;border:none;border-radius:4px;padding:7px 13px;cursor:pointer;font-size:15px;margin-right:4px;
     }
     #toolbar button:hover {background:#111;}
     #canvasWrap {width:100vw; height:93vh;overflow:hidden;background:#fff;}
     #mindCanvas {width:100%; height:100%; display:block; background:#f7f9fa;}
-    .tooltip {
-      position:absolute;background:#333;color:#fff;padding:4px 9px;border-radius:7px;font-size:14px;pointer-events:none;z-index:9;white-space:pre-line;max-width:240px;box-shadow:0 2px 8px #0003;display:none;
-    }
+    .tooltip {position:absolute;background:#333;color:#fff;padding:4px 9px;border-radius:7px;font-size:14px;pointer-events:none;z-index:9;white-space:pre-line;max-width:240px;box-shadow:0 2px 8px #0003;display:none;}
     #resizeHandle {position:absolute;width:16px;height:16px;background:#fff;border:2px solid #2196f3;border-radius:5px;z-index:10;cursor:nwse-resize;display:none;}
+    #iconPicker {position:fixed;top:80px;left:60px;z-index:999;background:#fff;border:2px solid #90caf9;padding:10px 8px;display:none;box-shadow:0 4px 22px #90caf9aa;border-radius:8px;}
+    #iconPicker span {font-size:24px;cursor:pointer;display:inline-block;margin:3px;padding:3px;border-radius:6px;}
+    #iconPicker span:hover {background:#f1f8e9;}
+    #collapseBtn {margin-left:6px; background:#ab47bc;}
+    #groupSel {margin-right:7px;}
   </style>
 </head>
 <body>
@@ -33,9 +34,10 @@
     <button onclick="panMode()">✋ Pan</button>
     <button onclick="exportPNG()">🖨️ PNG</button>
     <button onclick="exportSVG()">🖨️ SVG</button>
+    <button onclick="exportPDF()">🖨️ PDF</button>
     <button onclick="saveFile()">💾 Xuất file</button>
     <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
-    <label>Ảnh: <input type="file" id="imgInput" accept="image/*" onchange="addImageFile(event)" style="width:120px"></label>
+    <label>Ảnh: <input type="file" id="imgInput" accept="image/*" onchange="addImageFile(event)" style="width:90px"></label>
     <button onclick="addImageUrl()">🖼️ Từ URL</button>
     <label>Hình:
       <select id="shapeInput" onchange="setShape(this.value)">
@@ -45,7 +47,14 @@
         <option value="star">Ngôi sao</option>
       </select>
     </label>
-    <label>Nền: <input type="color" id="colorInput" value="#ffe066" onchange="setColor(this.value)"></label>
+    <label>Viền:
+      <select id="borderType" onchange="setBorderType(this.value)">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
+      </select>
+    </label>
+    <label>Màu: <input type="color" id="colorInput" value="#ffe066" onchange="setColor(this.value)"></label>
     <label>Viền: <input type="color" id="borderInput" value="#37474f" onchange="setBorder(this.value)"></label>
     <label>Chữ: <input type="color" id="fontColorInput" value="#212121" onchange="setFontColor(this.value)"></label>
     <label>Font: 
@@ -57,51 +66,48 @@
         <option value="monospace">Monospace</option>
       </select>
     </label>
-    <button onclick="editNode()">✏️ Sửa node</button>
-    <span style="margin-left:16px;color:#ffd700;font-size:14px;">Nhấp đúp để sửa, kéo node hoặc kéo góc để resize. Space+Kéo: Pan, Ctrl+lăn chuột: Zoom</span>
+    <label>Cỡ: <input type="number" min="10" max="44" value="16" id="fontSizeInput" onchange="setFontSize(this.value)" style="width:48px"></label>
+    <button onclick="setFontBold()" style="font-weight:bold;">B</button>
+    <button onclick="setFontItalic()" style="font-style:italic;">I</button>
+    <button onclick="showIconPicker()">🌟 Icon</button>
+    <button onclick="addNote()">📝 Ghi chú</button>
+    <input type="checkbox" id="groupSel" onchange="toggleGroup(this.checked)"> Chọn nhóm
+    <button id="collapseBtn" onclick="toggleCollapse()">Ẩn/Hiện nhánh</button>
+    <span style="margin-left:16px;color:#ffd700;font-size:14px;">Nhấp đúp để sửa. Giữ Ctrl để chọn nhiều node, Space+Kéo: Pan, Ctrl+lăn chuột: Zoom</span>
   </div>
   <div id="canvasWrap">
     <canvas id="mindCanvas"></canvas>
     <div id="resizeHandle"></div>
     <div id="tooltip" class="tooltip"></div>
+    <div id="iconPicker"></div>
   </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-let nodes=[{id:1,text:"Ý TƯỞNG CHÍNH",x:500,y:350,w:140,h:70,parent:null,img:null,shape:"ellipse",color:"#ffe066",border:"#37474f",font:"Arial",fontColor:"#212121",note:""}];
-let selected=nodes[0];
-let pan={x:0,y:0};
-let zoom=1,minZoom=0.2,maxZoom=2.5;
-let mode="select",dragNode=null,dragOffset={x:0,y:0};
-let isPanning=false,panStart={x:0,y:0};
-let draggingResize=false,resizeStart={x:0,y:0,w:0,h:0};
-let undoStack=[],redoStack=[];
-let canvas=document.getElementById('mindCanvas');
-let ctx=canvas.getContext('2d');
-let tooltip=document.getElementById('tooltip');
-let resizeHandle=document.getElementById('resizeHandle');
-
+const ICONS = ["💡","📦","⚡","🔥","📌","📎","📁","✅","❗","⭐","☁️","🔒","🔑","📞","📅","📄","🚀","⏳","🔧","📖","🧑‍💻","🎯","🎨","📊","💬"];
+let nodes=[{id:1,text:"Ý TƯỞNG CHÍNH",x:500,y:350,w:140,h:70,parent:null,img:null,shape:"ellipse",color:"#ffe066",border:"#37474f",borderType:"solid",font:"Arial",fontColor:"#212121",fontSize:18,fontBold:false,fontItalic:false,note:"",icon:"",collapsed:false}];
+let selected=nodes[0],multiSel=[],groupMode=false;
+let pan={x:0,y:0},zoom=1,minZoom=0.2,maxZoom=2.5,mode="select",dragNode=null,dragOffset={x:0,y:0},isPanning=false,panStart={x:0,y:0},draggingResize=false,resizeStart={x:0,y:0,w:0,h:0};
+let undoStack=[],redoStack=[];let canvas=document.getElementById('mindCanvas'),ctx=canvas.getContext('2d');
+let tooltip=document.getElementById('tooltip'),resizeHandle=document.getElementById('resizeHandle'),iconPicker=document.getElementById('iconPicker');
 /* --- Utility --- */
 function saveState(){
-  undoStack.push(JSON.stringify({nodes,selectedId:selected?selected.id:null,pan,zoom}));
-  if(undoStack.length>60)undoStack.shift();
-  redoStack=[];
+  undoStack.push(JSON.stringify({nodes,selectedId:selected?selected.id:null,multiSel:multiSel.map(n=>n.id),pan,zoom}));
+  if(undoStack.length>60)undoStack.shift(); redoStack=[];
 }
 function restore(stateStr){
   let st=JSON.parse(stateStr);
-  nodes=JSON.parse(JSON.stringify(st.nodes));
-  pan={...st.pan}; zoom=st.zoom;
+  nodes=JSON.parse(JSON.stringify(st.nodes));pan={...st.pan};zoom=st.zoom;
   selected=st.selectedId?nodes.find(n=>n.id===st.selectedId):null;
+  multiSel=st.multiSel?st.multiSel.map(id=>nodes.find(n=>n.id===id)).filter(Boolean):[];
   redraw();
 }
 function genId(){return Date.now()+Math.random();}
 
 /* --- Draw --- */
-function resizeCanvas(){
-  canvas.width=document.getElementById('canvasWrap').clientWidth;
-  canvas.height=document.getElementById('canvasWrap').clientHeight;
-}
+function resizeCanvas(){canvas.width=document.getElementById('canvasWrap').clientWidth;canvas.height=document.getElementById('canvasWrap').clientHeight;}
 function drawLink(from,to){
-  ctx.save();
-  ctx.beginPath();
+  if(from.collapsed)return;
+  ctx.save();ctx.beginPath();
   let fx=from.x,fy=from.y,tx=to.x,ty=to.y;
   let cpx=fx+(fx<tx?-100:100),cpy=fy;
   ctx.moveTo(fx,fy);
@@ -110,95 +116,119 @@ function drawLink(from,to){
   ctx.restore();
 }
 function drawNode(node){
-  let {x,y,w,h,text,img,shape,color,border,font,fontColor}=node;
+  if(node.parent!==null){
+    let p=nodes.find(n=>n.id===node.parent);if(p&&p.collapsed)return;
+  }
+  let {x,y,w,h,text,img,shape,color,border,borderType,font,fontColor,fontSize,fontBold,fontItalic,icon,collapsed}=node;
   ctx.save();
-  ctx.strokeStyle=(node===selected)?"#e67700":(border||"#37474f");
-  ctx.lineWidth=(node===selected)?5:2;
+  ctx.strokeStyle=(multiSel.includes(node)||node===selected)?"#e67700":(border||"#37474f");
+  ctx.lineWidth=(multiSel.includes(node)||node===selected)?5:2;
+  if(borderType==="dashed")ctx.setLineDash([10,7]);
+  else if(borderType==="dotted")ctx.setLineDash([2,6]);
+  else ctx.setLineDash([]);
   ctx.fillStyle=color||"#ffe066";
   ctx.beginPath();
-  // Shape
   if(shape==="ellipse") ctx.ellipse(x,y,w/2,h/2,0,0,2*Math.PI);
   else if(shape==="rect") ctx.rect(x-w/2,y-h/2,w,h);
-  else if(shape==="cloud"){ // cloud shape
-    ctx.arc(x-w/4,y-h/6,h/3,0,2*Math.PI);
-    ctx.arc(x+w/4,y-h/8,h/3.3,0,2*Math.PI);
-    ctx.arc(x,y+h/7,h/2.8,0,2*Math.PI);
-  }
+  else if(shape==="cloud"){ctx.arc(x-w/4,y-h/6,h/3,0,2*Math.PI);ctx.arc(x+w/4,y-h/8,h/3.3,0,2*Math.PI);ctx.arc(x,y+h/7,h/2.8,0,2*Math.PI);}
   else if(shape==="star"){
-    let r1=w/2,r2=w/6,n=5;
-    ctx.moveTo(x,y-h/2);
-    for(let i=0;i<2*n;i++){
-      let r=i%2?r2:r1,a=Math.PI/n*i-Math.PI/2;
-      ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));
-    }
+    let r1=w/2,r2=w/6,n=5;ctx.moveTo(x,y-h/2);
+    for(let i=0;i<2*n;i++){let r=i%2?r2:r1,a=Math.PI/n*i-Math.PI/2;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));}
     ctx.closePath();
   }
-  ctx.shadowColor="#999";ctx.shadowBlur=7;
-  ctx.fill();ctx.shadowBlur=0;ctx.stroke();
+  ctx.shadowColor="#999";ctx.shadowBlur=7;ctx.fill();ctx.shadowBlur=0;ctx.stroke();ctx.setLineDash([]);
+  // Icon
+  if(icon){
+    ctx.font="26px Arial";ctx.textAlign="left";ctx.textBaseline="top";
+    ctx.fillText(icon,x-w/2+8,y-h/2+5);
+  }
   // Image
   if(img){
     let imageObj=new window.Image();
-    imageObj.onload=()=>{ctx.save();
-      ctx.beginPath();
-      if(shape==="ellipse")ctx.ellipse(x,y,h/2.3,h/2.3,0,0,2*Math.PI);
-      else ctx.rect(x-h/2,y-h/2,h,h);
-      ctx.clip();
-      ctx.drawImage(imageObj,x-h/2+7,y-h/2+7,h-14,h-14);
-      ctx.restore();
-    };
+    imageObj.onload=()=>{ctx.save();ctx.beginPath();if(shape==="ellipse")ctx.ellipse(x,y,h/2.3,h/2.3,0,0,2*Math.PI);else ctx.rect(x-h/2,y-h/2,h,h);
+      ctx.clip();ctx.drawImage(imageObj,x-h/2+7,y-h/2+7,h-14,h-14);ctx.restore();};
     imageObj.src=img;if(imageObj.complete)imageObj.onload();
   }
   // Text
   ctx.fillStyle=fontColor||"#212121";
-  ctx.font="bold 16px "+(font||"Arial");
+  ctx.font=(fontBold?"bold ":"")+(fontItalic?"italic ":"")+" "+(fontSize||16)+"px "+(font||"Arial");
   ctx.textAlign="center";ctx.textBaseline="middle";
-  wrapText(ctx,text,x,y,img?h/2:0,w-24,22);
+  wrapText(ctx,text,x,y+(img?h/2:0),w-24,22);
+  // Collapse btn
+  if(nodeHasChild(node)){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x+w/2-13,y-h/2+13,13,0,2*Math.PI);
+    ctx.fillStyle="#ab47bc";ctx.fill();
+    ctx.fillStyle="#fff";ctx.font="20px Arial";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText(collapsed?"▶":"▼",x+w/2-13,y-h/2+13);
+    ctx.restore();
+  }
   ctx.restore();
 }
-function wrapText(ctx,text,x,y,offsetY,maxWidth,lineHeight){
+function wrapText(ctx,text,x,y,maxWidth,lineHeight){
   let words=text.split(' '),line='',lines=[];
   for(let n=0;n<words.length;n++){
     let testLine=line+words[n]+' ';
-    if(ctx.measureText(testLine).width>maxWidth&&n>0){
-      lines.push(line);line=words[n]+' ';
-    }else line=testLine;
-  }lines.push(line);
+    if(ctx.measureText(testLine).width>maxWidth&&n>0){lines.push(line);line=words[n]+' ';}else line=testLine;}
+  lines.push(line);
   for(let i=0;i<lines.length;i++)
-    ctx.fillText(lines[i],x,y+offsetY+i*lineHeight-(lines.length-1)*lineHeight/2);
+    ctx.fillText(lines[i],x,y+i*lineHeight-(lines.length-1)*lineHeight/2);
 }
+function nodeHasChild(node){return nodes.some(n=>n.parent===node.id);}
 function redraw(){
   resizeCanvas();
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
   nodes.forEach(n=>{
     if(n.parent!==null){
-      let p=nodes.find(nd=>nd.id===n.parent);
-      if(p)drawLink(p,n);
+      let p=nodes.find(nd=>nd.id===n.parent);if(p)drawLink(p,n);
     }
   });
   nodes.forEach(drawNode);
   showResizeHandle();
 }
-
 /* --- Mouse Events --- */
 canvas.onmousedown=function(e){
-  let pos=getMouse(e);
-  let found=null;
+  let pos=getMouse(e),found=null,ctrl=e.ctrlKey||e.metaKey,collBtn=null;
   for(let i=nodes.length-1;i>=0;i--){
     let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
-    if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){found=n;break;}
+    if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){
+      // Nếu click vào nút collapse
+      let bx=n.x+n.w/2-13,by=n.y-n.h/2+13;
+      if(Math.hypot(pos.x-bx,pos.y-by)<16&&nodeHasChild(n)){
+        collBtn=n;break;
+      }
+      found=n;break;
+    }
+  }
+  if(collBtn){
+    n=nodes[i];
+    n.collapsed=!n.collapsed;saveState();redraw();return;
+  }
+  if(groupMode&&found){
+    if(!multiSel.includes(found)){
+      if(!ctrl)multiSel=[];
+      multiSel.push(found);
+    }else if(ctrl){
+      multiSel=multiSel.filter(n=>n!==found);
+    }
+    redraw();return;
   }
   if(mode==="select"&&found){
-    // Nếu click vào resize handle (góc phải dưới node đang chọn)
+    // Nếu click vào resize handle
     let rx=found.x+found.w/2,ry=found.y+found.h/2;
     if(selected===found&&Math.abs(pos.x-rx)<16/zoom&&Math.abs(pos.y-ry)<16/zoom){
-      draggingResize=true;
-      resizeStart={x:pos.x,y:pos.y,w:found.w,h:found.h};
+      draggingResize=true;resizeStart={x:pos.x,y:pos.y,w:found.w,h:found.h};
     }else{
-      dragNode=found;
-      dragOffset.x=pos.x-found.x; dragOffset.y=pos.y-found.y;
-      selected=found; redraw();
+      if(ctrl){
+        if(!multiSel.includes(found))multiSel.push(found);
+        selected=multiSel[multiSel.length-1];
+      }else{
+        selected=found;multiSel=[selected];
+      }
+      dragNode=found;dragOffset.x=pos.x-found.x;dragOffset.y=pos.y-found.y;redraw();
     }
   }else if(mode==="pan"||(e.button===1||e.button===2)||(mode==="select"&&!found)){
     isPanning=true;panStart={x:e.clientX-pan.x,y:e.clientY-pan.y};
@@ -207,16 +237,21 @@ canvas.onmousedown=function(e){
 canvas.onmousemove=function(e){
   let pos=getMouse(e);
   if(dragNode){
-    dragNode.x=pos.x-dragOffset.x; dragNode.y=pos.y-dragOffset.y;
+    // Kéo 1 node hoặc cả nhóm
+    if(groupMode&&multiSel.length>1&&multiSel.includes(dragNode)){
+      let dx=pos.x-dragNode.x-dragOffset.x,dy=pos.y-dragNode.y-dragOffset.y;
+      multiSel.forEach(n=>{n.x+=dx;n.y+=dy;});
+    }else{
+      dragNode.x=pos.x-dragOffset.x;dragNode.y=pos.y-dragOffset.y;
+    }
     redraw();
   }
   if(draggingResize&&selected){
     let dx=pos.x-resizeStart.x,dy=pos.y-resizeStart.y;
-    selected.w=Math.max(70,resizeStart.w+dx);
-    selected.h=Math.max(40,resizeStart.h+dy);
+    selected.w=Math.max(70,resizeStart.w+dx);selected.h=Math.max(40,resizeStart.h+dy);
     redraw();
   }
-  if(isPanning){pan.x=e.clientX-panStart.x; pan.y=e.clientY-panStart.y; redraw();}
+  if(isPanning){pan.x=e.clientX-panStart.x;pan.y=e.clientY-panStart.y;redraw();}
   // Tooltip note
   let found=null;
   for(let i=nodes.length-1;i>=0;i--){
@@ -227,24 +262,33 @@ canvas.onmousemove=function(e){
     tooltip.innerText=found.note;
     tooltip.style.display="block";
     let rect=canvas.getBoundingClientRect();
-    tooltip.style.left=(e.clientX+14)+"px";
-    tooltip.style.top=(e.clientY-10)+"px";
-  }else{
-    tooltip.style.display="none";
-  }
+    tooltip.style.left=(e.clientX+14)+"px";tooltip.style.top=(e.clientY-10)+"px";
+  }else{tooltip.style.display="none";}
 };
-canvas.onmouseup=function(e){
-  if(dragNode||draggingResize)saveState();
-  dragNode=null;isPanning=false;draggingResize=false;
-};
+canvas.onmouseup=function(e){if(dragNode||draggingResize)saveState();dragNode=null;isPanning=false;draggingResize=false;};
 canvas.onmouseleave=function(){dragNode=null;isPanning=false;draggingResize=false;tooltip.style.display="none";};
 canvas.onclick=function(e){
-  let pos=getMouse(e),found=null;
+  let pos=getMouse(e),found=null,ctrl=e.ctrlKey||e.metaKey;
   for(let i=nodes.length-1;i>=0;i--){
     let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
     if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){found=n;break;}
   }
-  selected=found;redraw();
+  if(groupMode&&found){
+    if(!multiSel.includes(found)){
+      if(!ctrl)multiSel=[];
+      multiSel.push(found);
+    }else if(ctrl){
+      multiSel=multiSel.filter(n=>n!==found);
+    }
+    selected=multiSel[multiSel.length-1];redraw();return;
+  }
+  if(ctrl&&found){
+    if(!multiSel.includes(found))multiSel.push(found);
+    selected=multiSel[multiSel.length-1];
+  }else{
+    selected=found;multiSel=[selected];
+  }
+  redraw();
 };
 /* Double click sửa nội dung */
 canvas.ondblclick=function(e){
@@ -258,14 +302,11 @@ canvas.ondblclick=function(e){
 /* --- Resize handle --- */
 function showResizeHandle(){
   if(selected){
-    let x=selected.x+selected.w/2,y=selected.y+selected.h/2;
-    let pt=toScreen(x,y);
+    let x=selected.x+selected.w/2,y=selected.y+selected.h/2,pt=toScreen(x,y);
     resizeHandle.style.left=(pt.x-8)+"px";
     resizeHandle.style.top=(pt.y-8)+"px";
     resizeHandle.style.display="block";
-  }else{
-    resizeHandle.style.display="none";
-  }
+  }else{resizeHandle.style.display="none";}
 }
 resizeHandle.onmousedown=function(e){
   e.stopPropagation();draggingResize=true;
@@ -276,8 +317,7 @@ document.onmousemove=function(e){
   if(draggingResize&&selected){
     let pos=getMouseFromScreen(e.clientX,e.clientY);
     let dx=pos.x-resizeStart.x,dy=pos.y-resizeStart.y;
-    selected.w=Math.max(70,resizeStart.w+dx);
-    selected.h=Math.max(40,resizeStart.h+dy);
+    selected.w=Math.max(70,resizeStart.w+dx);selected.h=Math.max(40,resizeStart.h+dy);
     redraw();
   }
 };
@@ -292,15 +332,20 @@ canvas.onwheel=function(e){
     let mx=(e.offsetX-pan.x)/zoom,my=(e.offsetY-pan.y)/zoom;
     if(e.deltaY<0&&zoom<maxZoom)zoom*=1.1;
     if(e.deltaY>0&&zoom>minZoom)zoom/=1.1;
-    pan.x=e.offsetX-mx*zoom; pan.y=e.offsetY-my*zoom;
-    redraw();
+    pan.x=e.offsetX-mx*zoom;pan.y=e.offsetY-my*zoom;redraw();
   }
 };
 /* --- Keyboard --- */
 document.addEventListener('keydown',function(e){
   if(document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="SELECT")return;
   if(e.key==="Enter")editNode();
-  if((e.key==="Delete"||e.key==="Backspace")&&selected&&selected.parent!==null)removeNode();
+  if((e.key==="Delete"||e.key==="Backspace")){
+    if(groupMode&&multiSel.length>1){
+      multiSel.forEach(n=>{if(n.parent)removeNode(n);});
+      multiSel=[];selected=null;redraw();return;
+    }
+    if(selected&&selected.parent!==null)removeNode(selected);
+  }
   if(e.ctrlKey&&e.key==='z')undo();
   if(e.ctrlKey&&(e.key==='y'||e.key==='Z'))redo();
   if(e.key===' ')mode='pan';
@@ -309,7 +354,7 @@ document.addEventListener('keyup',function(e){if(e.key===' ')mode='select';});
 /* --- Node --- */
 function getMouse(e){
   let rect=canvas.getBoundingClientRect();
-  let x=(e.clientX-rect.left-pan.x)/zoom, y=(e.clientY-rect.top-pan.y)/zoom;
+  let x=(e.clientX-rect.left-pan.x)/zoom,y=(e.clientY-rect.top-pan.y)/zoom;
   return {x,y};
 }
 function getMouseFromScreen(cx,cy){
@@ -322,12 +367,12 @@ function toScreen(x,y){
   return {x:x*zoom+pan.x+rect.left,y:y*zoom+pan.y+rect.top};
 }
 function addNode(){
-  if(!selected){alert("Chọn node cha!");return;}
+  let target=groupMode&&multiSel.length>0?multiSel[multiSel.length-1]:selected;
+  if(!target){alert("Chọn node cha!");return;}
   let txt=prompt('Nội dung node con:'); if(!txt)return;
   let id=genId(),r=180;
-  let newX=selected.x+(Math.random()>0.5?r:-r);
-  let newY=selected.y+Math.random()*100-50;
-  nodes.push({id,text:txt,x:newX,y:newY,w:120,h:60,parent:selected.id,img:null,shape:selected.shape,color:selected.color,border:selected.border,font:selected.font,fontColor:selected.fontColor,note:""});
+  let newX=target.x+(Math.random()>0.5?r:-r),newY=target.y+Math.random()*100-50;
+  nodes.push({id,text:txt,x:newX,y:newY,w:120,h:60,parent:target.id,img:null,shape:target.shape,color:target.color,border:target.border,borderType:target.borderType,font:target.font,fontColor:target.fontColor,fontSize:target.fontSize,fontBold:false,fontItalic:false,note:"",icon:"",collapsed:false});
   saveState(); redraw();
 }
 function editNode(){
@@ -335,33 +380,57 @@ function editNode(){
   let txt=prompt('Sửa nội dung:',selected.text);
   if(txt!==null&&txt!==""){selected.text=txt;saveState();redraw();}
 }
-function removeNode(){
-  if(!selected)return;
-  if(!selected.parent){alert("Không xóa node gốc!");return;}
-  let delId=selected.id;
-  function rm(pid){let cs=nodes.filter(n=>n.parent===pid);cs.forEach(c=>rm(c.id));nodes=nodes.filter(n=>n.id!==pid);}
-  rm(delId);selected=null;saveState();redraw();
+function removeNode(n){
+  n=n||selected;
+  if(!n)return;
+  if(!n.parent){alert("Không xóa node gốc!");return;}
+  let delId=n.id;
+  function rm(pid){let cs=nodes.filter(nd=>nd.parent===pid);cs.forEach(c=>rm(c.id));nodes=nodes.filter(nd=>nd.id!==pid);}
+  rm(delId);selected=null;multiSel=[];saveState();redraw();
 }
 function setShape(sh){if(selected)selected.shape=sh;saveState();redraw();}
+function setBorderType(t){if(selected)selected.borderType=t;saveState();redraw();}
 function setColor(c){if(selected)selected.color=c;saveState();redraw();}
 function setBorder(c){if(selected)selected.border=c;saveState();redraw();}
 function setFont(f){if(selected)selected.font=f;saveState();redraw();}
+function setFontSize(s){if(selected)selected.fontSize=parseInt(s)||16;saveState();redraw();}
 function setFontColor(c){if(selected)selected.fontColor=c;saveState();redraw();}
+function setFontBold(){if(selected)selected.fontBold=!selected.fontBold;saveState();redraw();}
+function setFontItalic(){if(selected)selected.fontItalic=!selected.fontItalic;saveState();redraw();}
+function showIconPicker(){
+  if(!selected)return;
+  iconPicker.innerHTML=ICONS.map(ic=>`<span onclick="setIcon('${ic}')">${ic}</span>`).join("");
+  iconPicker.style.display="block";
+}
+function setIcon(ic){if(selected)selected.icon=ic;saveState();redraw();iconPicker.style.display="none";}
+window.onclick=function(e){if(e.target.parentNode!==iconPicker&&e.target!==iconPicker)iconPicker.style.display="none";};
 /* --- Image --- */
 function addImageFile(e){
   if(!selected)return;
   let file=e.target.files[0];if(!file)return;
   let reader=new FileReader();
   reader.onload=function(ev){
-    selected.img=ev.target.result;
-    saveState();redraw();
+    selected.img=ev.target.result;saveState();redraw();
   };
   reader.readAsDataURL(file);e.target.value="";
 }
 function addImageUrl(){
   if(!selected)return;
-  let url=prompt("Dán URL ảnh:");
-  if(url){selected.img=url;saveState();redraw();}
+  let url=prompt("Dán URL ảnh:");if(url){selected.img=url;saveState();redraw();}
+}
+/* --- Note --- */
+function addNote(){if(!selected)return;let txt=prompt("Nội dung ghi chú:",selected.note||"");if(txt!==null){selected.note=txt;saveState();redraw();}}
+/* --- Group select --- */
+function toggleGroup(b){
+  groupMode=b;
+  if(b){multiSel=[selected];}else{multiSel=[selected];}
+  redraw();
+}
+/* --- Collapse --- */
+function toggleCollapse(){
+  if(groupMode&&multiSel.length>1){multiSel.forEach(n=>n.collapsed=!n.collapsed);}
+  else if(selected)selected.collapsed=!selected.collapsed;
+  saveState();redraw();
 }
 /* --- Pan/Zoom/Undo/Redo/File --- */
 function panMode(){mode="pan";}
@@ -378,12 +447,8 @@ function fitView(){
   pan.y=(ch/2-(minY+maxY)/2*zoom);
   redraw();
 }
-function undo(){
-  if(undoStack.length>1){redoStack.push(undoStack.pop());restore(undoStack[undoStack.length-1]);}
-}
-function redo(){
-  if(redoStack.length>0){let st=redoStack.pop();restore(st);undoStack.push(st);}
-}
+function undo(){if(undoStack.length>1){redoStack.push(undoStack.pop());restore(undoStack[undoStack.length-1]);}}
+function redo(){if(redoStack.length>0){let st=redoStack.pop();restore(st);undoStack.push(st);}}
 function saveFile(){
   let data=JSON.stringify({nodes,pan,zoom});
   let blob=new Blob([data],{type:"application/json"});
@@ -396,7 +461,7 @@ function openFile(e){
   reader.onload=function(ev){
     let data=JSON.parse(ev.target.result);
     nodes=data.nodes;pan=data.pan;zoom=data.zoom;
-    selected=nodes[0];saveState();redraw();
+    selected=nodes[0];multiSel=[selected];saveState();redraw();
   };reader.readAsText(file);e.target.value="";
 }
 function exportPNG(){
@@ -426,17 +491,26 @@ function exportSVG(){
   nodes.forEach(n=>{
     svg+='<g>';
     if(n.shape==="ellipse")
-      svg+='<ellipse cx="'+(n.x-minX+100)+'" cy="'+(n.y-minY+100)+'" rx="'+(n.w/2)+'" ry="'+(n.h/2)+'" fill="'+(n.color||"#ffe066")+'" stroke="'+(n.border||"#37474f")+'" stroke-width="'+(n===selected?5:2)+'"/>';
+      svg+='<ellipse cx="'+(n.x-minX+100)+'" cy="'+(n.y-minY+100)+'" rx="'+(n.w/2)+'" ry="'+(n.h/2)+'" fill="'+(n.color||"#ffe066")+'" stroke="'+(n.border||"#37474f")+'" stroke-width="'+(multiSel.includes(n)||n===selected?5:2)+'"/>';
     else if(n.shape==="rect")
-      svg+='<rect x="'+(n.x-n.w/2-minX+100)+'" y="'+(n.y-n.h/2-minY+100)+'" width="'+n.w+'" height="'+n.h+'" fill="'+(n.color||"#ffe066")+'" stroke="'+(n.border||"#37474f")+'" stroke-width="'+(n===selected?5:2)+'"/>';
-    // Star, cloud hình cơ bản
-    svg+='<text x="'+(n.x-minX+100)+'" y="'+(n.y-minY+100)+'" fill="'+(n.fontColor||"#212121")+'" font-size="16" font-family="'+(n.font||"Arial")+'" text-anchor="middle" alignment-baseline="middle">'+(n.text.replace(/&/g,"&amp;"))+'</text>';
+      svg+='<rect x="'+(n.x-n.w/2-minX+100)+'" y="'+(n.y-n.h/2-minY+100)+'" width="'+n.w+'" height="'+n.h+'" fill="'+(n.color||"#ffe066")+'" stroke="'+(n.border||"#37474f")+'" stroke-width="'+(multiSel.includes(n)||n===selected?5:2)+'"/>';
+    svg+='<text x="'+(n.x-minX+100)+'" y="'+(n.y-minY+100)+'" fill="'+(n.fontColor||"#212121")+'" font-size="'+(n.fontSize||16)+'" font-family="'+(n.font||"Arial")+'" text-anchor="middle" alignment-baseline="middle"'+(n.fontBold?' font-weight="bold"':'')+(n.fontItalic?' font-style="italic"':'')+'>'+(n.icon||"")+(n.text.replace(/&/g,"&amp;"))+'</text>';
     svg+='</g>';
   });
   svg+="</svg>";
   let blob=new Blob([svg],{type:"image/svg+xml"});
   let a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download="mindmap.svg";a.click();
+}
+function exportPDF(){
+  import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm').then(({default:html2canvas})=>{
+    html2canvas(canvas).then(c=>{
+      let img=c.toDataURL("image/png");
+      let pdf=new window.jspdf.jsPDF({orientation:"l",unit:"px",format:[canvas.width,canvas.height]});
+      pdf.addImage(img,"PNG",0,0,canvas.width,canvas.height);
+      pdf.save("mindmap.pdf");
+    });
+  });
 }
 /* --- Init --- */
 window.addEventListener('resize',redraw);
