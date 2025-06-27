@@ -3,174 +3,145 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mindmap nâng cao với bàn phím và nhiều hình dạng</title>
+<title>Mindmap nâng cao kiểu Creately</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 10px; user-select: none; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    user-select: none;
+  }
   #toolbar {
-    margin-bottom: 10px;
-  }
-  button {
-    margin-right: 6px;
-    margin-bottom: 6px;
-  }
-  #canvas {
-    border: 1px solid #ccc;
-    background: #fefefe;
-    cursor: grab;
-  }
-  #exportArea {
-    width: 100%;
-    height: 100px;
-    margin-top: 10px;
-    font-family: monospace;
-  }
-  #colorPickers {
-    margin-top: 10px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: #ffffffcc;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    z-index: 10;
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
   }
-  #colorPickers label {
-    font-size: 14px;
-  }
-  #colorPickers input[type=color] {
-    cursor: pointer;
-    width: 40px;
-    height: 25px;
+  #toolbar button {
+    background: #1d72b8;
     border: none;
+    color: white;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #toolbar button:disabled {
+    background: #cccccc;
+    cursor: default;
+  }
+  #canvas {
+    background: #fafafa;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    cursor: grab;
+  }
+  #contextMenu {
+    position: fixed;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    display: none;
+    z-index: 20;
+    min-width: 150px;
+  }
+  #contextMenu button {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  #contextMenu button:hover {
+    background: #1d72b8;
+    color: white;
+  }
+  #exportArea {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    width: 30vw;
+    height: 140px;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical;
+    background: #fff;
+    overflow: auto;
+    z-index: 10;
+  }
+  #fileInput {
+    display: none;
   }
 </style>
 </head>
 <body>
 
-<h2>Mindmap nâng cao với bàn phím và nhiều hình dạng</h2>
-
 <div id="toolbar">
-  <button id="addNodeBtn">Thêm nút</button>
-  <select id="shapeSelector" title="Chọn hình dạng nút">
-    <option value="circle">Hình tròn</option>
-    <option value="rect">Hình chữ nhật</option>
-    <option value="ellipse">Hình elip</option>
-    <option value="diamond">Hình thoi</option>
-  </select>
-  <button id="deleteNodeBtn" disabled>Xóa nút</button>
-  <button id="deleteLinkBtn" disabled>Xóa liên kết</button>
-  <button id="autoLayoutBtn">Tự động sắp xếp</button>
+  <button id="addNodeBtn">Thêm nút gốc</button>
   <button id="undoBtn" disabled>Undo</button>
   <button id="redoBtn" disabled>Redo</button>
-  <button id="exportBtn">Xuất dữ liệu JSON</button>
-  <button id="importBtn">Tải dữ liệu JSON</button>
+  <button id="exportBtn">Xuất JSON</button>
+  <button id="importBtn">Tải JSON</button>
   <button id="exportPngBtn">Xuất ảnh PNG</button>
-  <button id="copyNodeBtn" disabled>Copy nút</button>
-  <button id="pasteNodeBtn" disabled>Paste nút</button>
-  <input type="file" id="fileInput" style="display:none" accept=".json" />
 </div>
 
-<div id="colorPickers">
-  <label for="fillColorPicker">Màu nền nút:</label>
-  <input type="color" id="fillColorPicker" value="#ffffff" />
-  <label for="strokeColorPicker">Màu viền nút:</label>
-  <input type="color" id="strokeColorPicker" value="#333333" />
-</div>
-
-<canvas id="canvas" width="900" height="600" tabindex="0"></canvas>
+<canvas id="canvas" tabindex="0"></canvas>
 <textarea id="exportArea" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây" readonly></textarea>
+<input type="file" id="fileInput" accept=".json" />
+
+<div id="contextMenu"></div>
 
 <script>
 (() => {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-
-  // Toolbar buttons
+  const toolbar = document.getElementById('toolbar');
   const addNodeBtn = document.getElementById('addNodeBtn');
-  const deleteNodeBtn = document.getElementById('deleteNodeBtn');
-  const deleteLinkBtn = document.getElementById('deleteLinkBtn');
-  const autoLayoutBtn = document.getElementById('autoLayoutBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
   const exportBtn = document.getElementById('exportBtn');
   const importBtn = document.getElementById('importBtn');
   const exportPngBtn = document.getElementById('exportPngBtn');
-  const copyNodeBtn = document.getElementById('copyNodeBtn');
-  const pasteNodeBtn = document.getElementById('pasteNodeBtn');
-  const fileInput = document.getElementById('fileInput');
   const exportArea = document.getElementById('exportArea');
-  const shapeSelector = document.getElementById('shapeSelector');
-  const fillColorPicker = document.getElementById('fillColorPicker');
-  const strokeColorPicker = document.getElementById('strokeColorPicker');
+  const fileInput = document.getElementById('fileInput');
+  const contextMenu = document.getElementById('contextMenu');
+
+  // Resize canvas to fill window
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+  }
+  window.addEventListener('resize', resize);
+  resize();
 
   // Data structures
   let nodes = [];
   let links = [];
-
-  // History stacks for undo/redo
-  let history = [];
-  let historyIndex = -1;
-
-  // Viewport transform
-  let offsetX = 0;
-  let offsetY = 0;
-  let scale = 1;
-
-  // Interaction state
+  let selectedNode = null;
+  let selectedLink = null;
   let draggingNode = null;
   let dragOffsetX = 0;
   let dragOffsetY = 0;
 
-  let draggingCanvas = false;
-  let dragCanvasStartX = 0;
-  let dragCanvasStartY = 0;
-  let dragCanvasOffsetX = 0;
-  let dragCanvasOffsetY = 0;
-
-  let selectedNode = null;
-  let selectedLink = null;
-  let linkStartNode = null;
-
-  let copiedNode = null;
-
-  // Constants
-  const NODE_RADIUS = 40;
-  const NODE_WIDTH = 120;
-  const NODE_HEIGHT = 70;
-
-  // Classes
-  class Node {
-    constructor(id, text, x, y, shape = 'circle', fillColor = '#ffffff', strokeColor = '#333333') {
-      this.id = id;
-      this.text = text;
-      this.x = x;
-      this.y = y;
-      this.shape = shape; // circle, rect, ellipse, diamond
-      this.fillColor = fillColor;
-      this.strokeColor = strokeColor;
-      this.radius = NODE_RADIUS;
-      this.width = NODE_WIDTH;
-      this.height = NODE_HEIGHT;
-    }
-
-    isPointInside(px, py) {
-      const dx = px - this.x;
-      const dy = py - this.y;
-
-      switch (this.shape) {
-        case 'circle':
-          return dx * dx + dy * dy <= this.radius * this.radius;
-        case 'rect':
-          return px >= this.x - this.width / 2 && px <= this.x + this.width / 2 &&
-                 py >= this.y - this.height / 2 && py <= this.y + this.height / 2;
-        case 'ellipse':
-          // ellipse formula (dx/a)^2 + (dy/b)^2 <= 1
-          return (dx*dx) / ((this.width/2)*(this.width/2)) + (dy*dy) / ((this.height/2)*(this.height/2)) <= 1;
-        case 'diamond':
-          // diamond shape: |dx|/(width/2) + |dy|/(height/2) <= 1
-          return (Math.abs(dx) / (this.width / 2)) + (Math.abs(dy) / (this.height / 2)) <= 1;
-        default:
-          return false;
-      }
-    }
-  }
-
+  // History for undo/redo
+  let history = [];
+  let historyIndex = -1;
   function saveHistory() {
     const state = {
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -181,126 +152,165 @@
     historyIndex++;
     updateUndoRedoButtons();
   }
-
   function undo() {
-    if (historyIndex <= 0) return;
+    if(historyIndex <= 0) return;
     historyIndex--;
     restoreState(history[historyIndex]);
-    updateUndoRedoButtons();
   }
-
   function redo() {
-    if (historyIndex >= history.length - 1) return;
+    if(historyIndex >= history.length - 1) return;
     historyIndex++;
     restoreState(history[historyIndex]);
-    updateUndoRedoButtons();
   }
-
   function restoreState(state) {
-    nodes = state.nodes.map(n => new Node(
-      n.id, n.text, n.x, n.y, n.shape, n.fillColor, n.strokeColor
-    ));
-    links = JSON.parse(JSON.stringify(state.links));
+    nodes = state.nodes;
+    links = state.links;
     selectedNode = null;
     selectedLink = null;
+    draggingNode = null;
     draw();
+    updateUndoRedoButtons();
   }
-
   function updateUndoRedoButtons() {
     undoBtn.disabled = historyIndex <= 0;
     redoBtn.disabled = historyIndex >= history.length - 1;
   }
 
+  // Viewport controls for pan and zoom
+  let offsetX = 0;
+  let offsetY = 0;
+  let scale = 1;
+  let draggingCanvas = false;
+  let dragCanvasStart = null;
+  let dragCanvasOffset = null;
+
   function toWorld(x, y) {
-    return {
-      x: (x - offsetX) / scale,
-      y: (y - offsetY) / scale
-    };
+    return { x: (x - offsetX) / scale, y: (y - offsetY) / scale };
   }
-
   function toScreen(x, y) {
-    return {
-      x: x * scale + offsetX,
-      y: y * scale + offsetY
-    };
+    return { x: x * scale + offsetX, y: y * scale + offsetY };
   }
 
-  function drawNodeShape(node, x, y, radius, width, height) {
-    ctx.beginPath();
-    switch(node.shape) {
-      case 'circle':
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        break;
-      case 'rect':
-        ctx.rect(x - width/2, y - height/2, width, height);
-        break;
-      case 'ellipse':
-        ctx.ellipse(x, y, width/2, height/2, 0, 0, Math.PI * 2);
-        break;
-      case 'diamond':
-        ctx.moveTo(x, y - height/2);
-        ctx.lineTo(x + width/2, y);
-        ctx.lineTo(x, y + height/2);
-        ctx.lineTo(x - width/2, y);
-        ctx.closePath();
-        break;
-      default:
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
+  // Node class
+  class Node {
+    constructor(id, text, x, y) {
+      this.id = id;
+      this.text = text;
+      this.x = x;
+      this.y = y;
+      this.radius = 50;
+      this.color = '#4466ff';
+      this.textColor = '#fff';
+    }
+    contains(px, py) {
+      const dx = px - this.x;
+      const dy = py - this.y;
+      return dx * dx + dy * dy <= this.radius * this.radius;
     }
   }
 
+  // Link class
+  class Link {
+    constructor(fromId, toId) {
+      this.from = fromId;
+      this.to = toId;
+    }
+  }
+
+  // Draw functions
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
 
-    // Draw links
-    ctx.lineWidth = 2;
+    // Draw links first
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#666';
+    ctx.fillStyle = '#666';
     links.forEach(link => {
-      const from = nodes.find(n => n.id === link.from);
-      const to = nodes.find(n => n.id === link.to);
-      if (from && to) {
-        const fromScreen = toScreen(from.x, from.y);
-        const toScreenPos = toScreen(to.x, to.y);
-        ctx.strokeStyle = (selectedLink === link) ? '#e74c3c' : '#555';
-        ctx.beginPath();
-        ctx.moveTo(fromScreen.x, fromScreen.y);
-        ctx.lineTo(toScreenPos.x, toScreenPos.y);
-        ctx.stroke();
-      }
+      const fromNode = nodes.find(n => n.id === link.from);
+      const toNode = nodes.find(n => n.id === link.to);
+      if (!fromNode || !toNode) return;
+      drawCurvedLink(fromNode, toNode);
     });
 
     // Draw nodes
     nodes.forEach(node => {
-      const screenPos = toScreen(node.x, node.y);
-      ctx.fillStyle = node.fillColor;
-      ctx.strokeStyle = (node === selectedNode) ? '#e67e22' : node.strokeColor;
-      ctx.lineWidth = 3;
-      ctx.shadowColor = 'rgba(0,0,0,0.15)';
-      ctx.shadowBlur = 6;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-
-      drawNodeShape(node, screenPos.x, screenPos.y, node.radius * scale, node.width * scale, node.height * scale);
-      ctx.fill();
-      ctx.shadowColor = 'transparent';
-      ctx.stroke();
-
-      // Text
-      ctx.fillStyle = '#000';
-      ctx.font = `${14 * scale}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      wrapText(ctx, node.text, screenPos.x, screenPos.y, (node.width - 20) * scale, 18 * scale);
+      drawNode(node);
     });
+
+    ctx.restore();
   }
 
-  function wrapText(context, text, x, y, maxWidth, lineHeight) {
+  function drawNode(node) {
+    ctx.beginPath();
+    ctx.fillStyle = node.color;
+    ctx.strokeStyle = selectedNode === node ? '#f39c12' : '#333';
+    ctx.lineWidth = selectedNode === node ? 4 : 2;
+    ctx.shadowColor = 'rgba(0,0,0,0.25)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.stroke();
+
+    // Draw text
+    ctx.fillStyle = node.textColor;
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    wrapText(ctx, node.text, node.x, node.y, node.radius * 1.8, 20);
+  }
+
+  function drawCurvedLink(fromNode, toNode) {
+    const dx = toNode.x - fromNode.x;
+    const dy = toNode.y - fromNode.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 10) return;
+    // Control points for cubic Bezier curve
+    const cp1x = fromNode.x + dx * 0.3;
+    const cp1y = fromNode.y;
+    const cp2x = fromNode.x + dx * 0.7;
+    const cp2y = toNode.y;
+
+    ctx.beginPath();
+    ctx.strokeStyle = selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id ? '#e74c3c' : '#666';
+    ctx.lineWidth = selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id ? 4 : 3;
+    ctx.moveTo(fromNode.x, fromNode.y);
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, toNode.x, toNode.y);
+    ctx.stroke();
+
+    // Draw arrowhead at end
+    drawArrowhead(toNode.x, toNode.y, Math.atan2(dy, dx));
+  }
+
+  function drawArrowhead(x, y, angle) {
+    const size = 10;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-size, size / 2);
+    ctx.lineTo(-size, -size / 2);
+    ctx.closePath();
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Wrap text in multiple lines inside node
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
-    const lines = [];
-    for (let i = 0; i < words.length; i++) {
+    let lines = [];
+    for (let i=0; i<words.length; i++) {
       const testLine = line + words[i] + ' ';
-      const metrics = context.measureText(testLine);
-      if (metrics.width > maxWidth && i > 0) {
+      const metrics = ctx.measureText(testLine);
+      if(metrics.width > maxWidth && i > 0) {
         lines.push(line);
         line = words[i] + ' ';
       } else {
@@ -310,268 +320,362 @@
     lines.push(line);
 
     const totalHeight = lines.length * lineHeight;
-    let startY = y - totalHeight / 2 + lineHeight / 2;
+    let startY = y - totalHeight/2 + lineHeight/2;
 
-    for (let i = 0; i < lines.length; i++) {
-      context.fillText(lines[i].trim(), x, startY + i * lineHeight);
+    for(let i=0; i<lines.length; i++) {
+      ctx.fillText(lines[i].trim(), x, startY + i * lineHeight);
     }
   }
 
-  function addNode() {
-    const text = prompt('Nhập nội dung cho nút:');
-    if (!text) return;
-    const centerX = (canvas.width / 2 - offsetX) / scale;
-    const centerY = (canvas.height / 2 - offsetY) / scale;
-    const id = Date.now().toString();
-    const shape = shapeSelector.value;
-    const fillColor = fillColorPicker.value;
-    const strokeColor = strokeColorPicker.value;
-    nodes.push(new Node(id, text, centerX, centerY, shape, fillColor, strokeColor));
-    saveHistory();
-    draw();
-  }
+  // Event handlers
+  let lastMousePos = { x: 0, y: 0 };
+  let isDragging = false;
 
-  function getNodeAtPos(screenX, screenY) {
-    const worldPos = toWorld(screenX, screenY);
-    return nodes.find(node => node.isPointInside(worldPos.x, worldPos.y));
-  }
-
-  function getLinkAtPos(screenX, screenY) {
-    const worldPos = toWorld(screenX, screenY);
-    const tolerance = 10 / scale;
-    for (const link of links) {
-      const from = nodes.find(n => n.id === link.from);
-      const to = nodes.find(n => n.id === link.to);
-      if (!from || !to) continue;
-      if (pointNearLine(worldPos, from, to, tolerance)) {
-        return link;
-      }
-    }
-    return null;
-  }
-
-  function pointNearLine(p, a, b, tol) {
-    const dx = b.x - a.x;
-    const dy = b.y - a.y;
-    const lengthSq = dx * dx + dy * dy;
-    if (lengthSq === 0) return false;
-    let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq;
-    t = Math.max(0, Math.min(1, t));
-    const projX = a.x + t * dx;
-    const projY = a.y + t * dy;
-    const distSq = (p.x - projX) ** 2 + (p.y - projY) ** 2;
-    return distSq <= tol * tol;
-  }
-
-  canvas.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    lastMousePos = { x: mouseX, y: mouseY };
 
     if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      // Pan mode
       draggingCanvas = true;
-      dragCanvasStartX = x;
-      dragCanvasStartY = y;
-      dragCanvasOffsetX = offsetX;
-      dragCanvasOffsetY = offsetY;
+      dragCanvasStart = { x: mouseX, y: mouseY };
+      dragCanvasOffset = { x: offsetX, y: offsetY };
       canvas.style.cursor = 'grabbing';
       return;
     }
 
-    if (e.ctrlKey && e.button === 0) {
-      const node = getNodeAtPos(x, y);
-      if (!node) return;
-      if (!linkStartNode) {
-        linkStartNode = node;
-        alert('Chọn nút thứ hai (Ctrl + click) để nối liên kết');
-      } else if (linkStartNode.id !== node.id) {
-        const exists = links.some(l => 
-          (l.from === linkStartNode.id && l.to === node.id) ||
-          (l.from === node.id && l.to === linkStartNode.id)
-        );
-        if (!exists) {
-          links.push({ from: linkStartNode.id, to: node.id });
-          saveHistory();
-        }
-        linkStartNode = null;
-        draw();
+    const worldPos = toWorld(mouseX, mouseY);
+
+    // Check if clicked on node
+    let clickedNode = null;
+    for (const node of nodes) {
+      if (node.contains(worldPos.x, worldPos.y)) {
+        clickedNode = node;
+        break;
       }
-      return;
     }
 
-    const node = getNodeAtPos(x, y);
-    if (node) {
-      draggingNode = node;
-      selectedNode = node;
+    if (clickedNode) {
+      draggingNode = clickedNode;
+      dragOffsetX = worldPos.x - clickedNode.x;
+      dragOffsetY = worldPos.y - clickedNode.y;
+      selectedNode = clickedNode;
       selectedLink = null;
-      dragOffsetX = toWorld(x, y).x - node.x;
-      dragOffsetY = toWorld(x, y).y - node.y;
-      deleteNodeBtn.disabled = false;
-      deleteLinkBtn.disabled = true;
-      copyNodeBtn.disabled = false;
       draw();
       return;
     }
 
-    const link = getLinkAtPos(x, y);
-    if (link) {
-      selectedLink = link;
+    // Check if clicked on link
+    const clickedLink = findLinkAt(worldPos);
+    if(clickedLink) {
+      selectedLink = clickedLink;
       selectedNode = null;
-      deleteLinkBtn.disabled = false;
-      deleteNodeBtn.disabled = true;
-      copyNodeBtn.disabled = true;
       draw();
       return;
     }
 
+    // Clicked empty space
     selectedNode = null;
     selectedLink = null;
-    deleteNodeBtn.disabled = true;
-    deleteLinkBtn.disabled = true;
-    copyNodeBtn.disabled = true;
     draw();
   });
 
-  canvas.addEventListener('mousemove', (e) => {
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
     if (draggingNode) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const worldPos = toWorld(x, y);
+      const worldPos = toWorld(mouseX, mouseY);
       draggingNode.x = worldPos.x - dragOffsetX;
       draggingNode.y = worldPos.y - dragOffsetY;
       draw();
-    } else if (draggingCanvas) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      offsetX = dragCanvasOffsetX + (x - dragCanvasStartX);
-      offsetY = dragCanvasOffsetY + (y - dragCanvasStartY);
+      return;
+    }
+    if (draggingCanvas) {
+      offsetX = dragCanvasOffset.x + mouseX - dragCanvasStart.x;
+      offsetY = dragCanvasOffset.y + mouseY - dragCanvasStart.y;
       draw();
     }
   });
 
-  canvas.addEventListener('mouseup', (e) => {
-    if (draggingNode) {
+  canvas.addEventListener('mouseup', e => {
+    if(draggingNode) {
       draggingNode = null;
       saveHistory();
     }
-    if (draggingCanvas) {
+    if(draggingCanvas) {
       draggingCanvas = false;
       canvas.style.cursor = 'grab';
     }
   });
 
-  canvas.addEventListener('mouseleave', () => {
-    if (draggingNode) {
+  canvas.addEventListener('mouseleave', e => {
+    if(draggingNode) {
       draggingNode = null;
       saveHistory();
     }
-    if (draggingCanvas) {
+    if(draggingCanvas) {
       draggingCanvas = false;
       canvas.style.cursor = 'grab';
     }
   });
 
-  canvas.addEventListener('wheel', (e) => {
+  canvas.addEventListener('wheel', e => {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    const wheel = e.deltaY < 0 ? 1.1 : 0.9;
-
-    const worldPosBefore = toWorld(mouseX, mouseY);
-    scale *= wheel;
-    scale = Math.min(Math.max(scale, 0.2), 3);
-    const worldPosAfter = toWorld(mouseX, mouseY);
-
-    offsetX += (worldPosAfter.x - worldPosBefore.x) * scale;
-    offsetY += (worldPosAfter.y - worldPosBefore.y) * scale;
-
+    const wheelDelta = e.deltaY < 0 ? 1.1 : 0.9;
+    const worldBefore = toWorld(mouseX, mouseY);
+    scale *= wheelDelta;
+    scale = Math.min(Math.max(scale, 0.3), 3);
+    const worldAfter = toWorld(mouseX, mouseY);
+    offsetX += (worldAfter.x - worldBefore.x) * scale;
+    offsetY += (worldAfter.y - worldBefore.y) * scale;
     draw();
+  }, { passive: false });
+
+  // Keyboard shortcuts
+  canvas.addEventListener('keydown', e => {
+    if (document.activeElement !== canvas) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if(selectedNode) {
+        deleteNode(selectedNode);
+        e.preventDefault();
+      } else if(selectedLink) {
+        deleteLink(selectedLink);
+        e.preventDefault();
+      }
+    } else if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
+      if(e.shiftKey) redo();
+      else undo();
+      e.preventDefault();
+    } else if ((e.key === 'y' || e.key === 'Y') && (e.ctrlKey || e.metaKey)) {
+      redo();
+      e.preventDefault();
+    } else if (e.key === 'Enter' && selectedNode) {
+      addChildNode(selectedNode);
+      e.preventDefault();
+    }
   });
 
-  canvas.addEventListener('dblclick', (e) => {
+  // Context menu on right click node
+  canvas.addEventListener('contextmenu', e => {
+    e.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const node = getNodeAtPos(x, y);
-    if (!node) return;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const worldPos = toWorld(mouseX, mouseY);
+    let clickedNode = null;
+    for (const node of nodes) {
+      if (node.contains(worldPos.x, worldPos.y)) {
+        clickedNode = node;
+        break;
+      }
+    }
+    if (!clickedNode) {
+      hideContextMenu();
+      return;
+    }
+    selectedNode = clickedNode;
+    selectedLink = null;
+    draw();
+    showContextMenu(e.clientX, e.clientY, [
+      { label: 'Thêm con', action: () => addChildNode(selectedNode) },
+      { label: 'Sửa nội dung', action: () => editNodeText(selectedNode) },
+      { label: 'Xóa nút', action: () => deleteNode(selectedNode) },
+      { label: 'Tạo liên kết...', action: () => startLinkCreation(selectedNode) },
+    ]);
+  });
+
+  // Hide context menu if clicking elsewhere
+  window.addEventListener('click', e => {
+    if (e.target.closest('#contextMenu') === null) {
+      hideContextMenu();
+    }
+  });
+
+  // Show context menu
+  function showContextMenu(x, y, items) {
+    contextMenu.innerHTML = '';
+    items.forEach(item => {
+      const btn = document.createElement('button');
+      btn.textContent = item.label;
+      btn.onclick = () => {
+        item.action();
+        hideContextMenu();
+      };
+      contextMenu.appendChild(btn);
+    });
+    contextMenu.style.left = x + 'px';
+    contextMenu.style.top = y + 'px';
+    contextMenu.style.display = 'block';
+  }
+  function hideContextMenu() {
+    contextMenu.style.display = 'none';
+  }
+
+  // Node operations
+  function addRootNode() {
+    const text = prompt('Nhập nội dung nút gốc:');
+    if (!text) return;
+    const center = toWorld(canvas.width/2, canvas.height/2);
+    const id = Date.now().toString();
+    nodes.push(new Node(id, text, center.x, center.y));
+    saveHistory();
+    draw();
+  }
+  function addChildNode(parentNode) {
+    const text = prompt('Nhập nội dung nút con:');
+    if (!text) return;
+    const offset = 140;
+    // Place child near parent
+    const childX = parentNode.x + (Math.random() * 2 - 1) * offset;
+    const childY = parentNode.y + offset;
+    const id = Date.now().toString();
+    const childNode = new Node(id, text, childX, childY);
+    nodes.push(childNode);
+    links.push(new Link(parentNode.id, id));
+    saveHistory();
+    draw();
+  }
+  function editNodeText(node) {
     const newText = prompt('Chỉnh sửa nội dung nút:', node.text);
     if (newText !== null) {
       node.text = newText.trim() || node.text;
       saveHistory();
       draw();
     }
+  }
+  function deleteNode(node) {
+    nodes = nodes.filter(n => n.id !== node.id);
+    links = links.filter(l => l.from !== node.id && l.to !== node.id);
+    selectedNode = null;
+    saveHistory();
+    draw();
+  }
+  function deleteLink(link) {
+    links = links.filter(l => l !== link);
+    selectedLink = null;
+    saveHistory();
+    draw();
+  }
+
+  // Link creation via context menu
+  let linkingFromNode = null;
+  function startLinkCreation(fromNode) {
+    linkingFromNode = fromNode;
+    alert('Chọn nút đích để tạo liên kết (bấm vào node đó)');
+  }
+  canvas.addEventListener('click', e => {
+    if (!linkingFromNode) return;
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const worldPos = toWorld(mouseX, mouseY);
+    for (const node of nodes) {
+      if (node.contains(worldPos.x, worldPos.y)) {
+        if (node.id !== linkingFromNode.id) {
+          // Add link if not exist
+          if (!links.some(l => (l.from === linkingFromNode.id && l.to === node.id))) {
+            links.push(new Link(linkingFromNode.id, node.id));
+            saveHistory();
+            draw();
+          }
+        }
+        break;
+      }
+    }
+    linkingFromNode = null;
   });
 
-  // Toolbar buttons events
-  addNodeBtn.onclick = addNode;
+  // Find link near point (for selection)
+  function findLinkAt(point) {
+    const tolerance = 10 / scale;
+    for (const link of links) {
+      const fromNode = nodes.find(n => n.id === link.from);
+      const toNode = nodes.find(n => n.id === link.to);
+      if (!fromNode || !toNode) continue;
+      if (pointNearBezier(point, fromNode, toNode, tolerance)) return link;
+    }
+    return null;
+  }
+  // Check if point near bezier curve
+  function pointNearBezier(p, fromNode, toNode, tol) {
+    // Approximate bezier with small segments and check distance
+    const steps = 30;
+    let prev = { x: fromNode.x, y: fromNode.y };
+    for (let t = 0; t <= 1; t += 1 / steps) {
+      const pt = cubicBezierPoint(fromNode, toNode, t);
+      const dist = distancePointToSegment(p, prev, pt);
+      if (dist < tol) return true;
+      prev = pt;
+    }
+    return false;
+  }
+  function cubicBezierPoint(fromNode, toNode, t) {
+    const dx = toNode.x - fromNode.x;
+    const dy = toNode.y - fromNode.y;
+    const cp1x = fromNode.x + dx * 0.3;
+    const cp1y = fromNode.y;
+    const cp2x = fromNode.x + dx * 0.7;
+    const cp2y = toNode.y;
 
-  deleteNodeBtn.onclick = () => {
-    if (!selectedNode) return;
-    links = links.filter(l => l.from !== selectedNode.id && l.to !== selectedNode.id);
-    nodes = nodes.filter(n => n.id !== selectedNode.id);
-    selectedNode = null;
-    deleteNodeBtn.disabled = true;
-    copyNodeBtn.disabled = true;
-    saveHistory();
-    draw();
-  };
+    const x = cubicBezier(t, fromNode.x, cp1x, cp2x, toNode.x);
+    const y = cubicBezier(t, fromNode.y, cp1y, cp2y, toNode.y);
+    return { x, y };
+  }
+  function cubicBezier(t, p0, p1, p2, p3) {
+    const c = 3 * (p1 - p0);
+    const b = 3 * (p2 - p1) - c;
+    const a = p3 - p0 - c - b;
+    return ((a * t + b) * t + c) * t + p0;
+  }
+  function distancePointToSegment(p, v, w) {
+    const l2 = (v.x - w.x) * (v.x - w.x) + (v.y - w.y) * (v.y - w.y);
+    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
+    return Math.hypot(p.x - proj.x, p.y - proj.y);
+  }
 
-  deleteLinkBtn.onclick = () => {
-    if (!selectedLink) return;
-    links = links.filter(l => l !== selectedLink);
-    selectedLink = null;
-    deleteLinkBtn.disabled = true;
-    saveHistory();
-    draw();
-  };
-
-  undoBtn.onclick = undo;
-  redoBtn.onclick = redo;
-
+  // Export / Import JSON
   exportBtn.onclick = () => {
     const data = { nodes, links };
-    const jsonStr = JSON.stringify(data, null, 2);
-    exportArea.value = jsonStr;
+    exportArea.value = JSON.stringify(data, null, 2);
   };
-
   importBtn.onclick = () => {
     fileInput.click();
   };
-
-  fileInput.onchange = e => {
-    const file = e.target.files[0];
+  fileInput.addEventListener('change', e => {
+    const file = fileInput.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = event => {
+    reader.onload = () => {
       try {
-        const data = JSON.parse(event.target.result);
+        const data = JSON.parse(reader.result);
         if (data.nodes && data.links) {
-          nodes = data.nodes.map(n => new Node(
-            n.id, n.text, n.x, n.y, n.shape, n.fillColor, n.strokeColor
-          ));
-          links = data.links;
+          nodes = data.nodes.map(n => Object.assign(new Node(), n));
+          links = data.links.map(l => Object.assign(new Link(), l));
           selectedNode = null;
           selectedLink = null;
-          offsetX = 0;
-          offsetY = 0;
-          scale = 1;
           saveHistory();
           draw();
-          alert('Dữ liệu đã được tải thành công!');
+          alert('Tải dữ liệu thành công!');
         } else {
-          alert('File JSON không hợp lệ!');
+          alert('File không hợp lệ!');
         }
-      } catch (err) {
-        alert('Lỗi đọc file JSON!');
+      } catch {
+        alert('Không thể đọc file!');
       }
     };
     reader.readAsText(file);
-    fileInput.value = '';
-  };
+  });
 
+  // Export PNG
   exportPngBtn.onclick = () => {
     const dataURL = canvas.toDataURL('image/png');
     const a = document.createElement('a');
@@ -580,155 +684,29 @@
     a.click();
   };
 
-  copyNodeBtn.onclick = () => {
-    if (!selectedNode) return;
-    copiedNode = JSON.parse(JSON.stringify(selectedNode));
-    pasteNodeBtn.disabled = false;
-  };
+  // Add root node button
+  addNodeBtn.onclick = addRootNode;
+  undoBtn.onclick = undo;
+  redoBtn.onclick = redo;
 
-  pasteNodeBtn.onclick = () => {
-    if (!copiedNode) return;
-    // Offset pasted node to avoid overlap
-    const newId = Date.now().toString();
-    const offsetPos = 40 / scale;
-    const newNode = new Node(
-      newId,
-      copiedNode.text,
-      copiedNode.x + offsetPos,
-      copiedNode.y + offsetPos,
-      copiedNode.shape,
-      copiedNode.fillColor,
-      copiedNode.strokeColor
-    );
-    nodes.push(newNode);
-    selectedNode = newNode;
-    deleteNodeBtn.disabled = false;
-    copyNodeBtn.disabled = false;
-    saveHistory();
-    draw();
-  };
-
-  autoLayoutBtn.onclick = () => {
-    const incoming = {};
-    nodes.forEach(n => incoming[n.id] = 0);
-    links.forEach(l => incoming[l.to] = (incoming[l.to] || 0) + 1);
-    const roots = nodes.filter(n => incoming[n.id] === 0);
-    if (roots.length === 0) {
-      alert('Không tìm thấy nút gốc để tự động sắp xếp!');
-      return;
-    }
-    const levelGap = 120;
-    const siblingGap = 150;
-
-    let currentX = 0;
-
-    function layoutSubtree(node, depth) {
-      node.y = depth * levelGap;
-      const children = links.filter(l => l.from === node.id).map(l => nodes.find(n => n.id === l.to));
-      if (children.length === 0) {
-        node.x = currentX;
-        currentX += siblingGap;
-        return [node.x, node.x];
-      }
-      let minX = Infinity, maxX = -Infinity;
-      children.forEach(child => {
-        const [childMin, childMax] = layoutSubtree(child, depth + 1);
-        minX = Math.min(minX, childMin);
-        maxX = Math.max(maxX, childMax);
-      });
-      node.x = (minX + maxX) / 2;
-      return [minX, maxX];
-    }
-
-    roots.forEach(root => layoutSubtree(root, 0));
-
-    saveHistory();
-    draw();
-  };
-
-  // Keyboard support
-  canvas.addEventListener('keydown', (e) => {
-    if (document.activeElement !== canvas) return;
-
-    switch(e.key) {
-      case 'Delete':
-      case 'Backspace':
-        if (selectedNode) {
-          deleteNodeBtn.click();
-        } else if (selectedLink) {
-          deleteLinkBtn.click();
-        }
-        e.preventDefault();
-        break;
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        if (selectedNode) {
-          let step = e.shiftKey ? 10 / scale : 1 / scale;
-          switch(e.key) {
-            case 'ArrowUp': selectedNode.y -= step; break;
-            case 'ArrowDown': selectedNode.y += step; break;
-            case 'ArrowLeft': selectedNode.x -= step; break;
-            case 'ArrowRight': selectedNode.x += step; break;
-          }
-          saveHistory();
-          draw();
-          e.preventDefault();
-        }
-        break;
-      case 'z':
-      case 'Z':
-        if (e.ctrlKey || e.metaKey) {
-          if (e.shiftKey) {
-            redoBtn.click();
-          } else {
-            undoBtn.click();
-          }
-          e.preventDefault();
-        }
-        break;
-      case 'c':
-      case 'C':
-        if ((e.ctrlKey || e.metaKey) && selectedNode) {
-          copyNodeBtn.click();
-          e.preventDefault();
-        }
-        break;
-      case 'v':
-      case 'V':
-        if ((e.ctrlKey || e.metaKey) && !pasteNodeBtn.disabled) {
-          pasteNodeBtn.click();
-          e.preventDefault();
-        }
-        break;
-    }
-  });
-
-  // Focus canvas for keyboard support
-  canvas.tabIndex = 0;
-
-  // Initialize history and draw
+  // Initial state save
   saveHistory();
+
+  // Draw initial empty canvas
   draw();
 
-  // Instructions console log
-  console.log(`Hướng dẫn sử dụng:
-- Thêm nút: nút "Thêm nút"
-- Chọn hình dạng, màu nền, màu viền trước khi thêm
-- Kéo thả nút để di chuyển
-- Ctrl + click 2 nút để tạo liên kết
-- Chọn node/link và nhấn Delete để xóa
-- Phím mũi tên để di chuyển nút (Shift + mũi tên di chuyển nhanh)
-- Ctrl+Z / Ctrl+Y để Undo/Redo
-- Ctrl+C / Ctrl+V để Copy/Paste nút
-- Shift + click hoặc click giữa + kéo để di chuyển canvas
-- Cuộn chuột để zoom
-- Double click để chỉnh sửa nội dung nút
-- Auto layout sắp xếp nút theo cây
-- Xuất JSON, tải JSON để lưu/tiếp tục
-- Xuất ảnh PNG`);
+  // Focus canvas for keyboard shortcuts
+  canvas.tabIndex = 0;
+  canvas.style.outline = 'none';
 
+  // Helper: debounce function
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
 })();
 </script>
 
