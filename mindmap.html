@@ -2,139 +2,148 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap/Flowchart PRO UI</title>
+  <title>Mindmap/Flowchart Pro All-in-One</title>
   <style>
     html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
-    body{font-family:sans-serif;background:#f7f7fb;}
-    #sidebar{position:absolute;top:0;left:0;width:78px;height:100%;background:#263238;z-index:11;transition:width 0.3s;}
-    #sidebar.open{width:228px;}
-    #sidebar .toggle{position:absolute;top:7px;right:-18px;z-index:16;width:28px;height:28px;border-radius:8px 0 0 8px;background:#37474f;color:#fff;cursor:pointer;line-height:29px;text-align:center;font-size:21px;}
-    #sidebar .shapes{margin:55px 7px 0 8px;display:flex;flex-direction:column;gap:15px;}
-    #sidebar .shapeicon{background:#fff;border:2px solid #bbb;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:grab;}
-    #sidebar.open .shapeicon{width:64px;height:64px;}
+    body{font-family:system-ui,sans-serif;background:#f5f7fb;}
+    #sidebar{position:absolute;top:0;left:0;width:90px;height:100%;background:#2b3340;z-index:12;transition:width 0.3s;}
+    #sidebar.open{width:242px;}
+    #sidebar .toggle{position:absolute;top:11px;right:-17px;z-index:16;width:26px;height:28px;border-radius:8px 0 0 8px;background:#37474f;color:#fff;cursor:pointer;line-height:28px;text-align:center;font-size:22px;box-shadow:2px 2px 7px #0002;}
+    #sidebar .shapes{margin:55px 7px 0 8px;display:flex;flex-direction:column;gap:14px;}
+    #sidebar .shapeicon{background:#fff;border:2px solid #babec6;width:43px;height:43px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:grab;}
+    #sidebar.open .shapeicon{width:69px;height:69px;}
     #sidebar .label{display:none;margin-left:10px;}
-    #sidebar.open .label{display:inline;font-size:15px;color:#fff;}
-    #sidebar .stickers{margin:26px 7px 0 8px;display:flex;flex-wrap:wrap;gap:12px;}
-    #sidebar .sticker{background:#fff;width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:grab;font-size:23px;}
-    #sidebar.open .sticker{width:48px;height:48px;font-size:32px;}
+    #sidebar.open .label{display:inline;font-size:16px;color:#fff;}
+    #sidebar .stickers{margin:26px 7px 0 8px;display:flex;flex-wrap:wrap;gap:13px;}
+    #sidebar .sticker{background:#fff;width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:grab;font-size:22px;}
+    #sidebar.open .sticker{width:50px;height:50px;font-size:32px;}
     #toolbar{
-      position:fixed;top:0;left:78px;right:0;z-index:10;
-      background:#222;color:#fff;height:46px;display:flex;align-items:center;gap:10px;padding:8px 16px;
-      transition:left 0.3s;
+      position:fixed;top:0;left:90px;right:0;z-index:11;
+      background:#222;color:#fff;height:49px;display:flex;align-items:center;gap:12px;padding:10px 18px;
+      transition:left 0.3s;box-shadow:0 2px 12px #0001;
     }
-    #sidebar.open ~ #toolbar{left:228px;}
+    #sidebar.open ~ #toolbar{left:242px;}
     #toolbar button,#toolbar select{
-      margin-right:3px;padding:8px 13px;font-size:16px;background:#37474f;color:#fff;border:none;border-radius:5px;cursor:pointer;
+      margin-right:5px;padding:8px 13px;font-size:16px;background:#37474f;color:#fff;border:none;border-radius:6px;cursor:pointer;
     }
     #toolbar button:hover{background:#111;}
-    #canvasWrap{position:absolute;top:46px;left:0;right:0;bottom:0;background:#fff;}
-    #sidebar.open ~ #canvasWrap{left:228px;}
-    #mindCanvas{background:#fff;width:100vw;height:calc(100vh - 46px);}
-    #resizeHandle{position:absolute;z-index:99;width:18px;height:18px;background:#fff;border:3px solid #1976d2;border-radius:6px;display:none;cursor:nwse-resize;box-shadow:0 1px 5px #8882;}
+    #canvasWrap{position:absolute;top:49px;left:0;right:0;bottom:0;background:#fff;}
+    #sidebar.open ~ #canvasWrap{left:242px;}
+    #mindCanvas{background:#fff;width:100vw;height:calc(100vh - 49px);}
+    #resizeHandle{position:absolute;z-index:98;width:19px;height:19px;background:#fff;border:3px solid #176be6;border-radius:7px;display:none;cursor:nwse-resize;box-shadow:0 1px 8px #0af2;}
     #lasso{position:absolute;border:2.2px dashed #1976d2;background:rgba(25,118,210,0.09);z-index:20;pointer-events:none;display:none;}
-    #sideRight {position:absolute;top:54px;right:22px;background:#fff;box-shadow:0 4px 20px #0002;border-radius:13px;padding:16px 16px 13px 19px;z-index:100;min-width:230px;display:none;}
-    #sideRight label{font-size:15px;}
-    #sideRight input[type="color"], #sideRight select, #sideRight input[type="number"]{margin-left:6px;margin-right:12px;}
-    #sideRight input[type="text"]{margin-left:6px;margin-right:10px;width:94px;}
+    #sideRight {position:absolute;top:61px;right:30px;background:#fff;box-shadow:0 6px 24px #0002;border-radius:16px;padding:20px 19px 13px 20px;z-index:110;min-width:300px;display:none;}
+    #sideRight label{font-size:16px;}
+    #sideRight input[type="color"], #sideRight select, #sideRight input[type="number"]{margin-left:6px;margin-right:13px;}
+    #sideRight input[type="text"]{margin-left:6px;margin-right:12px;width:110px;}
+    #sideRight textarea{width:200px;min-height:25px;vertical-align:middle;}
     #groupCheck{margin-left:8px;margin-right:5px;}
     #canvasWrap::-webkit-scrollbar{display:none;}
-    #sideRight .fontbar label{margin-right:12px;font-size:15px;}
+    #sideRight .fontbar label{margin-right:13px;font-size:15px;}
+    #sideRight .row{margin-bottom:7px;}
+    @media (max-width:750px){
+      #sideRight{min-width:150px;right:3px;}
+      #toolbar{font-size:12px;}
+    }
   </style>
 </head>
 <body>
-<div id="sidebar" class="open">
-  <div class="toggle" onclick="toggleSidebar()" title="Ẩn/hiện thanh công cụ">&#9776;</div>
-  <div class="shapes" style="padding-bottom:15px;border-bottom:1px solid #405060;">
-    <div class="shapeicon" draggable="true" data-shape="rect" title="Vuông"><svg width="32" height="32"><rect x="4" y="4" width="24" height="24" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
-    <div class="shapeicon" draggable="true" data-shape="ellipse" title="Tròn"><svg width="32" height="32"><ellipse cx="16" cy="16" rx="12" ry="12" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
-    <div class="shapeicon" draggable="true" data-shape="diamond" title="Thoi"><svg width="32" height="32"><polygon points="16,4 28,16 16,28 4,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
-    <div class="shapeicon" draggable="true" data-shape="parallelogram" title="Bình hành"><svg width="32" height="32"><polygon points="8,28 4,16 24,4 28,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
-    <div class="shapeicon" draggable="true" data-shape="hexagon" title="Lục giác"><svg width="32" height="32"><polygon points="8,4 24,4 30,16 24,28 8,28 2,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
-    <div class="shapeicon" draggable="true" data-shape="star" title="Ngôi sao"><svg width="32" height="32"><polygon points="16,2 20,12 30,12 22,18 24,28 16,22 8,28 10,18 2,12 12,12" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="open">
+    <div class="toggle" onclick="toggleSidebar()" title="Ẩn/hiện thanh công cụ">&#9776;</div>
+    <div class="shapes">
+      <div class="shapeicon" draggable="true" data-shape="rect"><svg width="32" height="32"><rect x="4" y="4" width="24" height="24" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
+      <div class="shapeicon" draggable="true" data-shape="ellipse"><svg width="32" height="32"><ellipse cx="16" cy="16" rx="12" ry="12" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
+      <div class="shapeicon" draggable="true" data-shape="diamond"><svg width="32" height="32"><polygon points="16,4 28,16 16,28 4,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
+      <div class="shapeicon" draggable="true" data-shape="parallelogram"><svg width="32" height="32"><polygon points="8,28 4,16 24,4 28,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
+      <div class="shapeicon" draggable="true" data-shape="hexagon"><svg width="32" height="32"><polygon points="8,4 24,4 30,16 24,28 8,28 2,16" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
+      <div class="shapeicon" draggable="true" data-shape="star"><svg width="32" height="32"><polygon points="16,2 20,12 30,12 22,18 24,28 16,22 8,28 10,18 2,12 12,12" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
+    </div>
+    <div style="margin-top:16px;color:#b3e5fc;font-size:14px;font-weight:bold;text-align:center;">Sticker/Icon</div>
+    <div class="stickers">
+      <div class="sticker" draggable="true" data-sticker="💡" title="Ý tưởng">💡</div>
+      <div class="sticker" draggable="true" data-sticker="🚀" title="Tăng tốc">🚀</div>
+      <div class="sticker" draggable="true" data-sticker="⭐" title="Đặc biệt">⭐</div>
+      <div class="sticker" draggable="true" data-sticker="✅" title="Hoàn thành">✅</div>
+      <div class="sticker" draggable="true" data-sticker="🔥" title="Hot">🔥</div>
+      <div class="sticker" draggable="true" data-sticker="📅" title="Lịch">📅</div>
+      <div class="sticker" draggable="true" data-sticker="⚡" title="Nhanh">⚡</div>
+      <div class="sticker" draggable="true" data-sticker="📦" title="Kho">📦</div>
+      <div class="sticker" draggable="true" data-sticker="📝" title="Ghi chú">📝</div>
+    </div>
   </div>
-  <div style="margin-top:16px;color:#b3e5fc;font-size:14px;font-weight:bold;text-align:center;">Sticker/Icon</div>
-  <div class="stickers">
-    <div class="sticker" draggable="true" data-sticker="💡" title="Ý tưởng">💡</div>
-    <div class="sticker" draggable="true" data-sticker="🚀" title="Tăng tốc">🚀</div>
-    <div class="sticker" draggable="true" data-sticker="⭐" title="Đặc biệt">⭐</div>
-    <div class="sticker" draggable="true" data-sticker="✅" title="Hoàn thành">✅</div>
-    <div class="sticker" draggable="true" data-sticker="🔥" title="Hot">🔥</div>
-    <div class="sticker" draggable="true" data-sticker="📅" title="Lịch">📅</div>
-    <div class="sticker" draggable="true" data-sticker="⚡" title="Nhanh">⚡</div>
-    <div class="sticker" draggable="true" data-sticker="📦" title="Kho">📦</div>
-    <div class="sticker" draggable="true" data-sticker="📝" title="Ghi chú">📝</div>
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <button onclick="addNode()" title="Thêm node (Insert)">➕ Node</button>
+    <button onclick="deleteNode()" title="Xóa node đã chọn (Del)">🗑️ Xóa</button>
+    <button onclick="exportPNG()" title="Xuất PNG">🖼️ PNG</button>
+    <button onclick="exportSVG()" title="Xuất SVG vector">🔷 SVG</button>
+    <button onclick="exportPDF()" title="Xuất PDF">📄 PDF</button>
+    <button onclick="exportXLSX()" title="Xuất Excel">📊 Excel</button>
+    <button onclick="saveFile()" title="Lưu file JSON">💾 Lưu</button>
+    <button onclick="loadFile()" title="Tải file JSON">📂 Tải</button>
+    <button onclick="fitView()" title="Fit/Zoom tự động">🔍 Fit</button>
+    <button onclick="toggleSidebar()" title="Hiện/Ẩn Sidebar">☰ Sidebar</button>
+    <button onclick="undo()" title="Undo (Ctrl+Z)">↶</button>
+    <button onclick="redo()" title="Redo (Ctrl+Y)">↷</button>
+    <label style="margin:0 10px 0 10px;user-select:none;">
+      <input type="checkbox" id="groupCheck" onchange="toggleGroup(this.checked)"> Group
+    </label>
+    <button onclick="showSideRight()" title="Thuộc tính node (F2)">⚙️ Tùy chỉnh</button>
+    <span style="color:#ffd700;font-size:14px;margin-left:14px;">Pan, link, lasso, resize, sticker, undo/redo, đổi font, branch collapse, tìm kiếm, outline...</span>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="openFile(event)">
   </div>
-</div>
-<div id="toolbar">
-  <button onclick="addNode()" title="Thêm node (Insert)">➕ Node</button>
-  <button onclick="deleteNode()" title="Xóa node đã chọn (Del)">🗑️ Xóa</button>
-  <button onclick="exportPNG()" title="Xuất ảnh PNG">🖼️ PNG</button>
-  <button onclick="exportSVG()" title="Xuất SVG vector">🔷 SVG</button>
-  <button onclick="exportPDF()" title="Xuất PDF">📄 PDF</button>
-  <button onclick="exportXLSX()" title="Xuất Excel">📊 Excel</button>
-  <button onclick="saveFile()" title="Lưu file JSON">💾 Lưu</button>
-  <button onclick="loadFile()" title="Tải file JSON">📂 Tải</button>
-  <button onclick="fitView()" title="Fit/Zoom tự động">🔍 Fit</button>
-  <button onclick="toggleSidebar()" title="Hiện/Ẩn Sidebar">☰ Sidebar</button>
-  <button onclick="undo()" title="Undo (Ctrl+Z)">↶</button>
-  <button onclick="redo()" title="Redo (Ctrl+Y)">↷</button>
-  <label style="margin:0 10px 0 10px;user-select:none;">
-    <input type="checkbox" id="groupCheck" onchange="toggleGroup(this.checked)"> Group
-  </label>
-  <button onclick="showSideRight()" title="Thuộc tính node (F2)">⚙️ Tùy chỉnh</button>
-  <span style="color:#ffd700;font-size:14px;margin-left:14px;">Chuột giữa/Pan/Space, Ctrl+Nhấp/Link, Shift+Kéo/Lasso, Resize, Sticker, Undo/Redo, ảnh, đổi font, v.v.</span>
-  <input type="file" id="fileInput" accept=".json" style="display:none" onchange="openFile(event)">
-</div>
-<div id="canvasWrap">
-  <canvas id="mindCanvas"></canvas>
-  <div id="resizeHandle"></div>
-  <div id="lasso"></div>
-</div>
-<div id="sideRight">
-  <label>Text: <input type="text" id="propText" onchange="updateProp('text',this.value)"></label>
-  <label>Shape:
-    <select id="propShape" onchange="updateProp('shape',this.value)">
+  <!-- CANVAS + RESIZE + LASSO -->
+  <div id="canvasWrap">
+    <canvas id="mindCanvas"></canvas>
+    <div id="resizeHandle"></div>
+    <div id="lasso"></div>
+  </div>
+  <!-- PANEL THUỘC TÍNH -->
+  <div id="sideRight">
+    <div class="row"><label>Text: <input type="text" id="propText" onchange="updateProp('text',this.value)"></label></div>
+    <div class="row"><label>Shape: <select id="propShape" onchange="updateProp('shape',this.value)">
       <option value="rect">Vuông</option>
       <option value="ellipse">Tròn</option>
       <option value="diamond">Thoi</option>
       <option value="parallelogram">Bình hành</option>
       <option value="hexagon">Lục giác</option>
       <option value="star">Sao</option>
-    </select>
-  </label><br>
-  <label>Nền: <input type="color" id="propColor" onchange="updateProp('color',this.value)"></label>
-  <label>Viền: <input type="color" id="propBorder" onchange="updateProp('border',this.value)"></label>
-  <label>
-    <select id="propBorderType" onchange="updateProp('borderType',this.value)">
-      <option value="solid">Solid</option>
-      <option value="dashed">Dashed</option>
-      <option value="dotted">Dotted</option>
-    </select>
-  </label>
-  <label>Icon: <input type="text" id="propIcon" maxlength="2" onchange="updateProp('icon',this.value)" style="width:28px"></label>
-  <label>Ảnh: <input type="file" id="propImg" accept="image/*" onchange="uploadNodeImg(event)"></label><br>
-  <label>Rộng: <input type="number" id="propW" min="32" max="420" onchange="updateProp('w',this.value)"></label>
-  <label>Cao: <input type="number" id="propH" min="24" max="250" onchange="updateProp('h',this.value)"></label>
-  <div class="fontbar" style="margin-top:13px;margin-bottom:7px;">
-    <label>Font:
-      <select id="propFont" onchange="updateProp('font',this.value)">
-        <option value="arial">Arial</option>
-        <option value="tahoma">Tahoma</option>
-        <option value="serif">Serif</option>
-        <option value="monospace">Mono</option>
+    </select></label></div>
+    <div class="row"><label>Nền: <input type="color" id="propColor" onchange="updateProp('color',this.value)"></label>
+    <label>Viền: <input type="color" id="propBorder" onchange="updateProp('border',this.value)"></label>
+    <label>
+      <select id="propBorderType" onchange="updateProp('borderType',this.value)">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
       </select>
-    </label>
-    <label>Size:
-      <input type="number" id="propFontSize" min="11" max="48" value="17" style="width:43px" onchange="updateProp('fontSize',this.value)">
-    </label>
-    <label><input type="checkbox" id="propBold" onchange="updateProp('bold',this.checked)"> Đậm</label>
-    <label><input type="checkbox" id="propItalic" onchange="updateProp('italic',this.checked)"> Nghiêng</label>
-    <label>Màu: <input type="color" id="propFontColor" onchange="updateProp('fontColor',this.value)"></label>
+    </label></div>
+    <div class="row"><label>Icon: <input type="text" id="propIcon" maxlength="2" onchange="updateProp('icon',this.value)" style="width:28px"></label>
+    <label>Ảnh: <input type="file" id="propImg" accept="image/*" onchange="uploadNodeImg(event)"></label></div>
+    <div class="row"><label>Rộng: <input type="number" id="propW" min="32" max="420" onchange="updateProp('w',this.value)"></label>
+    <label>Cao: <input type="number" id="propH" min="24" max="250" onchange="updateProp('h',this.value)"></label></div>
+    <div class="fontbar row">
+      <label>Font:
+        <select id="propFont" onchange="updateProp('font',this.value)">
+          <option value="arial">Arial</option>
+          <option value="tahoma">Tahoma</option>
+          <option value="serif">Serif</option>
+          <option value="monospace">Mono</option>
+        </select>
+      </label>
+      <label>Size:
+        <input type="number" id="propFontSize" min="11" max="48" value="17" style="width:43px" onchange="updateProp('fontSize',this.value)">
+      </label>
+      <label><input type="checkbox" id="propBold" onchange="updateProp('bold',this.checked)"> Đậm</label>
+      <label><input type="checkbox" id="propItalic" onchange="updateProp('italic',this.checked)"> Nghiêng</label>
+      <label>Màu: <input type="color" id="propFontColor" onchange="updateProp('fontColor',this.value)"></label>
+    </div>
+    <button onclick="hideSideRight()" style="float:right;margin:11px 7px 0 0;background:#eaeaea;border-radius:7px;">Đóng</button>
   </div>
-  <button onclick="hideSideRight()" style="float:right;margin:7px 5px 0 0;background:#eaeaea;border-radius:7px;">Đóng</button>
-</div>
-<script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- DÁN PHẦN 2/3 TIẾP THEO Ở ĐÂY -->
 <script>
 let nodes=[{
   id:1,text:"Ý chính",x:600,y:400,w:140,h:62,shape:"ellipse",
