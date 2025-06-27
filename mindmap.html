@@ -2,467 +2,229 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap Pro Đầy Đủ - Node Dashed/Icon/Collapse/Font PDF</title>
+  <title>Mindmap/Flowchart Pro - Đầy đủ shape, link, export, sidebar</title>
   <style>
-    html,body {margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
-    body {font-family:Arial,sans-serif;background:#f2f3fa;}
-    #toolbar {background:#263238;color:#fff;padding:10px 8px;display:flex;align-items:center;gap:8px;font-size:15px;z-index:2;position:relative;}
-    #toolbar button, #toolbar select, #toolbar input[type="file"], #toolbar input[type="color"], #toolbar input[type="number"] {
-      background:#37474f;color:#fff;border:none;border-radius:4px;padding:7px 13px;cursor:pointer;font-size:15px;margin-right:4px;
-    }
-    #toolbar button:hover {background:#111;}
-    #canvasWrap {width:100vw; height:93vh;overflow:hidden;background:#fff;}
-    #mindCanvas {width:100%; height:100%; display:block; background:#f7f9fa;}
-    .tooltip {position:absolute;background:#333;color:#fff;padding:4px 9px;border-radius:7px;font-size:14px;pointer-events:none;z-index:9;white-space:pre-line;max-width:240px;box-shadow:0 2px 8px #0003;display:none;}
-    #resizeHandle {position:absolute;width:16px;height:16px;background:#fff;border:2px solid #2196f3;border-radius:5px;z-index:10;cursor:nwse-resize;display:none;}
-    #iconPicker {position:fixed;top:80px;left:60px;z-index:999;background:#fff;border:2px solid #90caf9;padding:10px 8px;display:none;box-shadow:0 4px 22px #90caf9aa;border-radius:8px;}
-    #iconPicker span {font-size:24px;cursor:pointer;display:inline-block;margin:3px;padding:3px;border-radius:6px;}
-    #iconPicker span:hover {background:#f1f8e9;}
-    #collapseBtn {margin-left:6px; background:#ab47bc;}
-    #groupSel {margin-right:7px;}
+    html,body{margin:0;padding:0;height:100%;width:100vw;overflow:hidden;}
+    body{font-family:sans-serif;background:#f7f9fa;}
+    #sidebar{position:absolute;top:0;left:0;width:74px;height:100%;background:#263238;z-index:12;transition:width 0.3s;}
+    #sidebar.open{width:200px;}
+    #sidebar .toggle{position:absolute;top:6px;right:-16px;z-index:16;width:26px;height:26px;border-radius:8px 0 0 8px;background:#37474f;color:#fff;cursor:pointer;line-height:28px;text-align:center;font-size:21px;}
+    #sidebar .shapes{margin:45px 7px 0 8px;display:flex;flex-direction:column;gap:14px;}
+    #sidebar .shapeicon{background:#fff;border:2px solid #bbb;width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:grab;}
+    #sidebar.open .shapeicon{width:54px;height:54px;}
+    #sidebar .label{display:none;margin-left:10px;}
+    #sidebar.open .label{display:inline;font-size:15px;color:#fff;}
+    #canvasWrap{margin-left:74px;transition:margin-left 0.3s;}
+    #sidebar.open ~ #canvasWrap{margin-left:200px;}
+    #toolbar{position:absolute;top:0;left:74px;right:0;background:#222;color:#fff;z-index:10;height:44px;display:flex;align-items:center;gap:9px;padding:5px 9px;}
+    #sidebar.open ~ #toolbar{left:200px;}
+    #toolbar button,#toolbar select{margin-right:3px;padding:7px 13px;font-size:15px;background:#37474f;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+    #toolbar button:hover{background:#111;}
+    #mindCanvas{display:block;background:#fff;}
+    .selectedLink{stroke:#1976d2 !important;stroke-width:5 !important;}
+    #sideRight {position:absolute;top:50px;right:12px;background:#fff;box-shadow:0 2px 10px #0001;border-radius:12px;padding:13px 13px 7px 15px;z-index:100;min-width:172px;display:none;}
+    #sideRight label{font-size:14px;}
+    #sideRight input[type="color"], #sideRight select, #sideRight input[type="number"]{margin-left:6px;margin-right:10px;}
+    #sideRight input[type="text"]{margin-left:6px;margin-right:10px;width:80px;}
   </style>
 </head>
 <body>
-  <div id="toolbar">
-    <button onclick="addNode()">➕ Node con</button>
-    <button onclick="removeNode()">❌ Xóa node</button>
-    <button onclick="undo()">↩️ Undo</button>
-    <button onclick="redo()">↪️ Redo</button>
-    <button onclick="zoomIn()">🔍 +</button>
-    <button onclick="zoomOut()">🔍 -</button>
-    <button onclick="fitView()">🔲 Fit</button>
-    <button onclick="panMode()">✋ Pan</button>
-    <button onclick="exportPNG()">🖨️ PNG</button>
-    <button onclick="exportSVG()">🖨️ SVG</button>
-    <button onclick="exportPDF()">🖨️ PDF</button>
-    <button onclick="saveFile()">💾 Xuất file</button>
-    <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
-    <label>Ảnh: <input type="file" id="imgInput" accept="image/*" onchange="addImageFile(event)" style="width:90px"></label>
-    <button onclick="addImageUrl()">🖼️ Từ URL</button>
-    <label>Hình:
-      <select id="shapeInput" onchange="setShape(this.value)">
-        <option value="ellipse">Bo tròn</option>
-        <option value="rect">Vuông</option>
-        <option value="cloud">Đám mây</option>
-        <option value="star">Ngôi sao</option>
-      </select>
-    </label>
-    <label>Viền:
-      <select id="borderType" onchange="setBorderType(this.value)">
-        <option value="solid">Solid</option>
-        <option value="dashed">Dashed</option>
-        <option value="dotted">Dotted</option>
-      </select>
-    </label>
-    <label>Màu: <input type="color" id="colorInput" value="#ffe066" onchange="setColor(this.value)"></label>
-    <label>Viền: <input type="color" id="borderInput" value="#37474f" onchange="setBorder(this.value)"></label>
-    <label>Chữ: <input type="color" id="fontColorInput" value="#212121" onchange="setFontColor(this.value)"></label>
-    <label>Font: 
-      <select id="fontInput" onchange="setFont(this.value)">
-        <option value="Arial">Arial</option>
-        <option value="Tahoma">Tahoma</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Times New Roman">Times</option>
-        <option value="monospace">Monospace</option>
-      </select>
-    </label>
-    <label>Cỡ: <input type="number" min="10" max="44" value="16" id="fontSizeInput" onchange="setFontSize(this.value)" style="width:48px"></label>
-    <button onclick="setFontBold()" style="font-weight:bold;">B</button>
-    <button onclick="setFontItalic()" style="font-style:italic;">I</button>
-    <button onclick="showIconPicker()">🌟 Icon</button>
-    <button onclick="addNote()">📝 Ghi chú</button>
-    <input type="checkbox" id="groupSel" onchange="toggleGroup(this.checked)"> Chọn nhóm
-    <button id="collapseBtn" onclick="toggleCollapse()">Ẩn/Hiện nhánh</button>
-    <span style="margin-left:16px;color:#ffd700;font-size:14px;">Nhấp đúp để sửa. Giữ Ctrl để chọn nhiều node, Space+Kéo: Pan, Ctrl+lăn chuột: Zoom</span>
+  <div id="sidebar" class="open">
+    <div class="toggle" onclick="toggleSidebar()">&#9776;</div>
+    <div class="shapes">
+      <div class="shapeicon" draggable="true" data-shape="rect" title="Vuông"><svg width="26" height="26"><rect x="4" y="4" width="18" height="18" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
+      <div class="shapeicon" draggable="true" data-shape="ellipse" title="Tròn"><svg width="26" height="26"><ellipse cx="13" cy="13" rx="9" ry="9" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
+      <div class="shapeicon" draggable="true" data-shape="diamond" title="Thoi"><svg width="26" height="26"><polygon points="13,4 22,13 13,22 4,13" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
+      <div class="shapeicon" draggable="true" data-shape="parallelogram" title="Bình hành"><svg width="26" height="26"><polygon points="8,22 4,13 18,4 22,13" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
+      <div class="shapeicon" draggable="true" data-shape="hexagon" title="Lục giác"><svg width="26" height="26"><polygon points="8,4 18,4 24,13 18,22 8,22 2,13" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
+      <div class="shapeicon" draggable="true" data-shape="star" title="Ngôi sao"><svg width="26" height="26"><polygon points="13,2 16,9 24,9 17,14 19,22 13,17 7,22 9,14 2,9 10,9" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
+    </div>
   </div>
-  <div id="canvasWrap">
+  <div id="canvasWrap" style="width:calc(100vw - 200px);height:100vh;position:relative;">
     <canvas id="mindCanvas"></canvas>
-    <div id="resizeHandle"></div>
-    <div id="tooltip" class="tooltip"></div>
-    <div id="iconPicker"></div>
+  </div>
+  <div id="toolbar">
+    <button onclick="addParentNode()">Tạo node cha mới</button>
+    <button onclick="editNode()">Sửa nội dung</button>
+    <button onclick="linkNodes()">Link 2 node</button>
+    <button onclick="unlinkNodes()">Xóa Link</button>
+    <button onclick="zoomIn()">Zoom+</button>
+    <button onclick="zoomOut()">Zoom-</button>
+    <button onclick="fitView()">Fit</button>
+    <button onclick="toggleSidebar()">Hiện/Ẩn Sidebar</button>
+    <button onclick="exportPNG()">PNG</button>
+    <button onclick="exportSVG()">SVG</button>
+    <button onclick="exportPDF()">PDF</button>
+    <button onclick="saveFile()">Xuất file</button>
+    <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
+    <button onclick="showSideRight()">Tùy chỉnh node</button>
+    <span style="margin-left:14px;color:#ffd700;font-size:14px;">Kéo-thả shape, chọn node/link, chủ động liên kết, sửa hình, màu, ảnh, icon... như Visio!</span>
+  </div>
+  <div id="sideRight">
+    <label>Text: <input type="text" id="propText" onchange="updateProp('text',this.value)"></label>
+    <label>Shape:
+      <select id="propShape" onchange="updateProp('shape',this.value)">
+        <option value="rect">Vuông</option>
+        <option value="ellipse">Tròn</option>
+        <option value="diamond">Thoi</option>
+        <option value="parallelogram">Bình hành</option>
+        <option value="hexagon">Lục giác</option>
+        <option value="star">Sao</option>
+      </select>
+    </label><br>
+    <label>Nền: <input type="color" id="propColor" onchange="updateProp('color',this.value)"></label>
+    <label>Viền: <input type="color" id="propBorder" onchange="updateProp('border',this.value)"></label>
+    <label>
+      <select id="propBorderType" onchange="updateProp('borderType',this.value)">
+        <option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option>
+      </select>
+    </label>
+    <label>Icon: <input type="text" id="propIcon" maxlength="2" onchange="updateProp('icon',this.value)" style="width:28px"></label>
+    <label>Ảnh: <input type="file" id="propImg" accept="image/*" onchange="uploadNodeImg(event)"></label><br>
+    <label>Rộng: <input type="number" id="propW" min="32" max="420" onchange="updateProp('w',this.value)"></label>
+    <label>Cao: <input type="number" id="propH" min="24" max="250" onchange="updateProp('h',this.value)"></label>
+    <button onclick="hideSideRight()" style="float:right;margin:7px 5px 0 0;">Đóng</button>
   </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const ICONS = ["💡","📦","⚡","🔥","📌","📎","📁","✅","❗","⭐","☁️","🔒","🔑","📞","📅","📄","🚀","⏳","🔧","📖","🧑‍💻","🎯","🎨","📊","💬"];
-let nodes=[{id:1,text:"Ý TƯỞNG CHÍNH",x:500,y:350,w:140,h:70,parent:null,img:null,shape:"ellipse",color:"#ffe066",border:"#37474f",borderType:"solid",font:"Arial",fontColor:"#212121",fontSize:18,fontBold:false,fontItalic:false,note:"",icon:"",collapsed:false}];
-let selected=nodes[0],multiSel=[],groupMode=false;
-let pan={x:0,y:0},zoom=1,minZoom=0.2,maxZoom=2.5,mode="select",dragNode=null,dragOffset={x:0,y:0},isPanning=false,panStart={x:0,y:0},draggingResize=false,resizeStart={x:0,y:0,w:0,h:0};
-let undoStack=[],redoStack=[];let canvas=document.getElementById('mindCanvas'),ctx=canvas.getContext('2d');
-let tooltip=document.getElementById('tooltip'),resizeHandle=document.getElementById('resizeHandle'),iconPicker=document.getElementById('iconPicker');
-/* --- Utility --- */
-function saveState(){
-  undoStack.push(JSON.stringify({nodes,selectedId:selected?selected.id:null,multiSel:multiSel.map(n=>n.id),pan,zoom}));
-  if(undoStack.length>60)undoStack.shift(); redoStack=[];
-}
-function restore(stateStr){
-  let st=JSON.parse(stateStr);
-  nodes=JSON.parse(JSON.stringify(st.nodes));pan={...st.pan};zoom=st.zoom;
-  selected=st.selectedId?nodes.find(n=>n.id===st.selectedId):null;
-  multiSel=st.multiSel?st.multiSel.map(id=>nodes.find(n=>n.id===id)).filter(Boolean):[];
+let nodes = [
+  {id:1,text:"Bắt đầu",shape:"ellipse",x:450,y:300,w:130,h:62,color:"#ffe066",border:"#37474f",borderType:"solid",icon:"",img:null,parent:null}
+];
+let links = [];
+let selectedNode = nodes[0], selectedNodes = [], selectedLink = null;
+let draggingNode = null, dragOffset = {x:0, y:0}, pan = {x:0,y:0}, zoom = 1;
+/* --- SHAPE DRAG & DROP --- */
+document.querySelectorAll('.shapeicon').forEach(el=>{
+  el.ondragstart = function(e){
+    e.dataTransfer.setData("shape", el.dataset.shape);
+  };
+});
+document.getElementById('canvasWrap').ondragover = function(e){e.preventDefault();};
+document.getElementById('canvasWrap').ondrop = function(e){
+  e.preventDefault();
+  let rect = canvas.getBoundingClientRect();
+  let shape = e.dataTransfer.getData("shape");
+  let x = (e.clientX - rect.left - pan.x)/zoom;
+  let y = (e.clientY - rect.top - pan.y)/zoom;
+  addNodeShape(shape, x, y);
+};
+function addNodeShape(shape, x, y){
+  let id = Date.now()+Math.random();
+  nodes.push({id, text:"", shape, x, y, w:120, h:60, color:"#ffe066", border:"#37474f", borderType:"solid", icon:"", img:null, parent:null});
   redraw();
+  fitView();
 }
-function genId(){return Date.now()+Math.random();}
-
-/* --- Draw --- */
-function resizeCanvas(){canvas.width=document.getElementById('canvasWrap').clientWidth;canvas.height=document.getElementById('canvasWrap').clientHeight;}
-function drawLink(from,to){
-  if(from.collapsed)return;
-  ctx.save();ctx.beginPath();
-  let fx=from.x,fy=from.y,tx=to.x,ty=to.y;
-  let cpx=fx+(fx<tx?-100:100),cpy=fy;
-  ctx.moveTo(fx,fy);
-  ctx.bezierCurveTo(cpx,cpy,tx-(fx<tx?-80:80),ty,tx,ty);
-  ctx.strokeStyle="#b0bec5";ctx.lineWidth=4;ctx.stroke();
-  ctx.restore();
+function toggleSidebar(){
+  let sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('open');
+  setTimeout(redraw, 310);
 }
-function drawNode(node){
-  if(node.parent!==null){
-    let p=nodes.find(n=>n.id===node.parent);if(p&&p.collapsed)return;
-  }
-  let {x,y,w,h,text,img,shape,color,border,borderType,font,fontColor,fontSize,fontBold,fontItalic,icon,collapsed}=node;
-  ctx.save();
-  ctx.strokeStyle=(multiSel.includes(node)||node===selected)?"#e67700":(border||"#37474f");
-  ctx.lineWidth=(multiSel.includes(node)||node===selected)?5:2;
-  if(borderType==="dashed")ctx.setLineDash([10,7]);
-  else if(borderType==="dotted")ctx.setLineDash([2,6]);
-  else ctx.setLineDash([]);
-  ctx.fillStyle=color||"#ffe066";
-  ctx.beginPath();
-  if(shape==="ellipse") ctx.ellipse(x,y,w/2,h/2,0,0,2*Math.PI);
-  else if(shape==="rect") ctx.rect(x-w/2,y-h/2,w,h);
-  else if(shape==="cloud"){ctx.arc(x-w/4,y-h/6,h/3,0,2*Math.PI);ctx.arc(x+w/4,y-h/8,h/3.3,0,2*Math.PI);ctx.arc(x,y+h/7,h/2.8,0,2*Math.PI);}
-  else if(shape==="star"){
-    let r1=w/2,r2=w/6,n=5;ctx.moveTo(x,y-h/2);
-    for(let i=0;i<2*n;i++){let r=i%2?r2:r1,a=Math.PI/n*i-Math.PI/2;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));}
-    ctx.closePath();
-  }
-  ctx.shadowColor="#999";ctx.shadowBlur=7;ctx.fill();ctx.shadowBlur=0;ctx.stroke();ctx.setLineDash([]);
-  // Icon
-  if(icon){
-    ctx.font="26px Arial";ctx.textAlign="left";ctx.textBaseline="top";
-    ctx.fillText(icon,x-w/2+8,y-h/2+5);
-  }
-  // Image
-  if(img){
-    let imageObj=new window.Image();
-    imageObj.onload=()=>{ctx.save();ctx.beginPath();if(shape==="ellipse")ctx.ellipse(x,y,h/2.3,h/2.3,0,0,2*Math.PI);else ctx.rect(x-h/2,y-h/2,h,h);
-      ctx.clip();ctx.drawImage(imageObj,x-h/2+7,y-h/2+7,h-14,h-14);ctx.restore();};
-    imageObj.src=img;if(imageObj.complete)imageObj.onload();
-  }
-  // Text
-  ctx.fillStyle=fontColor||"#212121";
-  ctx.font=(fontBold?"bold ":"")+(fontItalic?"italic ":"")+" "+(fontSize||16)+"px "+(font||"Arial");
-  ctx.textAlign="center";ctx.textBaseline="middle";
-  wrapText(ctx,text,x,y+(img?h/2:0),w-24,22);
-  // Collapse btn
-  if(nodeHasChild(node)){
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(x+w/2-13,y-h/2+13,13,0,2*Math.PI);
-    ctx.fillStyle="#ab47bc";ctx.fill();
-    ctx.fillStyle="#fff";ctx.font="20px Arial";
-    ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText(collapsed?"▶":"▼",x+w/2-13,y-h/2+13);
-    ctx.restore();
-  }
-  ctx.restore();
-}
-function wrapText(ctx,text,x,y,maxWidth,lineHeight){
-  let words=text.split(' '),line='',lines=[];
-  for(let n=0;n<words.length;n++){
-    let testLine=line+words[n]+' ';
-    if(ctx.measureText(testLine).width>maxWidth&&n>0){lines.push(line);line=words[n]+' ';}else line=testLine;}
-  lines.push(line);
-  for(let i=0;i<lines.length;i++)
-    ctx.fillText(lines[i],x,y+i*lineHeight-(lines.length-1)*lineHeight/2);
-}
-function nodeHasChild(node){return nodes.some(n=>n.parent===node.id);}
+/* --- DRAW --- */
 function redraw(){
-  resizeCanvas();
-  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);
+  let canvas = document.getElementById('mindCanvas');
+  canvas.width = document.getElementById('canvasWrap').clientWidth;
+  canvas.height = document.getElementById('canvasWrap').clientHeight;
+  let ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
-  nodes.forEach(n=>{
-    if(n.parent!==null){
-      let p=nodes.find(nd=>nd.id===n.parent);if(p)drawLink(p,n);
+  // Draw links
+  links.forEach(link=>{
+    let a=nodes.find(n=>n.id===link.from),b=nodes.find(n=>n.id===link.to);
+    if(a&&b){
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = (selectedLink===link) ? "#1976d2" : "#888";
+      ctx.lineWidth = (selectedLink===link) ? 5 : 3;
+      ctx.setLineDash(link.type==="dashed"?[8,6]:link.type==="dotted"?[2,6]:[]);
+      ctx.stroke();ctx.setLineDash([]);
+      ctx.restore();
     }
   });
-  nodes.forEach(drawNode);
-  showResizeHandle();
+  // Draw nodes
+  nodes.forEach(n=>{
+    ctx.save();
+    ctx.strokeStyle = (selectedNode===n||selectedNodes.includes(n)) ? "#e67700" : n.border;
+    ctx.lineWidth = (selectedNode===n||selectedNodes.includes(n)) ? 4 : 2;
+    ctx.setLineDash(n.borderType==="dashed"?[10,7]:n.borderType==="dotted"?[2,6]:[]);
+    ctx.fillStyle = n.color;
+    if(n.shape==="ellipse")
+      ctx.beginPath(),ctx.ellipse(n.x,n.y,n.w/2,n.h/2,0,0,2*Math.PI),ctx.fill(),ctx.stroke();
+    else if(n.shape==="rect")
+      ctx.beginPath(),ctx.rect(n.x-n.w/2,n.y-n.h/2,n.w,n.h),ctx.fill(),ctx.stroke();
+    else if(n.shape==="diamond")
+      ctx.beginPath(),ctx.moveTo(n.x,n.y-n.h/2),ctx.lineTo(n.x+n.w/2,n.y),ctx.lineTo(n.x,n.y+n.h/2),ctx.lineTo(n.x-n.w/2,n.y),ctx.closePath(),ctx.fill(),ctx.stroke();
+    else if(n.shape==="parallelogram")
+      ctx.beginPath(),ctx.moveTo(n.x-n.w/3,n.y-n.h/2),ctx.lineTo(n.x+n.w/2,n.y-n.h/2),ctx.lineTo(n.x+n.w/3,n.y+n.h/2),ctx.lineTo(n.x-n.w/2,n.y+n.h/2),ctx.closePath(),ctx.fill(),ctx.stroke();
+    else if(n.shape==="hexagon")
+      {ctx.beginPath();for(let i=0;i<6;i++){let a = Math.PI/3*i-Math.PI/6;ctx.lineTo(n.x+Math.cos(a)*n.w/2,n.y+Math.sin(a)*n.h/2);}ctx.closePath();ctx.fill();ctx.stroke();}
+    else if(n.shape==="star")
+      {let r1=n.w/2,r2=n.w/6,nStar=5;ctx.beginPath();for(let i=0;i<2*nStar;i++){let r=i%2?r2:r1,a=Math.PI/nStar*i-Math.PI/2;ctx.lineTo(n.x+r*Math.cos(a),n.y+r*Math.sin(a));}ctx.closePath();ctx.fill();ctx.stroke();}
+    ctx.setLineDash([]);
+    ctx.fillStyle="#212121";
+    ctx.font="bold 15px Arial";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText((n.icon?n.icon+" ":"")+(n.text||n.shape),n.x,n.y);
+    // Draw image
+    if(n.img){
+      let img=new window.Image();
+      img.onload=()=>{ctx.drawImage(img,n.x-n.w/2+5,n.y-n.h/2+5,n.w-10,n.h-10);};
+      img.src=n.img;if(img.complete)img.onload();
+    }
+    ctx.restore();
+  });
 }
-/* --- Mouse Events --- */
-canvas.onmousedown=function(e){
-  let pos=getMouse(e),found=null,ctrl=e.ctrlKey||e.metaKey,collBtn=null;
-  for(let i=nodes.length-1;i>=0;i--){
-    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
-    if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){
-      // Nếu click vào nút collapse
-      let bx=n.x+n.w/2-13,by=n.y-n.h/2+13;
-      if(Math.hypot(pos.x-bx,pos.y-by)<16&&nodeHasChild(n)){
-        collBtn=n;break;
-      }
-      found=n;break;
-    }
-  }
-  if(collBtn){
-    n=nodes[i];
-    n.collapsed=!n.collapsed;saveState();redraw();return;
-  }
-  if(groupMode&&found){
-    if(!multiSel.includes(found)){
-      if(!ctrl)multiSel=[];
-      multiSel.push(found);
-    }else if(ctrl){
-      multiSel=multiSel.filter(n=>n!==found);
-    }
-    redraw();return;
-  }
-  if(mode==="select"&&found){
-    // Nếu click vào resize handle
-    let rx=found.x+found.w/2,ry=found.y+found.h/2;
-    if(selected===found&&Math.abs(pos.x-rx)<16/zoom&&Math.abs(pos.y-ry)<16/zoom){
-      draggingResize=true;resizeStart={x:pos.x,y:pos.y,w:found.w,h:found.h};
-    }else{
-      if(ctrl){
-        if(!multiSel.includes(found))multiSel.push(found);
-        selected=multiSel[multiSel.length-1];
-      }else{
-        selected=found;multiSel=[selected];
-      }
-      dragNode=found;dragOffset.x=pos.x-found.x;dragOffset.y=pos.y-found.y;redraw();
-    }
-  }else if(mode==="pan"||(e.button===1||e.button===2)||(mode==="select"&&!found)){
-    isPanning=true;panStart={x:e.clientX-pan.x,y:e.clientY-pan.y};
-  }
-};
-canvas.onmousemove=function(e){
-  let pos=getMouse(e);
-  if(dragNode){
-    // Kéo 1 node hoặc cả nhóm
-    if(groupMode&&multiSel.length>1&&multiSel.includes(dragNode)){
-      let dx=pos.x-dragNode.x-dragOffset.x,dy=pos.y-dragNode.y-dragOffset.y;
-      multiSel.forEach(n=>{n.x+=dx;n.y+=dy;});
-    }else{
-      dragNode.x=pos.x-dragOffset.x;dragNode.y=pos.y-dragOffset.y;
-    }
+canvas.onclick = function(e){
+  let rect = canvas.getBoundingClientRect();
+  let x = (e.clientX - rect.left - pan.x)/zoom, y = (e.clientY - rect.top - pan.y)/zoom;
+  let found = nodes.find(n=>Math.abs(x-n.x)<n.w/2 && Math.abs(y-n.y)<n.h/2);
+  if(found){
+    if(event.ctrlKey||event.metaKey){if(!selectedNodes.includes(found))selectedNodes.push(found);}else{selectedNode=found;selectedNodes=[found];}
     redraw();
-  }
-  if(draggingResize&&selected){
-    let dx=pos.x-resizeStart.x,dy=pos.y-resizeStart.y;
-    selected.w=Math.max(70,resizeStart.w+dx);selected.h=Math.max(40,resizeStart.h+dy);
-    redraw();
-  }
-  if(isPanning){pan.x=e.clientX-panStart.x;pan.y=e.clientY-panStart.y;redraw();}
-  // Tooltip note
-  let found=null;
-  for(let i=nodes.length-1;i>=0;i--){
-    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
-    if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){found=n;break;}
-  }
-  if(found&&found.note){
-    tooltip.innerText=found.note;
-    tooltip.style.display="block";
-    let rect=canvas.getBoundingClientRect();
-    tooltip.style.left=(e.clientX+14)+"px";tooltip.style.top=(e.clientY-10)+"px";
-  }else{tooltip.style.display="none";}
-};
-canvas.onmouseup=function(e){if(dragNode||draggingResize)saveState();dragNode=null;isPanning=false;draggingResize=false;};
-canvas.onmouseleave=function(){dragNode=null;isPanning=false;draggingResize=false;tooltip.style.display="none";};
-canvas.onclick=function(e){
-  let pos=getMouse(e),found=null,ctrl=e.ctrlKey||e.metaKey;
-  for(let i=nodes.length-1;i>=0;i--){
-    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
-    if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){found=n;break;}
-  }
-  if(groupMode&&found){
-    if(!multiSel.includes(found)){
-      if(!ctrl)multiSel=[];
-      multiSel.push(found);
-    }else if(ctrl){
-      multiSel=multiSel.filter(n=>n!==found);
-    }
-    selected=multiSel[multiSel.length-1];redraw();return;
-  }
-  if(ctrl&&found){
-    if(!multiSel.includes(found))multiSel.push(found);
-    selected=multiSel[multiSel.length-1];
+    showNodeProps(found);
   }else{
-    selected=found;multiSel=[selected];
+    // Chọn link?
+    let selLink = null;
+    links.forEach(link=>{
+      let a=nodes.find(n=>n.id===link.from),b=nodes.find(n=>n.id===link.to);
+      if(a&&b){
+        let d = Math.abs((b.y-a.y)*x-(b.x-a.x)*y+b.x*a.y-b.y*a.x)/Math.hypot(b.y-a.y,b.x-a.x);
+        if(d<8/zoom)selLink=link;
+      }
+    });
+    selectedLink=selLink;selectedNode=null;selectedNodes=[];redraw();
+    hideSideRight();
   }
-  redraw();
 };
-/* Double click sửa nội dung */
-canvas.ondblclick=function(e){
-  let pos=getMouse(e),found=null;
-  for(let i=nodes.length-1;i>=0;i--){
-    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
-    if(Math.abs(dx)<n.w/2&&Math.abs(dy)<n.h/2){found=n;break;}
-  }
-  if(found){selected=found;editNode();}
-};
-/* --- Resize handle --- */
-function showResizeHandle(){
-  if(selected){
-    let x=selected.x+selected.w/2,y=selected.y+selected.h/2,pt=toScreen(x,y);
-    resizeHandle.style.left=(pt.x-8)+"px";
-    resizeHandle.style.top=(pt.y-8)+"px";
-    resizeHandle.style.display="block";
-  }else{resizeHandle.style.display="none";}
+function addParentNode(){
+  if(selectedNode){selectedNode.parent=null;redraw();}
 }
-resizeHandle.onmousedown=function(e){
-  e.stopPropagation();draggingResize=true;
-  let pos=getMouseFromScreen(e.clientX,e.clientY);
-  resizeStart={x:pos.x,y:pos.y,w:selected.w,h:selected.h};
-};
-document.onmousemove=function(e){
-  if(draggingResize&&selected){
-    let pos=getMouseFromScreen(e.clientX,e.clientY);
-    let dx=pos.x-resizeStart.x,dy=pos.y-resizeStart.y;
-    selected.w=Math.max(70,resizeStart.w+dx);selected.h=Math.max(40,resizeStart.h+dy);
+function linkNodes(){
+  if(selectedNodes.length===2){
+    let exists=links.find(l=>l.from===selectedNodes[0].id&&l.to===selectedNodes[1].id);
+    if(!exists)links.push({from:selectedNodes[0].id,to:selectedNodes[1].id,type:"solid"});
     redraw();
   }
-};
-document.onmouseup=function(e){
-  if(draggingResize)saveState();
-  draggingResize=false;
-};
-/* --- Wheel zoom --- */
-canvas.onwheel=function(e){
-  if(e.ctrlKey){
-    e.preventDefault();
-    let mx=(e.offsetX-pan.x)/zoom,my=(e.offsetY-pan.y)/zoom;
-    if(e.deltaY<0&&zoom<maxZoom)zoom*=1.1;
-    if(e.deltaY>0&&zoom>minZoom)zoom/=1.1;
-    pan.x=e.offsetX-mx*zoom;pan.y=e.offsetY-my*zoom;redraw();
+}
+function unlinkNodes(){
+  if(selectedLink){
+    links=links.filter(l=>l!==selectedLink);selectedLink=null;redraw();
+  }else if(selectedNodes.length===2){
+    links=links.filter(l=>!(l.from===selectedNodes[0].id&&l.to===selectedNodes[1].id));
+    redraw();
   }
-};
-/* --- Keyboard --- */
-document.addEventListener('keydown',function(e){
-  if(document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="SELECT")return;
-  if(e.key==="Enter")editNode();
-  if((e.key==="Delete"||e.key==="Backspace")){
-    if(groupMode&&multiSel.length>1){
-      multiSel.forEach(n=>{if(n.parent)removeNode(n);});
-      multiSel=[];selected=null;redraw();return;
-    }
-    if(selected&&selected.parent!==null)removeNode(selected);
-  }
-  if(e.ctrlKey&&e.key==='z')undo();
-  if(e.ctrlKey&&(e.key==='y'||e.key==='Z'))redo();
-  if(e.key===' ')mode='pan';
-});
-document.addEventListener('keyup',function(e){if(e.key===' ')mode='select';});
-/* --- Node --- */
-function getMouse(e){
-  let rect=canvas.getBoundingClientRect();
-  let x=(e.clientX-rect.left-pan.x)/zoom,y=(e.clientY-rect.top-pan.y)/zoom;
-  return {x,y};
 }
-function getMouseFromScreen(cx,cy){
-  let rect=canvas.getBoundingClientRect();
-  let x=(cx-rect.left-pan.x)/zoom,y=(cy-rect.top-pan.y)/zoom;
-  return {x,y};
-}
-function toScreen(x,y){
-  let rect=canvas.getBoundingClientRect();
-  return {x:x*zoom+pan.x+rect.left,y:y*zoom+pan.y+rect.top};
-}
-function addNode(){
-  let target=groupMode&&multiSel.length>0?multiSel[multiSel.length-1]:selected;
-  if(!target){alert("Chọn node cha!");return;}
-  let txt=prompt('Nội dung node con:'); if(!txt)return;
-  let id=genId(),r=180;
-  let newX=target.x+(Math.random()>0.5?r:-r),newY=target.y+Math.random()*100-50;
-  nodes.push({id,text:txt,x:newX,y:newY,w:120,h:60,parent:target.id,img:null,shape:target.shape,color:target.color,border:target.border,borderType:target.borderType,font:target.font,fontColor:target.fontColor,fontSize:target.fontSize,fontBold:false,fontItalic:false,note:"",icon:"",collapsed:false});
-  saveState(); redraw();
-}
-function editNode(){
-  if(!selected)return;
-  let txt=prompt('Sửa nội dung:',selected.text);
-  if(txt!==null&&txt!==""){selected.text=txt;saveState();redraw();}
-}
-function removeNode(n){
-  n=n||selected;
-  if(!n)return;
-  if(!n.parent){alert("Không xóa node gốc!");return;}
-  let delId=n.id;
-  function rm(pid){let cs=nodes.filter(nd=>nd.parent===pid);cs.forEach(c=>rm(c.id));nodes=nodes.filter(nd=>nd.id!==pid);}
-  rm(delId);selected=null;multiSel=[];saveState();redraw();
-}
-function setShape(sh){if(selected)selected.shape=sh;saveState();redraw();}
-function setBorderType(t){if(selected)selected.borderType=t;saveState();redraw();}
-function setColor(c){if(selected)selected.color=c;saveState();redraw();}
-function setBorder(c){if(selected)selected.border=c;saveState();redraw();}
-function setFont(f){if(selected)selected.font=f;saveState();redraw();}
-function setFontSize(s){if(selected)selected.fontSize=parseInt(s)||16;saveState();redraw();}
-function setFontColor(c){if(selected)selected.fontColor=c;saveState();redraw();}
-function setFontBold(){if(selected)selected.fontBold=!selected.fontBold;saveState();redraw();}
-function setFontItalic(){if(selected)selected.fontItalic=!selected.fontItalic;saveState();redraw();}
-function showIconPicker(){
-  if(!selected)return;
-  iconPicker.innerHTML=ICONS.map(ic=>`<span onclick="setIcon('${ic}')">${ic}</span>`).join("");
-  iconPicker.style.display="block";
-}
-function setIcon(ic){if(selected)selected.icon=ic;saveState();redraw();iconPicker.style.display="none";}
-window.onclick=function(e){if(e.target.parentNode!==iconPicker&&e.target!==iconPicker)iconPicker.style.display="none";};
-/* --- Image --- */
-function addImageFile(e){
-  if(!selected)return;
-  let file=e.target.files[0];if(!file)return;
-  let reader=new FileReader();
-  reader.onload=function(ev){
-    selected.img=ev.target.result;saveState();redraw();
-  };
-  reader.readAsDataURL(file);e.target.value="";
-}
-function addImageUrl(){
-  if(!selected)return;
-  let url=prompt("Dán URL ảnh:");if(url){selected.img=url;saveState();redraw();}
-}
-/* --- Note --- */
-function addNote(){if(!selected)return;let txt=prompt("Nội dung ghi chú:",selected.note||"");if(txt!==null){selected.note=txt;saveState();redraw();}}
-/* --- Group select --- */
-function toggleGroup(b){
-  groupMode=b;
-  if(b){multiSel=[selected];}else{multiSel=[selected];}
-  redraw();
-}
-/* --- Collapse --- */
-function toggleCollapse(){
-  if(groupMode&&multiSel.length>1){multiSel.forEach(n=>n.collapsed=!n.collapsed);}
-  else if(selected)selected.collapsed=!selected.collapsed;
-  saveState();redraw();
-}
-/* --- Pan/Zoom/Undo/Redo/File --- */
-function panMode(){mode="pan";}
-function zoomIn(){if(zoom<maxZoom)zoom*=1.15;redraw();}
-function zoomOut(){if(zoom>minZoom)zoom/=1.15;redraw();}
+function zoomIn(){zoom*=1.15;redraw();}
+function zoomOut(){zoom/=1.15;redraw();}
 function fitView(){
   if(nodes.length==0)return;
   let minX=Math.min(...nodes.map(n=>n.x-n.w/2)),maxX=Math.max(...nodes.map(n=>n.x+n.w/2));
   let minY=Math.min(...nodes.map(n=>n.y-n.h/2)),maxY=Math.max(...nodes.map(n=>n.y+n.h/2));
   let cw=canvas.width,ch=canvas.height;
-  let scale=Math.min(cw/(maxX-minX+220),ch/(maxY-minY+180));
-  zoom=Math.max(Math.min(scale,2.4),0.17);
-  pan.x=(cw/2-(minX+maxX)/2*zoom);
-  pan.y=(ch/2-(minY+maxY)/2*zoom);
-  redraw();
-}
-function undo(){if(undoStack.length>1){redoStack.push(undoStack.pop());restore(undoStack[undoStack.length-1]);}}
-function redo(){if(redoStack.length>0){let st=redoStack.pop();restore(st);undoStack.push(st);}}
-function saveFile(){
-  let data=JSON.stringify({nodes,pan,zoom});
-  let blob=new Blob([data],{type:"application/json"});
-  let a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download="mindmap.json";a.click();
-}
-function openFile(e){
-  let file=e.target.files[0];if(!file)return;
-  let reader=new FileReader();
-  reader.onload=function(ev){
-    let data=JSON.parse(ev.target.result);
-    nodes=data.nodes;pan=data.pan;zoom=data.zoom;
-    selected=nodes[0];multiSel=[selected];saveState();redraw();
-  };reader.readAsText(file);e.target.value="";
+  let scale=Math.min(cw/(maxX-minX+200),ch/(maxY-minY+160));
+  zoom=Math.max(Math.min(scale,2.2),0.16);
+  pan.x=(cw/2-(minX+maxX)/2*zoom);pan.y=(ch/2-(minY+maxY)/2*zoom);redraw();
 }
 function exportPNG(){
   let temp=document.createElement('canvas');
@@ -477,25 +239,21 @@ function exportSVG(){
   // SVG vector (không hỗ trợ ảnh inline)
   let minX=Math.min(...nodes.map(n=>n.x-n.w/2)),maxX=Math.max(...nodes.map(n=>n.x+n.w/2));
   let minY=Math.min(...nodes.map(n=>n.y-n.h/2)),maxY=Math.max(...nodes.map(n=>n.y+n.h/2));
-  let width=maxX-minX+200,height=maxY-minY+200;
+  let width=maxX-minX+180,height=maxY-minY+180;
   let svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+width+'" height="'+height+'">';
-  nodes.forEach(n=>{
-    if(n.parent!==null){
-      let p=nodes.find(nd=>nd.id===n.parent);
-      let fx=p.x-minX+100,fy=p.y-minY+100,tx=n.x-minX+100,ty=n.y-minY+100;
-      let cpx=fx+(fx<tx?-100:100),cpy=fy;
-      let d="M"+fx+","+fy+" C"+cpx+","+cpy+" "+(tx-(fx<tx?-80:80))+","+ty+" "+tx+","+ty;
-      svg+='<path d="'+d+'" fill="none" stroke="#b0bec5" stroke-width="4"/>';
+  links.forEach(link=>{
+    let a=nodes.find(n=>n.id===link.from),b=nodes.find(n=>n.id===link.to);
+    if(a&&b){
+      svg+=`<line x1="${a.x-minX+90}" y1="${a.y-minY+90}" x2="${b.x-minX+90}" y2="${b.y-minY+90}" stroke="#888" stroke-width="3" ${link.type==="dashed"?'stroke-dasharray="8,6"':link.type==="dotted"?'stroke-dasharray="2,6"':''}/>`;
     }
   });
   nodes.forEach(n=>{
-    svg+='<g>';
     if(n.shape==="ellipse")
-      svg+='<ellipse cx="'+(n.x-minX+100)+'" cy="'+(n.y-minY+100)+'" rx="'+(n.w/2)+'" ry="'+(n.h/2)+'" fill="'+(n.color||"#ffe066")+'" stroke="'+(n.border||"#37474f")+'" stroke-width="'+(multiSel.includes(n)||n===selected?5:2)+'"/>';
+      svg+=`<ellipse cx="${n.x-minX+90}" cy="${n.y-minY+90}" rx="${n.w/2}" ry="${n.h/2}" fill="${n.color}" stroke="${n.border}" stroke-width="2"/>`;
     else if(n.shape==="rect")
-      svg+='<rect x="'+(n.x-n.w/2-minX+100)+'" y="'+(n.y-n.h/2-minY+100)+'" width="'+n.w+'" height="'+n.h+'" fill="'+(n.color||"#ffe066")+'" stroke="'+(n.border||"#37474f")+'" stroke-width="'+(multiSel.includes(n)||n===selected?5:2)+'"/>';
-    svg+='<text x="'+(n.x-minX+100)+'" y="'+(n.y-minY+100)+'" fill="'+(n.fontColor||"#212121")+'" font-size="'+(n.fontSize||16)+'" font-family="'+(n.font||"Arial")+'" text-anchor="middle" alignment-baseline="middle"'+(n.fontBold?' font-weight="bold"':'')+(n.fontItalic?' font-style="italic"':'')+'>'+(n.icon||"")+(n.text.replace(/&/g,"&amp;"))+'</text>';
-    svg+='</g>';
+      svg+=`<rect x="${n.x-n.w/2-minX+90}" y="${n.y-n.h/2-minY+90}" width="${n.w}" height="${n.h}" fill="${n.color}" stroke="${n.border}" stroke-width="2"/>`;
+    // ... (diamond, hexagon, star tương tự)
+    svg+=`<text x="${n.x-minX+90}" y="${n.y-minY+90}" fill="#222" font-size="14" font-family="Arial" text-anchor="middle" alignment-baseline="middle">${(n.icon?n.icon+" ":"")+n.text}</text>`;
   });
   svg+="</svg>";
   let blob=new Blob([svg],{type:"image/svg+xml"});
@@ -512,9 +270,61 @@ function exportPDF(){
     });
   });
 }
-/* --- Init --- */
+function saveFile(){
+  let data=JSON.stringify({nodes,links,pan,zoom});
+  let blob=new Blob([data],{type:"application/json"});
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download="mindmap.json";a.click();
+}
+function openFile(e){
+  let file=e.target.files[0];if(!file)return;
+  let reader=new FileReader();
+  reader.onload=function(ev){
+    let data=JSON.parse(ev.target.result);
+    nodes=data.nodes;links=data.links;pan=data.pan;zoom=data.zoom;
+    selectedNode=nodes[0];selectedNodes=[selectedNode];selectedLink=null;
+    redraw();
+  };reader.readAsText(file);e.target.value="";
+}
+/* --- PROPERTIES PANEL --- */
+function showSideRight(){
+  let s = selectedNode;
+  if(!s) return;
+  let d = document.getElementById('sideRight');
+  d.style.display="block";
+  document.getElementById('propText').value = s.text||"";
+  document.getElementById('propShape').value = s.shape;
+  document.getElementById('propColor').value = s.color||"#ffe066";
+  document.getElementById('propBorder').value = s.border||"#37474f";
+  document.getElementById('propBorderType').value = s.borderType||"solid";
+  document.getElementById('propIcon').value = s.icon||"";
+  document.getElementById('propW').value = s.w||120;
+  document.getElementById('propH').value = s.h||60;
+}
+function hideSideRight(){document.getElementById('sideRight').style.display="none";}
+function updateProp(prop, val){
+  if(!selectedNode) return;
+  if(prop==="w"||prop==="h") val=parseInt(val)||40;
+  selectedNode[prop]=val;
+  redraw();
+}
+function uploadNodeImg(e){
+  if(!selectedNode)return;
+  let file=e.target.files[0];if(!file)return;
+  let reader=new FileReader();
+  reader.onload=function(ev){
+    selectedNode.img=ev.target.result;redraw();
+  };
+  reader.readAsDataURL(file);e.target.value="";
+}
+function editNode(){
+  if(!selectedNode) return;
+  let txt=prompt("Nhập nội dung node:",selectedNode.text||"");
+  if(txt!==null) { selectedNode.text=txt; redraw(); }
+}
+/* --- KHỞI TẠO --- */
 window.addEventListener('resize',redraw);
-saveState(); redraw();
+redraw();
 </script>
 </body>
 </html>
