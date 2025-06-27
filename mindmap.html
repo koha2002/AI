@@ -1,660 +1,320 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mindmap Web Tĩnh Full Tính Năng</title>
+<meta charset="UTF-8">
+<title>Mindmap Web Full Chức Năng (Chuẩn)</title>
 <style>
-  html, body {
-    margin: 0; height: 100%; overflow: hidden;
-    font-family: Arial, sans-serif;
-    user-select: none;
-  }
-  #toolbar {
-    position: fixed;
-    top: 10px; left: 10px;
-    background: #fffdfddd;
-    padding: 8px 12px;
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-    z-index: 50;
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  }
-  #toolbar > * {
-    font-size: 14px;
-  }
-  #toolbar button, #toolbar select, #toolbar input[type=color], #toolbar input[type=text] {
-    cursor: pointer;
-    padding: 5px 8px;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    background: white;
-  }
-  #toolbar button:disabled {
-    cursor: default;
-    background: #eee;
-    color: #999;
-  }
-  #canvas {
-    background: #f9f9f9;
-    display: block;
-    width: 100vw;
-    height: 100vh;
-    cursor: grab;
-  }
-  #exportArea {
-    position: fixed;
-    bottom: 10px; left: 10px;
-    width: 35vw; height: 140px;
-    font-family: monospace;
-    font-size: 12px;
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    resize: vertical;
-    background: #fff;
-    overflow: auto;
-    z-index: 50;
-  }
-  #fileInput {
-    display: none;
-  }
+body { margin:0; font-family:sans-serif; background:#e9ecef; }
+#toolbar {
+  background:#343a40; color:#fff; padding:8px;
+  display:flex; align-items:center; gap:8px;
+}
+#toolbar button, #toolbar input[type="file"] {
+  background:#495057; color:#fff; border:none; border-radius:4px; padding:6px 14px; font-size:15px; cursor:pointer;
+}
+#toolbar button:hover { background:#212529; }
+#toolbar label { font-size:14px; }
+#canvasWrap {
+  width:100vw; height:90vh; overflow:hidden;
+  background:#fff; border-top:1px solid #bbb;
+  position:relative;
+}
+#mmCanvas { width:100%; height:100%; display:block; background: #f8f9fa;}
 </style>
 </head>
 <body>
-
 <div id="toolbar">
-  <button id="addRootNodeBtn">Thêm nút gốc</button>
-  <select id="shapeSelector" title="Chọn hình dạng node">
-    <option value="circle">Hình tròn</option>
-    <option value="rect">Hình chữ nhật</option>
-    <option value="ellipse">Hình elip</option>
-    <option value="diamond">Hình thoi</option>
-  </select>
-  <input type="text" id="iconInput" placeholder="Emoji/Icon" maxlength="2" title="Emoji hoặc ký tự biểu tượng" style="width: 50px;"/>
-  <input type="color" id="fillColorPicker" value="#4466ff" title="Màu nền node"/>
-  <input type="color" id="strokeColorPicker" value="#333333" title="Màu viền node"/>
-  <button id="addChildBtn" disabled>Thêm con</button>
-  <button id="deleteNodeBtn" disabled>Xóa nút</button>
-  <button id="deleteLinkBtn" disabled>Xóa liên kết</button>
-  <button id="autoLayoutBtn">Tự động sắp xếp</button>
-  <button id="undoBtn" disabled>Undo</button>
-  <button id="redoBtn" disabled>Redo</button>
-  <button id="exportBtn">Xuất JSON</button>
-  <button id="importBtn">Tải JSON</button>
-  <button id="exportPngBtn">Xuất ảnh PNG</button>
+  <button onclick="addNode()">➕ Thêm node</button>
+  <button onclick="editNode()">✏️ Sửa node</button>
+  <button onclick="removeNode()">❌ Xóa node</button>
+  <button onclick="addImage()">🖼️ Thêm ảnh</button>
+  <button onclick="zoomIn()">🔍 +</button>
+  <button onclick="zoomOut()">🔍 -</button>
+  <button onclick="setPanMode()">✋ Pan</button>
+  <button onclick="undo()">↩️ Undo</button>
+  <button onclick="redo()">↪️ Redo</button>
+  <button onclick="saveFile()">💾 Xuất file</button>
+  <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
+  <button onclick="exportPng()">🖨️ Xuất PNG</button>
+  <span style="margin-left:18px;font-size:14px;color:#ffd700;">Tip: Chọn node, nhấn Enter để sửa, Backspace để xóa, Ctrl+Z/Y để undo/redo, Space+Kéo chuột để Pan!</span>
 </div>
-
-<canvas id="canvas" tabindex="0"></canvas>
-<textarea id="exportArea" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây" readonly></textarea>
-<input type="file" id="fileInput" accept=".json" />
-
+<div id="canvasWrap">
+  <canvas id="mmCanvas"></canvas>
+</div>
 <script>
-(() => {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const addRootNodeBtn = document.getElementById('addRootNodeBtn');
-  const addChildBtn = document.getElementById('addChildBtn');
-  const deleteNodeBtn = document.getElementById('deleteNodeBtn');
-  const deleteLinkBtn = document.getElementById('deleteLinkBtn');
-  const autoLayoutBtn = document.getElementById('autoLayoutBtn');
-  const undoBtn = document.getElementById('undoBtn');
-  const redoBtn = document.getElementById('redoBtn');
-  const exportBtn = document.getElementById('exportBtn');
-  const importBtn = document.getElementById('importBtn');
-  const exportPngBtn = document.getElementById('exportPngBtn');
-  const exportArea = document.getElementById('exportArea');
-  const fileInput = document.getElementById('fileInput');
-  const shapeSelector = document.getElementById('shapeSelector');
-  const iconInput = document.getElementById('iconInput');
-  const fillColorPicker = document.getElementById('fillColorPicker');
-  const strokeColorPicker = document.getElementById('strokeColorPicker');
+let nodes = [
+  { id: 1, text: "Ý TƯỞNG CHÍNH", x: 500, y: 350, parent: null, img: null }
+];
+let selected = nodes[0];
+let pan = {x:0, y:0};
+let zoom = 1;
+let mode = 'select';
+let dragNode = null, dragOffset = {x:0, y:0};
+let isPanning = false, panStart = {x:0, y:0};
+let undoStack = [], redoStack = [];
+let canvas = document.getElementById('mmCanvas');
+let ctx = canvas.getContext('2d');
 
-  let width, height;
-  function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    draw();
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  let offsetX = 0, offsetY = 0, scale = 1;
-  let draggingCanvas = false, dragCanvasStart = null, dragCanvasOffset = null;
-
-  let nodes = [];
-  let links = [];
-
-  let selectedNode = null;
-  let selectedLink = null;
-  let draggingNode = null;
-  let dragOffsetX = 0;
-  let dragOffsetY = 0;
-
-  let history = [];
-  let historyIndex = -1;
-  function saveHistory() {
-    const state = {
-      nodes: JSON.parse(JSON.stringify(nodes)),
-      links: JSON.parse(JSON.stringify(links))
-    };
-    history = history.slice(0, historyIndex + 1);
-    history.push(state);
-    historyIndex++;
-    updateUndoRedoButtons();
-  }
-  function restoreState(state) {
-    nodes = state.nodes;
-    links = state.links;
-    selectedNode = null;
-    selectedLink = null;
-    draggingNode = null;
-    draw();
-    updateUndoRedoButtons();
-  }
-  function undo() {
-    if(historyIndex <= 0) return;
-    historyIndex--;
-    restoreState(history[historyIndex]);
-  }
-  function redo() {
-    if(historyIndex >= history.length - 1) return;
-    historyIndex++;
-    restoreState(history[historyIndex]);
-  }
-  function updateUndoRedoButtons() {
-    undoBtn.disabled = historyIndex <= 0;
-    redoBtn.disabled = historyIndex >= history.length - 1;
-  }
-
-  // Utils
-  function toWorld(x,y) { return { x:(x - offsetX)/scale, y:(y - offsetY)/scale }; }
-  function toScreen(x,y) { return { x:x*scale + offsetX, y:y*scale + offsetY }; }
-  function dist(a,b) { return Math.hypot(a.x-b.x,a.y-b.y); }
-  function pointInRect(px,py, rx,ry, rw,rh) {
-    return px >= rx && px <= rx+rw && py >= ry && py <= ry+rh;
-  }
-  class Node {
-    constructor(id,text,x,y,shape='circle',fillColor='#4466ff',strokeColor='#333',icon='') {
-      this.id = id;
-      this.text = text;
-      this.x = x;
-      this.y = y;
-      this.radius = 50;
-      this.width = 120;
-      this.height = 70;
-      this.shape = shape;
-      this.fillColor = fillColor;
-      this.strokeColor = strokeColor;
-      this.icon = icon;
-    }
-    contains(px, py) {
-      const dx = px - this.x;
-      const dy = py - this.y;
-      switch(this.shape) {
-        case 'circle':
-          return dx*dx + dy*dy <= this.radius*this.radius;
-        case 'rect':
-          return pointInRect(px, py, this.x-this.width/2, this.y-this.height/2, this.width, this.height);
-        case 'ellipse':
-          return (dx*dx)/(this.width*this.width/4) + (dy*dy)/(this.height*this.height/4) <= 1;
-        case 'diamond':
-          return Math.abs(dx)/(this.width/2) + Math.abs(dy)/(this.height/2) <= 1;
-        default: return false;
-      }
-    }
-    draw(ctx, selected=false) {
+function saveState() {
+  undoStack.push(JSON.stringify({nodes,selectedId:selected?selected.id:null,pan,zoom}));
+  if (undoStack.length > 50) undoStack.shift();
+  redoStack = [];
+}
+function restore(stateStr) {
+  let st = JSON.parse(stateStr);
+  nodes = JSON.parse(JSON.stringify(st.nodes));
+  pan = {...st.pan};
+  zoom = st.zoom;
+  selected = st.selectedId ? nodes.find(n=>n.id===st.selectedId) : null;
+  redraw();
+}
+function resizeCanvas() {
+  canvas.width = document.getElementById('canvasWrap').clientWidth;
+  canvas.height = document.getElementById('canvasWrap').clientHeight;
+}
+function drawLink(from, to) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(from.x, from.y);
+  let mx = (from.x + to.x)/2;
+  ctx.bezierCurveTo(mx, from.y, mx, to.y, to.x, to.y);
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.restore();
+}
+function drawNode(node) {
+  let {x,y,text,img} = node;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, 50, 0, 2 * Math.PI);
+  ctx.fillStyle = (node === selected) ? "#ffe066" : "#f1f3f5";
+  ctx.strokeStyle = (node === selected) ? "#e67700" : "#343a40";
+  ctx.lineWidth = (node === selected) ? 5 : 2;
+  ctx.fill();
+  ctx.stroke();
+  // Draw text
+  ctx.fillStyle = "#222";
+  ctx.font = "18px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let offsetY = img ? -18 : 0;
+  ctx.fillText(text, x, y + offsetY);
+  // Draw image if any
+  if (img) {
+    let imageObj = new window.Image();
+    imageObj.onload = () => {
+      ctx.save();
       ctx.beginPath();
-      ctx.fillStyle = this.fillColor;
-      ctx.strokeStyle = selected ? '#f39c12' : this.strokeColor;
-      ctx.lineWidth = selected ? 4 : 2;
-      ctx.shadowColor = 'rgba(0,0,0,0.2)';
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      switch(this.shape) {
-        case 'circle':
-          ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-          break;
-        case 'rect':
-          ctx.rect(this.x - this.width/2, this.y - this.height/2, this.width, this.height);
-          break;
-        case 'ellipse':
-          ctx.ellipse(this.x, this.y, this.width/2, this.height/2, 0, 0, Math.PI*2);
-          break;
-        case 'diamond':
-          ctx.moveTo(this.x, this.y - this.height/2);
-          ctx.lineTo(this.x + this.width/2, this.y);
-          ctx.lineTo(this.x, this.y + this.height/2);
-          ctx.lineTo(this.x - this.width/2, this.y);
-          ctx.closePath();
-          break;
-      }
-      ctx.fill();
-      ctx.shadowColor = 'transparent';
-      ctx.stroke();
-
-      if(this.icon) {
-        ctx.font = '28px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = 'black';
-        ctx.fillText(this.icon, this.x, this.y - this.height/2 - 32);
-      }
-
-      ctx.fillStyle = selected ? '#000' : '#fff';
-      ctx.font = 'bold 16px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      wrapText(ctx, this.text, this.x, this.y, this.width-30, 20);
-    }
+      ctx.arc(x, y+22, 16, 0, 2*Math.PI);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(imageObj, x-16, y+6, 32, 32);
+      ctx.restore();
+    };
+    imageObj.src = img;
+    // For instant preview if cached:
+    if(imageObj.complete) imageObj.onload();
   }
-  class Link {
-    constructor(fromId, toId) {
-      this.from = fromId;
-      this.to = toId;
-    }
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, width, height);
-    ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(scale, scale);
-
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#666';
-    ctx.fillStyle = '#666';
-    links.forEach(link => {
-      const fromNode = nodes.find(n => n.id === link.from);
-      const toNode = nodes.find(n => n.id === link.to);
-      if(!fromNode || !toNode) return;
-      drawCurvedLink(fromNode, toNode);
-    });
-
-    nodes.forEach(node => {
-      node.draw(ctx, node === selectedNode);
-    });
-
-    ctx.restore();
-  }
-
-  function drawCurvedLink(fromNode, toNode) {
-    const dx = toNode.x - fromNode.x;
-    const dy = toNode.y - fromNode.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if(dist < 10) return;
-    const cp1x = fromNode.x + dx * 0.3;
-    const cp1y = fromNode.y;
-    const cp2x = fromNode.x + dx * 0.7;
-    const cp2y = toNode.y;
-
-    ctx.beginPath();
-    ctx.strokeStyle = (selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id) ? '#e74c3c' : '#666';
-    ctx.lineWidth = (selectedLink && selectedLink.from === fromNode.id && selectedLink.to === toNode.id) ? 4 : 3;
-    ctx.moveTo(fromNode.x, fromNode.y);
-    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, toNode.x, toNode.y);
-    ctx.stroke();
-
-    drawArrowhead(toNode.x, toNode.y, Math.atan2(dy, dx));
-  }
-  function drawArrowhead(x, y, angle) {
-    const size = 10;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(angle);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-size, size/2);
-    ctx.lineTo(-size, -size/2);
-    ctx.closePath();
-    ctx.fillStyle = ctx.strokeStyle;
-    ctx.fill();
-    ctx.restore();
-  }
-  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(' ');
-    let line = '';
-    const lines = [];
-    for(let i=0; i<words.length; i++) {
-      const testLine = line + words[i] + ' ';
-      const metrics = ctx.measureText(testLine);
-      if(metrics.width > maxWidth && i>0) {
-        lines.push(line);
-        line = words[i] + ' ';
-      } else {
-        line = testLine;
-      }
-    }
-    lines.push(line);
-
-    const totalHeight = lines.length * lineHeight;
-    let startY = y - totalHeight/2 + lineHeight/2;
-    for(let i=0; i<lines.length; i++) {
-      ctx.fillText(lines[i].trim(), x, startY + i*lineHeight);
-    }
-  }
-
-  let lastMousePos = {x:0,y:0};
-
-  canvas.addEventListener('mousedown', e => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    lastMousePos = {x:mouseX,y:mouseY};
-
-    if(e.button === 1 || (e.button === 0 && e.shiftKey)) {
-      draggingCanvas = true;
-      dragCanvasStart = {x:mouseX,y:mouseY};
-      dragCanvasOffset = {x:offsetX,y:offsetY};
-      canvas.style.cursor = 'grabbing';
-      return;
-    }
-
-    const worldPos = toWorld(mouseX, mouseY);
-
-    for(let i=nodes.length-1;i>=0;i--) {
-      if(nodes[i].contains(worldPos.x, worldPos.y)) {
-        draggingNode = nodes[i];
-        dragOffsetX = worldPos.x - draggingNode.x;
-        dragOffsetY = worldPos.y - draggingNode.y;
-        selectedNode = draggingNode;
-        selectedLink = null;
-        updateButtons();
-        draw();
-        return;
-      }
-    }
-
-    const clickedLink = findLinkAt(worldPos);
-    if(clickedLink) {
-      selectedLink = clickedLink;
-      selectedNode = null;
-      updateButtons();
-      draw();
-      return;
-    }
-
-    selectedNode = null;
-    selectedLink = null;
-    updateButtons();
-    draw();
-  });
-
-  canvas.addEventListener('mousemove', e => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    if(draggingNode) {
-      const worldPos = toWorld(mouseX, mouseY);
-      draggingNode.x = worldPos.x - dragOffsetX;
-      draggingNode.y = worldPos.y - dragOffsetY;
-      draw();
-      return;
-    }
-
-    if(draggingCanvas) {
-      offsetX = dragCanvasOffset.x + mouseX - dragCanvasStart.x;
-      offsetY = dragCanvasOffset.y + mouseY - dragCanvasStart.y;
-      draw();
-      return;
+  ctx.restore();
+}
+function redraw() {
+  resizeCanvas();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
+  // Draw links
+  nodes.forEach(n=>{
+    if(n.parent!==null){
+      let p = nodes.find(nd=>nd.id===n.parent);
+      if(p) drawLink(p, n);
     }
   });
-
-  canvas.addEventListener('mouseup', e => {
-    if(draggingNode) {
-      draggingNode = null;
-      saveHistory();
-    }
-    if(draggingCanvas) {
-      draggingCanvas = false;
-      canvas.style.cursor = 'grab';
-    }
-  });
-
-  canvas.addEventListener('mouseleave', e => {
-    if(draggingNode) {
-      draggingNode = null;
-      saveHistory();
-    }
-    if(draggingCanvas) {
-      draggingCanvas = false;
-      canvas.style.cursor = 'grab';
-    }
-  });
-
-  canvas.addEventListener('wheel', e => {
+  // Draw nodes
+  nodes.forEach(drawNode);
+}
+/* --- Mouse Events --- */
+canvas.onmousedown = function(e){
+  let pos = getMousePos(e);
+  let found = null;
+  for(let i=nodes.length-1;i>=0;i--){
+    let n = nodes[i];
+    let dx = pos.x - n.x, dy = pos.y - n.y;
+    if(dx*dx + dy*dy < 2500) { found = n; break;}
+  }
+  if (mode==='select' && found) {
+    dragNode = found;
+    dragOffset.x = pos.x - found.x;
+    dragOffset.y = pos.y - found.y;
+    selected = found;
+    redraw();
+  } else if(mode==='pan' || (e.button===1 || (e.button===0 && e.shiftKey)) || (mode==='select' && !found)) {
+    isPanning = true;
+    panStart = {x: e.clientX-pan.x, y: e.clientY-pan.y};
+  }
+};
+canvas.onmousemove = function(e){
+  if (dragNode) {
+    let pos = getMousePos(e);
+    dragNode.x = pos.x - dragOffset.x;
+    dragNode.y = pos.y - dragOffset.y;
+    redraw();
+  }
+  if (isPanning) {
+    pan.x = e.clientX - panStart.x;
+    pan.y = e.clientY - panStart.y;
+    redraw();
+  }
+};
+canvas.onmouseup = function(e){
+  if (dragNode) { saveState(); }
+  dragNode = null;
+  isPanning = false;
+};
+canvas.onmouseleave = function(){ dragNode = null; isPanning = false; };
+canvas.onclick = function(e){
+  let pos = getMousePos(e);
+  let found = null;
+  for(let i=nodes.length-1;i>=0;i--){
+    let n = nodes[i];
+    let dx = pos.x - n.x, dy = pos.y - n.y;
+    if(dx*dx + dy*dy < 2500) { found = n; break;}
+  }
+  selected = found;
+  redraw();
+};
+/* --- Zoom by Wheel --- */
+canvas.onwheel = function(e){
+  if (e.ctrlKey) {
     e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const delta = e.deltaY < 0 ? 1.1 : 0.9;
-    const worldBefore = toWorld(mouseX, mouseY);
-    scale *= delta;
-    scale = Math.min(Math.max(scale, 0.3), 3);
-    const worldAfter = toWorld(mouseX, mouseY);
-    offsetX += (worldAfter.x - worldBefore.x) * scale;
-    offsetY += (worldAfter.y - worldBefore.y) * scale;
-    draw();
-  }, { passive: false });
-
-  canvas.addEventListener('keydown', e => {
-    if(document.activeElement !== canvas) return;
-    if(e.key === 'Delete' || e.key === 'Backspace') {
-      if(selectedNode) deleteNode(selectedNode);
-      else if(selectedLink) deleteLink(selectedLink);
-      e.preventDefault();
-    } else if(e.key === 'Enter' && selectedNode) {
-      addChildNode(selectedNode);
-      e.preventDefault();
-    } else if((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
-      if(e.shiftKey) redo();
-      else undo();
-      e.preventDefault();
-    } else if((e.key === 'y' || e.key === 'Y') && (e.ctrlKey || e.metaKey)) {
-      redo();
-      e.preventDefault();
-    }
-  });
-
-  addRootNodeBtn.onclick = () => {
-    addRootNode();
-    canvas.focus();
+    let mx = (e.offsetX - pan.x)/zoom;
+    let my = (e.offsetY - pan.y)/zoom;
+    if(e.deltaY<0) zoom *= 1.1; else zoom /= 1.1;
+    pan.x = e.offsetX - mx*zoom;
+    pan.y = e.offsetY - my*zoom;
+    redraw();
+  }
+};
+/* --- Keyboard Shortcuts --- */
+document.addEventListener('keydown', function(e){
+  if(document.activeElement.tagName==="INPUT") return;
+  if(e.key==='Enter') editNode();
+  if((e.key==='Delete' || e.key==='Backspace') && selected && selected.parent!==null) removeNode();
+  if(e.ctrlKey && e.key==='z') undo();
+  if(e.ctrlKey && (e.key==='y'||e.key==='Z')) redo();
+  if(e.key===' ') { mode='pan'; }
+});
+document.addEventListener('keyup', function(e){
+  if(e.key===' ') { mode='select'; }
+});
+/* --- Core Node Functions --- */
+function getMousePos(e){
+  let rect = canvas.getBoundingClientRect();
+  let x = (e.clientX - rect.left - pan.x)/zoom;
+  let y = (e.clientY - rect.top - pan.y)/zoom;
+  return {x,y};
+}
+function addNode() {
+  if(!selected) { alert("Chọn một node cha!"); return;}
+  let txt = prompt('Nhập nội dung node mới:');
+  if(txt) {
+    let id = Date.now()+Math.random();
+    let angle = Math.random()*2*Math.PI;
+    let newX = selected.x + Math.cos(angle)*180;
+    let newY = selected.y + Math.sin(angle)*120;
+    nodes.push({id,text:txt,x:newX,y:newY,parent:selected.id,img:null});
+    saveState();
+    redraw();
+  }
+}
+function editNode() {
+  if(!selected) return;
+  let txt = prompt('Nội dung mới:', selected.text);
+  if(txt!==null && txt!=="") {
+    selected.text = txt;
+    saveState();
+    redraw();
+  }
+}
+function removeNode() {
+  if(!selected) return;
+  if(!selected.parent) { alert('Không thể xóa node gốc!'); return;}
+  let delId = selected.id;
+  function removeChilds(pid) {
+    let cs = nodes.filter(n=>n.parent===pid);
+    cs.forEach(c=>removeChilds(c.id));
+    nodes = nodes.filter(n=>n.id!==pid);
+  }
+  removeChilds(delId);
+  selected = null;
+  saveState();
+  redraw();
+}
+function addImage() {
+  if(!selected) return;
+  let url = prompt('Dán URL hình ảnh:');
+  if(url) {
+    selected.img = url;
+    saveState();
+    redraw();
+  }
+}
+function setPanMode(){ mode='pan'; }
+function zoomIn(){ zoom*=1.2; redraw(); }
+function zoomOut(){ zoom/=1.2; redraw(); }
+function undo(){
+  if(undoStack.length>1){
+    redoStack.push(undoStack.pop());
+    restore(undoStack[undoStack.length-1]);
+  }
+}
+function redo(){
+  if(redoStack.length>0){
+    let st = redoStack.pop();
+    restore(st);
+    undoStack.push(st);
+  }
+}
+function saveFile(){
+  let data = JSON.stringify({nodes,pan,zoom});
+  let blob = new Blob([data],{type:"application/json"});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "mindmap.json";
+  a.click();
+}
+function openFile(e){
+  let file = e.target.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = function(ev){
+    let data = JSON.parse(ev.target.result);
+    nodes = data.nodes; pan = data.pan; zoom = data.zoom;
+    selected = nodes[0];
+    saveState();
+    redraw();
   };
-  addChildBtn.onclick = () => {
-    if(selectedNode) addChildNode(selectedNode);
-    canvas.focus();
-  };
-  deleteNodeBtn.onclick = () => {
-    if(selectedNode) deleteNode(selectedNode);
-    canvas.focus();
-  };
-  deleteLinkBtn.onclick = () => {
-    if(selectedLink) deleteLink(selectedLink);
-    canvas.focus();
-  };
-  autoLayoutBtn.onclick = () => {
-    autoLayout();
-    canvas.focus();
-  };
-  undoBtn.onclick = () => { undo(); canvas.focus(); };
-  redoBtn.onclick = () => { redo(); canvas.focus(); };
-  exportBtn.onclick = () => {
-    exportArea.value = JSON.stringify({nodes,links}, null, 2);
-    canvas.focus();
-  };
-  importBtn.onclick = () => fileInput.click();
-  exportPngBtn.onclick = () => exportPNG();
-
-  fileInput.addEventListener('change', e => {
-    if(!fileInput.files.length) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        if(data.nodes && data.links) {
-          nodes = data.nodes.map(n => Object.assign(new Node(), n));
-          links = data.links.map(l => Object.assign(new Link(), l));
-          selectedNode = null;
-          selectedLink = null;
-          saveHistory();
-          draw();
-          alert('Tải dữ liệu thành công!');
-          canvas.focus();
-        } else {
-          alert('File JSON không hợp lệ!');
-        }
-      } catch {
-        alert('Không thể đọc file!');
-      }
-    };
-    reader.readAsText(fileInput.files[0]);
-  });
-
-  function addRootNode() {
-    const text = prompt('Nhập nội dung nút gốc:');
-    if(!text) return;
-    const center = toWorld(width/2, height/2);
-    const id = Date.now().toString();
-    const shape = shapeSelector.value;
-    const fillColor = fillColorPicker.value;
-    const strokeColor = strokeColorPicker.value;
-    const icon = iconInput.value.trim();
-    nodes.push(new Node(id, text, center.x, center.y, shape, fillColor, strokeColor, icon));
-    saveHistory();
-    draw();
-  }
-  function addChildNode(parent) {
-    const text = prompt('Nhập nội dung nút con:');
-    if(!text) return;
-    const offset = 140;
-    const childX = parent.x + (Math.random()*2 -1)*offset;
-    const childY = parent.y + offset;
-    const id = Date.now().toString();
-    const shape = shapeSelector.value;
-    const fillColor = fillColorPicker.value;
-    const strokeColor = strokeColorPicker.value;
-    const icon = iconInput.value.trim();
-    const child = new Node(id, text, childX, childY, shape, fillColor, strokeColor, icon);
-    nodes.push(child);
-    links.push(new Link(parent.id, id));
-    saveHistory();
-    draw();
-  }
-  function deleteNode(node) {
-    nodes = nodes.filter(n => n.id !== node.id);
-    links = links.filter(l => l.from !== node.id && l.to !== node.id);
-    selectedNode = null;
-    saveHistory();
-    draw();
-  }
-  function deleteLink(link) {
-    links = links.filter(l => l !== link);
-    selectedLink = null;
-    saveHistory();
-    draw();
-  }
-
-  function autoLayout() {
-    const levels = {};
-    function dfs(id, level) {
-      if(levels[id] !== undefined) return;
-      levels[id] = level;
-      links.filter(l => l.from === id).forEach(l => dfs(l.to, level+1));
-    }
-    const allTo = new Set(links.map(l => l.to));
-    const roots = nodes.filter(n => !allTo.has(n.id));
-    roots.forEach(r => dfs(r.id, 0));
-    const levelGroups = {};
-    Object.entries(levels).forEach(([id,lvl]) => {
-      levelGroups[lvl] = levelGroups[lvl] || [];
-      const node = nodes.find(n => n.id === id);
-      if(node) levelGroups[lvl].push(node);
-    });
-    const vGap = 160;
-    const hGap = 180;
-    Object.entries(levelGroups).forEach(([lvl,group]) => {
-      group.forEach((node,i) => {
-        node.y = lvl*vGap + 100;
-        node.x = i*hGap + 100;
-      });
-    });
-    saveHistory();
-    draw();
-  }
-
-  function findLinkAt(p) {
-    const tol = 10 / scale;
-    for(const l of links) {
-      const fromNode = nodes.find(n => n.id === l.from);
-      const toNode = nodes.find(n => n.id === l.to);
-      if(!fromNode || !toNode) continue;
-      if(pointNearBezier(p, fromNode, toNode, tol)) return l;
-    }
-    return null;
-  }
-  function pointNearBezier(p, fromNode, toNode, tol) {
-    const steps = 30;
-    let prev = {x: fromNode.x, y: fromNode.y};
-    for(let t=0; t<=1; t+=1/steps) {
-      const pt = cubicBezierPoint(fromNode, toNode, t);
-      const dist = distPointSegment(p, prev, pt);
-      if(dist < tol) return true;
-      prev = pt;
-    }
-    return false;
-  }
-  function cubicBezierPoint(fromNode, toNode, t) {
-    const dx = toNode.x - fromNode.x;
-    const dy = toNode.y - fromNode.y;
-    const cp1x = fromNode.x + dx * 0.3;
-    const cp1y = fromNode.y;
-    const cp2x = fromNode.x + dx * 0.7;
-    const cp2y = toNode.y;
-
-    return {
-      x: cubicBezier(t, fromNode.x, cp1x, cp2x, toNode.x),
-      y: cubicBezier(t, fromNode.y, cp1y, cp2y, toNode.y)
-    };
-  }
-  function cubicBezier(t, p0, p1, p2, p3) {
-    const c = 3 * (p1 - p0);
-    const b = 3 * (p2 - p1) - c;
-    const a = p3 - p0 - c - b;
-    return ((a*t + b)*t + c)*t + p0;
-  }
-  function distPointSegment(p, v, w) {
-    const l2 = (v.x-w.x)*(v.x-w.x)+(v.y-w.y)*(v.y-w.y);
-    if(l2===0) return Math.hypot(p.x-v.x,p.y-v.y);
-    let t = ((p.x-v.x)*(w.x-v.x)+(p.y-v.y)*(w.y-v.y))/l2;
-    t = Math.max(0, Math.min(1,t));
-    return Math.hypot(p.x-(v.x+t*(w.x-v.x)), p.y-(v.y+t*(w.y-v.y)));
-  }
-
-  function exportPNG() {
-    const dataURL = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = dataURL;
-    a.download = 'mindmap.png';
-    a.click();
-  }
-
-  function updateButtons() {
-    deleteNodeBtn.disabled = !selectedNode;
-    addChildBtn.disabled = !selectedNode;
-    deleteLinkBtn.disabled = !selectedLink;
-  }
-
-  saveHistory();
-  draw();
-  updateButtons();
-
-  canvas.tabIndex = 0;
-  canvas.style.outline = 'none';
-
-})();
+  reader.readAsText(file);
+  e.target.value = '';
+}
+function exportPng(){
+  let tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  let tctx = tempCanvas.getContext('2d');
+  tctx.fillStyle = "#fff"; tctx.fillRect(0,0,canvas.width,canvas.height);
+  tctx.drawImage(canvas,0,0);
+  let url = tempCanvas.toDataURL("image/png");
+  let a = document.createElement('a');
+  a.href = url;
+  a.download = "mindmap.png";
+  a.click();
+}
+/* --- Init --- */
+window.addEventListener('resize', redraw);
+saveState();
+redraw();
 </script>
-
 </body>
 </html>
+
