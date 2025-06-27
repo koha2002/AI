@@ -2,29 +2,39 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Mindmap/Flowchart Pro – All Features</title>
+  <title>Mindmap/Flowchart Pro All-in-One</title>
   <style>
-    html,body{margin:0;padding:0;height:100%;width:100vw;overflow:hidden;}
-    body{font-family:sans-serif;background:#f7f9fa;}
-    #sidebar{position:absolute;top:0;left:0;width:78px;height:100%;background:#263238;z-index:12;transition:width 0.3s;}
-    #sidebar.open{width:212px;}
+    html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
+    body{font-family:sans-serif;background:#f5f7fb;}
+    #sidebar{position:absolute;top:0;left:0;width:78px;height:100%;background:#263238;z-index:11;transition:width 0.3s;}
+    #sidebar.open{width:230px;}
     #sidebar .toggle{position:absolute;top:7px;right:-18px;z-index:16;width:28px;height:28px;border-radius:8px 0 0 8px;background:#37474f;color:#fff;cursor:pointer;line-height:29px;text-align:center;font-size:21px;}
-    #sidebar .shapes{margin:52px 7px 0 8px;display:flex;flex-direction:column;gap:14px;}
-    #sidebar .shapeicon{background:#fff;border:2px solid #bbb;width:40px;height:40px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:grab;}
-    #sidebar.open .shapeicon{width:62px;height:62px;}
+    #sidebar .shapes{margin:55px 7px 0 8px;display:flex;flex-direction:column;gap:15px;}
+    #sidebar .shapeicon{background:#fff;border:2px solid #bbb;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:grab;}
+    #sidebar.open .shapeicon{width:65px;height:65px;}
     #sidebar .label{display:none;margin-left:10px;}
     #sidebar.open .label{display:inline;font-size:15px;color:#fff;}
     #sidebar .stickers{margin:26px 7px 0 8px;display:flex;flex-wrap:wrap;gap:9px;}
     #sidebar .sticker{background:#fff;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:grab;font-size:21px;}
     #sidebar.open .sticker{width:46px;height:46px;font-size:32px;}
-    #canvasWrap{margin-left:78px;transition:margin-left 0.3s;}
-    #sidebar.open ~ #canvasWrap{margin-left:212px;}
-    #toolbar{position:absolute;top:0;left:78px;right:0;background:#222;color:#fff;z-index:10;height:48px;display:flex;align-items:center;gap:9px;padding:5px 9px;}
-    #sidebar.open ~ #toolbar{left:212px;}
-    #toolbar button,#toolbar select{margin-right:3px;padding:7px 13px;font-size:15px;background:#37474f;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+    #toolbar{
+      position:fixed;top:0;left:78px;right:0;z-index:10;
+      background:#222;color:#fff;height:46px;display:flex;align-items:center;gap:9px;padding:8px 13px;
+      transition:left 0.3s;
+    }
+    #sidebar.open ~ #toolbar{left:230px;}
+    #toolbar button,#toolbar select{
+      margin-right:3px;padding:7px 13px;font-size:15px;background:#37474f;color:#fff;border:none;border-radius:4px;cursor:pointer;
+    }
     #toolbar button:hover{background:#111;}
-    #mindCanvas{display:block;background:#fff;}
-    #sideRight {position:absolute;top:55px;right:14px;background:#fff;box-shadow:0 2px 10px #0001;border-radius:12px;padding:14px 14px 8px 16px;z-index:100;min-width:175px;display:none;}
+    #canvasWrap{position:absolute;top:46px;left:0;right:0;bottom:0;}
+    #sidebar.open ~ #canvasWrap{left:230px;}
+    #mindCanvas{background:#fff;width:100vw;height:calc(100vh - 46px);}
+    #resizeHandle{
+      position:absolute;z-index:99;width:16px;height:16px;background:#fff;border:2px solid #1976d2;border-radius:4px;display:none;cursor:nwse-resize;
+    }
+    #lasso{position:absolute;border:2px dashed #1976d2;background:rgba(25,118,210,0.08);z-index:20;pointer-events:none;display:none;}
+    #sideRight {position:absolute;top:52px;right:16px;background:#fff;box-shadow:0 2px 10px #0001;border-radius:12px;padding:14px 14px 8px 16px;z-index:100;min-width:175px;display:none;}
     #sideRight label{font-size:14px;}
     #sideRight input[type="color"], #sideRight select, #sideRight input[type="number"]{margin-left:6px;margin-right:10px;}
     #sideRight input[type="text"]{margin-left:6px;margin-right:10px;width:80px;}
@@ -33,103 +43,92 @@
   </style>
 </head>
 <body>
-  <div id="sidebar" class="open">
-    <div class="toggle" onclick="toggleSidebar()">&#9776;</div>
-    <div class="shapes">
-      <div class="shapeicon" draggable="true" data-shape="rect" title="Vuông"><svg width="28" height="28"><rect x="4" y="4" width="20" height="20" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
-      <div class="shapeicon" draggable="true" data-shape="ellipse" title="Tròn"><svg width="28" height="28"><ellipse cx="14" cy="14" rx="10" ry="10" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
-      <div class="shapeicon" draggable="true" data-shape="diamond" title="Thoi"><svg width="28" height="28"><polygon points="14,4 24,14 14,24 4,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
-      <div class="shapeicon" draggable="true" data-shape="parallelogram" title="Bình hành"><svg width="28" height="28"><polygon points="7,24 4,14 21,4 24,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
-      <div class="shapeicon" draggable="true" data-shape="hexagon" title="Lục giác"><svg width="28" height="28"><polygon points="7,4 21,4 27,14 21,24 7,24 1,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
-      <div class="shapeicon" draggable="true" data-shape="star" title="Ngôi sao"><svg width="28" height="28"><polygon points="14,2 17,10 26,10 18,16 20,24 14,19 8,24 10,16 2,10 11,10" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
-    </div>
-    <div style="margin-top:25px;color:#b3e5fc;font-size:13px;font-weight:bold;text-align:center;">Sticker/Icon</div>
-    <div class="stickers">
-      <div class="sticker" draggable="true" data-sticker="💡">💡</div>
-      <div class="sticker" draggable="true" data-sticker="🚀">🚀</div>
-      <div class="sticker" draggable="true" data-sticker="⭐">⭐</div>
-      <div class="sticker" draggable="true" data-sticker="✅">✅</div>
-      <div class="sticker" draggable="true" data-sticker="🔥">🔥</div>
-      <div class="sticker" draggable="true" data-sticker="📅">📅</div>
-      <div class="sticker" draggable="true" data-sticker="⚡">⚡</div>
-      <div class="sticker" draggable="true" data-sticker="📦">📦</div>
-      <div class="sticker" draggable="true" data-sticker="📝">📝</div>
-    </div>
+<div id="sidebar" class="open">
+  <div class="toggle" onclick="toggleSidebar()">&#9776;</div>
+  <div class="shapes">
+    <div class="shapeicon" draggable="true" data-shape="rect" title="Vuông"><svg width="28" height="28"><rect x="4" y="4" width="20" height="20" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Vuông</span></div>
+    <div class="shapeicon" draggable="true" data-shape="ellipse" title="Tròn"><svg width="28" height="28"><ellipse cx="14" cy="14" rx="10" ry="10" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Tròn</span></div>
+    <div class="shapeicon" draggable="true" data-shape="diamond" title="Thoi"><svg width="28" height="28"><polygon points="14,4 24,14 14,24 4,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Thoi</span></div>
+    <div class="shapeicon" draggable="true" data-shape="parallelogram" title="Bình hành"><svg width="28" height="28"><polygon points="7,24 4,14 21,4 24,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Bình hành</span></div>
+    <div class="shapeicon" draggable="true" data-shape="hexagon" title="Lục giác"><svg width="28" height="28"><polygon points="7,4 21,4 27,14 21,24 7,24 1,14" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Lục giác</span></div>
+    <div class="shapeicon" draggable="true" data-shape="star" title="Ngôi sao"><svg width="28" height="28"><polygon points="14,2 17,10 26,10 18,16 20,24 14,19 8,24 10,16 2,10 11,10" fill="none" stroke="#222" stroke-width="2"/></svg><span class="label">Sao</span></div>
   </div>
-  <div id="canvasWrap" style="width:calc(100vw - 200px);height:100vh;position:relative;">
-    <canvas id="mindCanvas"></canvas>
+  <div style="margin-top:24px;color:#b3e5fc;font-size:13px;font-weight:bold;text-align:center;">Sticker/Icon</div>
+  <div class="stickers">
+    <div class="sticker" draggable="true" data-sticker="💡">💡</div>
+    <div class="sticker" draggable="true" data-sticker="🚀">🚀</div>
+    <div class="sticker" draggable="true" data-sticker="⭐">⭐</div>
+    <div class="sticker" draggable="true" data-sticker="✅">✅</div>
+    <div class="sticker" draggable="true" data-sticker="🔥">🔥</div>
+    <div class="sticker" draggable="true" data-sticker="📅">📅</div>
+    <div class="sticker" draggable="true" data-sticker="⚡">⚡</div>
+    <div class="sticker" draggable="true" data-sticker="📦">📦</div>
+    <div class="sticker" draggable="true" data-sticker="📝">📝</div>
   </div>
-  <div id="toolbar">
-    <button onclick="addParentNode()">Node cha mới</button>
-    <button onclick="editNode()">Sửa node</button>
-    <button onclick="linkNodes()">Link 2 node</button>
-    <select id="linkType" onchange="setLinkType(this.value)">
+</div>
+<div id="toolbar">
+  <button onclick="addNode()">Node mới</button>
+  <button onclick="deleteNode()">Xóa node</button>
+  <button onclick="exportPNG()">PNG</button>
+  <button onclick="exportSVG()">SVG</button>
+  <button onclick="exportPDF()">PDF</button>
+  <button onclick="exportXLSX()">Excel</button>
+  <button onclick="saveFile()">Lưu</button>
+  <button onclick="loadFile()">Tải</button>
+  <button onclick="fitView()">Fit</button>
+  <button onclick="toggleSidebar()">Hiện/Ẩn Sidebar</button>
+  <label><input type="checkbox" id="groupCheck" onchange="toggleGroup(this.checked)">Group</label>
+  <button onclick="showSideRight()">Tùy chỉnh node</button>
+  <span style="color:#ffd700;font-size:14px;">Giữ Ctrl: chọn nhiều/link. Space+chuột/Pan. Nhấp đúp sửa node. Kéo-thả shape/sticker, lasso, resize.</span>
+  <input type="file" id="fileInput" accept=".json" style="display:none" onchange="openFile(event)">
+</div>
+<div id="canvasWrap">
+  <canvas id="mindCanvas"></canvas>
+  <div id="resizeHandle"></div>
+  <div id="lasso"></div>
+</div>
+<div id="sideRight">
+  <label>Text: <input type="text" id="propText" onchange="updateProp('text',this.value)"></label>
+  <label>Shape:
+    <select id="propShape" onchange="updateProp('shape',this.value)">
+      <option value="rect">Vuông</option>
+      <option value="ellipse">Tròn</option>
+      <option value="diamond">Thoi</option>
+      <option value="parallelogram">Bình hành</option>
+      <option value="hexagon">Lục giác</option>
+      <option value="star">Sao</option>
+    </select>
+  </label><br>
+  <label>Nền: <input type="color" id="propColor" onchange="updateProp('color',this.value)"></label>
+  <label>Viền: <input type="color" id="propBorder" onchange="updateProp('border',this.value)"></label>
+  <label>
+    <select id="propBorderType" onchange="updateProp('borderType',this.value)">
       <option value="solid">Solid</option>
       <option value="dashed">Dashed</option>
       <option value="dotted">Dotted</option>
-      <option value="arrow">Mũi tên</option>
-      <option value="curve">Cong</option>
     </select>
-    <button onclick="unlinkNodes()">Xóa Link</button>
-    <button onclick="collapseBranch()">Collapse nhánh</button>
-    <label><input type="checkbox" id="groupCheck" onchange="toggleGroup(this.checked)">Group</label>
-    <button onclick="zoomIn()">Zoom+</button>
-    <button onclick="zoomOut()">Zoom-</button>
-    <button onclick="fitView()">Fit</button>
-    <button onclick="toggleSidebar()">Hiện/Ẩn Sidebar</button>
-    <button onclick="exportPNG()">PNG</button>
-    <button onclick="exportSVG()">SVG</button>
-    <button onclick="exportPDF()">PDF</button>
-    <button onclick="exportXLSX()">Excel</button>
-    <button onclick="saveFile()">Xuất file</button>
-    <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
-    <button onclick="showSideRight()">Tùy chỉnh node</button>
-    <span style="margin-left:14px;color:#ffd700;font-size:14px;">Kéo-thả shape/sticker, chọn node, chủ động liên kết, collapse, export, group... như Creately/Visio!</span>
-  </div>
-  <div id="sideRight">
-    <label>Text: <input type="text" id="propText" onchange="updateProp('text',this.value)"></label>
-    <label>Shape:
-      <select id="propShape" onchange="updateProp('shape',this.value)">
-        <option value="rect">Vuông</option>
-        <option value="ellipse">Tròn</option>
-        <option value="diamond">Thoi</option>
-        <option value="parallelogram">Bình hành</option>
-        <option value="hexagon">Lục giác</option>
-        <option value="star">Sao</option>
-      </select>
-    </label><br>
-    <label>Nền: <input type="color" id="propColor" onchange="updateProp('color',this.value)"></label>
-    <label>Viền: <input type="color" id="propBorder" onchange="updateProp('border',this.value)"></label>
-    <label>
-      <select id="propBorderType" onchange="updateProp('borderType',this.value)">
-        <option value="solid">Solid</option>
-        <option value="dashed">Dashed</option>
-        <option value="dotted">Dotted</option>
-      </select>
-    </label>
-    <label>Icon: <input type="text" id="propIcon" maxlength="2" onchange="updateProp('icon',this.value)" style="width:28px"></label>
-    <label>Ảnh: <input type="file" id="propImg" accept="image/*" onchange="uploadNodeImg(event)"></label><br>
-    <label>Rộng: <input type="number" id="propW" min="32" max="420" onchange="updateProp('w',this.value)"></label>
-    <label>Cao: <input type="number" id="propH" min="24" max="250" onchange="updateProp('h',this.value)"></label>
-    <button onclick="hideSideRight()" style="float:right;margin:7px 5px 0 0;">Đóng</button>
-  </div>
-  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </label>
+  <label>Icon: <input type="text" id="propIcon" maxlength="2" onchange="updateProp('icon',this.value)" style="width:28px"></label>
+  <label>Ảnh: <input type="file" id="propImg" accept="image/*" onchange="uploadNodeImg(event)"></label><br>
+  <label>Rộng: <input type="number" id="propW" min="32" max="420" onchange="updateProp('w',this.value)"></label>
+  <label>Cao: <input type="number" id="propH" min="24" max="250" onchange="updateProp('h',this.value)"></label>
+  <button onclick="hideSideRight()" style="float:right;margin:7px 5px 0 0;">Đóng</button>
+</div>
+<script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-let nodes = [
-  {id:1,text:"Bắt đầu",shape:"ellipse",x:450,y:300,w:130,h:62,color:"#ffe066",border:"#37474f",borderType:"solid",icon:"",img:null,parent:null,collapsed:false,stickers:[]}
+let nodes=[
+  {id:1,text:"Ý chính",x:600,y:400,w:140,h:60,shape:"ellipse",color:"#ffe066",border:"#37474f",borderType:"solid",icon:"",img:null,stickers:[],collapsed:false}
 ];
-let links = [];
-let selectedNode = nodes[0], selectedNodes = [nodes[0]], selectedLink = null, linkEditType="solid";
-let groupMode = false, draggingNode = null, dragOffset = {x:0, y:0}, pan = {x:0,y:0}, zoom = 1;
-let stickerDragging = null;
-
-function toggleSidebar(){
-  let sidebar = document.getElementById('sidebar');
-  sidebar.classList.toggle('open');
-  setTimeout(redraw, 310);
-}
-// SHAPE DRAG DROP
+let links=[];
+let selected=[],lastSelected=null,dragging=null,dragOffset={x:0,y:0};
+let pan={x:0,y:0},zoom=1,minZoom=0.16,maxZoom=2.5;
+let mode="select",undoStack=[],redoStack=[];
+let lasso=null,lassoStart=null;
+let groupMode=false;
+let canvas=document.getElementById('mindCanvas'),ctx=canvas.getContext('2d');
+let handle=document.getElementById('resizeHandle');
+// --- Sidebar drag/drop shape/sticker
 document.querySelectorAll('.shapeicon').forEach(el=>{
   el.ondragstart = function(e){
     e.dataTransfer.setData("shape", el.dataset.shape);
@@ -151,6 +150,11 @@ document.getElementById('canvasWrap').ondrop = function(e){
   if(shape) addNodeShape(shape, x, y);
   if(sticker) addSticker(sticker, x, y);
 };
+function toggleSidebar(){
+  let sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('open');
+  setTimeout(redraw, 310);
+}
 function addNodeShape(shape, x, y){
   let id = Date.now()+Math.random();
   nodes.push({id, text:"", shape, x, y, w:120, h:60, color:"#ffe066", border:"#37474f", borderType:"solid", icon:"", img:null, parent:null, collapsed:false,stickers:[]});
@@ -162,129 +166,238 @@ function addSticker(sticker, x, y){
   redraw();
 }
 function redraw(){
-  let canvas = document.getElementById('mindCanvas');
-  canvas.width = document.getElementById('canvasWrap').clientWidth;
-  canvas.height = document.getElementById('canvasWrap').clientHeight;
-  let ctx = canvas.getContext('2d');
+  canvas.width=document.getElementById('canvasWrap').clientWidth;
+  canvas.height=document.getElementById('canvasWrap').clientHeight;
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
   // Draw links
-  links.forEach(link=>{
-    let a=nodes.find(n=>n.id===link.from),b=nodes.find(n=>n.id===link.to);
-    if(a&&b){
-      ctx.save();
-      ctx.beginPath();
-      if(link.type==="curve"){
-        let mx=(a.x+b.x)/2+30*(a.y-b.y)/Math.max(50,Math.abs(a.x-b.x));
-        ctx.moveTo(a.x,a.y);
-        ctx.bezierCurveTo(mx,a.y,mx,b.y,b.x,b.y);
-      }else{
-        ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-      }
-      ctx.strokeStyle = (selectedLink===link) ? "#1976d2" : "#888";
-      ctx.lineWidth = (selectedLink===link) ? 5 : 3;
-      ctx.setLineDash(link.type==="dashed"?[8,6]:link.type==="dotted"?[2,6]:[]);
-      ctx.stroke();
-      if(link.type==="arrow"){
-        let ang = Math.atan2(b.y-a.y,b.x-a.x);
-        ctx.beginPath();
-        ctx.moveTo(b.x, b.y);
-        ctx.lineTo(b.x-15*Math.cos(ang-Math.PI/7), b.y-15*Math.sin(ang-Math.PI/7));
-        ctx.lineTo(b.x-15*Math.cos(ang+Math.PI/7), b.y-15*Math.sin(ang+Math.PI/7));
-        ctx.closePath(); ctx.fillStyle=ctx.strokeStyle; ctx.fill();
-      }
-      ctx.setLineDash([]); ctx.restore();
-    }
+  links.forEach(l=>{
+    let a=nodes.find(n=>n.id===l.from),b=nodes.find(n=>n.id===l.to);
+    if(!a||!b)return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle="#90a4ae";ctx.lineWidth=3;
+    ctx.setLineDash(l.type==="dashed"?[8,7]:l.type==="dotted"?[2,6]:[]);
+    ctx.stroke();ctx.setLineDash([]);
+    ctx.restore();
   });
-  // Draw nodes + sticker
+  // Draw nodes
   nodes.forEach(n=>{
     ctx.save();
     if(n.shape==="sticker"){
       ctx.font="32px Arial";
       ctx.textAlign="center";ctx.textBaseline="middle";
       ctx.fillText(n.icon||"⭐",n.x,n.y);
-      ctx.restore(); return;
+      ctx.restore();return;
     }
-    ctx.strokeStyle = (selectedNode===n||selectedNodes.includes(n)) ? "#e67700" : n.border;
-    ctx.lineWidth = (selectedNode===n||selectedNodes.includes(n)) ? 4 : 2;
-    ctx.setLineDash(n.borderType==="dashed"?[10,7]:n.borderType==="dotted"?[2,6]:[]);
-    ctx.fillStyle = n.color;
+    ctx.beginPath();
     if(n.shape==="ellipse")
-      ctx.beginPath(),ctx.ellipse(n.x,n.y,n.w/2,n.h/2,0,0,2*Math.PI),ctx.fill(),ctx.stroke();
+      ctx.ellipse(n.x,n.y,n.w/2,n.h/2,0,0,2*Math.PI);
     else if(n.shape==="rect")
-      ctx.beginPath(),ctx.rect(n.x-n.w/2,n.y-n.h/2,n.w,n.h),ctx.fill(),ctx.stroke();
+      ctx.rect(n.x-n.w/2,n.y-n.h/2,n.w,n.h);
     else if(n.shape==="diamond")
-      ctx.beginPath(),ctx.moveTo(n.x,n.y-n.h/2),ctx.lineTo(n.x+n.w/2,n.y),ctx.lineTo(n.x,n.y+n.h/2),ctx.lineTo(n.x-n.w/2,n.y),ctx.closePath(),ctx.fill(),ctx.stroke();
+      {ctx.moveTo(n.x,n.y-n.h/2);ctx.lineTo(n.x+n.w/2,n.y);ctx.lineTo(n.x,n.y+n.h/2);ctx.lineTo(n.x-n.w/2,n.y);ctx.closePath();}
     else if(n.shape==="parallelogram")
-      ctx.beginPath(),ctx.moveTo(n.x-n.w/3,n.y-n.h/2),ctx.lineTo(n.x+n.w/2,n.y-n.h/2),ctx.lineTo(n.x+n.w/3,n.y+n.h/2),ctx.lineTo(n.x-n.w/2,n.y+n.h/2),ctx.closePath(),ctx.fill(),ctx.stroke();
+      {ctx.moveTo(n.x-n.w/3,n.y-n.h/2);ctx.lineTo(n.x+n.w/2,n.y-n.h/2);ctx.lineTo(n.x+n.w/3,n.y+n.h/2);ctx.lineTo(n.x-n.w/2,n.y+n.h/2);ctx.closePath();}
     else if(n.shape==="hexagon")
-      {ctx.beginPath();for(let i=0;i<6;i++){let a = Math.PI/3*i-Math.PI/6;ctx.lineTo(n.x+Math.cos(a)*n.w/2,n.y+Math.sin(a)*n.h/2);}ctx.closePath();ctx.fill();ctx.stroke();}
+      {for(let i=0;i<6;i++){let a = Math.PI/3*i-Math.PI/6;ctx.lineTo(n.x+Math.cos(a)*n.w/2,n.y+Math.sin(a)*n.h/2);}ctx.closePath();}
     else if(n.shape==="star")
-      {let r1=n.w/2,r2=n.w/6,nStar=5;ctx.beginPath();for(let i=0;i<2*nStar;i++){let r=i%2?r2:r1,a=Math.PI/nStar*i-Math.PI/2;ctx.lineTo(n.x+r*Math.cos(a),n.y+r*Math.sin(a));}ctx.closePath();ctx.fill();ctx.stroke();}
+      {let r1=n.w/2,r2=n.w/6,nStar=5;for(let i=0;i<2*nStar;i++){let r=i%2?r2:r1,a=Math.PI/nStar*i-Math.PI/2;ctx.lineTo(n.x+r*Math.cos(a),n.y+r*Math.sin(a));}ctx.closePath();}
+    ctx.fillStyle=n.color;ctx.strokeStyle=n.border;ctx.lineWidth=selected.includes(n)?4:2;
+    ctx.shadowColor="#aaa";ctx.shadowBlur=7;ctx.fill();ctx.shadowBlur=0;ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle="#212121";
-    ctx.font="bold 15px Arial";
-    ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText((n.icon?n.icon+" ":"")+(n.text||n.shape),n.x,n.y);
-    // Draw image
+    ctx.font="bold 17px Arial";
+    ctx.fillStyle="#212121";ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText((n.icon?n.icon+" ":"")+n.text,n.x,n.y);
     if(n.img){
       let img=new window.Image();
       img.onload=()=>{ctx.drawImage(img,n.x-n.w/2+5,n.y-n.h/2+5,n.w-10,n.h-10);};
       img.src=n.img;if(img.complete)img.onload();
     }
-    // Draw collapse btn
+    // Draw collapse
     if(nodeHasChild(n)){
-      ctx.beginPath();ctx.arc(n.x+n.w/2-10,n.y-n.h/2+12,11,0,2*Math.PI);
+      ctx.beginPath();ctx.arc(n.x+n.w/2-12,n.y-n.h/2+14,12,0,2*Math.PI);
       ctx.fillStyle="#ab47bc";ctx.fill();
       ctx.fillStyle="#fff";ctx.font="16px Arial";
       ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillText(n.collapsed?"▶":"▼",n.x+n.w/2-10,n.y-n.h/2+12);
+      ctx.fillText(n.collapsed?"▶":"▼",n.x+n.w/2-12,n.y-n.h/2+14);
     }
-    // Sticker trên node
+    // Draw sticker trên node
     if(n.stickers) n.stickers.forEach((st,i)=>{
-      ctx.font="23px Arial"; ctx.fillText(st,n.x-n.w/2+20+i*22,n.y+n.h/2-15);
+      ctx.font="23px Arial"; ctx.fillText(st,n.x-n.w/2+22+i*24,n.y+n.h/2-15);
     });
     ctx.restore();
+    // Draw resize handle
+    if(selected.length===1&&selected[0]===n){
+      let scr=toScreen(n.x+n.w/2,n.y+n.h/2);
+      handle.style.left=(scr.x-8)+"px";handle.style.top=(scr.y-8)+"px";handle.style.display="block";
+    }
   });
+  if(selected.length!==1)handle.style.display="none";
+}
+function toScreen(x,y){let rect=canvas.getBoundingClientRect();return {x:x*zoom+pan.x+rect.left,y:y*zoom+pan.y+rect.top};}
+function fromScreen(x,y){let rect=canvas.getBoundingClientRect();return {x:(x-rect.left-pan.x)/zoom,y:(y-rect.top-pan.y)/zoom};}
+function getNodeAt(mx,my){
+  for(let i=nodes.length-1;i>=0;i--){
+    let n=nodes[i];
+    if(Math.abs(mx-n.x)<n.w/2&&Math.abs(my-n.y)<n.h/2)return n;
+  }
+  return null;
+}
+function saveState(){
+  undoStack.push(JSON.stringify({nodes,links,pan,zoom}));
+  if(undoStack.length>50)undoStack.shift();
+  redoStack=[];
 }
 function nodeHasChild(node){return links.some(l=>l.from===node.id);}
-function addParentNode(){if(selectedNode){selectedNode.parent=null;redraw();}}
-function linkNodes(){
-  if(selectedNodes.length===2){
-    let exists=links.find(l=>(l.from===selectedNodes[0].id&&l.to===selectedNodes[1].id)||(l.from===selectedNodes[1].id&&l.to===selectedNodes[0].id));
-    if(!exists)links.push({from:selectedNodes[0].id,to:selectedNodes[1].id,type:linkEditType});
+canvas.onmousedown=function(e){
+  let {x,y}=fromScreen(e.clientX,e.clientY);
+  let n=getNodeAt(x,y);
+  if(e.button===1||(mode==="pan")){isPanning=true;panStart={x:e.clientX-pan.x,y:e.clientY-pan.y};return;}
+  if(e.button===2){
+    if(n){if(selected.length!==1||selected[0]!==n){selected=[n];lastSelected=n;}}
+    mode="link"; return false;
+  }
+  if(e.shiftKey){
+    mode="lasso";lassoStart={x:e.clientX,y:e.clientY};
+    lasso=document.getElementById('lasso');
+    lasso.style.display="block";
+    lasso.style.left=lassoStart.x+"px";lasso.style.top=lassoStart.y+"px";
+    lasso.style.width="1px";lasso.style.height="1px";
+    return;
+  }
+  if(n){
+    if(groupMode||e.ctrlKey||e.metaKey){
+      if(!selected.includes(n))selected.push(n);
+      else selected=selected.filter(x=>x!==n);
+      lastSelected=n;
+    }else{
+      selected=[n];lastSelected=n;
+    }
+    dragging=n;dragOffset={x:x-n.x,y:y-n.y};
+  }else{
+    selected=[];
+  }
+  redraw();
+};
+canvas.onmousemove=function(e){
+  let {x,y}=fromScreen(e.clientX,e.clientY);
+  if(isPanning){
+    pan.x=e.clientX-panStart.x;pan.y=e.clientY-panStart.y;redraw();
+    return;
+  }
+  if(dragging){
+    if(selected.length>1){
+      let dx=x-dragging.x,dy=y-dragging.y;
+      selected.forEach(n=>{n.x+=dx;n.y+=dy;});
+    }else{
+      dragging.x=x-dragOffset.x;dragging.y=y-dragOffset.y;
+    }
+    redraw();
+    return;
+  }
+  if(mode==="lasso"&&lassoStart){
+    let lx=Math.min(e.clientX,lassoStart.x),ly=Math.min(e.clientY,lassoStart.y);
+    let lw=Math.abs(e.clientX-lassoStart.x),lh=Math.abs(e.clientY-lassoStart.y);
+    lasso.style.left=lx+"px";lasso.style.top=ly+"px";
+    lasso.style.width=lw+"px";lasso.style.height=lh+"px";
+  }
+};
+canvas.onmouseup=function(e){
+  let {x,y}=fromScreen(e.clientX,e.clientY);
+  if(isPanning||dragging){saveState();}
+  isPanning=false;dragging=null;
+  if(mode==="link"&&selected.length===1){
+    let n2=getNodeAt(x,y);
+    if(n2&&n2!==selected[0]){
+      let ex=links.find(l=>(l.from===selected[0].id&&l.to===n2.id)||(l.from===n2.id&&l.to===selected[0].id));
+      if(!ex)links.push({from:selected[0].id,to:n2.id,type:"solid"});
+      else links=links.filter(l=>l!==ex);
+      saveState();redraw();
+    }
+    mode="select";
+  }
+  if(mode==="lasso"&&lassoStart){
+    let rect=canvas.getBoundingClientRect();
+    let x1=Math.min(lassoStart.x,e.clientX),y1=Math.min(lassoStart.y,e.clientY);
+    let x2=Math.max(lassoStart.x,e.clientX),y2=Math.max(lassoStart.y,e.clientY);
+    let sel=[];
+    nodes.forEach(n=>{
+      let sx=n.x*zoom+pan.x+rect.left,sy=n.y*zoom+pan.y+rect.top;
+      if(sx>=x1&&sx<=x2&&sy>=y1&&sy<=y2)sel.push(n);
+    });
+    if(sel.length>0)selected=sel;
+    lasso.style.display="none";mode="select";lassoStart=null;lasso=null;
     redraw();
   }
-}
-function setLinkType(type){linkEditType=type;}
-function unlinkNodes(){
-  if(selectedLink){
-    links=links.filter(l=>l!==selectedLink);selectedLink=null;redraw();
-  }else if(selectedNodes.length===2){
-    links=links.filter(l=>!(l.from===selectedNodes[0].id&&l.to===selectedNodes[1].id));redraw();
+};
+canvas.onwheel=function(e){
+  if(e.ctrlKey){
+    e.preventDefault();
+    let mx=(e.offsetX-pan.x)/zoom,my=(e.offsetY-pan.y)/zoom;
+    if(e.deltaY<0&&zoom<maxZoom)zoom*=1.12;
+    if(e.deltaY>0&&zoom>minZoom)zoom/=1.12;
+    pan.x=e.offsetX-mx*zoom; pan.y=e.offsetY-my*zoom;redraw();
   }
+};
+canvas.ondblclick=function(e){
+  let {x,y}=fromScreen(e.clientX,e.clientY);
+  let n=getNodeAt(x,y);
+  if(n){
+    let txt=prompt("Sửa node:",n.text); if(txt!==null)n.text=txt;
+    redraw();
+  }
+};
+handle.onmousedown=function(e){
+  e.stopPropagation();e.preventDefault();
+  let n=selected[0];let start=fromScreen(e.clientX,e.clientY),ow=n.w,oh=n.h;
+  function move(ev){
+    let cur=fromScreen(ev.clientX,ev.clientY);
+    n.w=Math.max(60,ow+(cur.x-start.x));
+    n.h=Math.max(28,oh+(cur.y-start.y));
+    redraw();
+  }
+  function up(ev){
+    document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+    saveState();
+  }
+  document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+};
+document.onmousedown=function(e){if(e.target!==canvas)handle.style.display="none";};
+document.onmouseup=function(){handle.style.display="none";};
+canvas.onmouseleave=function(){isPanning=false;dragging=null;};
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  if(e.code==="Space"){mode="pan";}
+  if(e.key==="Delete"||e.key==="Backspace"){deleteNode();}
+  if(e.ctrlKey&&(e.key==="z"||e.key==="Z"))undo();
+  if(e.ctrlKey&&e.key==="y")redo();
+  if(e.ctrlKey&&e.key==="a"){selected=nodes.slice();redraw();}
+  if(e.ctrlKey&&e.key==="c"&&selected.length){window._clip=JSON.stringify(selected);}
+  if(e.ctrlKey&&e.key==="v"&&window._clip){
+    let pasted=JSON.parse(window._clip);
+    pasted.forEach(p=>{
+      let n={...p,id:Date.now()+Math.random(),x:p.x+45,y:p.y+45};
+      nodes.push(n);
+    });
+    redraw();saveState();
+  }
+});
+document.addEventListener('keyup',function(e){if(e.code==="Space")mode="select";});
+function addNode(){
+  let x=pan.x/zoom+Math.random()*400+100,y=pan.y/zoom+Math.random()*300+90;
+  nodes.push({id:Date.now()+Math.random(),text:"Node mới",x,y,w:130,h:60,shape:"ellipse",color:"#b3e5fc",border:"#37474f",borderType:"solid",icon:"",img:null,stickers:[],collapsed:false});
+  redraw();saveState();
 }
-function collapseBranch(){
-  if(selectedNode){selectedNode.collapsed=!selectedNode.collapsed;redraw();}
-}
-function toggleGroup(b){
-  groupMode=b;
-  if(b){selectedNodes=[selectedNode];}else{selectedNodes=[selectedNode];}
-  redraw();
-}
-function zoomIn(){zoom*=1.15;redraw();}
-function zoomOut(){zoom/=1.15;redraw();}
-function fitView(){
-  if(nodes.length==0)return;
-  let minX=Math.min(...nodes.map(n=>n.x-n.w/2)),maxX=Math.max(...nodes.map(n=>n.x+n.w/2));
-  let minY=Math.min(...nodes.map(n=>n.y-n.h/2)),maxY=Math.max(...nodes.map(n=>n.y+n.h/2));
-  let cw=document.getElementById('mindCanvas').width,ch=document.getElementById('mindCanvas').height;
-  let scale=Math.min(cw/(maxX-minX+200),ch/(maxY-minY+160));
-  zoom=Math.max(Math.min(scale,2.2),0.16);
-  pan.x=(cw/2-(minX+maxX)/2*zoom);pan.y=(ch/2-(minY+maxY)/2*zoom);redraw();
+function deleteNode(){
+  selected.forEach(n=>{
+    links=links.filter(l=>l.from!==n.id&&l.to!==n.id);
+    nodes=nodes.filter(x=>x!==n);
+  });
+  selected=[];redraw();saveState();
 }
 function exportPNG(){
-  let canvas=document.getElementById('mindCanvas');
   let temp=document.createElement('canvas');
   temp.width=canvas.width;temp.height=canvas.height;
   let tctx=temp.getContext('2d');
@@ -298,23 +411,14 @@ function exportSVG(){
   let minY=Math.min(...nodes.map(n=>n.y-n.h/2)),maxY=Math.max(...nodes.map(n=>n.y+n.h/2));
   let width=maxX-minX+180,height=maxY-minY+180;
   let svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+width+'" height="'+height+'">';
-  links.forEach(link=>{
-    let a=nodes.find(n=>n.id===link.from),b=nodes.find(n=>n.id===link.to);
-    if(a&&b){
-      if(link.type==="curve"){
-        let mx=(a.x+b.x)/2+30*(a.y-b.y)/Math.max(50,Math.abs(a.x-b.x));
-        svg+=`<path d="M${a.x-minX+90},${a.y-minY+90} C${mx-minX+90},${a.y-minY+90} ${mx-minX+90},${b.y-minY+90} ${b.x-minX+90},${b.y-minY+90}" stroke="#888" stroke-width="3" fill="none"/>`;
-      }else{
-        svg+=`<line x1="${a.x-minX+90}" y1="${a.y-minY+90}" x2="${b.x-minX+90}" y2="${b.y-minY+90}" stroke="#888" stroke-width="3" ${link.type==="dashed"?'stroke-dasharray="8,6"':link.type==="dotted"?'stroke-dasharray="2,6"':''}/>`;
-      }
-    }
+  links.forEach(l=>{
+    let a=nodes.find(n=>n.id===l.from),b=nodes.find(n=>n.id===l.to);
+    if(!a||!b)return;
+    svg+=`<line x1="${a.x-minX+90}" y1="${a.y-minY+90}" x2="${b.x-minX+90}" y2="${b.y-minY+90}" stroke="#888" stroke-width="3"/>`;
   });
   nodes.forEach(n=>{
-    if(n.shape==="ellipse")
-      svg+=`<ellipse cx="${n.x-minX+90}" cy="${n.y-minY+90}" rx="${n.w/2}" ry="${n.h/2}" fill="${n.color}" stroke="${n.border}" stroke-width="2"/>`;
-    else if(n.shape==="rect")
-      svg+=`<rect x="${n.x-n.w/2-minX+90}" y="${n.y-n.h/2-minY+90}" width="${n.w}" height="${n.h}" fill="${n.color}" stroke="${n.border}" stroke-width="2"/>`;
-    svg+=`<text x="${n.x-minX+90}" y="${n.y-minY+90}" fill="#222" font-size="14" font-family="Arial" text-anchor="middle" alignment-baseline="middle">${(n.icon?n.icon+" ":"")+n.text}</text>`;
+    svg+=`<ellipse cx="${n.x-minX+90}" cy="${n.y-minY+90}" rx="${n.w/2}" ry="${n.h/2}" fill="${n.color}" stroke="${n.border}" stroke-width="2"/>`;
+    svg+=`<text x="${n.x-minX+90}" y="${n.y-minY+90}" fill="#222" font-size="15" font-family="Arial" text-anchor="middle" alignment-baseline="middle">${n.text}</text>`;
   });
   svg+="</svg>";
   let blob=new Blob([svg],{type:"image/svg+xml"});
@@ -323,20 +427,20 @@ function exportSVG(){
 }
 function exportPDF(){
   import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm').then(({default:html2canvas})=>{
-    html2canvas(document.getElementById('mindCanvas')).then(c=>{
+    html2canvas(canvas).then(c=>{
       let img=c.toDataURL("image/png");
-      let pdf=new window.jspdf.jsPDF({orientation:"l",unit:"px",format:[c.width,c.height]});
-      pdf.addImage(img,"PNG",0,0,c.width,c.height);
+      let pdf=new window.jspdf.jsPDF({orientation:"l",unit:"px",format:[canvas.width,canvas.height]});
+      pdf.addImage(img,"PNG",0,0,canvas.width,canvas.height);
       pdf.save("mindmap.pdf");
     });
   });
 }
 function exportXLSX() {
   let data = [
-    ["ID","Nội dung","Shape","X","Y","W","H","Color","Border","Icon","Parent","Sticker"]
+    ["ID","Nội dung","Shape","X","Y","W","H","Color","Border","Icon","Sticker"]
   ];
   nodes.forEach(n=>data.push([
-    n.id,n.text,n.shape,n.x,n.y,n.w,n.h,n.color,n.border,n.icon||"",n.parent||"",n.stickers?n.stickers.join(", "):""
+    n.id,n.text,n.shape,n.x,n.y,n.w,n.h,n.color,n.border,n.icon||"",n.stickers?n.stickers.join(", "):""
   ]));
   let wb = XLSX.utils.book_new();
   let ws = XLSX.utils.aoa_to_sheet(data);
@@ -349,19 +453,36 @@ function saveFile(){
   let a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download="mindmap.json";a.click();
 }
+function loadFile(){document.getElementById('fileInput').click();}
 function openFile(e){
   let file=e.target.files[0];if(!file)return;
   let reader=new FileReader();
   reader.onload=function(ev){
     let data=JSON.parse(ev.target.result);
     nodes=data.nodes;links=data.links;pan=data.pan;zoom=data.zoom;
-    selectedNode=nodes[0];selectedNodes=[selectedNode];selectedLink=null;
-    redraw();
+    selected=[];redraw();
   };reader.readAsText(file);e.target.value="";
 }
-// PROP PANEL
+function fitView(){
+  if(nodes.length==0)return;
+  let minX=Math.min(...nodes.map(n=>n.x-n.w/2)),maxX=Math.max(...nodes.map(n=>n.x+n.w/2));
+  let minY=Math.min(...nodes.map(n=>n.y-n.h/2)),maxY=Math.max(...nodes.map(n=>n.y+n.h/2));
+  let cw=canvas.width,ch=canvas.height;
+  let scale=Math.min(cw/(maxX-minX+180),ch/(maxY-minY+140));
+  zoom=Math.max(Math.min(scale,2.1),0.17);
+  pan.x=(cw/2-(minX+maxX)/2*zoom);pan.y=(ch/2-(minY+maxY)/2*zoom);redraw();
+}
+function undo(){
+  if(undoStack.length>1){redoStack.push(undoStack.pop());let st=undoStack[undoStack.length-1];let d=JSON.parse(st);nodes=d.nodes;links=d.links;pan=d.pan;zoom=d.zoom;redraw();}
+}
+function redo(){
+  if(redoStack.length>0){let st=redoStack.pop();let d=JSON.parse(st);nodes=d.nodes;links=d.links;pan=d.pan;zoom=d.zoom;redraw();undoStack.push(st);}
+}
+// Group
+function toggleGroup(b){groupMode=b;redraw();}
+// Property panel
 function showSideRight(){
-  let s = selectedNode;
+  let s = selected[0];
   if(!s) return;
   let d = document.getElementById('sideRight');
   d.style.display="block";
@@ -376,64 +497,21 @@ function showSideRight(){
 }
 function hideSideRight(){document.getElementById('sideRight').style.display="none";}
 function updateProp(prop, val){
-  if(!selectedNode) return;
+  if(!selected[0]) return;
   if(prop==="w"||prop==="h") val=parseInt(val)||40;
-  selectedNode[prop]=val;
+  selected[0][prop]=val;
   redraw();
 }
 function uploadNodeImg(e){
-  if(!selectedNode)return;
+  if(!selected[0])return;
   let file=e.target.files[0];if(!file)return;
   let reader=new FileReader();
   reader.onload=function(ev){
-    selectedNode.img=ev.target.result;redraw();
+    selected[0].img=ev.target.result;redraw();
   };
   reader.readAsDataURL(file);e.target.value="";
 }
-function editNode(){
-  if(!selectedNode) return;
-  let txt=prompt("Nhập nội dung node:",selectedNode.text||"");
-  if(txt!==null) { selectedNode.text=txt; redraw(); }
-}
-// CLICK NODE/LINK + DRAG
-let canvas=document.getElementById('mindCanvas');
-canvas.onclick = function(e){
-  let rect = canvas.getBoundingClientRect();
-  let x = (e.clientX - rect.left - pan.x)/zoom, y = (e.clientY - rect.top - pan.y)/zoom;
-  let found = nodes.find(n=>Math.abs(x-n.x)<n.w/2 && Math.abs(y-n.y)<n.h/2);
-  if(found){
-    if(groupMode&&(event.ctrlKey||event.metaKey)){if(!selectedNodes.includes(found))selectedNodes.push(found);}else{selectedNode=found;selectedNodes=[found];}
-    redraw();showSideRight();
-  }else{
-    let selLink = null;
-    links.forEach(link=>{
-      let a=nodes.find(n=>n.id===link.from),b=nodes.find(n=>n.id===link.to);
-      if(a&&b){
-        let d = Math.abs((b.y-a.y)*x-(b.x-a.x)*y+b.x*a.y-b.y*a.x)/Math.hypot(b.y-a.y,b.x-a.x);
-        if(d<8/zoom)selLink=link;
-      }
-    });
-    selectedLink=selLink;selectedNode=null;selectedNodes=[];redraw();hideSideRight();
-  }
-};
-// Collapse/Expand nhánh qua icon trên node
-canvas.addEventListener('dblclick', function(e){
-  let rect = canvas.getBoundingClientRect();
-  let x = (e.clientX - rect.left - pan.x)/zoom, y = (e.clientY - rect.top - pan.y)/zoom;
-  let found = nodes.find(n=>Math.abs(x-n.x)<n.w/2 && Math.abs(y-n.y)<n.h/2);
-  if(found){
-    selectedNode=found;showSideRight();
-    // Nếu bấm vào nút collapse/expand
-    if(nodeHasChild(found)){
-      let bx=found.x+found.w/2-10,by=found.y-found.h/2+12;
-      if(Math.hypot(x-bx,y-by)<15){
-        found.collapsed=!found.collapsed;redraw();
-      }
-    }
-  }
-});
-window.addEventListener('resize',redraw);
-redraw();
+window.addEventListener('resize',redraw);saveState();redraw();
 </script>
 </body>
 </html>
