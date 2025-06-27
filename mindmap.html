@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mindmap full-featured demo</title>
+<title>Mindmap Web Tĩnh Full Tính Năng</title>
 <style>
   html, body {
     margin: 0; height: 100%; overflow: hidden;
@@ -59,14 +59,6 @@
   #fileInput {
     display: none;
   }
-  #groupRect {
-    position: absolute;
-    border: 2px dashed #2ecc71aa;
-    pointer-events: none;
-    display: none;
-    z-index: 100;
-    border-radius: 6px;
-  }
 </style>
 </head>
 <body>
@@ -93,8 +85,6 @@
   <button id="exportPngBtn">Xuất ảnh PNG</button>
 </div>
 
-<div id="groupRect"></div>
-
 <canvas id="canvas" tabindex="0"></canvas>
 <textarea id="exportArea" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây" readonly></textarea>
 <input type="file" id="fileInput" accept=".json" />
@@ -119,7 +109,6 @@
   const iconInput = document.getElementById('iconInput');
   const fillColorPicker = document.getElementById('fillColorPicker');
   const strokeColorPicker = document.getElementById('strokeColorPicker');
-  const groupRect = document.getElementById('groupRect');
 
   let width, height;
   function resize() {
@@ -130,36 +119,24 @@
   window.addEventListener('resize', resize);
   resize();
 
-  // Viewport (pan & zoom)
   let offsetX = 0, offsetY = 0, scale = 1;
   let draggingCanvas = false, dragCanvasStart = null, dragCanvasOffset = null;
 
-  // Data structures
   let nodes = [];
   let links = [];
-  let groups = [];
 
-  // Selection
   let selectedNode = null;
   let selectedLink = null;
   let draggingNode = null;
   let dragOffsetX = 0;
   let dragOffsetY = 0;
 
-  // Multi-select for group
-  let selectingGroup = false;
-  let groupSelectStart = null;
-  let groupSelectEnd = null;
-  let selectedGroupNodes = [];
-
-  // History undo/redo
   let history = [];
   let historyIndex = -1;
   function saveHistory() {
     const state = {
       nodes: JSON.parse(JSON.stringify(nodes)),
-      links: JSON.parse(JSON.stringify(links)),
-      groups: JSON.parse(JSON.stringify(groups))
+      links: JSON.parse(JSON.stringify(links))
     };
     history = history.slice(0, historyIndex + 1);
     history.push(state);
@@ -169,11 +146,9 @@
   function restoreState(state) {
     nodes = state.nodes;
     links = state.links;
-    groups = state.groups;
     selectedNode = null;
     selectedLink = null;
     draggingNode = null;
-    selectedGroupNodes = [];
     draw();
     updateUndoRedoButtons();
   }
@@ -192,17 +167,13 @@
     redoBtn.disabled = historyIndex >= history.length - 1;
   }
 
-  // Utility funcs
+  // Utils
   function toWorld(x,y) { return { x:(x - offsetX)/scale, y:(y - offsetY)/scale }; }
   function toScreen(x,y) { return { x:x*scale + offsetX, y:y*scale + offsetY }; }
   function dist(a,b) { return Math.hypot(a.x-b.x,a.y-b.y); }
   function pointInRect(px,py, rx,ry, rw,rh) {
     return px >= rx && px <= rx+rw && py >= ry && py <= ry+rh;
   }
-  function rectIntersect(r1, r2) {
-    return !(r2.x > r1.x+r1.w || r2.x+r2.w < r1.x || r2.y > r1.y+r1.h || r2.y+r2.h < r1.y);
-  }
-  // Node class
   class Node {
     constructor(id,text,x,y,shape='circle',fillColor='#4466ff',strokeColor='#333',icon='') {
       this.id = id;
@@ -263,7 +234,6 @@
       ctx.shadowColor = 'transparent';
       ctx.stroke();
 
-      // Draw icon if exists (emoji or unicode char)
       if(this.icon) {
         ctx.font = '28px Arial';
         ctx.textAlign = 'center';
@@ -272,7 +242,6 @@
         ctx.fillText(this.icon, this.x, this.y - this.height/2 - 32);
       }
 
-      // Draw text inside node
       ctx.fillStyle = selected ? '#000' : '#fff';
       ctx.font = 'bold 16px Arial';
       ctx.textAlign = 'center';
@@ -280,8 +249,6 @@
       wrapText(ctx, this.text, this.x, this.y, this.width-30, 20);
     }
   }
-
-  // Link class
   class Link {
     constructor(fromId, toId) {
       this.from = fromId;
@@ -289,86 +256,25 @@
     }
   }
 
-  // Group class
-  class Group {
-    constructor(id, name, nodeIds) {
-      this.id = id;
-      this.name = name;
-      this.nodeIds = nodeIds; // array of node ids
-    }
-    getBounds(nodes) {
-      if(this.nodeIds.length === 0) return null;
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      this.nodeIds.forEach(id => {
-        const n = nodes.find(x => x.id === id);
-        if(!n) return;
-        minX = Math.min(minX, n.x - n.width/2);
-        maxX = Math.max(maxX, n.x + n.width/2);
-        minY = Math.min(minY, n.y - n.height/2);
-        maxY = Math.max(maxY, n.y + n.height/2);
-      });
-      return { x: minX - 10, y: minY - 10, w: maxX - minX + 20, h: maxY - minY + 20 };
-    }
-    draw(ctx, nodes) {
-      const bounds = this.getBounds(nodes);
-      if(!bounds) return;
-      ctx.save();
-      ctx.strokeStyle = '#27ae60';
-      ctx.fillStyle = 'rgba(39, 174, 96, 0.1)';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = 'rgba(0,0,0,0.2)';
-      ctx.shadowBlur = 10;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
-      ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
-
-      ctx.fillStyle = '#27ae60';
-      ctx.font = 'bold 14px Arial';
-      ctx.textBaseline = 'top';
-      ctx.fillText(this.name, bounds.x + 8, bounds.y + 4);
-      ctx.restore();
-    }
-  }
-
-  // Draw everything
   function draw() {
     ctx.clearRect(0, 0, width, height);
     ctx.save();
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
 
-    // Draw groups behind nodes
-    groups.forEach(g => g.draw(ctx, nodes));
-
-    // Draw links behind nodes
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#666';
     ctx.fillStyle = '#666';
     links.forEach(link => {
       const fromNode = nodes.find(n => n.id === link.from);
       const toNode = nodes.find(n => n.id === link.to);
-      if (!fromNode || !toNode) return;
+      if(!fromNode || !toNode) return;
       drawCurvedLink(fromNode, toNode);
     });
 
-    // Draw nodes
     nodes.forEach(node => {
       node.draw(ctx, node === selectedNode);
     });
-
-    // Draw multi-select rectangle if active
-    if(selectingGroup && groupSelectStart && groupSelectEnd) {
-      const sx = Math.min(groupSelectStart.x, groupSelectEnd.x);
-      const sy = Math.min(groupSelectStart.y, groupSelectEnd.y);
-      const sw = Math.abs(groupSelectEnd.x - groupSelectStart.x);
-      const sh = Math.abs(groupSelectEnd.y - groupSelectStart.y);
-      ctx.strokeStyle = '#2ecc71';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6,4]);
-      ctx.strokeRect(sx, sy, sw, sh);
-      ctx.setLineDash([]);
-    }
 
     ctx.restore();
   }
@@ -392,7 +298,6 @@
 
     drawArrowhead(toNode.x, toNode.y, Math.atan2(dy, dx));
   }
-
   function drawArrowhead(x, y, angle) {
     const size = 10;
     ctx.save();
@@ -407,7 +312,6 @@
     ctx.fill();
     ctx.restore();
   }
-
   function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
@@ -431,39 +335,25 @@
     }
   }
 
-  // Interaction handlers
-
-  let lastMousePos = { x: 0, y: 0 };
-  let isDragging = false;
+  let lastMousePos = {x:0,y:0};
 
   canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    lastMousePos = { x: mouseX, y: mouseY };
+    lastMousePos = {x:mouseX,y:mouseY};
 
     if(e.button === 1 || (e.button === 0 && e.shiftKey)) {
       draggingCanvas = true;
-      dragCanvasStart = { x: mouseX, y: mouseY };
-      dragCanvasOffset = { x: offsetX, y: offsetY };
+      dragCanvasStart = {x:mouseX,y:mouseY};
+      dragCanvasOffset = {x:offsetX,y:offsetY};
       canvas.style.cursor = 'grabbing';
       return;
     }
 
     const worldPos = toWorld(mouseX, mouseY);
 
-    // Multi-select start (alt + drag)
-    if(e.altKey) {
-      selectingGroup = true;
-      groupSelectStart = worldPos;
-      groupSelectEnd = worldPos;
-      selectedGroupNodes = [];
-      draw();
-      return;
-    }
-
-    // Check if clicked on node (top to bottom)
-    for(let i=nodes.length-1; i>=0; i--) {
+    for(let i=nodes.length-1;i>=0;i--) {
       if(nodes[i].contains(worldPos.x, worldPos.y)) {
         draggingNode = nodes[i];
         dragOffsetX = worldPos.x - draggingNode.x;
@@ -476,7 +366,6 @@
       }
     }
 
-    // Check if clicked on link
     const clickedLink = findLinkAt(worldPos);
     if(clickedLink) {
       selectedLink = clickedLink;
@@ -511,20 +400,6 @@
       draw();
       return;
     }
-
-    if(selectingGroup) {
-      groupSelectEnd = toWorld(mouseX, mouseY);
-      selectedGroupNodes = nodes.filter(n => {
-        return (
-          n.x >= Math.min(groupSelectStart.x, groupSelectEnd.x) &&
-          n.x <= Math.max(groupSelectStart.x, groupSelectEnd.x) &&
-          n.y >= Math.min(groupSelectStart.y, groupSelectEnd.y) &&
-          n.y <= Math.max(groupSelectStart.y, groupSelectEnd.y)
-        );
-      });
-      draw();
-      return;
-    }
   });
 
   canvas.addEventListener('mouseup', e => {
@@ -536,23 +411,6 @@
       draggingCanvas = false;
       canvas.style.cursor = 'grab';
     }
-    if(selectingGroup) {
-      selectingGroup = false;
-      groupSelectStart = null;
-      groupSelectEnd = null;
-      // Create group if multiple nodes selected
-      if(selectedGroupNodes.length > 1) {
-        const groupName = prompt('Nhập tên nhóm:');
-        if(groupName) {
-          const groupId = 'group-'+Date.now();
-          groups.push(new Group(groupId, groupName, selectedGroupNodes.map(n => n.id)));
-          saveHistory();
-          draw();
-        }
-      }
-      selectedGroupNodes = [];
-    }
-    updateButtons();
   });
 
   canvas.addEventListener('mouseleave', e => {
@@ -563,12 +421,6 @@
     if(draggingCanvas) {
       draggingCanvas = false;
       canvas.style.cursor = 'grab';
-    }
-    if(selectingGroup) {
-      selectingGroup = false;
-      selectedGroupNodes = [];
-      updateButtons();
-      draw();
     }
   });
 
@@ -587,7 +439,6 @@
     draw();
   }, { passive: false });
 
-  // Keyboard shortcuts
   canvas.addEventListener('keydown', e => {
     if(document.activeElement !== canvas) return;
     if(e.key === 'Delete' || e.key === 'Backspace') {
@@ -607,7 +458,6 @@
     }
   });
 
-  // Toolbar button handlers
   addRootNodeBtn.onclick = () => {
     addRootNode();
     canvas.focus();
@@ -631,7 +481,7 @@
   undoBtn.onclick = () => { undo(); canvas.focus(); };
   redoBtn.onclick = () => { redo(); canvas.focus(); };
   exportBtn.onclick = () => {
-    exportArea.value = JSON.stringify({nodes,links,groups}, null, 2);
+    exportArea.value = JSON.stringify({nodes,links}, null, 2);
     canvas.focus();
   };
   importBtn.onclick = () => fileInput.click();
@@ -646,7 +496,6 @@
         if(data.nodes && data.links) {
           nodes = data.nodes.map(n => Object.assign(new Node(), n));
           links = data.links.map(l => Object.assign(new Link(), l));
-          groups = (data.groups || []).map(g => Object.assign(new Group(), g));
           selectedNode = null;
           selectedLink = null;
           saveHistory();
@@ -663,7 +512,6 @@
     reader.readAsText(fileInput.files[0]);
   });
 
-  // Node and link operations
   function addRootNode() {
     const text = prompt('Nhập nội dung nút gốc:');
     if(!text) return;
@@ -697,10 +545,6 @@
   function deleteNode(node) {
     nodes = nodes.filter(n => n.id !== node.id);
     links = links.filter(l => l.from !== node.id && l.to !== node.id);
-    // Remove from groups
-    groups.forEach(g => {
-      g.nodeIds = g.nodeIds.filter(id => id !== node.id);
-    });
     selectedNode = null;
     saveHistory();
     draw();
@@ -712,7 +556,6 @@
     draw();
   }
 
-  // Auto layout (simple tree)
   function autoLayout() {
     const levels = {};
     function dfs(id, level) {
@@ -741,7 +584,6 @@
     draw();
   }
 
-  // Link detection near point
   function findLinkAt(p) {
     const tol = 10 / scale;
     for(const l of links) {
@@ -790,7 +632,6 @@
     return Math.hypot(p.x-(v.x+t*(w.x-v.x)), p.y-(v.y+t*(w.y-v.y)));
   }
 
-  // Export PNG
   function exportPNG() {
     const dataURL = canvas.toDataURL('image/png');
     const a = document.createElement('a');
@@ -799,19 +640,16 @@
     a.click();
   }
 
-  // Update toolbar button states
   function updateButtons() {
     deleteNodeBtn.disabled = !selectedNode;
     addChildBtn.disabled = !selectedNode;
     deleteLinkBtn.disabled = !selectedLink;
   }
 
-  // Initialization
   saveHistory();
   draw();
   updateButtons();
 
-  // Focus canvas for keyboard support
   canvas.tabIndex = 0;
   canvas.style.outline = 'none';
 
