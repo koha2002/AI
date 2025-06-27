@@ -1,320 +1,400 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Mindmap Web Full Chức Năng (Chuẩn)</title>
-<style>
-body { margin:0; font-family:sans-serif; background:#e9ecef; }
-#toolbar {
-  background:#343a40; color:#fff; padding:8px;
-  display:flex; align-items:center; gap:8px;
-}
-#toolbar button, #toolbar input[type="file"] {
-  background:#495057; color:#fff; border:none; border-radius:4px; padding:6px 14px; font-size:15px; cursor:pointer;
-}
-#toolbar button:hover { background:#212529; }
-#toolbar label { font-size:14px; }
-#canvasWrap {
-  width:100vw; height:90vh; overflow:hidden;
-  background:#fff; border-top:1px solid #bbb;
-  position:relative;
-}
-#mmCanvas { width:100%; height:100%; display:block; background: #f8f9fa;}
-</style>
+  <meta charset="UTF-8">
+  <title>Mindmap Pro Nhiều Chức Năng</title>
+  <style>
+    html,body {margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;}
+    body {font-family:Arial,sans-serif;background:#e8eaf6;}
+    #toolbar {
+      background: #263238; color:#fff; padding:10px 8px; display:flex; align-items:center; gap:8px;
+      font-size:15px; position:relative; z-index:2;
+    }
+    #toolbar label, #toolbar select { font-size:15px; }
+    #toolbar button, #toolbar input[type="file"], #toolbar input[type="color"] {
+      background:#37474f; color:#fff; border:none; border-radius:4px; padding:7px 15px; cursor:pointer;
+      font-size:15px; margin-right:4px;
+    }
+    #toolbar button:hover { background:#111; }
+    #canvasWrap {width:100vw; height:93vh; overflow:hidden; background:#fff;}
+    #mindCanvas {width:100%; height:100%; display:block; background:#f7f9fa;}
+    .tooltip {
+      position: absolute; background: #333; color: #fff; padding:4px 9px; border-radius:7px; font-size:14px;
+      pointer-events: none; z-index: 9; white-space:pre-line; max-width:240px; box-shadow:0 2px 8px #0003;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-<div id="toolbar">
-  <button onclick="addNode()">➕ Thêm node</button>
-  <button onclick="editNode()">✏️ Sửa node</button>
-  <button onclick="removeNode()">❌ Xóa node</button>
-  <button onclick="addImage()">🖼️ Thêm ảnh</button>
-  <button onclick="zoomIn()">🔍 +</button>
-  <button onclick="zoomOut()">🔍 -</button>
-  <button onclick="setPanMode()">✋ Pan</button>
-  <button onclick="undo()">↩️ Undo</button>
-  <button onclick="redo()">↪️ Redo</button>
-  <button onclick="saveFile()">💾 Xuất file</button>
-  <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
-  <button onclick="exportPng()">🖨️ Xuất PNG</button>
-  <span style="margin-left:18px;font-size:14px;color:#ffd700;">Tip: Chọn node, nhấn Enter để sửa, Backspace để xóa, Ctrl+Z/Y để undo/redo, Space+Kéo chuột để Pan!</span>
-</div>
-<div id="canvasWrap">
-  <canvas id="mmCanvas"></canvas>
-</div>
+  <div id="toolbar">
+    <button onclick="addNode()">➕ Node con</button>
+    <button onclick="addSibling()">➕ Node ngang</button>
+    <button onclick="removeNode()">❌ Xóa node</button>
+    <button onclick="undo()">↩️ Undo</button>
+    <button onclick="redo()">↪️ Redo</button>
+    <button onclick="zoomIn()">🔍 +</button>
+    <button onclick="zoomOut()">🔍 -</button>
+    <button onclick="fitView()">🔲 Fit</button>
+    <button onclick="panMode()">✋ Pan</button>
+    <button onclick="exportPNG()">🖨️ PNG</button>
+    <button onclick="exportSVG()">🖨️ SVG</button>
+    <button onclick="saveFile()">💾 Xuất file</button>
+    <input type="file" id="fileInput" accept=".json" onchange="openFile(event)">
+    <label>Ảnh: <input type="file" id="imgInput" accept="image/*" onchange="addImageFile(event)" style="width:120px"></label>
+    <button onclick="addImageUrl()">🖼️ Từ URL</button>
+    <label>Màu: <input type="color" id="colorInput" value="#ffe066" onchange="setColor(this.value)"></label>
+    <label>Font: 
+      <select id="fontInput" onchange="setFont(this.value)">
+        <option value="Arial">Arial</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times</option>
+        <option value="monospace">Monospace</option>
+      </select>
+    </label>
+    <button onclick="addNote()">📝 Ghi chú</button>
+    <button onclick="changeBranch()">🔄 Đổi hướng nhánh</button>
+    <span style="margin-left:16px;color:#ffd700;font-size:14px;">Nhấp đúp 2 lần để sửa nội dung. Ctrl+Z/Y: Undo/Redo, Space+Kéo: Pan, Ctrl+lăn chuột: Zoom</span>
+  </div>
+  <div id="canvasWrap"><canvas id="mindCanvas"></canvas>
+    <div id="tooltip" class="tooltip"></div>
+  </div>
 <script>
-let nodes = [
-  { id: 1, text: "Ý TƯỞNG CHÍNH", x: 500, y: 350, parent: null, img: null }
-];
+/* --- State --- */
+let nodes = [{id:1,text:"Ý TƯỞNG CHÍNH",x:500,y:350,parent:null,img:null,color:"#ffe066",font:"Arial",note:"",branch:"R"}];
 let selected = nodes[0];
-let pan = {x:0, y:0};
-let zoom = 1;
-let mode = 'select';
-let dragNode = null, dragOffset = {x:0, y:0};
-let isPanning = false, panStart = {x:0, y:0};
-let undoStack = [], redoStack = [];
-let canvas = document.getElementById('mmCanvas');
-let ctx = canvas.getContext('2d');
+let pan = {x:0,y:0};
+let zoom = 1, minZoom=0.2, maxZoom=2.5;
+let mode = "select", dragNode=null, dragOffset={x:0,y:0};
+let isPanning=false, panStart={x:0,y:0};
+let undoStack=[], redoStack=[];
+let canvas=document.getElementById('mindCanvas');
+let ctx=canvas.getContext('2d');
+let tooltip=document.getElementById('tooltip');
 
-function saveState() {
+/* --- Helpers --- */
+function saveState(){
   undoStack.push(JSON.stringify({nodes,selectedId:selected?selected.id:null,pan,zoom}));
-  if (undoStack.length > 50) undoStack.shift();
-  redoStack = [];
+  if(undoStack.length>60) undoStack.shift();
+  redoStack=[];
 }
-function restore(stateStr) {
-  let st = JSON.parse(stateStr);
-  nodes = JSON.parse(JSON.stringify(st.nodes));
-  pan = {...st.pan};
-  zoom = st.zoom;
-  selected = st.selectedId ? nodes.find(n=>n.id===st.selectedId) : null;
+function restore(stateStr){
+  let st=JSON.parse(stateStr);
+  nodes=JSON.parse(JSON.stringify(st.nodes));
+  pan={...st.pan}; zoom=st.zoom;
+  selected = st.selectedId ? nodes.find(n=>n.id===st.selectedId):null;
   redraw();
 }
-function resizeCanvas() {
-  canvas.width = document.getElementById('canvasWrap').clientWidth;
-  canvas.height = document.getElementById('canvasWrap').clientHeight;
+function genId(){ return Date.now()+Math.random(); }
+
+/* --- Draw --- */
+function resizeCanvas(){
+  canvas.width=document.getElementById('canvasWrap').clientWidth;
+  canvas.height=document.getElementById('canvasWrap').clientHeight;
 }
-function drawLink(from, to) {
+function drawLink(from,to){
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(from.x, from.y);
-  let mx = (from.x + to.x)/2;
-  ctx.bezierCurveTo(mx, from.y, mx, to.y, to.x, to.y);
-  ctx.strokeStyle = "#888";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  ctx.restore();
+  let dx=to.x-from.x,dy=to.y-from.y;
+  let cpx1=from.x+(from.branch==="L"?-90:90),cpy1=from.y;
+  ctx.moveTo(from.x,from.y);
+  ctx.bezierCurveTo(cpx1,cpy1,to.x-((to.branch==="L"?60:-60)),to.y,to.x,to.y);
+  ctx.strokeStyle="#90a4ae"; ctx.lineWidth=4; ctx.stroke(); ctx.restore();
 }
-function drawNode(node) {
-  let {x,y,text,img} = node;
+function drawNode(node){
+  let {x,y,text,img,color,font}=node;
   ctx.save();
   ctx.beginPath();
-  ctx.arc(x, y, 50, 0, 2 * Math.PI);
-  ctx.fillStyle = (node === selected) ? "#ffe066" : "#f1f3f5";
-  ctx.strokeStyle = (node === selected) ? "#e67700" : "#343a40";
-  ctx.lineWidth = (node === selected) ? 5 : 2;
-  ctx.fill();
-  ctx.stroke();
-  // Draw text
-  ctx.fillStyle = "#222";
-  ctx.font = "18px sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  let offsetY = img ? -18 : 0;
-  ctx.fillText(text, x, y + offsetY);
-  // Draw image if any
-  if (img) {
-    let imageObj = new window.Image();
-    imageObj.onload = () => {
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(x, y+22, 16, 0, 2*Math.PI);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(imageObj, x-16, y+6, 32, 32);
-      ctx.restore();
-    };
-    imageObj.src = img;
-    // For instant preview if cached:
-    if(imageObj.complete) imageObj.onload();
+  ctx.arc(x,y,54,0,2*Math.PI);
+  ctx.fillStyle=color||"#ffe066";
+  ctx.shadowColor="#999"; ctx.shadowBlur=5;
+  ctx.strokeStyle=(node===selected)?"#e67700":"#37474f";
+  ctx.lineWidth=(node===selected)?6:2;
+  ctx.fill(); ctx.stroke();
+  ctx.shadowBlur=0;
+  // Text
+  ctx.fillStyle="#1a1a1a";
+  ctx.font="bold 18px "+(font||"Arial");
+  ctx.textAlign="center"; ctx.textBaseline="middle";
+  let offsetY=img?-22:0;
+  wrapText(ctx,text,x,y+offsetY,92,22);
+  // Image
+  if(img){
+    let imageObj=new window.Image();
+    imageObj.onload=()=>{ctx.save();ctx.beginPath();ctx.arc(x,y+26,18,0,2*Math.PI);ctx.clip();
+    ctx.drawImage(imageObj,x-18,y+8,36,36);ctx.restore();};
+    imageObj.src=img;if(imageObj.complete) imageObj.onload();
   }
   ctx.restore();
+  // Note icon
+  if(node.note){
+    ctx.save();
+    ctx.globalAlpha=0.7;
+    ctx.fillStyle="#00897b";ctx.beginPath();
+    ctx.arc(x+36,y-36,10,0,2*Math.PI);ctx.fill();
+    ctx.fillStyle="#fff";ctx.font="14px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText("📝",x+36,y-36);ctx.restore();
+  }
 }
-function redraw() {
+function wrapText(ctx,text,x,y,maxWidth,lineHeight){
+  let words=text.split(' '),line='',lines=[];
+  for(let n=0;n<words.length;n++){
+    let testLine=line+words[n]+' ';
+    if(ctx.measureText(testLine).width>maxWidth&&n>0){
+      lines.push(line);line=words[n]+' ';
+    }else line=testLine;
+  }lines.push(line);
+  for(let i=0;i<lines.length;i++)
+    ctx.fillText(lines[i],x,y+i*lineHeight-(lines.length-1)*lineHeight/2);
+}
+function redraw(){
   resizeCanvas();
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.setTransform(zoom,0,0,zoom,pan.x,pan.y);
-  // Draw links
+  // Links
   nodes.forEach(n=>{
     if(n.parent!==null){
-      let p = nodes.find(nd=>nd.id===n.parent);
-      if(p) drawLink(p, n);
+      let p=nodes.find(nd=>nd.id===n.parent);
+      if(p) drawLink(p,n);
     }
   });
-  // Draw nodes
   nodes.forEach(drawNode);
 }
-/* --- Mouse Events --- */
-canvas.onmousedown = function(e){
-  let pos = getMousePos(e);
-  let found = null;
+
+/* --- Mouse --- */
+canvas.onmousedown=function(e){
+  let pos=getMouse(e);
+  let found=null;
   for(let i=nodes.length-1;i>=0;i--){
-    let n = nodes[i];
-    let dx = pos.x - n.x, dy = pos.y - n.y;
-    if(dx*dx + dy*dy < 2500) { found = n; break;}
+    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
+    if(dx*dx+dy*dy<3000){found=n;break;}
   }
-  if (mode==='select' && found) {
-    dragNode = found;
-    dragOffset.x = pos.x - found.x;
-    dragOffset.y = pos.y - found.y;
-    selected = found;
-    redraw();
-  } else if(mode==='pan' || (e.button===1 || (e.button===0 && e.shiftKey)) || (mode==='select' && !found)) {
-    isPanning = true;
-    panStart = {x: e.clientX-pan.x, y: e.clientY-pan.y};
+  if(mode==="select"&&found){
+    dragNode=found;
+    dragOffset.x=pos.x-found.x; dragOffset.y=pos.y-found.y;
+    selected=found; redraw();
+  }else if(mode==="pan"||(e.button===1||e.button===2)||(mode==="select"&&!found)){
+    isPanning=true;panStart={x:e.clientX-pan.x,y:e.clientY-pan.y};
   }
 };
-canvas.onmousemove = function(e){
-  if (dragNode) {
-    let pos = getMousePos(e);
-    dragNode.x = pos.x - dragOffset.x;
-    dragNode.y = pos.y - dragOffset.y;
+canvas.onmousemove=function(e){
+  if(dragNode){
+    let pos=getMouse(e);
+    dragNode.x=pos.x-dragOffset.x; dragNode.y=pos.y-dragOffset.y;
     redraw();
   }
-  if (isPanning) {
-    pan.x = e.clientX - panStart.x;
-    pan.y = e.clientY - panStart.y;
+  if(isPanning){
+    pan.x=e.clientX-panStart.x; pan.y=e.clientY-panStart.y;
     redraw();
   }
-};
-canvas.onmouseup = function(e){
-  if (dragNode) { saveState(); }
-  dragNode = null;
-  isPanning = false;
-};
-canvas.onmouseleave = function(){ dragNode = null; isPanning = false; };
-canvas.onclick = function(e){
-  let pos = getMousePos(e);
-  let found = null;
+  // Tooltip
+  let pos=getMouse(e),found=null;
   for(let i=nodes.length-1;i>=0;i--){
-    let n = nodes[i];
-    let dx = pos.x - n.x, dy = pos.y - n.y;
-    if(dx*dx + dy*dy < 2500) { found = n; break;}
+    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
+    if(dx*dx+dy*dy<3000){found=n;break;}
   }
-  selected = found;
-  redraw();
+  if(found&&found.note){
+    tooltip.innerText=found.note;
+    tooltip.style.display="block";
+    let rect=canvas.getBoundingClientRect();
+    tooltip.style.left=(e.clientX+12)+"px";
+    tooltip.style.top=(e.clientY-10)+"px";
+  }else{
+    tooltip.style.display="none";
+  }
 };
-/* --- Zoom by Wheel --- */
-canvas.onwheel = function(e){
-  if (e.ctrlKey) {
+canvas.onmouseup=function(e){if(dragNode)saveState();dragNode=null;isPanning=false;};
+canvas.onmouseleave=function(){dragNode=null;isPanning=false;tooltip.style.display="none";};
+canvas.onclick=function(e){
+  let pos=getMouse(e),found=null;
+  for(let i=nodes.length-1;i>=0;i--){
+    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
+    if(dx*dx+dy*dy<3000){found=n;break;}
+  }
+  selected=found;redraw();
+};
+/* Double click 2 lần để sửa */
+let lastClick=0;
+canvas.ondblclick=function(e){
+  let now=Date.now(),pos=getMouse(e),found=null;
+  for(let i=nodes.length-1;i>=0;i--){
+    let n=nodes[i],dx=pos.x-n.x,dy=pos.y-n.y;
+    if(dx*dx+dy*dy<3000){found=n;break;}
+  }
+  if(found){
+    selected=found;editNode();
+  }
+  lastClick=now;
+};
+/* --- Wheel zoom --- */
+canvas.onwheel=function(e){
+  if(e.ctrlKey){
     e.preventDefault();
-    let mx = (e.offsetX - pan.x)/zoom;
-    let my = (e.offsetY - pan.y)/zoom;
-    if(e.deltaY<0) zoom *= 1.1; else zoom /= 1.1;
-    pan.x = e.offsetX - mx*zoom;
-    pan.y = e.offsetY - my*zoom;
+    let mx=(e.offsetX-pan.x)/zoom,my=(e.offsetY-pan.y)/zoom;
+    if(e.deltaY<0&&zoom<maxZoom)zoom*=1.1;
+    if(e.deltaY>0&&zoom>minZoom)zoom/=1.1;
+    pan.x=e.offsetX-mx*zoom; pan.y=e.offsetY-my*zoom;
     redraw();
   }
 };
-/* --- Keyboard Shortcuts --- */
-document.addEventListener('keydown', function(e){
-  if(document.activeElement.tagName==="INPUT") return;
-  if(e.key==='Enter') editNode();
-  if((e.key==='Delete' || e.key==='Backspace') && selected && selected.parent!==null) removeNode();
-  if(e.ctrlKey && e.key==='z') undo();
-  if(e.ctrlKey && (e.key==='y'||e.key==='Z')) redo();
-  if(e.key===' ') { mode='pan'; }
+/* --- Keyboard --- */
+document.addEventListener('keydown',function(e){
+  if(document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="SELECT")return;
+  if(e.key==="Enter")editNode();
+  if((e.key==="Delete"||e.key==="Backspace")&&selected&&selected.parent!==null)removeNode();
+  if(e.ctrlKey&&e.key==='z')undo();
+  if(e.ctrlKey&&(e.key==='y'||e.key==='Z'))redo();
+  if(e.key===' ')mode='pan';
 });
-document.addEventListener('keyup', function(e){
-  if(e.key===' ') { mode='select'; }
-});
-/* --- Core Node Functions --- */
-function getMousePos(e){
-  let rect = canvas.getBoundingClientRect();
-  let x = (e.clientX - rect.left - pan.x)/zoom;
-  let y = (e.clientY - rect.top - pan.y)/zoom;
+document.addEventListener('keyup',function(e){if(e.key===' ')mode='select';});
+
+/* --- Node --- */
+function getMouse(e){
+  let rect=canvas.getBoundingClientRect();
+  let x=(e.clientX-rect.left-pan.x)/zoom, y=(e.clientY-rect.top-pan.y)/zoom;
   return {x,y};
 }
-function addNode() {
-  if(!selected) { alert("Chọn một node cha!"); return;}
-  let txt = prompt('Nhập nội dung node mới:');
-  if(txt) {
-    let id = Date.now()+Math.random();
-    let angle = Math.random()*2*Math.PI;
-    let newX = selected.x + Math.cos(angle)*180;
-    let newY = selected.y + Math.sin(angle)*120;
-    nodes.push({id,text:txt,x:newX,y:newY,parent:selected.id,img:null});
-    saveState();
-    redraw();
-  }
+function addNode(){
+  if(!selected){alert("Chọn node cha!");return;}
+  let txt=prompt('Nội dung node con:'); if(!txt)return;
+  let id=genId(),angle=Math.random()*2*Math.PI,r=160;
+  let newX=selected.x+(selected.branch==="L"?-r:r);
+  let newY=selected.y+Math.random()*100-50;
+  nodes.push({id,text:txt,x:newX,y:newY,parent:selected.id,img:null,color:selected.color,font:selected.font,note:"",branch:selected.branch});
+  saveState(); redraw();
 }
-function editNode() {
-  if(!selected) return;
-  let txt = prompt('Nội dung mới:', selected.text);
-  if(txt!==null && txt!=="") {
-    selected.text = txt;
-    saveState();
-    redraw();
-  }
+function addSibling(){
+  if(!selected||selected.parent===null){alert("Chọn node con!");return;}
+  let txt=prompt('Nội dung node ngang:'); if(!txt)return;
+  let p=nodes.find(n=>n.id===selected.parent);
+  let id=genId(),angle=Math.random()*2*Math.PI,r=160;
+  let newX=p.x+(p.branch==="L"?-r:r);
+  let newY=p.y+Math.random()*100-50;
+  nodes.push({id,text:txt,x:newX,y:newY,parent:p.id,img:null,color:p.color,font:p.font,note:"",branch:p.branch});
+  saveState(); redraw();
 }
-function removeNode() {
-  if(!selected) return;
-  if(!selected.parent) { alert('Không thể xóa node gốc!'); return;}
-  let delId = selected.id;
-  function removeChilds(pid) {
-    let cs = nodes.filter(n=>n.parent===pid);
-    cs.forEach(c=>removeChilds(c.id));
-    nodes = nodes.filter(n=>n.id!==pid);
-  }
-  removeChilds(delId);
-  selected = null;
-  saveState();
+function editNode(){
+  if(!selected)return;
+  let txt=prompt('Sửa nội dung:',selected.text);
+  if(txt!==null&&txt!==""){selected.text=txt;saveState();redraw();}
+}
+function removeNode(){
+  if(!selected)return;
+  if(!selected.parent){alert("Không xóa node gốc!");return;}
+  let delId=selected.id;
+  function rm(pid){let cs=nodes.filter(n=>n.parent===pid);cs.forEach(c=>rm(c.id));nodes=nodes.filter(n=>n.id!==pid);}
+  rm(delId);selected=null;saveState();redraw();
+}
+function setColor(c){
+  if(!selected)return;
+  selected.color=c;saveState();redraw();
+}
+function setFont(f){
+  if(!selected)return;
+  selected.font=f;saveState();redraw();
+}
+function changeBranch(){
+  if(!selected||selected.parent===null)return;
+  selected.branch=selected.branch==="L"?"R":"L";
+  saveState();redraw();
+}
+/* --- Image --- */
+function addImageFile(e){
+  if(!selected)return;
+  let file=e.target.files[0]; if(!file)return;
+  let reader=new FileReader();
+  reader.onload=function(ev){
+    selected.img=ev.target.result;
+    saveState();redraw();
+  };
+  reader.readAsDataURL(file);
+  e.target.value="";
+}
+function addImageUrl(){
+  if(!selected)return;
+  let url=prompt("Dán URL ảnh:");
+  if(url){selected.img=url;saveState();redraw();}
+}
+/* --- Ghi chú --- */
+function addNote(){
+  if(!selected)return;
+  let txt=prompt("Nội dung ghi chú:",selected.note||"");
+  if(txt!==null){selected.note=txt;saveState();redraw();}
+}
+/* --- Pan/Zoom/Undo/Redo/File --- */
+function panMode(){mode="pan";}
+function zoomIn(){if(zoom<maxZoom)zoom*=1.17;redraw();}
+function zoomOut(){if(zoom>minZoom)zoom/=1.17;redraw();}
+function fitView(){
+  // Tìm bounding box nodes
+  if(nodes.length==0)return;
+  let minX=Math.min(...nodes.map(n=>n.x)),maxX=Math.max(...nodes.map(n=>n.x));
+  let minY=Math.min(...nodes.map(n=>n.y)),maxY=Math.max(...nodes.map(n=>n.y));
+  let cw=canvas.width,ch=canvas.height;
+  let scale=Math.min(cw/(maxX-minX+180),ch/(maxY-minY+180));
+  zoom=Math.max(Math.min(scale,2.3),0.18);
+  pan.x=(cw/2-(minX+maxX)/2*zoom);
+  pan.y=(ch/2-(minY+maxY)/2*zoom);
   redraw();
 }
-function addImage() {
-  if(!selected) return;
-  let url = prompt('Dán URL hình ảnh:');
-  if(url) {
-    selected.img = url;
-    saveState();
-    redraw();
-  }
-}
-function setPanMode(){ mode='pan'; }
-function zoomIn(){ zoom*=1.2; redraw(); }
-function zoomOut(){ zoom/=1.2; redraw(); }
 function undo(){
-  if(undoStack.length>1){
-    redoStack.push(undoStack.pop());
-    restore(undoStack[undoStack.length-1]);
-  }
+  if(undoStack.length>1){redoStack.push(undoStack.pop());restore(undoStack[undoStack.length-1]);}
 }
 function redo(){
-  if(redoStack.length>0){
-    let st = redoStack.pop();
-    restore(st);
-    undoStack.push(st);
-  }
+  if(redoStack.length>0){let st=redoStack.pop();restore(st);undoStack.push(st);}
 }
 function saveFile(){
-  let data = JSON.stringify({nodes,pan,zoom});
-  let blob = new Blob([data],{type:"application/json"});
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = "mindmap.json";
-  a.click();
+  let data=JSON.stringify({nodes,pan,zoom});
+  let blob=new Blob([data],{type:"application/json"});
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download="mindmap.json"; a.click();
 }
 function openFile(e){
-  let file = e.target.files[0];
-  if(!file) return;
-  let reader = new FileReader();
-  reader.onload = function(ev){
-    let data = JSON.parse(ev.target.result);
-    nodes = data.nodes; pan = data.pan; zoom = data.zoom;
-    selected = nodes[0];
-    saveState();
-    redraw();
-  };
-  reader.readAsText(file);
-  e.target.value = '';
+  let file=e.target.files[0]; if(!file)return;
+  let reader=new FileReader();
+  reader.onload=function(ev){
+    let data=JSON.parse(ev.target.result);
+    nodes=data.nodes;pan=data.pan;zoom=data.zoom;
+    selected=nodes[0];saveState();redraw();
+  };reader.readAsText(file);e.target.value="";
 }
-function exportPng(){
-  let tempCanvas = document.createElement('canvas');
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  let tctx = tempCanvas.getContext('2d');
-  tctx.fillStyle = "#fff"; tctx.fillRect(0,0,canvas.width,canvas.height);
+function exportPNG(){
+  let temp=document.createElement('canvas');
+  temp.width=canvas.width;temp.height=canvas.height;
+  let tctx=temp.getContext('2d');
+  tctx.fillStyle="#fff";tctx.fillRect(0,0,canvas.width,canvas.height);
   tctx.drawImage(canvas,0,0);
-  let url = tempCanvas.toDataURL("image/png");
-  let a = document.createElement('a');
-  a.href = url;
-  a.download = "mindmap.png";
-  a.click();
+  let url=temp.toDataURL("image/png");
+  let a=document.createElement('a');a.href=url;a.download="mindmap.png";a.click();
+}
+function exportSVG(){
+  // Xuất SVG vector (không hỗ trợ ảnh inline)
+  let minX=Math.min(...nodes.map(n=>n.x)),maxX=Math.max(...nodes.map(n=>n.x));
+  let minY=Math.min(...nodes.map(n=>n.y)),maxY=Math.max(...nodes.map(n=>n.y));
+  let width=maxX-minX+200,height=maxY-minY+200;
+  let svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+width+'" height="'+height+'">';
+  nodes.forEach(n=>{
+    if(n.parent!==null){
+      let p=nodes.find(nd=>nd.id===n.parent);
+      let cpx1=p.x+(p.branch==="L"?-90:90),cpy1=p.y;
+      let d="M"+(p.x-minX+100)+","+(p.y-minY+100)+" C"+(cpx1-minX+100)+","+ (cpy1-minY+100)+" "+(n.x-(n.branch==="L"?60:-60)-minX+100)+","+ (n.y-minY+100)+" "+(n.x-minX+100)+","+(n.y-minY+100);
+      svg+='<path d="'+d+'" fill="none" stroke="#90a4ae" stroke-width="4"/>';
+    }
+  });
+  nodes.forEach(n=>{
+    svg+='<circle cx="'+(n.x-minX+100)+'" cy="'+(n.y-minY+100)+'" r="54" fill="'+(n.color||"#ffe066")+'" stroke="#37474f" stroke-width="'+(n===selected?6:2)+'"/>';
+    svg+='<text x="'+(n.x-minX+100)+'" y="'+(n.y-minY+100)+'" fill="#1a1a1a" font-size="18" font-family="'+(n.font||"Arial")+'" text-anchor="middle" alignment-baseline="middle">'+(n.text.replace(/&/g,"&amp;"))+'</text>';
+    // Không nhúng ảnh SVG ở đây
+  });
+  svg+="</svg>";
+  let blob=new Blob([svg],{type:"image/svg+xml"});
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download="mindmap.svg";a.click();
 }
 /* --- Init --- */
-window.addEventListener('resize', redraw);
-saveState();
-redraw();
+window.addEventListener('resize',redraw);
+saveState(); redraw();
 </script>
 </body>
 </html>
-
