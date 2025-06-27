@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mindmap nâng cao - zoom, undo, xóa, layout, export</title>
+<title>Mindmap nâng cao với bàn phím và nhiều hình dạng</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 10px; }
+  body { font-family: Arial, sans-serif; margin: 10px; user-select: none; }
   #toolbar {
     margin-bottom: 10px;
   }
@@ -24,14 +24,35 @@
     margin-top: 10px;
     font-family: monospace;
   }
+  #colorPickers {
+    margin-top: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  #colorPickers label {
+    font-size: 14px;
+  }
+  #colorPickers input[type=color] {
+    cursor: pointer;
+    width: 40px;
+    height: 25px;
+    border: none;
+  }
 </style>
 </head>
 <body>
 
-<h2>Mindmap nâng cao</h2>
+<h2>Mindmap nâng cao với bàn phím và nhiều hình dạng</h2>
 
 <div id="toolbar">
   <button id="addNodeBtn">Thêm nút</button>
+  <select id="shapeSelector" title="Chọn hình dạng nút">
+    <option value="circle">Hình tròn</option>
+    <option value="rect">Hình chữ nhật</option>
+    <option value="ellipse">Hình elip</option>
+    <option value="diamond">Hình thoi</option>
+  </select>
   <button id="deleteNodeBtn" disabled>Xóa nút</button>
   <button id="deleteLinkBtn" disabled>Xóa liên kết</button>
   <button id="autoLayoutBtn">Tự động sắp xếp</button>
@@ -40,10 +61,19 @@
   <button id="exportBtn">Xuất dữ liệu JSON</button>
   <button id="importBtn">Tải dữ liệu JSON</button>
   <button id="exportPngBtn">Xuất ảnh PNG</button>
+  <button id="copyNodeBtn" disabled>Copy nút</button>
+  <button id="pasteNodeBtn" disabled>Paste nút</button>
   <input type="file" id="fileInput" style="display:none" accept=".json" />
 </div>
 
-<canvas id="canvas" width="900" height="600"></canvas>
+<div id="colorPickers">
+  <label for="fillColorPicker">Màu nền nút:</label>
+  <input type="color" id="fillColorPicker" value="#ffffff" />
+  <label for="strokeColorPicker">Màu viền nút:</label>
+  <input type="color" id="strokeColorPicker" value="#333333" />
+</div>
+
+<canvas id="canvas" width="900" height="600" tabindex="0"></canvas>
 <textarea id="exportArea" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây" readonly></textarea>
 
 <script>
@@ -61,8 +91,13 @@
   const exportBtn = document.getElementById('exportBtn');
   const importBtn = document.getElementById('importBtn');
   const exportPngBtn = document.getElementById('exportPngBtn');
+  const copyNodeBtn = document.getElementById('copyNodeBtn');
+  const pasteNodeBtn = document.getElementById('pasteNodeBtn');
   const fileInput = document.getElementById('fileInput');
   const exportArea = document.getElementById('exportArea');
+  const shapeSelector = document.getElementById('shapeSelector');
+  const fillColorPicker = document.getElementById('fillColorPicker');
+  const strokeColorPicker = document.getElementById('strokeColorPicker');
 
   // Data structures
   let nodes = [];
@@ -92,32 +127,55 @@
   let selectedLink = null;
   let linkStartNode = null;
 
+  let copiedNode = null;
+
   // Constants
   const NODE_RADIUS = 40;
+  const NODE_WIDTH = 120;
+  const NODE_HEIGHT = 70;
 
   // Classes
   class Node {
-    constructor(id, text, x, y) {
+    constructor(id, text, x, y, shape = 'circle', fillColor = '#ffffff', strokeColor = '#333333') {
       this.id = id;
       this.text = text;
       this.x = x;
       this.y = y;
+      this.shape = shape; // circle, rect, ellipse, diamond
+      this.fillColor = fillColor;
+      this.strokeColor = strokeColor;
       this.radius = NODE_RADIUS;
+      this.width = NODE_WIDTH;
+      this.height = NODE_HEIGHT;
     }
+
     isPointInside(px, py) {
       const dx = px - this.x;
       const dy = py - this.y;
-      return dx * dx + dy * dy <= this.radius * this.radius;
+
+      switch (this.shape) {
+        case 'circle':
+          return dx * dx + dy * dy <= this.radius * this.radius;
+        case 'rect':
+          return px >= this.x - this.width / 2 && px <= this.x + this.width / 2 &&
+                 py >= this.y - this.height / 2 && py <= this.y + this.height / 2;
+        case 'ellipse':
+          // ellipse formula (dx/a)^2 + (dy/b)^2 <= 1
+          return (dx*dx) / ((this.width/2)*(this.width/2)) + (dy*dy) / ((this.height/2)*(this.height/2)) <= 1;
+        case 'diamond':
+          // diamond shape: |dx|/(width/2) + |dy|/(height/2) <= 1
+          return (Math.abs(dx) / (this.width / 2)) + (Math.abs(dy) / (this.height / 2)) <= 1;
+        default:
+          return false;
+      }
     }
   }
 
   function saveHistory() {
-    // Save current state (deep clone)
     const state = {
       nodes: JSON.parse(JSON.stringify(nodes)),
       links: JSON.parse(JSON.stringify(links))
     };
-    // Remove redo history if we add new action
     history = history.slice(0, historyIndex + 1);
     history.push(state);
     historyIndex++;
@@ -139,7 +197,9 @@
   }
 
   function restoreState(state) {
-    nodes = JSON.parse(JSON.stringify(state.nodes));
+    nodes = state.nodes.map(n => new Node(
+      n.id, n.text, n.x, n.y, n.shape, n.fillColor, n.strokeColor
+    ));
     links = JSON.parse(JSON.stringify(state.links));
     selectedNode = null;
     selectedLink = null;
@@ -151,7 +211,6 @@
     redoBtn.disabled = historyIndex >= history.length - 1;
   }
 
-  // Coordinate conversion (canvas to world and vice versa)
   function toWorld(x, y) {
     return {
       x: (x - offsetX) / scale,
@@ -164,6 +223,30 @@
       x: x * scale + offsetX,
       y: y * scale + offsetY
     };
+  }
+
+  function drawNodeShape(node, x, y, radius, width, height) {
+    ctx.beginPath();
+    switch(node.shape) {
+      case 'circle':
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        break;
+      case 'rect':
+        ctx.rect(x - width/2, y - height/2, width, height);
+        break;
+      case 'ellipse':
+        ctx.ellipse(x, y, width/2, height/2, 0, 0, Math.PI * 2);
+        break;
+      case 'diamond':
+        ctx.moveTo(x, y - height/2);
+        ctx.lineTo(x + width/2, y);
+        ctx.lineTo(x, y + height/2);
+        ctx.lineTo(x - width/2, y);
+        ctx.closePath();
+        break;
+      default:
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+    }
   }
 
   function draw() {
@@ -188,15 +271,15 @@
     // Draw nodes
     nodes.forEach(node => {
       const screenPos = toScreen(node.x, node.y);
-      ctx.beginPath();
-      ctx.fillStyle = (node === selectedNode) ? '#ffec99' : '#fff';
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 2;
+      ctx.fillStyle = node.fillColor;
+      ctx.strokeStyle = (node === selectedNode) ? '#e67e22' : node.strokeColor;
+      ctx.lineWidth = 3;
       ctx.shadowColor = 'rgba(0,0,0,0.15)';
       ctx.shadowBlur = 6;
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
-      ctx.arc(screenPos.x, screenPos.y, node.radius * scale, 0, Math.PI * 2);
+
+      drawNodeShape(node, screenPos.x, screenPos.y, node.radius * scale, node.width * scale, node.height * scale);
       ctx.fill();
       ctx.shadowColor = 'transparent';
       ctx.stroke();
@@ -206,11 +289,10 @@
       ctx.font = `${14 * scale}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      wrapText(ctx, node.text, screenPos.x, screenPos.y, node.radius * 3 * scale, 18 * scale);
+      wrapText(ctx, node.text, screenPos.x, screenPos.y, (node.width - 20) * scale, 18 * scale);
     });
   }
 
-  // Wrap text for multi-line inside node
   function wrapText(context, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
@@ -235,30 +317,25 @@
     }
   }
 
-  // Add node handler
   function addNode() {
     const text = prompt('Nhập nội dung cho nút:');
     if (!text) return;
-    // Place node in center view
     const centerX = (canvas.width / 2 - offsetX) / scale;
     const centerY = (canvas.height / 2 - offsetY) / scale;
     const id = Date.now().toString();
-    nodes.push(new Node(id, text, centerX, centerY));
+    const shape = shapeSelector.value;
+    const fillColor = fillColorPicker.value;
+    const strokeColor = strokeColorPicker.value;
+    nodes.push(new Node(id, text, centerX, centerY, shape, fillColor, strokeColor));
     saveHistory();
     draw();
   }
 
-  // Get node at screen coordinates
   function getNodeAtPos(screenX, screenY) {
     const worldPos = toWorld(screenX, screenY);
-    return nodes.find(node => {
-      const dx = worldPos.x - node.x;
-      const dy = worldPos.y - node.y;
-      return dx * dx + dy * dy <= (node.radius * node.radius);
-    });
+    return nodes.find(node => node.isPointInside(worldPos.x, worldPos.y));
   }
 
-  // Get link near point (within certain tolerance)
   function getLinkAtPos(screenX, screenY) {
     const worldPos = toWorld(screenX, screenY);
     const tolerance = 10 / scale;
@@ -274,7 +351,6 @@
   }
 
   function pointNearLine(p, a, b, tol) {
-    // Check if point p is within tol distance from segment a-b
     const dx = b.x - a.x;
     const dy = b.y - a.y;
     const lengthSq = dx * dx + dy * dy;
@@ -287,14 +363,12 @@
     return distSq <= tol * tol;
   }
 
-  // Mouse interaction handlers
   canvas.addEventListener('mousedown', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-      // Middle click or Shift + Left click: drag canvas
       draggingCanvas = true;
       dragCanvasStartX = x;
       dragCanvasStartY = y;
@@ -304,7 +378,6 @@
       return;
     }
 
-    // Ctrl + click to create links between nodes
     if (e.ctrlKey && e.button === 0) {
       const node = getNodeAtPos(x, y);
       if (!node) return;
@@ -312,7 +385,6 @@
         linkStartNode = node;
         alert('Chọn nút thứ hai (Ctrl + click) để nối liên kết');
       } else if (linkStartNode.id !== node.id) {
-        // Check if link exists
         const exists = links.some(l => 
           (l.from === linkStartNode.id && l.to === node.id) ||
           (l.from === node.id && l.to === linkStartNode.id)
@@ -327,7 +399,6 @@
       return;
     }
 
-    // Check if clicked on a node
     const node = getNodeAtPos(x, y);
     if (node) {
       draggingNode = node;
@@ -337,26 +408,27 @@
       dragOffsetY = toWorld(x, y).y - node.y;
       deleteNodeBtn.disabled = false;
       deleteLinkBtn.disabled = true;
+      copyNodeBtn.disabled = false;
       draw();
       return;
     }
 
-    // Check if clicked on a link
     const link = getLinkAtPos(x, y);
     if (link) {
       selectedLink = link;
       selectedNode = null;
       deleteLinkBtn.disabled = false;
       deleteNodeBtn.disabled = true;
+      copyNodeBtn.disabled = true;
       draw();
       return;
     }
 
-    // Clicked empty space
     selectedNode = null;
     selectedLink = null;
     deleteNodeBtn.disabled = true;
     deleteLinkBtn.disabled = true;
+    copyNodeBtn.disabled = true;
     draw();
   });
 
@@ -401,7 +473,6 @@
     }
   });
 
-  // Zoom with mouse wheel
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
@@ -409,20 +480,17 @@
     const mouseY = e.clientY - rect.top;
     const wheel = e.deltaY < 0 ? 1.1 : 0.9;
 
-    // Zoom relative to mouse pointer
     const worldPosBefore = toWorld(mouseX, mouseY);
     scale *= wheel;
     scale = Math.min(Math.max(scale, 0.2), 3);
     const worldPosAfter = toWorld(mouseX, mouseY);
 
-    // Adjust offset to keep mouse position stable
     offsetX += (worldPosAfter.x - worldPosBefore.x) * scale;
     offsetY += (worldPosAfter.y - worldPosBefore.y) * scale;
 
     draw();
   });
 
-  // Double click to edit node text
   canvas.addEventListener('dblclick', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -442,11 +510,11 @@
 
   deleteNodeBtn.onclick = () => {
     if (!selectedNode) return;
-    // Remove related links
     links = links.filter(l => l.from !== selectedNode.id && l.to !== selectedNode.id);
     nodes = nodes.filter(n => n.id !== selectedNode.id);
     selectedNode = null;
     deleteNodeBtn.disabled = true;
+    copyNodeBtn.disabled = true;
     saveHistory();
     draw();
   };
@@ -481,7 +549,9 @@
       try {
         const data = JSON.parse(event.target.result);
         if (data.nodes && data.links) {
-          nodes = data.nodes.map(n => new Node(n.id, n.text, n.x, n.y));
+          nodes = data.nodes.map(n => new Node(
+            n.id, n.text, n.x, n.y, n.shape, n.fillColor, n.strokeColor
+          ));
           links = data.links;
           selectedNode = null;
           selectedLink = null;
@@ -503,77 +573,42 @@
   };
 
   exportPngBtn.onclick = () => {
-    // Temporary scale to 2x for better resolution
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width * 2;
-    tempCanvas.height = canvas.height * 2;
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.scale(2, 2);
-    // Copy current drawing
-    // Use the same draw function but draw to tempCtx with adjusted scale and offset
-    tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-    // Draw links
-    tempCtx.lineWidth = 2;
-    links.forEach(link => {
-      const from = nodes.find(n => n.id === link.from);
-      const to = nodes.find(n => n.id === link.to);
-      if (from && to) {
-        const fromScreen = {
-          x: from.x * scale + offsetX,
-          y: from.y * scale + offsetY
-        };
-        const toScreenPos = {
-          x: to.x * scale + offsetX,
-          y: to.y * scale + offsetY
-        };
-        tempCtx.strokeStyle = '#555';
-        tempCtx.beginPath();
-        tempCtx.moveTo(fromScreen.x, fromScreen.y);
-        tempCtx.lineTo(toScreenPos.x, toScreenPos.y);
-        tempCtx.stroke();
-      }
-    });
-
-    // Draw nodes
-    nodes.forEach(node => {
-      const screenPos = {
-        x: node.x * scale + offsetX,
-        y: node.y * scale + offsetY
-      };
-      tempCtx.beginPath();
-      tempCtx.fillStyle = '#fff';
-      tempCtx.strokeStyle = '#333';
-      tempCtx.lineWidth = 2;
-      tempCtx.shadowColor = 'rgba(0,0,0,0.15)';
-      tempCtx.shadowBlur = 6;
-      tempCtx.shadowOffsetX = 2;
-      tempCtx.shadowOffsetY = 2;
-      tempCtx.arc(screenPos.x, screenPos.y, node.radius * scale, 0, Math.PI * 2);
-      tempCtx.fill();
-      tempCtx.shadowColor = 'transparent';
-      tempCtx.stroke();
-
-      // Text
-      tempCtx.fillStyle = '#000';
-      tempCtx.font = `${14 * scale}px Arial`;
-      tempCtx.textAlign = 'center';
-      tempCtx.textBaseline = 'middle';
-      wrapText(tempCtx, node.text, screenPos.x, screenPos.y, node.radius * 3 * scale, 18 * scale);
-    });
-
-    // Generate PNG image
-    const dataURL = tempCanvas.toDataURL('image/png');
+    const dataURL = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataURL;
     a.download = 'mindmap.png';
     a.click();
   };
 
-  // Simple auto-layout function - arrange nodes in tree layout
-  // Root node is one with no incoming links
-  function autoLayout() {
-    // Find roots (nodes with no incoming links)
+  copyNodeBtn.onclick = () => {
+    if (!selectedNode) return;
+    copiedNode = JSON.parse(JSON.stringify(selectedNode));
+    pasteNodeBtn.disabled = false;
+  };
+
+  pasteNodeBtn.onclick = () => {
+    if (!copiedNode) return;
+    // Offset pasted node to avoid overlap
+    const newId = Date.now().toString();
+    const offsetPos = 40 / scale;
+    const newNode = new Node(
+      newId,
+      copiedNode.text,
+      copiedNode.x + offsetPos,
+      copiedNode.y + offsetPos,
+      copiedNode.shape,
+      copiedNode.fillColor,
+      copiedNode.strokeColor
+    );
+    nodes.push(newNode);
+    selectedNode = newNode;
+    deleteNodeBtn.disabled = false;
+    copyNodeBtn.disabled = false;
+    saveHistory();
+    draw();
+  };
+
+  autoLayoutBtn.onclick = () => {
     const incoming = {};
     nodes.forEach(n => incoming[n.id] = 0);
     links.forEach(l => incoming[l.to] = (incoming[l.to] || 0) + 1);
@@ -582,7 +617,6 @@
       alert('Không tìm thấy nút gốc để tự động sắp xếp!');
       return;
     }
-    // For simplicity, layout each root subtree vertically
     const levelGap = 120;
     const siblingGap = 150;
 
@@ -610,29 +644,90 @@
 
     saveHistory();
     draw();
-  }
+  };
 
-  autoLayoutBtn.onclick = autoLayout;
+  // Keyboard support
+  canvas.addEventListener('keydown', (e) => {
+    if (document.activeElement !== canvas) return;
 
-  // Initialize history
+    switch(e.key) {
+      case 'Delete':
+      case 'Backspace':
+        if (selectedNode) {
+          deleteNodeBtn.click();
+        } else if (selectedLink) {
+          deleteLinkBtn.click();
+        }
+        e.preventDefault();
+        break;
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        if (selectedNode) {
+          let step = e.shiftKey ? 10 / scale : 1 / scale;
+          switch(e.key) {
+            case 'ArrowUp': selectedNode.y -= step; break;
+            case 'ArrowDown': selectedNode.y += step; break;
+            case 'ArrowLeft': selectedNode.x -= step; break;
+            case 'ArrowRight': selectedNode.x += step; break;
+          }
+          saveHistory();
+          draw();
+          e.preventDefault();
+        }
+        break;
+      case 'z':
+      case 'Z':
+        if (e.ctrlKey || e.metaKey) {
+          if (e.shiftKey) {
+            redoBtn.click();
+          } else {
+            undoBtn.click();
+          }
+          e.preventDefault();
+        }
+        break;
+      case 'c':
+      case 'C':
+        if ((e.ctrlKey || e.metaKey) && selectedNode) {
+          copyNodeBtn.click();
+          e.preventDefault();
+        }
+        break;
+      case 'v':
+      case 'V':
+        if ((e.ctrlKey || e.metaKey) && !pasteNodeBtn.disabled) {
+          pasteNodeBtn.click();
+          e.preventDefault();
+        }
+        break;
+    }
+  });
+
+  // Focus canvas for keyboard support
+  canvas.tabIndex = 0;
+
+  // Initialize history and draw
   saveHistory();
-
-  // Initial draw
   draw();
 
-  // Instructions in console
-  console.log('Hướng dẫn Mindmap nâng cao:');
-  console.log('- Thêm nút: nút "Thêm nút"');
-  console.log('- Kéo thả nút để di chuyển');
-  console.log('- Ctrl + click hai nút để nối liên kết');
-  console.log('- Chọn nút hoặc liên kết rồi nhấn "Xóa" tương ứng để xoá');
-  console.log('- Shift + click hoặc giữa click và kéo để di chuyển canvas');
-  console.log('- Cuộn chuột để zoom (phóng to/thu nhỏ)');
-  console.log('- Double click nút để sửa text');
-  console.log('- Undo/Redo các thao tác');
-  console.log('- Tự động sắp xếp theo cây');
-  console.log('- Xuất JSON và tải JSON để lưu/tiếp tục chỉnh sửa');
-  console.log('- Xuất ảnh PNG');
+  // Instructions console log
+  console.log(`Hướng dẫn sử dụng:
+- Thêm nút: nút "Thêm nút"
+- Chọn hình dạng, màu nền, màu viền trước khi thêm
+- Kéo thả nút để di chuyển
+- Ctrl + click 2 nút để tạo liên kết
+- Chọn node/link và nhấn Delete để xóa
+- Phím mũi tên để di chuyển nút (Shift + mũi tên di chuyển nhanh)
+- Ctrl+Z / Ctrl+Y để Undo/Redo
+- Ctrl+C / Ctrl+V để Copy/Paste nút
+- Shift + click hoặc click giữa + kéo để di chuyển canvas
+- Cuộn chuột để zoom
+- Double click để chỉnh sửa nội dung nút
+- Auto layout sắp xếp nút theo cây
+- Xuất JSON, tải JSON để lưu/tiếp tục
+- Xuất ảnh PNG`);
 
 })();
 </script>
