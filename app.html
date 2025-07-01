@@ -2,12 +2,12 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>App & Tools List</title>
+  <title>Danh sách Ứng dụng</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
   <style>
-    :root { --main: #185adb; }
-    html, body { height: 100%; margin: 0; padding: 0; }
+    html, body {height:100%;margin:0;padding:0;}
     body {
       min-height: 100vh;
       font-family: 'Montserrat', Arial, sans-serif;
@@ -16,40 +16,21 @@
       position: relative;
       overflow-x: hidden;
     }
-    main {
-      flex: 1 0 auto;
-      width: 100vw;
-      min-height: 70vh;
-      display: flex; flex-direction: column;
-      z-index: 2;
-      align-items: center;
-    }
     #star-canvas {
-      position: fixed;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+      position: fixed; left:0; top:0; width:100vw; height:100vh; z-index:0; pointer-events:none;
     }
     #mouse-light {
-      position: fixed;
-      top: 0; left: 0;
-      width: 120px; height: 120px;
-      margin-left: -60px; margin-top: -60px;
-      pointer-events: none;
-      border-radius: 50%;
+      position: fixed; top:0; left:0; width:120px; height:120px; margin-left:-60px; margin-top:-60px;
+      pointer-events:none; border-radius:50%;
       background: radial-gradient(circle, #86bcff44 0%, #fff0 80%);
-      mix-blend-mode: lighten;
-      z-index: 10;
-      transition: background 0.22s;
+      mix-blend-mode: lighten; z-index: 10; transition: background 0.22s;
     }
     .mini-header {
       display: flex; align-items: center;
       background: #192945d5; box-shadow: 0 1px 8px #185adb09;
       height: 47px; min-height: 40px; padding: 0 15px 0 7px;
       border-bottom: 1.2px solid #233d61;
-      position: sticky; top: 0; left: 0; right: 0; z-index: 20;
-      gap: 14px;
+      position: sticky; top: 0; left: 0; right: 0; z-index: 20; gap: 14px;
     }
     .home-btn {
       background: none; border: none;
@@ -61,77 +42,96 @@
     .home-btn img {width:21px;height:21px;}
     .mini-title {font-weight:700; font-size:1.07rem; color:#63aaff;}
 
-    .app-list-wrap {
-      margin: 70px auto 60px auto;
+    .app-grid-wrap {
+      margin: 60px auto 50px auto;
       background: rgba(18,32,67,0.96);
       border-radius: 24px;
       box-shadow: 0 6px 32px 0 #12204385, 0 1px 4px #185adb09;
-      padding: 36px 0 28px 0;
+      padding: 36px 20px 34px 20px;
       width: 100%;
-      max-width: 510px;
+      max-width: 1050px;
       backdrop-filter: blur(2.5px);
       animation: fadein 0.9s cubic-bezier(.43,.94,.71,1.36);
     }
     .app-title {
-      font-size: 1.8rem;
+      font-size: 1.65rem;
       font-weight: 800;
       color: #63aaff;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       letter-spacing: 1.1px;
       text-align: center;
       text-shadow: 0 2px 12px #185adb34;
       animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
     }
     @keyframes fadein {from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
-    .app-list {
-      list-style: none;
-      margin: 0; padding: 0 26px;
-      display: flex; flex-direction: column; gap: 24px;
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px,1fr));
+      gap: 25px 18px;
+      width: 100%;
     }
-    .app-item {
-      background: linear-gradient(92deg, #274788 30%, #142a51 100%);
-      border-radius: 17px;
-      padding: 19px 20px 18px 17px;
-      box-shadow: 0 3px 18px #16264a29;
-      display: flex; align-items: center;
-      gap: 19px;
-      transition: transform 0.17s, box-shadow 0.18s;
-      font-size: 1.19rem;
+    .app-card {
+      background: #2496ff10;
+      border-radius: 15px;
+      box-shadow: 0 2px 12px #13204314;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 22px 12px 13px 12px;
+      min-height: 188px;
+      transition: box-shadow 0.16s, transform 0.13s;
+      position: relative;
+    }
+    .app-card:hover {
+      box-shadow: 0 10px 32px #2bb5e450, 0 1.5px 7px #119caa23;
+      transform: translateY(-4px) scale(1.025);
+      z-index: 2;
+    }
+    .app-card .app-icon {
+      width: 60px; height: 60px;
+      margin-bottom: 15px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.7em; border-radius: 11px;
+      background: #1792ec17;
+      box-shadow: 0 2px 8px #154fc82b;
+      color: #2587d5;
+      overflow: hidden;
+    }
+    .app-card .app-icon img {
+      width: 100%; height: 100%; object-fit: contain;
+      background: none; border-radius: 11px;
+    }
+    .app-card .app-name {
+      font-size: 1.04rem;
       font-weight: 700;
+      margin-bottom: 4px;
+      color: #2195ef;
+      text-align: center;
     }
-    .app-item:hover {
-      transform: scale(1.036) translateY(-2px);
-      box-shadow: 0 10px 26px #4cb0e877, 0 2.5px 8px #36a6f822;
-      filter: brightness(1.08);
-    }
-    .app-item .icon {
-      font-size: 1.5em;
-      margin-right: 7px;
-      user-select: none;
-      filter: drop-shadow(0 1px 4px #185adb23);
-    }
-    .app-item .desc {
-      font-size: 1rem;
-      font-weight: 400;
-      color: #a4dcff;
-      margin-top: 3px;
-      letter-spacing: .12px;
-    }
-    .app-item .tag {
-      background: #2fc2ea;
-      color: #0c2247;
-      font-size: 0.82em;
+    .app-card .app-link {
+      color: #217ae0;
+      text-decoration: underline;
+      cursor: pointer;
       font-weight: 700;
-      border-radius: 8px;
-      padding: 3px 10px;
-      margin-left: auto;
-      letter-spacing: .6px;
+      font-size: 1.02rem;
     }
-    @media (max-width: 650px) {
-      .app-list-wrap {padding: 10px 0 20px 0;}
-      .app-title { font-size: 1.18rem;}
-      .app-item {font-size: 0.98rem;}
-      .app-list {padding: 0 3vw;}
+    .app-card .app-desc {
+      color: #a8e1ff;
+      font-size: .95rem;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .app-card .app-price {
+      margin-top: auto;
+      font-size: .98rem;
+      color: #11e2ff;
+      font-weight: 700;
+      letter-spacing: .13px;
+      text-align: center;
+    }
+    @media (max-width:700px) {
+      .app-grid-wrap {max-width: 99vw; padding:12px 2vw;}
+      .app-title {font-size: 1.08rem;}
+      .app-grid {gap:12px 6px;}
+      .app-card {padding:13px 2px 9px 2px; min-height:160px;}
     }
     footer {
       background: #122043;
@@ -156,131 +156,131 @@
     <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
       <img src="logo.png" alt="Trang chủ">
     </button>
-    <span class="mini-title">Kho Ứng Dụng & Công Cụ</span>
+    <span class="mini-title">Danh sách Ứng dụng & Tool</span>
   </header>
   <main>
-    <div class="app-list-wrap">
-      <div class="app-title">Danh sách ứng dụng & tools</div>
-      <ul class="app-list">
-        <li>
-          <a href="https://linkdenapp1.com" target="_blank" class="app-item">
-            <span class="icon">📚</span>
-            <div>
-              EPU App <div class="desc">Tài liệu học tập Điện lực</div>
-            </div>
-            <span class="tag">EPU</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://linkdenapp2.com" target="_blank" class="app-item">
-            <span class="icon">🇬🇧</span>
-            <div>
-              English App <div class="desc">Tài liệu, công cụ học tiếng Anh</div>
-            </div>
-            <span class="tag">ENGLISH</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://linkdenapp3.com" target="_blank" class="app-item">
-            <span class="icon">🏛️</span>
-            <div>
-              TMU App <div class="desc">Tài liệu Đại học Thương mại</div>
-            </div>
-            <span class="tag">TMU</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="app-item" style="pointer-events:none; opacity:.6;">
-            <span class="icon">🤖</span>
-            <div>
-              AI App <div class="desc">Sắp ra mắt</div>
-            </div>
-            <span class="tag">SOON</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="app-item" style="pointer-events:none; opacity:.6;">
-            <span class="icon">🔧</span>
-            <div>
-              Tool Khác <div class="desc">Sắp ra mắt</div>
-            </div>
-            <span class="tag">SOON</span>
-          </a>
-        </li>
-      </ul>
+    <div class="app-grid-wrap">
+      <div class="app-title">Ứng dụng nổi bật</div>
+      <div class="app-grid">
+
+        <!-- Card 1: Có icon -->
+        <div class="app-card">
+          <div class="app-icon"><!-- icon TikTok -->
+            <img src="tiktok.png" alt="TikTok"/>
+          </div>
+          <a href="https://www.tiktok.com/" target="_blank" class="app-link">TikTok</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 2: Mặc định cờ lê -->
+        <div class="app-card">
+          <div class="app-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          <a href="#" class="app-link">Unikey - Bàn phím tiếng Việt</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 3 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="facebook.png" alt="Facebook"/></div>
+          <a href="https://facebook.com" target="_blank" class="app-link">Facebook</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 4 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="messenger.png" alt="Messenger"/></div>
+          <a href="https://messenger.com" target="_blank" class="app-link">Messenger</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 5 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="chatgpt.png" alt="ChatGPT"/></div>
+          <a href="https://chat.openai.com" target="_blank" class="app-link">ChatGPT</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 6 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="lively.png" alt="Lively Wallpaper"/></div>
+          <a href="#" class="app-link">Lively Wallpaper</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 7 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="seelen.png" alt="Seelen UI"/></div>
+          <a href="#" class="app-link">Seelen UI</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 8 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="spotify.png" alt="Spotify"/></div>
+          <a href="https://spotify.com" target="_blank" class="app-link">Spotify – Âm nhạc và Podcast</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 9 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="translucenttb.png" alt="TranslucentTB"/></div>
+          <a href="#" class="app-link">TranslucentTB</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Card 10 -->
+        <div class="app-card">
+          <div class="app-icon"><img src="icloud.png" alt="iCloud"/></div>
+          <a href="https://www.icloud.com/" target="_blank" class="app-link">iCloud</a>
+          <div class="app-desc"></div>
+          <div class="app-price">Miễn phí</div>
+        </div>
+        <!-- Thêm card mới ở đây, nếu icon chưa có thì giữ lại fa-screwdriver-wrench như bên trên -->
+      </div>
     </div>
   </main>
   <footer id="footer"></footer>
   <script>
-    // --- Star & mouse effect, giống như file trước ---
+    // Hiệu ứng nền và mouse light giữ nguyên như cũ
     const canvas = document.getElementById('star-canvas');
     const ctx = canvas.getContext('2d');
-    let stars = [];
-    let shootingStars = [];
-    let w = window.innerWidth, h = window.innerHeight;
+    let stars = [], shootingStars = [], w = window.innerWidth, h = window.innerHeight;
     function resize() {
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = w; canvas.height = h;
-      createStars(w > 900 ? 140 : 70);
-      createShootingStars(w > 900 ? 5 : 2);
+      createStars(w > 900 ? 140 : 70); createShootingStars(w > 900 ? 5 : 2);
     }
     window.addEventListener('resize', resize);
-    function randomStar() {
-      return {x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.3+0.3, o: Math.random()*0.5+0.4, speed: Math.random()*0.08+0.04}
-    }
-    function createStars(count) {
-      stars = [];
-      for(let i=0; i<count; i++) stars.push(randomStar());
-    }
+    function randomStar() { return {x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.3+0.3, o: Math.random()*0.5+0.4, speed: Math.random()*0.08+0.04} }
+    function createStars(count) { stars = []; for(let i=0; i<count; i++) stars.push(randomStar()); }
     createStars(w > 900 ? 140 : 70);
     function randomShootingStar() {
-      const side = Math.random();
-      let x, y, vx, vy;
+      const side = Math.random(); let x, y, vx, vy;
       if (side < 0.5) { x = Math.random()*w; y = -50; vx = Math.random()*3+4; vy = Math.random()*2+3.5; }
       else { x = -60; y = Math.random()*h*0.5; vx = Math.random()*5+3; vy = Math.random()*2+2.5; }
       return {x, y, vx, vy, len: Math.random()*110+80, life:0, maxLife:Math.random()*15+14, alpha:Math.random()*0.5+0.35}
     }
-    function createShootingStars(count) {
-      shootingStars = [];
-      for(let i=0;i<count;i++) shootingStars.push(randomShootingStar());
-    }
+    function createShootingStars(count) { shootingStars = []; for(let i=0;i<count;i++) shootingStars.push(randomShootingStar()); }
     createShootingStars(w > 900 ? 5 : 2);
     function animate() {
       ctx.clearRect(0, 0, w, h);
       for(let s of stars) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-        ctx.globalAlpha = s.o;
-        ctx.fillStyle = "#fff";
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "#96e0ff";
-        ctx.fill();
-        ctx.restore();
-        s.x += s.speed * 0.6;
-        if (s.x > w) s.x = 0;
+        ctx.save(); ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+        ctx.globalAlpha = s.o; ctx.fillStyle = "#fff"; ctx.shadowBlur = 8; ctx.shadowColor = "#96e0ff";
+        ctx.fill(); ctx.restore(); s.x += s.speed * 0.6; if (s.x > w) s.x = 0;
       }
       for (let star of shootingStars) {
-        ctx.save();
-        ctx.globalAlpha = star.alpha * (1 - star.life / star.maxLife);
-        ctx.strokeStyle = "white";
-        ctx.shadowColor = "#b9eafe";
-        ctx.shadowBlur = 12;
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.moveTo(star.x, star.y);
-        ctx.lineTo(star.x - star.vx * star.len, star.y - star.vy * star.len);
-        ctx.stroke();
-        ctx.restore();
-        star.x += star.vx;
-        star.y += star.vy;
-        star.life++;
+        ctx.save(); ctx.globalAlpha = star.alpha * (1 - star.life / star.maxLife); ctx.strokeStyle = "white";
+        ctx.shadowColor = "#b9eafe"; ctx.shadowBlur = 12; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(star.x, star.y); ctx.lineTo(star.x - star.vx * star.len, star.y - star.vy * star.len);
+        ctx.stroke(); ctx.restore();
+        star.x += star.vx; star.y += star.vy; star.life++;
         if (star.life > star.maxLife || star.x > w + 150 || star.y > h + 100) Object.assign(star, randomShootingStar());
       }
       requestAnimationFrame(animate);
     }
     animate();
-    // Mouse light
+    // Mouse light effect
     const mouseLight = document.getElementById('mouse-light');
     document.addEventListener('mousemove', (e) => {
       mouseLight.style.left = e.clientX + 'px';
@@ -290,9 +290,7 @@
     document.addEventListener('mouseleave', () => { mouseLight.style.opacity = 0; });
     document.addEventListener('mouseenter', () => { mouseLight.style.opacity = 1; });
     // Footer
-    fetch('footer.html')
-      .then(r => r.text())
-      .then(html => { document.getElementById('footer').innerHTML = html; });
+    fetch('footer.html').then(r => r.text()).then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>
