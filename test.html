@@ -192,7 +192,19 @@
   <div id="gemini-chat" class="chat-messages" style="display:none;"></div>
   <!-- Thêm vùng này -->
   <div id="koha-chat" class="chat-messages" style="display:none;padding:0;">
-    <iframe src="nebulaAI.html" width="100%" height="620" style="border:none; background:#fff; border-radius:10px; box-shadow:0 2px 14px #185adb18; min-height:520px;"></iframe>
+ <iframe 
+  src="nebulaAI.html"
+  width="100%"
+  style="
+    border:none; 
+    background:#fff; 
+    border-radius:10px; 
+    box-shadow:0 2px 14px #185adb18;
+    min-height:72vh;
+    height:calc(100vh - 210px);  /* Tùy chiều cao header/footer */
+    display:block;"
+  allow="clipboard-write"
+></iframe>
   </div>
 </div>
     <div class="chat-input-bar" id="chatbase-input" style="display:none;"></div>
