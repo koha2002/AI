@@ -2,11 +2,12 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Nebula Block Chat Vision Style</title>
+  <title>AI build by KoHa - Vision Chat</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
   <style>
     body {
       background: #0d1017;
-      font-family: 'Segoe UI', Arial, sans-serif;
+      font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
       min-height: 100vh;
       margin: 0;
       display: flex;
@@ -14,161 +15,199 @@
       align-items: center;
     }
     .chat-container {
-      width: 480px;
+      width: 700px;
       max-width: 98vw;
-      min-height: 650px;
+      min-height: 830px;
       background: #181c23;
-      border-radius: 22px;
-      box-shadow: 0 0 30px #0008;
+      border-radius: 32px;
+      box-shadow: 0 0 42px #000a;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
     .chat-header {
-      background: #21263b;
+      background: #23283d;
       color: #aee3fe;
-      font-size: 21px;
-      font-weight: bold;
+      font-size: 29px;
+      font-weight: 700;
       text-align: left;
-      padding: 18px 26px;
+      padding: 30px 38px 22px 38px;
       letter-spacing: 2px;
-      border-bottom: 1px solid #23283d;
+      border-bottom: 1.5px solid #22293d;
     }
     .chat-body {
       flex: 1;
       background: #181c23;
-      padding: 30px 22px 20px 22px;
+      padding: 45px 38px 28px 38px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 32px;
     }
     .message {
       display: flex;
       flex-direction: column;
-      max-width: 78%;
-      border-radius: 20px;
-      padding: 14px 18px;
-      margin-bottom: 4px;
-      font-size: 16px;
-      line-height: 1.55;
+      max-width: 88%;
+      border-radius: 28px;
+      padding: 22px 28px;
+      margin-bottom: 7px;
+      font-size: 20px;
+      line-height: 1.68;
       word-break: break-word;
-      box-shadow: 0 2px 8px #0002;
+      box-shadow: 0 3px 14px #0002;
       position: relative;
+      font-family: 'Roboto', Arial, sans-serif;
+      font-weight: 400;
     }
     .message.user {
       align-self: flex-end;
-      background: #263cfc;
+      background: #3b51ff;
       color: #fff;
-      border-bottom-right-radius: 8px;
+      border-bottom-right-radius: 13px;
     }
     .message.ai {
       align-self: flex-start;
-      background: #22273a;
+      background: #202746;
       color: #aee3fe;
-      border-bottom-left-radius: 8px;
+      border-bottom-left-radius: 13px;
+    }
+    .ai-label {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #6c9cff;
+      letter-spacing: 1px;
     }
     .message .img-msg {
-      margin-top: 8px;
-      max-width: 250px;
-      border-radius: 13px;
-      border: 1.5px solid #222;
-      box-shadow: 0 2px 10px #0005;
+      margin-top: 14px;
+      max-width: 350px;
+      border-radius: 17px;
+      border: 2px solid #222;
+      box-shadow: 0 3px 16px #0006;
       display: block;
     }
     .message .caption {
       color: #bbdafe;
-      margin-top: 7px;
-      font-size: 14px;
+      margin-top: 12px;
+      font-size: 17px;
     }
     .chat-footer {
-      background: #21263b;
+      background: #23283d;
       display: flex;
       align-items: center;
-      padding: 16px 22px;
-      gap: 10px;
-      border-top: 1px solid #23283d;
+      padding: 20px 38px;
+      gap: 17px;
+      border-top: 1.5px solid #22293d;
     }
     .icon-btn, .upload-label {
-      background: #263cfc;
+      background: #3b51ff;
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 19px;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 27px;
       cursor: pointer;
-      margin-right: 5px;
-      transition: background 0.17s;
+      margin-right: 7px;
+      transition: background 0.18s;
       display: flex;
       align-items: center;
+      font-weight: 500;
     }
     .icon-btn:hover, .upload-label:hover {
       background: #2036a8;
     }
     .upload-label {
-      padding: 8px 13px;
+      padding: 13px 21px;
+      font-size: 26px;
     }
     .chat-footer input[type="file"] {
       display: none;
     }
     .chat-footer input[type="text"] {
       flex: 1;
-      padding: 10px 16px;
-      border-radius: 9px;
+      padding: 17px 24px;
+      border-radius: 12px;
       border: none;
       outline: none;
       background: #181c23;
       color: #fff;
-      font-size: 17px;
+      font-size: 20px;
+      font-family: 'Roboto', Arial, sans-serif;
+      font-weight: 400;
     }
     ::placeholder {
       color: #a6b7d4;
       opacity: 1;
+      font-size: 20px;
     }
+    @media (max-width: 900px) {
+      .chat-container { width: 99vw; min-height: 99vh;}
+      .chat-header, .chat-body, .chat-footer { padding-left: 8vw; padding-right: 8vw;}
+    }
+    ::-webkit-scrollbar { width: 10px;}
+    ::-webkit-scrollbar-thumb { background: #23283d; border-radius: 5px;}
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">Nebula Block Vision Chat</div>
+    <div class="chat-header">AI build by KoHa</div>
     <div class="chat-body" id="chatBody">
-      <div style="text-align:center; margin-top:30px; color:#7897da; font-size:19px;">
-        <img src="https://i.ibb.co/nLw2dtM/nebulablock-logo.png" width="80" style="margin-bottom:15px; opacity:0.92;" alt="logo nebula">
-        <div>What's on your mind?</div>
+      <div style="text-align:center; margin-top:38px; color:#7897da; font-size:25px; font-family:'Roboto',Arial,sans-serif;">
+        <img src="https://i.ibb.co/nLw2dtM/nebulablock-logo.png" width="100" style="margin-bottom:21px; opacity:0.92;" alt="logo nebula">
+        <div style="font-weight:500;">What's on your mind?</div>
       </div>
     </div>
     <div class="chat-footer">
       <label for="fileInput" class="upload-label" title="Gửi ảnh"><span>+</span></label>
       <input type="file" id="fileInput" accept="image/*" />
-      <input type="text" id="userInput" placeholder="Enter message here" autocomplete="off" />
+      <input type="text" id="userInput" placeholder="Nhập tin nhắn hoặc yêu cầu dịch ảnh..." autocomplete="off" />
       <button class="icon-btn" onclick="sendMessage()" title="Gửi tin nhắn">&#9658;</button>
     </div>
   </div>
   <script>
-    const apiKey = "sk-StT0_IrHaLUzYqrMOxPlxg"; // Key bạn gửi test
+    const apiKey = "sk-StT0_IrHaLUzYqrMOxPlxg";
     const chatBody = document.getElementById('chatBody');
     const userInput = document.getElementById('userInput');
     const fileInput = document.getElementById('fileInput');
-
     let uploadedImage = null;
 
-    // Ảnh preview tạm lưu (gửi 1 lần/1 ảnh)
+    // Xử lý và làm sạch text trả về (bỏ **, --- và giữ xuống dòng)
+    function cleanText(text) {
+      if (!text) return "";
+      // Bỏ **, __, ---, ---..., * ... * (bold, italic, gạch ngang Markdown)
+      text = text.replace(/(\*\*|__)/g, '');
+      text = text.replace(/---+/g, '');
+      // Nếu có các ký hiệu khác muốn bỏ tiếp tục thêm ở đây
+      // Giữ xuống dòng, chuyển \n thành <br>
+      text = text.replace(/\n/g, '<br>');
+      // Bỏ dòng trắng đầu/cuối
+      text = text.replace(/^(<br>)+/, '').replace(/(<br>)+$/, '');
+      return text.trim();
+    }
+
+    // Hiển thị ảnh preview trước khi gửi
     fileInput.onchange = function () {
       const file = this.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function (e) {
         uploadedImage = e.target.result;
-        // Thêm message có ảnh cho user (nhưng chưa gửi API)
         appendMessage('user', '[Đã tải ảnh lên. Gửi để AI xử lý hoặc thêm prompt!]', uploadedImage);
       };
       reader.readAsDataURL(file);
       this.value = "";
     };
 
+    // Tạo message (user hoặc AI)
     function appendMessage(role, text, imgSrc = null, caption = "") {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'message ' + role;
-      msgDiv.innerHTML = text ? text : '';
+      if (role === 'ai') {
+        msgDiv.innerHTML = `<div class="ai-label">AI build by KoHa</div>` +
+          (text ? `<div>${text}</div>` : '');
+      } else {
+        msgDiv.innerHTML = text ? text : '';
+      }
       if (imgSrc) {
         const img = document.createElement('img');
         img.src = imgSrc;
@@ -196,17 +235,15 @@
         chatBody.removeChild(chatBody.firstElementChild);
       }
 
-      // Show đang trả lời
       appendMessage('ai', '<i>Đang xử lý...</i>');
       userInput.value = '';
 
-      // Build message cho API vision
+      // Chuẩn hóa messages
       let contentArr = [];
       if (text) contentArr.push({ type: "text", text: text });
       if (uploadedImage) contentArr.push({ type: "image_url", image_url: { url: uploadedImage } });
 
       if (!contentArr.length) {
-        // Lỗi nếu không có prompt cũng không có ảnh
         chatBody.removeChild(chatBody.lastChild);
         return;
       }
@@ -225,18 +262,18 @@
           body: JSON.stringify({
             messages,
             model: "openai/gpt-4o-mini",
-            max_tokens: 1024,
+            max_tokens: 1500,
             temperature: 1,
             top_p: 0.9,
             stream: false
           })
         });
         const result = await response.json();
-        // Xoá "Đang xử lý..."
         chatBody.removeChild(chatBody.lastChild);
 
         if (result.choices && result.choices[0] && result.choices[0].message && result.choices[0].message.content) {
-          appendMessage('ai', result.choices[0].message.content);
+          const aiContent = cleanText(result.choices[0].message.content);
+          appendMessage('ai', aiContent);
         } else if (result.error) {
           appendMessage('ai', 'Lỗi: ' + JSON.stringify(result.error));
         } else {
@@ -246,14 +283,13 @@
         chatBody.removeChild(chatBody.lastChild);
         appendMessage('ai', 'Lỗi: ' + e.message);
       }
-      uploadedImage = null; // reset ảnh đã gửi
+      uploadedImage = null;
     }
 
     // Enter gửi tin nhắn
     userInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') sendMessage();
     });
-    // Nhấn icon để upload file
     document.querySelector('label[for="fileInput"]').onclick = () => fileInput.click();
   </script>
 </body>
