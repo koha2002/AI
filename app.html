@@ -40,14 +40,13 @@
       align-items: center;
     }
     .app-grid-wrap {
-      margin: 48px auto 32px auto;
-      background: rgba(255,255,255,0.96);
-      border-radius: 26px;
-      box-shadow: 0 7px 38px 0 #70bbfa28, 0 1px 4px #2295e810;
-      padding: 32px 20px 34px 20px;
+      margin: 48px 0 32px 0;
+      background: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0 2vw 30px 2vw;
       width: 100%;
-      max-width: 1150px;
-      backdrop-filter: blur(1.5px);
+      max-width: none;
       animation: fadein 0.8s cubic-bezier(.43,.94,.71,1.36);
     }
     .app-title {
@@ -63,7 +62,7 @@
     @keyframes fadein {from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
     .app-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(185px,1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
       gap: 22px 18px;
       width: 100%;
     }
@@ -82,10 +81,10 @@
       outline: none;
     }
     a.app-card.soon {
-      opacity: 0.6;
+      opacity: 0.62;
       pointer-events: none;
       cursor: not-allowed;
-      filter: grayscale(0.15);
+      filter: grayscale(0.18);
     }
     a.app-card:hover, a.app-card:focus {
       box-shadow: 0 12px 36px #44bcfc33, 0 3px 12px #2295e81a;
@@ -142,9 +141,13 @@
     .app-card.soon .app-price {
       color: #ea950e;
     }
-    @media (max-width:700px) {
-      .app-grid-wrap {max-width: 99vw; padding:12px 2vw;}
+    @media (max-width:900px) {
+      .app-grid-wrap {padding:0 0.5vw 24px 0.5vw;}
+      .app-grid {grid-template-columns: repeat(auto-fit, minmax(165px,1fr));}
       .app-title {font-size: 1.14rem;}
+    }
+    @media (max-width:700px) {
+      .app-title {font-size: 1.07rem;}
       .app-grid {gap:13px 6px;}
       .app-card {padding:11px 2px 9px 2px; min-height:130px;}
       .app-card .app-icon {width:42px;height:42px;}
