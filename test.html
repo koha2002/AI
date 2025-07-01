@@ -2,253 +2,212 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>AI build by KoHa</title>
-  <meta name="color-scheme" content="dark light">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+  <title>Nebula Block Chat Vision Style</title>
   <style>
-    html, body {
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-      color-scheme: dark light;
-      background-color: Canvas;
-      color: CanvasText;
-      overflow: hidden;
-    }
     body {
-      width: 100vw;
-      height: 100vh;
+      background: #0d1017;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .chat-container {
-      width: 100vw;
-      height: 100vh;
+      width: 480px;
+      max-width: 98vw;
+      min-height: 650px;
+      background: #181c23;
+      border-radius: 22px;
+      box-shadow: 0 0 30px #0008;
       display: flex;
       flex-direction: column;
-      background: transparent;
-      border-radius: 0;
-      box-shadow: none;
       overflow: hidden;
-      margin: 0;
-      padding: 0;
     }
     .chat-header {
-      background: inherit;
-      color: inherit;
-      font-size: 27px;
-      font-weight: 700;
+      background: #21263b;
+      color: #aee3fe;
+      font-size: 21px;
+      font-weight: bold;
       text-align: left;
-      padding: 22px 2vw 14px 2vw;
-      letter-spacing: 1.2px;
-      border-bottom: 1px solid ButtonBorder;
-      flex: 0 0 auto;
-      z-index: 1;
-      width: 100%;
+      padding: 18px 26px;
+      letter-spacing: 2px;
+      border-bottom: 1px solid #23283d;
     }
     .chat-body {
-      flex: 1 1 auto;
-      background: transparent;
-      padding: 18px 0 18px 0;
+      flex: 1;
+      background: #181c23;
+      padding: 30px 22px 20px 22px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
-      width: 100vw;
+      gap: 20px;
     }
     .message {
       display: flex;
       flex-direction: column;
-      width: 100vw;
-      max-width: 100vw;
-      border-radius: 0;
-      padding: 16px 0;
-      font-size: 18px;
-      line-height: 1.7;
+      max-width: 78%;
+      border-radius: 20px;
+      padding: 14px 18px;
+      margin-bottom: 4px;
+      font-size: 16px;
+      line-height: 1.55;
       word-break: break-word;
+      box-shadow: 0 2px 8px #0002;
       position: relative;
-      font-family: 'Roboto', Arial, sans-serif;
-      font-weight: 400;
-      background: transparent;
-      color: inherit;
     }
     .message.user {
-      background: color-mix(in srgb, AccentColor 85%, transparent 15%);
+      align-self: flex-end;
+      background: #263cfc;
       color: #fff;
-      text-align: right;
-      border-bottom: 1px solid ButtonBorder;
-      border-top: 1px solid ButtonBorder;
-      padding-right: 3vw;
-      padding-left: 25vw;
+      border-bottom-right-radius: 8px;
     }
     .message.ai {
-      background: color-mix(in srgb, ButtonFace 92%, transparent 8%);
-      color: AccentColorText;
-      text-align: left;
-      border-bottom: 1px solid ButtonBorder;
-      border-top: 1px solid ButtonBorder;
-      padding-left: 3vw;
-      padding-right: 25vw;
-    }
-    .ai-label {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 7px;
-      color: Highlight;
-      letter-spacing: 1px;
+      align-self: flex-start;
+      background: #22273a;
+      color: #aee3fe;
+      border-bottom-left-radius: 8px;
     }
     .message .img-msg {
-      margin-top: 10px;
-      max-width: 320px;
-      border-radius: 10px;
-      border: 1.5px solid ButtonBorder;
-      box-shadow: 0 2px 10px #0003;
+      margin-top: 8px;
+      max-width: 250px;
+      border-radius: 13px;
+      border: 1.5px solid #222;
+      box-shadow: 0 2px 10px #0005;
       display: block;
-      background: ButtonFace;
+    }
+    .message .caption {
+      color: #bbdafe;
+      margin-top: 7px;
+      font-size: 14px;
     }
     .chat-footer {
-      background: inherit;
-      border-top: 1px solid ButtonBorder;
-      flex: 0 0 auto;
-      z-index: 2;
-      width: 100vw;
-      padding: 18px 2vw;
+      background: #21263b;
       display: flex;
       align-items: center;
-      gap: 0;
-      box-sizing: border-box;
+      padding: 16px 22px;
+      gap: 10px;
+      border-top: 1px solid #23283d;
+    }
+    .icon-btn, .upload-label {
+      background: #263cfc;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 19px;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: background 0.17s;
+      display: flex;
+      align-items: center;
+    }
+    .icon-btn:hover, .upload-label:hover {
+      background: #2036a8;
+    }
+    .upload-label {
+      padding: 8px 13px;
+    }
+    .chat-footer input[type="file"] {
+      display: none;
     }
     .chat-footer input[type="text"] {
-      width: 100%;
-      padding: 15px 18px;
+      flex: 1;
+      padding: 10px 16px;
       border-radius: 9px;
       border: none;
       outline: none;
-      background: ButtonFace;
-      color: ButtonText;
-      font-size: 18px;
-      font-family: 'Roboto', Arial, sans-serif;
-      font-weight: 400;
-      box-shadow: 0 1px 4px #0001 inset;
-      margin: 0;
+      background: #181c23;
+      color: #fff;
+      font-size: 17px;
     }
     ::placeholder {
-      color: GrayText;
+      color: #a6b7d4;
       opacity: 1;
-      font-size: 18px;
-    }
-    @media (max-width: 650px) {
-      .chat-header, .chat-footer { font-size: 18px; padding-left: 3vw; padding-right: 3vw;}
-      .message.user, .message.ai { padding-left: 8vw; padding-right: 8vw;}
-      .chat-footer input[type="text"] { font-size: 16px;}
-    }
-    ::-webkit-scrollbar { width: 8px;}
-    ::-webkit-scrollbar-thumb { background: ButtonBorder; border-radius: 5px;}
-    @media (max-width: 500px) {
-      .chat-header, .chat-footer { font-size: 15px;}
-      .chat-footer input[type="text"] { font-size: 14px;}
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">AI do KoHa phát triển</div>
+    <div class="chat-header">Nebula Block Vision Chat</div>
     <div class="chat-body" id="chatBody">
-      <div style="text-align:center; margin-top:24px; color:Highlight; font-size:22px; font-family:'Roboto',Arial,sans-serif;">
-        <div style="margin-bottom:11px; opacity:0.92; font-size:14px;">AI do KoHa phát triển</div>
-        <div style="font-weight:500;">Bạn muốn hỏi gì?</div>
+      <div style="text-align:center; margin-top:30px; color:#7897da; font-size:19px;">
+        <img src="https://i.ibb.co/nLw2dtM/nebulablock-logo.png" width="80" style="margin-bottom:15px; opacity:0.92;" alt="logo nebula">
+        <div>What's on your mind?</div>
       </div>
     </div>
-    <form class="chat-footer" onsubmit="sendMessage();return false;">
-      <input type="text" id="userInput" placeholder="Nhập nội dung, ấn Enter để gửi..." autocomplete="off" />
-    </form>
+    <div class="chat-footer">
+      <label for="fileInput" class="upload-label" title="Gửi ảnh"><span>+</span></label>
+      <input type="file" id="fileInput" accept="image/*" />
+      <input type="text" id="userInput" placeholder="Enter message here" autocomplete="off" />
+      <button class="icon-btn" onclick="sendMessage()" title="Gửi tin nhắn">&#9658;</button>
+    </div>
   </div>
   <script>
-    // Đổi API key của bạn tại đây
-    const apiKey = "sk-StT0_IrHaLUzYqrMOxPlxg";
+    const apiKey = "sk-StT0_IrHaLUzYqrMOxPlxg"; // Key bạn gửi test
     const chatBody = document.getElementById('chatBody');
     const userInput = document.getElementById('userInput');
-    const STORAGE_KEY = 'koha_ai_chat_history_v1';
-    let uploadedImage = null; // Nếu cần sau này
+    const fileInput = document.getElementById('fileInput');
 
-    // Xử lý text sạch đẹp
-    function cleanText(text) {
-      if (!text) return "";
-      text = text.replace(/(\*\*|__)/g, '');
-      text = text.replace(/---+/g, '');
-      text = text.replace(/\n/g, '<br>');
-      text = text.replace(/^(<br>)+/, '').replace(/(<br>)+$/, '');
-      return text.trim();
-    }
+    let uploadedImage = null;
 
-    // Thêm tin nhắn vào DOM
-    function appendMessage(role, text, imgSrc = null) {
+    // Ảnh preview tạm lưu (gửi 1 lần/1 ảnh)
+    fileInput.onchange = function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadedImage = e.target.result;
+        // Thêm message có ảnh cho user (nhưng chưa gửi API)
+        appendMessage('user', '[Đã tải ảnh lên. Gửi để AI xử lý hoặc thêm prompt!]', uploadedImage);
+      };
+      reader.readAsDataURL(file);
+      this.value = "";
+    };
+
+    function appendMessage(role, text, imgSrc = null, caption = "") {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'message ' + role;
-      if (role === 'ai') {
-        msgDiv.innerHTML = `<div class="ai-label">AI do KoHa phát triển</div>` +
-          (text ? `<div>${text}</div>` : '');
-      } else {
-        msgDiv.innerHTML = text ? text : '';
-      }
+      msgDiv.innerHTML = text ? text : '';
       if (imgSrc) {
         const img = document.createElement('img');
         img.src = imgSrc;
         img.className = 'img-msg';
         msgDiv.appendChild(img);
+        if (caption) {
+          const cap = document.createElement('div');
+          cap.className = 'caption';
+          cap.textContent = caption;
+          msgDiv.appendChild(cap);
+        }
       }
       chatBody.appendChild(msgDiv);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Lưu lịch sử vào localStorage
-    function saveHistory() {
-      const messages = Array.from(chatBody.querySelectorAll('.message')).map(m => {
-        const role = m.classList.contains('ai') ? 'ai' : 'user';
-        const textDiv = m.querySelector(role === 'ai' ? 'div:not(.ai-label)' : 'div');
-        const text = textDiv ? textDiv.innerHTML : m.innerHTML;
-        const img = m.querySelector('img');
-        return { role, text, imgSrc: img ? img.src : null };
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    }
-
-    // Load lịch sử từ localStorage
-    function loadHistory() {
-      const messages = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      if (messages.length) {
-        chatBody.innerHTML = ""; // Xóa intro mặc định
-        messages.forEach(msg => {
-          appendMessage(msg.role, msg.text, msg.imgSrc);
-        });
-      }
-    }
-
-    // Gửi tin nhắn
     async function sendMessage() {
       const text = userInput.value.trim();
       if (!text && !uploadedImage) return;
       appendMessage('user', text, uploadedImage);
 
-      // Xoá intro nếu còn
+      // Xoá "What's on your mind?" nếu còn
       if (chatBody.firstElementChild && chatBody.children.length > 1 &&
-          chatBody.firstElementChild.innerText.includes("Bạn muốn hỏi gì")) {
+          chatBody.firstElementChild.innerText.includes("What's on your mind?")) {
         chatBody.removeChild(chatBody.firstElementChild);
       }
 
+      // Show đang trả lời
       appendMessage('ai', '<i>Đang xử lý...</i>');
       userInput.value = '';
-      chatBody.scrollTop = chatBody.scrollHeight;
-      saveHistory();
 
+      // Build message cho API vision
       let contentArr = [];
       if (text) contentArr.push({ type: "text", text: text });
       if (uploadedImage) contentArr.push({ type: "image_url", image_url: { url: uploadedImage } });
 
       if (!contentArr.length) {
+        // Lỗi nếu không có prompt cũng không có ảnh
         chatBody.removeChild(chatBody.lastChild);
-        saveHistory();
         return;
       }
 
@@ -266,18 +225,18 @@
           body: JSON.stringify({
             messages,
             model: "openai/gpt-4o-mini",
-            max_tokens: 1500,
+            max_tokens: 1024,
             temperature: 1,
             top_p: 0.9,
             stream: false
           })
         });
         const result = await response.json();
+        // Xoá "Đang xử lý..."
         chatBody.removeChild(chatBody.lastChild);
 
         if (result.choices && result.choices[0] && result.choices[0].message && result.choices[0].message.content) {
-          const aiContent = cleanText(result.choices[0].message.content);
-          appendMessage('ai', aiContent);
+          appendMessage('ai', result.choices[0].message.content);
         } else if (result.error) {
           appendMessage('ai', 'Lỗi: ' + JSON.stringify(result.error));
         } else {
@@ -287,20 +246,15 @@
         chatBody.removeChild(chatBody.lastChild);
         appendMessage('ai', 'Lỗi: ' + e.message);
       }
-      uploadedImage = null;
-      saveHistory();
+      uploadedImage = null; // reset ảnh đã gửi
     }
 
-    // Gửi bằng Enter
+    // Enter gửi tin nhắn
     userInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') sendMessage();
     });
-
-    // Tải lịch sử khi load lại trang
-    loadHistory();
-
-    // Tự động lưu khi đóng tab/trình duyệt
-    window.addEventListener('beforeunload', saveHistory);
+    // Nhấn icon để upload file
+    document.querySelector('label[for="fileInput"]').onclick = () => fileInput.click();
   </script>
 </body>
 </html>
