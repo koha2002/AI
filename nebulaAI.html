@@ -8,9 +8,26 @@
   <style>
     html, body { height: 100%; width: 100%; margin: 0; padding: 0; font-family: 'Roboto', Arial, sans-serif; background: #f7f8fa; color: #222; box-sizing: border-box; overflow: hidden;}
     body { width: 100vw; height: 100vh;}
-    .chat-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; background: #fff; border-radius: 0; overflow: hidden; margin: 0; padding: 0;}
+   .chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;        /* Đảm bảo luôn full chiều cao vùng iframe */
+  min-height: 100vh;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+}
     .chat-header { background: #f2f3f7; color: #234296; font-size: 23px; font-weight: 700; padding: 18px 2vw 11px 2vw; letter-spacing: 1.2px; border-bottom: 1.5px solid #dde2eb; z-index: 1; width: 100%;}
-    .chat-body { flex: 1 1 auto; background: #fff; padding: 22px 0 22px 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; width: 100vw; scroll-behavior: smooth;}
+    .chat-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  background: #fff;
+  padding: 22px 0 22px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100vw;
+}
     .message-row { display: flex; width: 100vw; }
     .message-row.user { justify-content: flex-end;}
     .message-row.ai { justify-content: flex-start;}
@@ -58,12 +75,13 @@
       display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; margin-bottom: 7px;
     }
     .msg-img { max-width: 150px; max-height: 150px; border-radius: 10px; border: 1.5px solid #d3e0fa; object-fit: cover; background: #f8fafc;}
-    .chat-footer {
+  .chat-footer {
+  flex-shrink: 0;
   background: #f2f3f7;
   border-top: 1.5px solid #dde2eb;
   z-index: 2;
   width: 100vw;
-  padding: 0 2vw 24px 2vw;   /* Sửa ở đây: thêm 24px padding dưới */
+  padding: 0 2vw 0 2vw;   /* Không cần padding/margin dưới! */
   display: flex;
   align-items: center;
   box-sizing: border-box;
