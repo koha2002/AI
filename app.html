@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <title>Danh sách Ứng dụng</title>
   <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
     html, body {height:100%;margin:0;padding:0;}
     body {
       min-height: 100vh;
-      font-family: 'Montserrat', Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
+      /* Nếu muốn font Times, đổi dòng trên thành:
+         font-family: 'Times New Roman', Times, serif;
+      */
       background: radial-gradient(circle at 50% 0%, #d1f3ff 0%, #90d0fa 45%, #f7fbff 100%);
       display: flex; flex-direction: column;
-      position: relative;
-      overflow-x: hidden;
     }
     .mini-header {
       display: flex; align-items: center;
@@ -31,7 +31,6 @@
     .home-btn:hover {background: #d7eeff;}
     .home-btn img {width:23px;height:23px;}
     .mini-title {font-weight:700; font-size:1.17rem; color:#2295e8;}
-
     main {
       flex: 1 0 auto;
       width: 100vw;
@@ -39,23 +38,22 @@
       flex-direction: column;
       align-items: center;
     }
-
     .app-grid-wrap {
       margin: 48px auto 32px auto;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.96);
       border-radius: 26px;
       box-shadow: 0 7px 38px 0 #70bbfa28, 0 1px 4px #2295e810;
       padding: 32px 20px 34px 20px;
       width: 100%;
-      max-width: 1100px;
+      max-width: 1150px;
       backdrop-filter: blur(1.5px);
       animation: fadein 0.8s cubic-bezier(.43,.94,.71,1.36);
     }
     .app-title {
       font-size: 1.68rem;
-      font-weight: 800;
+      font-weight: bold;
       color: #1d7ecf;
-      margin-bottom: 25px;
+      margin-bottom: 28px;
       letter-spacing: 1.1px;
       text-align: center;
       text-shadow: 0 3px 13px #70bbfa22;
@@ -64,34 +62,34 @@
     @keyframes fadein {from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
     .app-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(185px,1fr));
-      gap: 25px 18px;
+      grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
+      gap: 22px 18px;
       width: 100%;
     }
     a.app-card {
       display: flex; flex-direction: column; align-items: center;
       background: #fff;
       border-radius: 15px;
-      box-shadow: 0 2px 16px #65b8fb18;
-      padding: 22px 12px 13px 12px;
+      box-shadow: 0 2px 16px #65b8fb13;
+      padding: 19px 10px 16px 10px;
       min-height: 188px;
       transition: box-shadow 0.17s, transform 0.12s, filter 0.11s;
       position: relative;
       text-decoration: none !important;
       cursor: pointer;
-      border: 2.5px solid transparent;
+      border: 2.2px solid transparent;
       outline: none;
     }
     a.app-card:hover, a.app-card:focus {
-      box-shadow: 0 12px 36px #44bcfc4a, 0 3px 12px #2295e821;
+      box-shadow: 0 12px 36px #44bcfc33, 0 3px 12px #2295e81a;
       transform: translateY(-5px) scale(1.031);
-      border: 2.5px solid #4db2f5;
+      border: 2.2px solid #4db2f5;
       filter: brightness(1.07);
       z-index: 2;
     }
     .app-card .app-icon {
-      width: 62px; height: 62px;
-      margin-bottom: 14px;
+      width: 56px; height: 56px;
+      margin-bottom: 10px;
       display: flex; align-items: center; justify-content: center;
       font-size: 2.8em; border-radius: 14px;
       background: #eaf5ff;
@@ -101,39 +99,38 @@
       border: 2px solid #bee4fc;
     }
     .app-card .app-icon img {
-      width: 100%; height: 100%; object-fit: contain;
-      background: none; border-radius: 11px;
+      width: 90%; height: 90%; object-fit: contain;
       display: block;
+      border-radius: 10px;
+      background: none;
     }
-    .app-card .app-link, .app-card .app-name {
+    .app-card .app-link {
       color: #2295e8;
       text-decoration: none;
-      font-weight: 700;
-      font-size: 1.07rem;
+      font-weight: bold;
+      font-size: 1.08rem;
       margin-bottom: 3px;
       text-align: center;
       transition: color 0.13s;
       cursor: pointer;
-    }
-    .app-card .app-desc {
-      color: #429de0;
-      font-size: .97rem;
-      margin-bottom: 6px;
-      text-align: center;
+      line-height: 1.16;
+      word-break: break-word;
     }
     .app-card .app-price {
-      margin-top: auto;
+      margin-top: 8px;
       font-size: 1.01rem;
-      color: #13d28d;
-      font-weight: 700;
-      letter-spacing: .15px;
+      color: #10bd76;
+      font-weight: bold;
+      letter-spacing: .12px;
       text-align: center;
     }
     @media (max-width:700px) {
       .app-grid-wrap {max-width: 99vw; padding:12px 2vw;}
-      .app-title {font-size: 1.11rem;}
+      .app-title {font-size: 1.14rem;}
       .app-grid {gap:13px 6px;}
-      .app-card {padding:12px 2px 9px 2px; min-height:150px;}
+      .app-card {padding:11px 2px 9px 2px; min-height:130px;}
+      .app-card .app-icon {width:42px;height:42px;}
+      .app-card .app-link {font-size:0.99rem;}
     }
     footer {
       background: #ecf7ff;
@@ -150,7 +147,6 @@
       position: relative;
       width: 100%;
       min-height: 56px;
-      /* Không dùng fixed/absolute để tự fit chân trang */
     }
   </style>
 </head>
@@ -165,19 +161,20 @@
     <div class="app-grid-wrap">
       <div class="app-title">Ứng dụng nổi bật</div>
       <div class="app-grid">
-        <!-- Card mẫu, các app tiếp theo bạn thêm tương tự -->
+        <!-- App có icon riêng -->
         <a class="app-card" href="https://www.tiktok.com/" target="_blank">
           <div class="app-icon">
             <img src="tiktok.png" alt="TikTok"
-              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+              onerror="this.onerror=null;this.src='cf82c8c3-3b46-4599-b346-7574e30e4311.png';"/>
           </div>
           <span class="app-link">TikTok</span>
           <div class="app-price">Miễn phí</div>
         </a>
-        <a class="app-card" href="#" >
+        <!-- App không có icon, hiện cờ lê mặc định -->
+        <a class="app-card" href="#">
           <div class="app-icon">
             <img src="unikey.png" alt="Unikey"
-              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+              onerror="this.onerror=null;this.src='cf82c8c3-3b46-4599-b346-7574e30e4311.png';"/>
           </div>
           <span class="app-link">Unikey - Bàn phím tiếng Việt</span>
           <div class="app-price">Miễn phí</div>
@@ -185,7 +182,7 @@
         <a class="app-card" href="https://facebook.com" target="_blank">
           <div class="app-icon">
             <img src="facebook.png" alt="Facebook"
-              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+              onerror="this.onerror=null;this.src='cf82c8c3-3b46-4599-b346-7574e30e4311.png';"/>
           </div>
           <span class="app-link">Facebook</span>
           <div class="app-price">Miễn phí</div>
@@ -193,7 +190,7 @@
         <a class="app-card" href="https://messenger.com" target="_blank">
           <div class="app-icon">
             <img src="messenger.png" alt="Messenger"
-              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+              onerror="this.onerror=null;this.src='cf82c8c3-3b46-4599-b346-7574e30e4311.png';"/>
           </div>
           <span class="app-link">Messenger</span>
           <div class="app-price">Miễn phí</div>
@@ -201,18 +198,17 @@
         <a class="app-card" href="https://chat.openai.com" target="_blank">
           <div class="app-icon">
             <img src="chatgpt.png" alt="ChatGPT"
-              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+              onerror="this.onerror=null;this.src='cf82c8c3-3b46-4599-b346-7574e30e4311.png';"/>
           </div>
           <span class="app-link">ChatGPT</span>
           <div class="app-price">Miễn phí</div>
         </a>
-        <!-- Thêm các card tiếp theo nếu muốn -->
+        <!-- Thêm các app khác theo ý bạn, chỉ cần đổi src/icon/link -->
       </div>
     </div>
   </main>
   <footer id="footer"></footer>
   <script>
-    // Footer lấy động từ file footer.html
     fetch('footer.html')
       .then(r => r.text())
       .then(html => { document.getElementById('footer').innerHTML = html; })
