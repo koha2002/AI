@@ -45,14 +45,14 @@
       box-shadow: none;
       border-radius: 0;
       padding: 0 0 30px 0;
-      width: 80vw;
-      max-width: 1600px;
+      width: 95vw;             /* chỉ chiếm 95% chiều ngang */
+      max-width: 1800px;
       min-width: 320px;
       animation: fadein 0.8s cubic-bezier(.43,.94,.71,1.36);
     }
     .app-title {
       font-family: Arial, Helvetica, sans-serif !important;
-      font-size: 1.54rem;
+      font-size: 1.63rem;
       font-weight: bold;
       color: #1d7ecf;
       margin-bottom: 28px;
@@ -63,17 +63,17 @@
     @keyframes fadein {from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
     .app-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
-      gap: 22px 18px;
+      grid-template-columns: repeat(auto-fit, minmax(270px,1fr)); /* to hơn */
+      gap: 34px 28px;         /* spacing rộng */
       width: 100%;
     }
     a.app-card {
       display: flex; flex-direction: column; align-items: center;
       background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 2px 16px #65b8fb13;
-      padding: 19px 10px 16px 10px;
-      min-height: 188px;
+      border-radius: 22px;
+      box-shadow: 0 4px 24px #65b8fb22;
+      padding: 32px 20px 26px 20px;   /* padding to */
+      min-height: 260px;
       transition: box-shadow 0.17s, transform 0.12s, filter 0.11s;
       position: relative;
       text-decoration: none !important;
@@ -95,10 +95,10 @@
       z-index: 2;
     }
     .app-card .app-icon {
-      width: 56px; height: 56px;
-      margin-bottom: 10px;
+      width: 82px; height: 82px;      /* icon to */
+      margin-bottom: 17px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.8em; border-radius: 14px;
+      font-size: 2.8em; border-radius: 18px;
       background: #eaf5ff;
       box-shadow: 0 2px 8px #d3f0ff45;
       color: #2696ea;
@@ -108,14 +108,14 @@
     .app-card .app-icon img {
       width: 90%; height: 90%; object-fit: contain;
       display: block;
-      border-radius: 10px;
+      border-radius: 12px;
       background: none;
     }
     .app-card .app-link {
       color: #2295e8;
       text-decoration: none;
       font-weight: bold;
-      font-size: 1.08rem;
+      font-size: 1.22rem;
       margin-bottom: 2px;
       text-align: center;
       transition: color 0.13s;
@@ -125,15 +125,15 @@
     }
     .app-card .app-desc {
       color: #666;
-      font-size: .96rem;
+      font-size: 1.09rem;
       margin-bottom: 5px;
       margin-top: 2px;
       text-align: center;
       line-height: 1.32;
     }
     .app-card .app-price {
-      margin-top: 6px;
-      font-size: 1.01rem;
+      margin-top: 7px;
+      font-size: 1.09rem;
       color: #10bd76;
       font-weight: bold;
       letter-spacing: .12px;
@@ -144,20 +144,16 @@
     }
     @media (max-width:900px) {
       .app-grid-wrap {
-        width: 97vw;
+        width: 99vw;
         min-width: 0;
         padding: 0 0 20px 0;
       }
-      .app-grid {grid-template-columns: repeat(auto-fit, minmax(165px,1fr));}
-      .app-title {font-size: 1.14rem;}
-    }
-    @media (max-width:700px) {
-      .app-title {font-size: 1.07rem;}
-      .app-grid {gap:13px 6px;}
-      .app-card {padding:11px 2px 9px 2px; min-height:130px;}
-      .app-card .app-icon {width:42px;height:42px;}
-      .app-card .app-link {font-size:0.99rem;}
-      .app-card .app-desc {font-size: .88rem;}
+      .app-grid {grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap: 16px 8px;}
+      .app-title {font-size: 1.08rem;}
+      .app-card {padding:12px 4px 10px 4px; min-height:140px;}
+      .app-card .app-icon {width:45px;height:45px;}
+      .app-card .app-link {font-size:1rem;}
+      .app-card .app-desc {font-size:.92rem;}
     }
     #footer {
       width: 100% !important;
@@ -196,10 +192,10 @@
     // === DANH SÁCH APP DỄ BỔ SUNG ===
     const apps = [
       {
-        name: "Microsft Project",
-        icon: "Project.png",
+        name: "Microsoft Project",
+        icon: "project.png", // phải đúng tên file
         link: "https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EtBthx3SX11IrpGZcvxxyPQBOeZpZe9F25HyKm6xadY6Lg?e=ZDqnfj",
-        desc: "Đây chỉ là 1 phẩn mềm duy nhất MS Project, không bao gồm các phần mềm khác của microsoft (áp dụng cho những máy đã có office rồi, muốn cài thêm 1 phần mềm này nữa thôi). Phần mềm dùng để lên kế hoạch, phục vụ, theo sát dự án (đã kèm key theo).",
+        desc: "Phần mềm dùng để lên kế hoạch, phục vụ, theo sát dự án (đã kèm key theo).",
         price: "Miễn phí"
       },
       {
