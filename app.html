@@ -5,7 +5,6 @@
   <title>Danh sách Ứng dụng</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
   <style>
     html, body {height:100%;margin:0;padding:0;}
     body {
@@ -98,6 +97,7 @@
     .app-card .app-icon img {
       width: 100%; height: 100%; object-fit: contain;
       background: none; border-radius: 11px;
+      display: block;
     }
     .app-card .app-name {
       font-size: 1.04rem;
@@ -165,77 +165,95 @@
 
         <!-- Card 1: Có icon -->
         <div class="app-card">
-          <div class="app-icon"><!-- icon TikTok -->
-            <img src="tiktok.png" alt="TikTok"/>
+          <div class="app-icon">
+            <img src="tiktok.png" alt="TikTok"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
           </div>
           <a href="https://www.tiktok.com/" target="_blank" class="app-link">TikTok</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
-        <!-- Card 2: Mặc định cờ lê -->
+        <!-- Card 2: Không có icon sẽ tự về icon cờ lê -->
         <div class="app-card">
-          <div class="app-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          <div class="app-icon">
+            <img src="unikey.png" alt="Unikey"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="#" class="app-link">Unikey - Bàn phím tiếng Việt</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 3 -->
         <div class="app-card">
-          <div class="app-icon"><img src="facebook.png" alt="Facebook"/></div>
+          <div class="app-icon">
+            <img src="facebook.png" alt="Facebook"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="https://facebook.com" target="_blank" class="app-link">Facebook</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 4 -->
         <div class="app-card">
-          <div class="app-icon"><img src="messenger.png" alt="Messenger"/></div>
+          <div class="app-icon">
+            <img src="messenger.png" alt="Messenger"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="https://messenger.com" target="_blank" class="app-link">Messenger</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 5 -->
         <div class="app-card">
-          <div class="app-icon"><img src="chatgpt.png" alt="ChatGPT"/></div>
+          <div class="app-icon">
+            <img src="chatgpt.png" alt="ChatGPT"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="https://chat.openai.com" target="_blank" class="app-link">ChatGPT</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 6 -->
         <div class="app-card">
-          <div class="app-icon"><img src="lively.png" alt="Lively Wallpaper"/></div>
+          <div class="app-icon">
+            <img src="lively.png" alt="Lively Wallpaper"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="#" class="app-link">Lively Wallpaper</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 7 -->
         <div class="app-card">
-          <div class="app-icon"><img src="seelen.png" alt="Seelen UI"/></div>
+          <div class="app-icon">
+            <img src="seelen.png" alt="Seelen UI"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="#" class="app-link">Seelen UI</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 8 -->
         <div class="app-card">
-          <div class="app-icon"><img src="spotify.png" alt="Spotify"/></div>
+          <div class="app-icon">
+            <img src="spotify.png" alt="Spotify"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="https://spotify.com" target="_blank" class="app-link">Spotify – Âm nhạc và Podcast</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 9 -->
         <div class="app-card">
-          <div class="app-icon"><img src="translucenttb.png" alt="TranslucentTB"/></div>
+          <div class="app-icon">
+            <img src="translucenttb.png" alt="TranslucentTB"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="#" class="app-link">TranslucentTB</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
         <!-- Card 10 -->
         <div class="app-card">
-          <div class="app-icon"><img src="icloud.png" alt="iCloud"/></div>
+          <div class="app-icon">
+            <img src="icloud.png" alt="iCloud"
+              onerror="this.onerror=null;this.src='ece328b4-946b-4930-8303-01271cf429a2.png';"/>
+          </div>
           <a href="https://www.icloud.com/" target="_blank" class="app-link">iCloud</a>
-          <div class="app-desc"></div>
           <div class="app-price">Miễn phí</div>
         </div>
-        <!-- Thêm card mới ở đây, nếu icon chưa có thì giữ lại fa-screwdriver-wrench như bên trên -->
+        <!-- Thêm card mới ở đây, chỉ cần đúng src icon, không có sẽ tự lấy icon cờ lê -->
       </div>
     </div>
   </main>
@@ -289,8 +307,11 @@
     });
     document.addEventListener('mouseleave', () => { mouseLight.style.opacity = 0; });
     document.addEventListener('mouseenter', () => { mouseLight.style.opacity = 1; });
-    // Footer
-    fetch('footer.html').then(r => r.text()).then(html => { document.getElementById('footer').innerHTML = html; });
+    // Footer (không có file thì không hiện gì, không lỗi)
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; })
+      .catch(()=>{});
   </script>
 </body>
 </html>
