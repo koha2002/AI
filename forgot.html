@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quên mật khẩu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Arial; }
+    .forgot-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.1); width: 320px; }
+    .forgot-box h2 { margin-bottom: 20px; text-align: center; }
+    .forgot-box input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    .forgot-box button { width: 100%; padding: 12px; background: #4a90e2; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .forgot-box button:hover { background: #357ab8; }
+    .forgot-box .error { color: red; text-align: center; min-height: 20px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <form class="forgot-box" id="forgotForm">
+    <h2>Quên mật khẩu</h2>
+    <div class="error" id="error"></div>
+    <input type="email" id="email" placeholder="Nhập email đã đăng ký" required>
+    <button type="submit">Gửi mail khôi phục</button>
+  </form>
+  <script>
+    const backendUrl = "https://login-backend-pg7j.onrender.com";
+    document.getElementById('forgotForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const res = await fetch(`${backendUrl}/forgot-password`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        window.location.href = "login.html";
+      } else {
+        document.getElementById('error').textContent = data.message || "Gửi mail thất bại!";
+      }
+    }
+  </script>
+</body>
+</html>
