@@ -3,135 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>Đăng nhập</title>
-  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
-    html, body {
-      height: 100%;
-      margin: 0; padding: 0;
-      font-family: 'Montserrat', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      background: radial-gradient(ellipse at center, #233d61 0%, #0a1931 100%);
-      color: #fff;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 20px;
-    }
-    .login-box {
-      background: rgba(18,32,67,0.95);
-      padding: 35px 28px;
-      border-radius: 18px;
-      box-shadow: 0 6px 32px rgba(0,0,0,0.4);
-      max-width: 360px;
-      width: 100%;
-    }
-    .login-box h2 {
-      text-align: center;
-      margin-bottom: 24px;
-      color: #63aaff;
-      font-size: 1.8rem;
-      text-shadow: 0 1px 10px rgba(0,0,0,0.3);
-    }
-    .login-box input[type="text"], .login-box input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 18px;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      outline: none;
-      background: #e9f1fb;
-      color: #222;
-      transition: border .2s;
-    }
-    .login-box input:focus {
-      border: 1.5px solid #4a90e2;
-    }
-    .login-box button {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(90deg, #3a7bd5, #4a90e2);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 1px 6px rgba(74,144,226,0.15);
-      transition: background .2s;
-    }
-    .login-box button:hover {
-      background: linear-gradient(90deg, #4a90e2, #3a7bd5);
-    }
-    .login-box .link {
-      text-align: center;
-      margin-top: 14px;
-      font-size: 0.95rem;
-    }
-    .login-box .link a {
-      color: #4a90e2;
-      text-decoration: none;
-      margin: 0 6px;
-    }
-    .login-box .link a:hover {
-      text-decoration: underline;
-    }
-    footer {
-      background: #122043;
-      color: #8ebeff;
-      text-align: center;
-      padding: 16px 10px;
-      font-size: 1rem;
-      border-radius: 18px 18px 0 0;
-      letter-spacing: .22px;
-      box-shadow: 0 -3px 22px rgba(10,25,49,0.1);
-    }
+    html, body {height:100%;margin:0;display:flex;flex-direction:column;background:#0a1931;color:#fff;font-family:'Montserrat',sans-serif;}
+    main {flex:1;display:flex;justify-content:center;align-items:center;padding:20px;}
+    .box{background:#122043e6;padding:35px 28px;border-radius:18px;box-shadow:0 6px 32px rgba(0,0,0,0.4);max-width:360px;width:100%;}
+    .box h2{text-align:center;margin-bottom:24px;color:#63aaff;}
+    .box input{width:100%;padding:12px;margin-bottom:18px;border:none;border-radius:6px;font-size:1rem;outline:none;background:#e9f1fb;color:#222;}
+    .box input:focus{border:1.5px solid #4a90e2;}
+    .box button{width:100%;padding:12px;background:linear-gradient(90deg,#3a7bd5,#4a90e2);color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;}
+    .box button:hover{background:linear-gradient(90deg,#4a90e2,#3a7bd5);}
+    .box .link{text-align:center;margin-top:14px;font-size:.95rem;}
+    .box .link a{color:#4a90e2;text-decoration:none;margin:0 6px;} .box .link a:hover{text-decoration:underline;}
   </style>
 </head>
 <body>
   <main>
-    <div class="login-box">
+    <div class="box">
       <h2>Đăng nhập</h2>
-      <div class="error" id="error"></div>
-      <input type="text" id="username" placeholder="Tên đăng nhập hoặc email" autocomplete="username" required>
-      <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password" required>
-      <button type="button" onclick="login()">Đăng nhập</button>
-      <div class="link">
-        Chưa có tài khoản? <a href="register.html">Đăng ký</a> | <a href="forgot.html">Quên mật khẩu?</a>
-      </div>
+      <div id="error"></div>
+      <input type="text" id="username" placeholder="Tên đăng nhập hoặc email" required>
+      <input type="password" id="password" placeholder="Mật khẩu" required>
+      <button onclick="login()">Đăng nhập</button>
+      <div class="link">Chưa có tài khoản? <a href="register.html">Đăng ký</a> | <a href="forgot.html">Quên mật khẩu?</a></div>
     </div>
   </main>
-  <footer>
-    &copy; 2025 Tra Cứu Học Thuật & AI • Thiết kế bởi KoHa
-    <div>
-      <a href="https://www.youtube.com/" target="_blank" title="YouTube" style="margin-right:10px;">📺</a>
-      <a href="https://www.facebook.com/" target="_blank" title="Facebook">📘</a>
-    </div>
-  </footer>
+  <div id="footer"></div>
   <script>
-    const backendUrl = "https://login-backend-pg7j.onrender.com";
-    async function login() {
+    const backendUrl="https://login-backend-pg7j.onrender.com";
+    async function login(){
       const username=document.getElementById('username').value;
       const password=document.getElementById('password').value;
-      const res=await fetch(`${backendUrl}/login`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({username,password})
-      });
-      if(res.ok){
-        const data=await res.json();
-        localStorage.setItem('token',data.token);
-        window.location.href="index.html";
-      }else{
-        document.getElementById('error').textContent="Sai tài khoản hoặc mật khẩu!";
-      }
+      const res=await fetch(`${backendUrl}/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
+      if(res.ok){const data=await res.json();localStorage.setItem('token',data.token);window.location.href="index.html";}
+      else document.getElementById('error').textContent="Sai tài khoản hoặc mật khẩu!";
     }
+    fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
   </script>
 </body>
 </html>
