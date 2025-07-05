@@ -5,10 +5,10 @@
   <title>Xác thực tài khoản</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: Arial; }
-    .verify-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
-    .verify-box h2 { color: #333; margin-bottom: 20px; }
-    .verify-box p { color: #555; }
+    body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: Arial, sans-serif; }
+    .verify-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
+    .verify-box h2 { margin-bottom: 20px; font-size: 1.5rem; color: #333; }
+    .verify-box p { color: #555; font-size: 1rem; }
   </style>
 </head>
 <body>
@@ -22,8 +22,22 @@
     const token = urlParams.get('token');
     fetch(`${backendUrl}/verify?token=${token}`)
       .then(res => res.text())
-      .then(msg => document.getElementById("verifyBox").innerHTML = `<h2>${msg}</h2>`)
-      .catch(() => document.getElementById("verifyBox").innerHTML = "<h2>Có lỗi xảy ra.</h2>");
+      .then(msg => {
+        const box = document.getElementById("verifyBox");
+        box.innerHTML = `<h2>${msg}</h2><p>Đang chuyển hướng về trang chủ trong <span id="countdown">5</span> giây...</p>`;
+        let count = 5;
+        const interval = setInterval(() => {
+          count--;
+          document.getElementById('countdown').textContent = count;
+          if (count <= 0) {
+            clearInterval(interval);
+            window.location.href = "https://koha.io.vn";
+          }
+        }, 1000);
+      })
+      .catch(() => {
+        document.getElementById("verifyBox").innerHTML = "<h2>Có lỗi xảy ra khi xác thực.</h2>";
+      });
   </script>
 </body>
 </html>
