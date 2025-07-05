@@ -2,19 +2,95 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Đăng ký tài khoản</title>
+  <title>Đăng ký</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #f5f7fa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .register-box {
+      background: #fff;
+      padding: 40px 32px 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px 0 rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 350px;
+    }
+    .register-box h2 {
+      margin-bottom: 18px;
+      color: #222;
+      font-size: 1.8rem;
+      text-align: center;
+      font-weight: 700;
+    }
+    .register-box input[type="text"], .register-box input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 18px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border .2s;
+    }
+    .register-box input:focus {
+      border: 1.5px solid #4a90e2;
+    }
+    .register-box button {
+      width: 100%;
+      padding: 11px 0;
+      background: linear-gradient(90deg,#3a7bd5,#4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 5px;
+      box-shadow: 0 1px 6px 0 rgba(74,144,226,0.15);
+      transition: background .2s;
+    }
+    .register-box button:hover {
+      background: linear-gradient(90deg,#4a90e2,#3a7bd5);
+    }
+    .register-box .error {
+      color: #e84118;
+      font-size: 0.97rem;
+      min-height: 18px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .register-box .link {
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.98rem;
+    }
+    .register-box .link a {
+      color: #4a90e2;
+      text-decoration: none;
+    }
+    .register-box .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h2>Đăng ký tài khoản</h2>
-  <form id="registerForm">
-    <input type="text" id="username" placeholder="Tài khoản" required><br>
-    <input type="password" id="password" placeholder="Mật khẩu" required><br>
+  <form class="register-box" id="registerForm">
+    <h2>Đăng ký tài khoản</h2>
+    <div class="error" id="error"></div>
+    <input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="username" required>
+    <input type="password" id="password" placeholder="Mật khẩu" autocomplete="new-password" required>
     <button type="submit">Đăng ký</button>
+    <div class="link">Đã có tài khoản? <a href="login.html">Đăng nhập</a></div>
   </form>
-  <div id="error"></div>
-  <a href="login.html">Quay về đăng nhập</a>
   <script>
-    const backendUrl = "https://login-backend-pg7j.onrender.com"; // Đổi đúng link backend
+    const backendUrl = "https://login-backend-pg7j.onrender.com";
     document.getElementById('registerForm').onsubmit = async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
