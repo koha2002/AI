@@ -88,6 +88,7 @@
     <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password" required>
     <button type="submit">Đăng nhập</button>
     <div class="link">Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></div>
+    <div class="link"><a href="forgot.html">Quên mật khẩu?</a></div>
   </form>
   <script>
     const backendUrl = "https://login-backend-pg7j.onrender.com";
@@ -100,12 +101,12 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
       });
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         localStorage.setItem('token', data.token);
         window.location.href = "index.html";
       } else {
-        document.getElementById('error').textContent = "Sai tài khoản hoặc mật khẩu!";
+        document.getElementById('error').textContent = data.message || "Sai tài khoản hoặc mật khẩu!";
       }
     }
   </script>
