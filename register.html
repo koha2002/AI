@@ -3,133 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <title>Đăng ký</title>
-  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      background: radial-gradient(ellipse at 60% 40%, #233d61 0%, #0a1931 100%);
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .box {
-      background: rgba(18,32,67,0.96);
-      padding: 40px 28px 34px;
-      border-radius: 20px;
-      box-shadow: 0 6px 32px #12204385;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-      backdrop-filter: blur(2.5px);
-    }
-    .box h2 {
-      color: #63aaff;
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      letter-spacing: .8px;
-      text-shadow: 0 2px 12px #185adb34;
-    }
-    .box input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 18px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-    }
-    .box input:focus {
-      border: 1.5px solid #4a90e2;
-    }
-    .box button {
-      width: 100%;
-      padding: 14px 0;
-      background: linear-gradient(90deg,#3a7bd5,#4a90e2);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 18px #13204334;
-      transition: transform 0.18s;
-    }
-    .box button:hover {
-      transform: scale(1.04);
-    }
-    .box .link {
-      margin-top: 14px;
-      font-size: 1rem;
-      color: #8ebeff;
-    }
-    .box .link a {
-      color: #4a90e2;
-      text-decoration: none;
-    }
-    .box .link a:hover {
-      text-decoration: underline;
-    }
-    footer {
-      margin-top: 40px;
-      width: 100%;
-      background: #122043;
-      color: #8ebeff;
-      text-align: center;
-      padding: 26px 10px 16px;
-      font-size: 1.08rem;
-      letter-spacing: .22px;
-      border-radius: 22px 22px 0 0;
-      box-shadow: 0 -3px 22px #0a193112;
-    }
+    html,body{height:100%;margin:0;display:flex;flex-direction:column;background:#0a1931;color:#fff;font-family:'Montserrat',sans-serif;}
+    main{flex:1;display:flex;justify-content:center;align-items:center;padding:20px;}
+    .box{background:#122043e6;padding:35px 28px;border-radius:18px;box-shadow:0 6px 32px rgba(0,0,0,.4);max-width:360px;width:100%;}
+    .box h2{text-align:center;margin-bottom:24px;color:#63aaff;}
+    .box input{width:100%;padding:12px;margin-bottom:18px;border:none;border-radius:6px;font-size:1rem;outline:none;background:#e9f1fb;color:#222;}
+    .box input:focus{border:1.5px solid #4a90e2;}
+    .box button{width:100%;padding:12px;background:linear-gradient(90deg,#3a7bd5,#4a90e2);color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;}
+    .box button:hover{background:linear-gradient(90deg,#4a90e2,#3a7bd5);}
+    .box .link{text-align:center;margin-top:14px;font-size:.95rem;}
+    .box .link a{color:#4a90e2;text-decoration:none;margin:0 6px;} .box .link a:hover{text-decoration:underline;}
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Đăng ký tài khoản</h2>
-    <input type="text" id="username" placeholder="Tên đăng nhập" required>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Mật khẩu" required>
-    <button onclick="register()">Đăng ký</button>
-    <div class="link">Đã có tài khoản? <a href="login.html">Đăng nhập</a></div>
-  </div>
-
-  <footer id="footer"></footer>
-
+  <main>
+    <div class="box">
+      <h2>Đăng ký tài khoản</h2>
+      <div id="error"></div>
+      <input type="text" id="username" placeholder="Tên đăng nhập" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Mật khẩu" required>
+      <button onclick="register()">Đăng ký</button>
+      <div class="link">Đã có tài khoản? <a href="login.html">Đăng nhập</a></div>
+    </div>
+  </main>
+  <div id="footer"></div>
   <script>
-    const backendUrl = "https://login-backend-pg7j.onrender.com";
-
-    async function register() {
-      const username = document.getElementById('username').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      if (!username || !email || !password) {
-        alert("Vui lòng nhập đầy đủ thông tin.");
-        return;
-      }
-
-      const res = await fetch(`${backendUrl}/register`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username, email, password })
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        alert(data.message || "Đăng ký thành công! Hãy kiểm tra email để xác thực.");
-      } else {
-        alert(data.message || "Đăng ký thất bại.");
-      }
+    const backendUrl="https://login-backend-pg7j.onrender.com";
+    async function register(){
+      const u=document.getElementById('username').value,e=document.getElementById('email').value,p=document.getElementById('password').value;
+      const res=await fetch(`${backendUrl}/register`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,email:e,password:p})});
+      const data=await res.json();
+      if(res.ok){alert(data.message||"Đăng ký thành công! Kiểm tra email.");window.location.href="login.html";}
+      else document.getElementById('error').textContent=data.message||"Đăng ký thất bại!";
     }
-
-    fetch('footer.html')
-      .then(response => response.text())
-      .then(html => document.getElementById('footer').innerHTML = html);
+    fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
   </script>
 </body>
 </html>
