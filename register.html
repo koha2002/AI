@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng ký tài khoản</title>
+</head>
+<body>
+  <h2>Đăng ký tài khoản</h2>
+  <form id="registerForm">
+    <input type="text" id="username" placeholder="Tài khoản" required><br>
+    <input type="password" id="password" placeholder="Mật khẩu" required><br>
+    <button type="submit">Đăng ký</button>
+  </form>
+  <div id="error"></div>
+  <a href="login.html">Quay về đăng nhập</a>
+  <script>
+    const backendUrl = "https://login-backend-pg7j.onrender.com"; // Đổi đúng link backend
+    document.getElementById('registerForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch(backendUrl + '/register', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        alert("Đăng ký thành công! Mời đăng nhập.");
+        window.location.href = "login.html";
+      } else {
+        const data = await res.json();
+        document.getElementById('error').textContent = data.message || "Đăng ký thất bại!";
+      }
+    }
+  </script>
+</body>
+</html>
