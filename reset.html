@@ -6,17 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: Arial; }
-    .reset-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
-    .reset-box h2 { margin-bottom: 20px; color: #333; text-align: center; }
-    .reset-box input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
-    .reset-box button { width: 100%; padding: 10px; background: #4a90e2; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .reset-box button:hover { background: #357ab8; }
+    .reset-box { background: white; padding: 30px 20px; border-radius: 10px; box-shadow: 0 2px 16px rgba(0,0,0,0.1); max-width: 400px; text-align: center; }
+    .reset-box h2 { margin-bottom: 15px; font-size: 1.4rem; color: #333; }
+    .reset-box input[type="password"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+    .reset-box button { width: 100%; padding: 10px; background: linear-gradient(90deg,#3a7bd5,#4a90e2); color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div class="reset-box">
+  <div class="reset-box" id="resetBox">
     <h2>Đặt lại mật khẩu</h2>
-    <input type="password" id="newPassword" placeholder="Mật khẩu mới">
+    <input type="password" id="newPassword" placeholder="Mật khẩu mới" required>
     <button onclick="resetPassword()">Đổi mật khẩu</button>
   </div>
   <script>
@@ -26,13 +25,28 @@
 
     async function resetPassword() {
       const newPassword = document.getElementById('newPassword').value;
-      const res = await fetch(`${backendUrl}/reset-password`, {
+      if (!newPassword) return alert("Vui lòng nhập mật khẩu mới.");
+      const res = await fetch(backendUrl + '/reset-password', {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword })
       });
-      const data = await res.json();
-      alert(data.message);
+      if (res.ok) {
+        const box = document.getElementById("resetBox");
+        box.innerHTML = "<h2>Đổi mật khẩu thành công!</h2><p>Đang chuyển hướng về trang chủ trong <span id='countdown'>5</span> giây...</p>";
+        let count = 5;
+        const interval = setInterval(() => {
+          count--;
+          document.getElementById('countdown').textContent = count;
+          if (count <= 0) {
+            clearInterval(interval);
+            window.location.href = "https://koha.io.vn";
+          }
+        }, 1000);
+      } else {
+        const data = await res.json();
+        alert(data.message || "Đổi mật khẩu thất bại.");
+      }
     }
   </script>
 </body>
