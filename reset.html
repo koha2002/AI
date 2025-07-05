@@ -3,36 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>Đặt lại mật khẩu</title>
-  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {background:radial-gradient(ellipse at 60% 40%,#233d61 0%,#0a1931 100%);font-family:'Montserrat',Arial;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
-    .box{background:rgba(18,32,67,.96);padding:40px 28px 34px;border-radius:20px;box-shadow:0 6px 32px #12204385;max-width:400px;width:90%;text-align:center;backdrop-filter:blur(2.5px);}
-    .box h2{color:#63aaff;font-size:1.8rem;margin-bottom:20px;letter-spacing:.8px;text-shadow:0 2px 12px #185adb34;}
-    .box input{width:100%;padding:12px;margin-bottom:18px;border:1px solid #ddd;border-radius:8px;font-size:1rem;outline:none;}
+    html,body{height:100%;margin:0;display:flex;flex-direction:column;background:#0a1931;color:#fff;font-family:'Montserrat',sans-serif;}
+    main{flex:1;display:flex;justify-content:center;align-items:center;padding:20px;}
+    .box{background:#122043e6;padding:35px 28px;border-radius:18px;box-shadow:0 6px 32px rgba(0,0,0,.4);max-width:360px;width:100%;}
+    .box h2{text-align:center;margin-bottom:24px;color:#63aaff;}
+    .box input{width:100%;padding:12px;margin-bottom:18px;border:none;border-radius:6px;font-size:1rem;outline:none;background:#e9f1fb;color:#222;}
     .box input:focus{border:1.5px solid #4a90e2;}
-    .box button{width:100%;padding:14px 0;background:linear-gradient(90deg,#3a7bd5,#4a90e2);color:white;border:none;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px #13204334;transition:transform .18s;}
-    .box button:hover{transform:scale(1.04);}
-    footer{margin-top:40px;width:100%;background:#122043;color:#8ebeff;text-align:center;padding:26px 10px 16px;font-size:1.08rem;letter-spacing:.22px;border-radius:22px 22px 0 0;box-shadow:0 -3px 22px #0a193112;}
+    .box button{width:100%;padding:12px;background:linear-gradient(90deg,#3a7bd5,#4a90e2);color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;}
+    .box button:hover{background:linear-gradient(90deg,#4a90e2,#3a7bd5);}
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Đặt lại mật khẩu</h2>
-    <input type="password" id="password" placeholder="Mật khẩu mới" required>
-    <button onclick="resetPassword()">Đổi mật khẩu</button>
-  </div>
-
-  <footer id="footer"></footer>
-
+  <main>
+    <div class="box">
+      <h2>Đặt lại mật khẩu</h2>
+      <input type="password" id="password" placeholder="Mật khẩu mới" required>
+      <button onclick="resetPassword()">Đổi mật khẩu</button>
+    </div>
+  </main>
+  <div id="footer"></div>
   <script>
     const backendUrl="https://login-backend-pg7j.onrender.com";
     const urlParams=new URLSearchParams(window.location.search);
     const token=urlParams.get('token');
     async function resetPassword(){
       const password=document.getElementById('password').value;
-      const res=await fetch(`${backendUrl}/reset-password`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,password})});
+      const res=await fetch(`${backendUrl}/reset-password`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,newPassword:password})});
       const data=await res.json();
       alert(data.message||"Đổi mật khẩu thất bại");
       if(res.ok) window.location.href="https://koha.io.vn";
