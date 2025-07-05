@@ -12,8 +12,9 @@
     <button type="submit">Đăng nhập</button>
   </form>
   <div id="error"></div>
+  <a href="register.html">Chưa có tài khoản? Đăng ký!</a>
   <script>
-    const backendUrl = "https://login-backend-pg7j.onrender.com"; // ĐỔI link này!
+    const backendUrl = "https://login-backend-pg7j.onrender.com"; // Đổi đúng link backend
     document.getElementById('loginForm').onsubmit = async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
@@ -26,7 +27,7 @@
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('token', data.token);
-        window.location.href = "index.html"; // hoặc file chính của bạn
+        window.location.href = "index.html"; // hoặc trang bạn muốn redirect
       } else {
         document.getElementById('error').textContent = "Sai tài khoản hoặc mật khẩu!";
       }
