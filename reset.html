@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đặt lại mật khẩu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: Arial; }
+    .reset-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+    .reset-box h2 { margin-bottom: 20px; color: #333; text-align: center; }
+    .reset-box input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
+    .reset-box button { width: 100%; padding: 10px; background: #4a90e2; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .reset-box button:hover { background: #357ab8; }
+  </style>
+</head>
+<body>
+  <div class="reset-box">
+    <h2>Đặt lại mật khẩu</h2>
+    <input type="password" id="newPassword" placeholder="Mật khẩu mới">
+    <button onclick="resetPassword()">Đổi mật khẩu</button>
+  </div>
+  <script>
+    const backendUrl = "https://login-backend-pg7j.onrender.com";
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    async function resetPassword() {
+      const newPassword = document.getElementById('newPassword').value;
+      const res = await fetch(`${backendUrl}/reset-password`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ token, newPassword })
+      });
+      const data = await res.json();
+      alert(data.message);
+    }
+  </script>
+</body>
+</html>
