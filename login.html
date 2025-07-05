@@ -5,102 +5,133 @@
   <title>Đăng nhập</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      background: radial-gradient(ellipse at 60% 40%, #233d61 0%, #0a1931 100%);
+    html, body {
+      height: 100%;
+      margin: 0; padding: 0;
       font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
       display: flex;
       flex-direction: column;
+      background: radial-gradient(ellipse at center, #233d61 0%, #0a1931 100%);
+      color: #fff;
+    }
+    main {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      flex-direction: column;
+      padding: 20px;
     }
-    .box {
-      background: rgba(18,32,67,0.96);
-      padding: 40px 28px 34px;
-      border-radius: 20px;
-      box-shadow: 0 6px 32px #12204385;
-      max-width: 400px;
-      width: 90%;
+    .login-box {
+      background: rgba(18,32,67,0.95);
+      padding: 35px 28px;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.4);
+      max-width: 360px;
+      width: 100%;
+    }
+    .login-box h2 {
       text-align: center;
-      backdrop-filter: blur(2.5px);
-    }
-    .box h2 {
+      margin-bottom: 24px;
       color: #63aaff;
       font-size: 1.8rem;
-      margin-bottom: 20px;
-      letter-spacing: .8px;
-      text-shadow: 0 2px 12px #185adb34;
+      text-shadow: 0 1px 10px rgba(0,0,0,0.3);
     }
-    .box input {
+    .login-box input[type="text"], .login-box input[type="password"] {
       width: 100%;
       padding: 12px;
       margin-bottom: 18px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      border: none;
+      border-radius: 6px;
       font-size: 1rem;
       outline: none;
+      background: #e9f1fb;
+      color: #222;
+      transition: border .2s;
     }
-    .box input:focus { border: 1.5px solid #4a90e2; }
-    .box button {
+    .login-box input:focus {
+      border: 1.5px solid #4a90e2;
+    }
+    .login-box button {
       width: 100%;
-      padding: 14px 0;
-      background: linear-gradient(90deg,#3a7bd5,#4a90e2);
-      color: white;
+      padding: 12px;
+      background: linear-gradient(90deg, #3a7bd5, #4a90e2);
+      color: #fff;
       border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 700;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 18px #13204334;
-      transition: transform 0.18s;
+      box-shadow: 0 1px 6px rgba(74,144,226,0.15);
+      transition: background .2s;
     }
-    .box button:hover { transform: scale(1.04); }
-    .box .link { margin-top: 14px; font-size: 1rem; color: #8ebeff; }
-    .box .link a { color: #4a90e2; text-decoration: none; }
-    .box .link a:hover { text-decoration: underline; }
-    footer { margin-top: 40px; width: 100%; background: #122043; color: #8ebeff; text-align: center; padding: 26px 10px 16px; font-size: 1.08rem; letter-spacing: .22px; border-radius: 22px 22px 0 0; box-shadow: 0 -3px 22px #0a193112; }
+    .login-box button:hover {
+      background: linear-gradient(90deg, #4a90e2, #3a7bd5);
+    }
+    .login-box .link {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.95rem;
+    }
+    .login-box .link a {
+      color: #4a90e2;
+      text-decoration: none;
+      margin: 0 6px;
+    }
+    .login-box .link a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      background: #122043;
+      color: #8ebeff;
+      text-align: center;
+      padding: 16px 10px;
+      font-size: 1rem;
+      border-radius: 18px 18px 0 0;
+      letter-spacing: .22px;
+      box-shadow: 0 -3px 22px rgba(10,25,49,0.1);
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Đăng nhập</h2>
-    <input type="text" id="username" placeholder="Tên đăng nhập hoặc email" required>
-    <input type="password" id="password" placeholder="Mật khẩu" required>
-    <button onclick="login()">Đăng nhập</button>
-    <div class="link">Chưa có tài khoản? <a href="register.html">Đăng ký</a> | <a href="forgot.html">Quên mật khẩu?</a></div>
-  </div>
-
-  <footer id="footer"></footer>
-
+  <main>
+    <div class="login-box">
+      <h2>Đăng nhập</h2>
+      <div class="error" id="error"></div>
+      <input type="text" id="username" placeholder="Tên đăng nhập hoặc email" autocomplete="username" required>
+      <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password" required>
+      <button type="button" onclick="login()">Đăng nhập</button>
+      <div class="link">
+        Chưa có tài khoản? <a href="register.html">Đăng ký</a> | <a href="forgot.html">Quên mật khẩu?</a>
+      </div>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Tra Cứu Học Thuật & AI • Thiết kế bởi KoHa
+    <div>
+      <a href="https://www.youtube.com/" target="_blank" title="YouTube" style="margin-right:10px;">📺</a>
+      <a href="https://www.facebook.com/" target="_blank" title="Facebook">📘</a>
+    </div>
+  </footer>
   <script>
     const backendUrl = "https://login-backend-pg7j.onrender.com";
-
     async function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-
-      const res = await fetch(`${backendUrl}/login`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username, password })
+      const username=document.getElementById('username').value;
+      const password=document.getElementById('password').value;
+      const res=await fetch(`${backendUrl}/login`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({username,password})
       });
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        alert("Đăng nhập thành công!");
-        window.location.href = "index.html";
-      } else {
-        alert(data.message || "Sai tài khoản hoặc mật khẩu.");
+      if(res.ok){
+        const data=await res.json();
+        localStorage.setItem('token',data.token);
+        window.location.href="index.html";
+      }else{
+        document.getElementById('error').textContent="Sai tài khoản hoặc mật khẩu!";
       }
     }
-
-    fetch('footer.html')
-      .then(response => response.text())
-      .then(html => document.getElementById('footer').innerHTML = html);
   </script>
 </body>
 </html>
