@@ -2,8 +2,12 @@
   <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
     <img src="logo.png" alt="Home">
   </button>
-  <span class="mini-title">Tra Cứu Học Thuật & AI</span>
+  <span class="mini-title">
+    Xin chào, <span id="username-display">Khách</span>
+  </span>
+  <button class="logout-btn" onclick="logout()" title="Đăng xuất">🚪 Đăng xuất</button>
 </header>
+
 <style>
   .mini-header {
     display: flex; align-items: center;
@@ -21,5 +25,30 @@
   }
   .home-btn:hover {background: #eaf3ff;}
   .home-btn img {width:21px;height:21px;}
-  .mini-title {font-weight:700; font-size:1.07rem; color:#185adb;}
+  .mini-title {font-weight:700; font-size:1.07rem; color:#185adb; flex:1;}
+  .logout-btn {
+    background: linear-gradient(90deg,#3a7bd5,#4a90e2);
+    color: #fff; border: none; border-radius: 6px;
+    padding: 6px 12px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+    font-size: 0.92rem;
+  }
+  .logout-btn:hover {background: linear-gradient(90deg,#4a90e2,#3a7bd5);}
 </style>
+
+<script>
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+  }
+
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      document.getElementById('username-display').textContent = payload.username;
+    } catch (e) {
+      console.error("Lỗi khi giải mã token", e);
+    }
+  }
+</script>
