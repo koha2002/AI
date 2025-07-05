@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Xác thực tài khoản</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: Arial; }
+    .verify-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+    .verify-box h2 { color: #333; margin-bottom: 20px; }
+    .verify-box p { color: #555; }
+  </style>
+</head>
+<body>
+  <div class="verify-box" id="verifyBox">
+    <h2>Đang xác thực tài khoản...</h2>
+    <p>Vui lòng chờ giây lát...</p>
+  </div>
+  <script>
+    const backendUrl = "https://login-backend-pg7j.onrender.com";
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    fetch(`${backendUrl}/verify?token=${token}`)
+      .then(res => res.text())
+      .then(msg => document.getElementById("verifyBox").innerHTML = `<h2>${msg}</h2>`)
+      .catch(() => document.getElementById("verifyBox").innerHTML = "<h2>Có lỗi xảy ra.</h2>");
+  </script>
+</body>
+</html>
