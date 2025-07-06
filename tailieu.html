@@ -1,19 +1,24 @@
 <script>
-const token = localStorage.getItem('token');
-if (!token) {
-  window.location.href = "login.html";
-} else {
-  fetch("https://login-backend-pg7j.onrender.com/protected", {
-    headers: { "Authorization": "Bearer " + token }
-  })
-  .then(res => {
-    if (!res.ok) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = "login.html";
+  } else {
+    fetch("https://login-backend-pg7j.onrender.com/protected", {
+      headers: { "Authorization": "Bearer " + token }
+    }).then(res => {
+      if (!res.ok) {
+        localStorage.removeItem('token');
+        window.location.href = "login.html";
+      } else {
+        document.body.style.display = 'block';
+      }
+    }).catch(() => {
       localStorage.removeItem('token');
       window.location.href = "login.html";
-    }
-  });
-}
+    });
+  }
 </script>
+
 
 
 <!DOCTYPE html>
@@ -32,6 +37,10 @@ if (!token) {
       display: flex; flex-direction: column;
       overflow-x: hidden;
     }
+
+     body { display: none; } /* ⛔Ẩn cho tới khi xác thực xong */
+
+    
     main {
       flex: 1 0 auto;
       width: 100vw;
