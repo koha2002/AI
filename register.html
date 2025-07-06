@@ -130,6 +130,7 @@
       font-size: 18px;
       color: #555;
       user-select: none;
+      display: none; /* Chỉ hiện khi focus */
     }
 
   </style>
@@ -142,10 +143,14 @@
       <input type="text" id="username" placeholder="Tên đăng nhập" required>
       <input type="email" id="email" placeholder="Email" required>
 
-      <!-- Mật khẩu (Không có biểu tượng 👁) -->
+      <!-- Mật khẩu -->
       <div style="position: relative;">
         <input type="password" id="password" placeholder="Mật khẩu" required
           oninput="updateStrength()" onfocus="showStrengthUI()" onblur="hideStrengthUI()">
+        <span class="eye-icon" data-target="password"
+          onmousedown="revealPassword(this)" 
+          onmouseup="hidePassword(this)" 
+          onmouseleave="hidePassword(this)">👁</span>
       </div>
 
       <!-- Strength bar + gợi ý -->
@@ -239,12 +244,14 @@
     function showStrengthUI() {
       document.getElementById('strength-bar').style.display = 'block';
       document.getElementById('requirements').style.display = 'block';
+      document.querySelector(".eye-icon").style.display = "block";  // Hiển thị lại biểu tượng 👁 khi focus
     }
 
     function hideStrengthUI() {
       setTimeout(() => {
         document.getElementById('strength-bar').style.display = 'none';
         document.getElementById('requirements').style.display = 'none';
+        document.querySelector(".eye-icon").style.display = "none";  // Ẩn biểu tượng 👁 khi blur
       }, 150);
     }
 
