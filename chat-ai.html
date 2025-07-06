@@ -406,12 +406,18 @@ function switchMode(mode) {
         document.querySelectorAll('.chat-messages').forEach(box=>{box.scrollTop = box.scrollHeight+77;});
       }, 80);
     }
-    window.onload = ()=>{renderApiBtns('chatbase');}
-      <script>
-    function logout() {
-      localStorage.removeItem('token');
-      window.location.href = 'login.html';
-    }
-  </script>
+window.onload = ()=>{renderApiBtns('chatbase');}
+</script>
+
+<!-- ✅ Gán lại hàm logout sau khi header được fetch -->
+<script>
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+  }
+</script>
+</body>
+</html>
+
 </body>
 </html>
