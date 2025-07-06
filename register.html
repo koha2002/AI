@@ -142,14 +142,10 @@
       <input type="text" id="username" placeholder="Tên đăng nhập" required>
       <input type="email" id="email" placeholder="Email" required>
 
-      <!-- Mật khẩu -->
+      <!-- Mật khẩu (Không có biểu tượng 👁) -->
       <div style="position: relative;">
         <input type="password" id="password" placeholder="Mật khẩu" required
           oninput="updateStrength()" onfocus="showStrengthUI()" onblur="hideStrengthUI()">
-        <span class="eye-icon" data-target="password"
-          onmousedown="revealPassword(this)" 
-          onmouseup="hidePassword(this)" 
-          onmouseleave="hidePassword(this)">👁</span>
       </div>
 
       <!-- Strength bar + gợi ý -->
@@ -250,16 +246,6 @@
         document.getElementById('strength-bar').style.display = 'none';
         document.getElementById('requirements').style.display = 'none';
       }, 150);
-    }
-
-    function revealPassword(icon) {
-      const targetId = icon.getAttribute('data-target');
-      document.getElementById(targetId).type = 'text';
-    }
-
-    function hidePassword(icon) {
-      const targetId = icon.getAttribute('data-target');
-      document.getElementById(targetId).type = 'password';
     }
 
     fetch('footer.html')
