@@ -77,12 +77,6 @@
     .box .link a:hover {
       text-decoration: underline;
     }
-    .show-password {
-      margin-top: -8px;
-      margin-bottom: 14px;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
     #error {
       color: #ff6b6b;
       text-align: center;
@@ -124,7 +118,7 @@
     .eye-icon {
       position: absolute;
       right: 12px;
-      top: calc(50% + 40px);
+      top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
       font-size: 18px;
@@ -141,16 +135,18 @@
       <input type="text" id="username" placeholder="Tên đăng nhập" required>
       <input type="email" id="email" placeholder="Email" required>
 
+      <!-- Mật khẩu -->
       <div style="position: relative;">
         <input type="password" id="password" placeholder="Mật khẩu" required
           oninput="updateStrength()" onfocus="showStrengthUI()" onblur="hideStrengthUI()">
-        <span class="eye-icon"
-          onmousedown="revealPassword()" onmouseup="hidePassword()" onmouseleave="hidePassword()">👁</span>
+        <span class="eye-icon" data-target="password"
+          onmousedown="revealPassword(this)" 
+          onmouseup="hidePassword(this)" 
+          onmouseleave="hidePassword(this)">👁</span>
       </div>
 
-      <div id="strength-bar">
-        <div id="strength-fill"></div>
-      </div>
+      <!-- Strength bar + gợi ý -->
+      <div id="strength-bar"><div id="strength-fill"></div></div>
       <ul id="requirements">
         <li id="length" class="not-met">Tối thiểu 8 ký tự</li>
         <li id="lowercase" class="not-met">Chứa chữ thường</li>
@@ -158,12 +154,20 @@
         <li id="number" class="not-met">Chứa số</li>
       </ul>
 
-      <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+      <!-- Nhập lại mật khẩu -->
+      <div style="position: relative;">
+        <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+        <span class="eye-icon" data-target="confirmPassword"
+          onmousedown="revealPassword(this)" 
+          onmouseup="hidePassword(this)" 
+          onmouseleave="hidePassword(this)">👁</span>
+      </div>
 
       <button onclick="register()">Đăng ký</button>
       <div class="link">Đã có tài khoản? <a href="login.html">Đăng nhập</a></div>
     </div>
   </main>
+
   <div id="footer"></div>
 
   <script>
@@ -201,14 +205,13 @@
       }
     }
 
-    function revealPassword() {
-      document.getElementById('password').type = 'text';
-      document.getElementById('confirmPassword').type = 'text';
-    }
-
-    function hidePassword() {
-      document.getElementById('password').type = 'password';
-      document.getElementById('confirmPassword').type = 'password';
+    function isStrong(pw) {
+      return (
+        pw.length >= 8 &&
+        /[a-z]/.test(pw) &&
+        /[A-Z]/.test(pw) &&
+        /\d/.test(pw)
+      );
     }
 
     function updateStrength() {
@@ -244,6 +247,16 @@
         document.getElementById('strength-bar').style.display = 'none';
         document.getElementById('requirements').style.display = 'none';
       }, 150);
+    }
+
+    function revealPassword(icon) {
+      const targetId = icon.getAttribute('data-target');
+      document.getElementById(targetId).type = 'text';
+    }
+
+    function hidePassword(icon) {
+      const targetId = icon.getAttribute('data-target');
+      document.getElementById(targetId).type = 'password';
     }
 
     fetch('footer.html')
