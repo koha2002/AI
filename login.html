@@ -6,16 +6,83 @@
   <link rel="icon" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
-    html, body {height:100%;margin:0;display:flex;flex-direction:column;background:#0a1931;color:#fff;font-family:'Montserrat',sans-serif;}
-    main {flex:1;display:flex;justify-content:center;align-items:center;padding:20px;}
-    .box{background:#122043e6;padding:35px 28px;border-radius:18px;box-shadow:0 6px 32px rgba(0,0,0,0.4);max-width:360px;width:100%;}
-    .box h2{text-align:center;margin-bottom:24px;color:#63aaff;}
-    .box input{width:100%;padding:12px;margin-bottom:18px;border:none;border-radius:6px;font-size:1rem;outline:none;background:#e9f1fb;color:#222;}
-    .box input:focus{border:1.5px solid #4a90e2;}
-    .box button{width:100%;padding:12px;background:linear-gradient(90deg,#3a7bd5,#4a90e2);color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;}
-    .box button:hover{background:linear-gradient(90deg,#4a90e2,#3a7bd5);}
-    .box .link{text-align:center;margin-top:14px;font-size:.95rem;}
-    .box .link a{color:#4a90e2;text-decoration:none;margin:0 6px;} .box .link a:hover{text-decoration:underline;}
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      background: #0a1931;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .box {
+      background: #122043e6;
+      padding: 35px 28px;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px rgba(0, 0, 0, 0.4);
+      max-width: 360px;
+      width: 100%;
+    }
+    .box h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #63aaff;
+    }
+    .box input[type="text"],
+    .box input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      background: #e9f1fb;
+      color: #222;
+    }
+    .box input:focus {
+      border: 1.5px solid #4a90e2;
+    }
+    .box button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #3a7bd5, #4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .box button:hover {
+      background: linear-gradient(90deg, #4a90e2, #3a7bd5);
+    }
+    .box .link {
+      text-align: center;
+      margin-top: 14px;
+      font-size: .95rem;
+    }
+    .box .link a {
+      color: #4a90e2;
+      text-decoration: none;
+      margin: 0 6px;
+    }
+    .box .link a:hover {
+      text-decoration: underline;
+    }
+    .box .show-password {
+      margin-top: -12px;
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -25,23 +92,47 @@
       <div id="error"></div>
       <input type="text" id="username" placeholder="Tên đăng nhập hoặc email" required>
       <input type="password" id="password" placeholder="Mật khẩu" required>
-      <input type="checkbox" onclick="password.type= this.
-        checked ? 'text': 'password;">
+      <label class="show-password">
+        <input type="checkbox" onclick="togglePassword()"> Hiển thị mật khẩu
+      </label>
       <button onclick="login()">Đăng nhập</button>
-      <div class="link">Chưa có tài khoản? <a href="register.html">Đăng ký</a> | <a href="forgot.html">Quên mật khẩu?</a></div>
+      <div class="link">
+        Chưa có tài khoản? <a href="register.html">Đăng ký</a> | <a href="forgot.html">Quên mật khẩu?</a>
+      </div>
     </div>
   </main>
   <div id="footer"></div>
+
   <script>
-    const backendUrl="https://login-backend-pg7j.onrender.com";
-    async function login(){
-      const username=document.getElementById('username').value;
-      const password=document.getElementById('password').value;
-      const res=await fetch(`${backendUrl}/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
-      if(res.ok){const data=await res.json();localStorage.setItem('token',data.token);window.location.href="index.html";}
-      else document.getElementById('error').textContent="Sai tài khoản hoặc mật khẩu!";
+    const backendUrl = "https://login-backend-pg7j.onrender.com";
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch(`${backendUrl}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        window.location.href = "index.html";
+      } else {
+        document.getElementById('error').textContent = "Sai tài khoản hoặc mật khẩu!";
+      }
     }
-    fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
+
+    function togglePassword() {
+      const pw = document.getElementById('password');
+      pw.type = pw.type === "password" ? "text" : "password";
+    }
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => document.getElementById('footer').innerHTML = html);
   </script>
 </body>
 </html>
