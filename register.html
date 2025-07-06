@@ -6,16 +6,117 @@
   <link rel="icon" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
-    html,body{height:100%;margin:0;display:flex;flex-direction:column;background:#0a1931;color:#fff;font-family:'Montserrat',sans-serif;}
-    main{flex:1;display:flex;justify-content:center;align-items:center;padding:20px;}
-    .box{background:#122043e6;padding:35px 28px;border-radius:18px;box-shadow:0 6px 32px rgba(0,0,0,.4);max-width:360px;width:100%;}
-    .box h2{text-align:center;margin-bottom:24px;color:#63aaff;}
-    .box input{width:100%;padding:12px;margin-bottom:18px;border:none;border-radius:6px;font-size:1rem;outline:none;background:#e9f1fb;color:#222;}
-    .box input:focus{border:1.5px solid #4a90e2;}
-    .box button{width:100%;padding:12px;background:linear-gradient(90deg,#3a7bd5,#4a90e2);color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;}
-    .box button:hover{background:linear-gradient(90deg,#4a90e2,#3a7bd5);}
-    .box .link{text-align:center;margin-top:14px;font-size:.95rem;}
-    .box .link a{color:#4a90e2;text-decoration:none;margin:0 6px;} .box .link a:hover{text-decoration:underline;}
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      background: #0a1931;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .box {
+      background: #122043e6;
+      padding: 35px 28px;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px rgba(0, 0, 0, 0.4);
+      max-width: 400px;
+      width: 100%;
+    }
+    .box h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #63aaff;
+    }
+    .box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      background: #e9f1fb;
+      color: #222;
+    }
+    .box input:focus {
+      border: 1.5px solid #4a90e2;
+    }
+    .box button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #3a7bd5, #4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .box button:hover {
+      background: linear-gradient(90deg, #4a90e2, #3a7bd5);
+    }
+    .box .link {
+      text-align: center;
+      margin-top: 14px;
+      font-size: .95rem;
+    }
+    .box .link a {
+      color: #4a90e2;
+      text-decoration: none;
+      margin: 0 6px;
+    }
+    .box .link a:hover {
+      text-decoration: underline;
+    }
+    .show-password {
+      margin-top: -8px;
+      margin-bottom: 14px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    #error {
+      color: #ff6b6b;
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+    #strength-bar {
+      width: 100%;
+      height: 8px;
+      background: #444;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    #strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    #requirements {
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+    #requirements li {
+      list-style: none;
+      margin-bottom: 4px;
+    }
+    .met::before {
+      content: "✔ ";
+      color: #4ade80;
+    }
+    .not-met::before {
+      content: "✖ ";
+      color: #f87171;
+    }
   </style>
 </head>
 <body>
@@ -25,22 +126,111 @@
       <div id="error"></div>
       <input type="text" id="username" placeholder="Tên đăng nhập" required>
       <input type="email" id="email" placeholder="Email" required>
-      <input type="password" id="password" placeholder="Mật khẩu" required>
+      <input type="password" id="password" placeholder="Mật khẩu" required oninput="updateStrength()">
+
+      <div id="strength-bar">
+        <div id="strength-fill"></div>
+      </div>
+
+      <ul id="requirements">
+        <li id="length" class="not-met">Tối thiểu 8 ký tự</li>
+        <li id="lowercase" class="not-met">Chứa chữ thường</li>
+        <li id="uppercase" class="not-met">Chứa chữ hoa</li>
+        <li id="number" class="not-met">Chứa số</li>
+      </ul>
+
+      <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+
+      <label class="show-password">
+        <input type="checkbox" onclick="togglePassword()"> Hiển thị mật khẩu
+      </label>
+
       <button onclick="register()">Đăng ký</button>
       <div class="link">Đã có tài khoản? <a href="login.html">Đăng nhập</a></div>
     </div>
   </main>
+
   <div id="footer"></div>
+
   <script>
-    const backendUrl="https://login-backend-pg7j.onrender.com";
-    async function register(){
-      const u=document.getElementById('username').value,e=document.getElementById('email').value,p=document.getElementById('password').value;
-      const res=await fetch(`${backendUrl}/register`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,email:e,password:p})});
-      const data=await res.json();
-      if(res.ok){alert(data.message||"Đăng ký thành công! Kiểm tra email.");window.location.href="login.html";}
-      else document.getElementById('error').textContent=data.message||"Đăng ký thất bại!";
+    const backendUrl = "https://login-backend-pg7j.onrender.com";
+
+    async function register() {
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const errorDiv = document.getElementById('error');
+
+      if (password !== confirmPassword) {
+        errorDiv.textContent = "Mật khẩu không khớp!";
+        return;
+      }
+
+      if (!isStrong(password)) {
+        errorDiv.textContent = "Mật khẩu chưa đáp ứng đủ yêu cầu!";
+        return;
+      }
+
+      const res = await fetch(`${backendUrl}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || "Đăng ký thành công! Kiểm tra email.");
+        window.location.href = "login.html";
+      } else {
+        errorDiv.textContent = data.message || "Đăng ký thất bại!";
+      }
     }
-    fetch('footer.html').then(r=>r.text()).then(html=>document.getElementById('footer').innerHTML=html);
+
+    function togglePassword() {
+      const pw = document.getElementById('password');
+      const cpw = document.getElementById('confirmPassword');
+      const type = pw.type === "password" ? "text" : "password";
+      pw.type = cpw.type = type;
+    }
+
+    function isStrong(pw) {
+      return (
+        pw.length >= 8 &&
+        /[a-z]/.test(pw) &&
+        /[A-Z]/.test(pw) &&
+        /\d/.test(pw)
+      );
+    }
+
+    function updateStrength() {
+      const pw = document.getElementById('password').value;
+      const fill = document.getElementById('strength-fill');
+
+      let strength = 0;
+      if (pw.length >= 8) strength++;
+      if (/[a-z]/.test(pw)) strength++;
+      if (/[A-Z]/.test(pw)) strength++;
+      if (/\d/.test(pw)) strength++;
+
+      fill.style.width = (strength / 4) * 100 + "%";
+      fill.style.background = ["#f87171", "#fbbf24", "#facc15", "#4ade80"][strength - 1] || "#444";
+
+      // Cập nhật yêu cầu
+      updateRequirement('length', pw.length >= 8);
+      updateRequirement('lowercase', /[a-z]/.test(pw));
+      updateRequirement('uppercase', /[A-Z]/.test(pw));
+      updateRequirement('number', /\d/.test(pw));
+    }
+
+    function updateRequirement(id, met) {
+      const item = document.getElementById(id);
+      item.className = met ? "met" : "not-met";
+    }
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => document.getElementById('footer').innerHTML = html);
   </script>
 </body>
 </html>
