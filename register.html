@@ -116,7 +116,6 @@
       color: #f87171;
     }
 
-    /* Căn chỉnh biểu tượng mắt */
     .eye-icon {
       position: absolute;
       right: 12px;
@@ -124,15 +123,13 @@
       bottom: 0;
       margin: auto;
       height: 20px;
-      display: flex;
+      display: none;
       align-items: center;
       cursor: pointer;
       font-size: 18px;
       color: #555;
       user-select: none;
-      display: none; /* Ẩn icon mặc định */
     }
-
   </style>
 </head>
 <body>
@@ -146,14 +143,16 @@
       <!-- Mật khẩu -->
       <div style="position: relative;">
         <input type="password" id="password" placeholder="Mật khẩu" required
-          oninput="updateStrength()" onfocus="showStrengthUI()" onblur="hideStrengthUI()">
+          oninput="updateStrength(); toggleEyeIconVisibility('password', true);"
+          onfocus="showStrengthUI(); toggleEyeIconVisibility('password', true);"
+          onblur="hideStrengthUI(); toggleEyeIconVisibility('password', false);">
         <span class="eye-icon" data-target="password"
-          onmousedown="revealPassword(this)" 
-          onmouseup="hidePassword(this)" 
+          onmousedown="revealPassword(this)"
+          onmouseup="hidePassword(this)"
           onmouseleave="hidePassword(this)">👁</span>
       </div>
 
-      <!-- Strength bar + gợi ý -->
+      <!-- Thanh kiểm tra độ mạnh -->
       <div id="strength-bar"><div id="strength-fill"></div></div>
       <ul id="requirements">
         <li id="length" class="not-met">Tối thiểu 8 ký tự</li>
@@ -162,7 +161,7 @@
         <li id="number" class="not-met">Chứa số</li>
       </ul>
 
-      <!-- Nhập lại mật khẩu (Không có biểu tượng mắt) -->
+      <!-- Nhập lại mật khẩu -->
       <div style="position: relative;">
         <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
       </div>
@@ -244,15 +243,30 @@
     function showStrengthUI() {
       document.getElementById('strength-bar').style.display = 'block';
       document.getElementById('requirements').style.display = 'block';
-      document.querySelector(".eye-icon").style.display = "inline";  // Hiển thị lại icon 👁 khi focus vào ô mật khẩu
     }
 
     function hideStrengthUI() {
       setTimeout(() => {
         document.getElementById('strength-bar').style.display = 'none';
         document.getElementById('requirements').style.display = 'none';
-        document.querySelector(".eye-icon").style.display = "none";  // Ẩn icon 👁 khi blur ra ngoài
       }, 150);
+    }
+
+    function revealPassword(icon) {
+      const targetId = icon.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      input.type = 'text';
+    }
+
+    function hidePassword(icon) {
+      const targetId = icon.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      input.type = 'password';
+    }
+
+    function toggleEyeIconVisibility(inputId, visible) {
+      const icon = document.querySelector(`.eye-icon[data-target="${inputId}"]`);
+      if (icon) icon.style.display = visible ? "inline" : "none";
     }
 
     fetch('footer.html')
