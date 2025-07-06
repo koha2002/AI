@@ -407,6 +407,11 @@ function switchMode(mode) {
       }, 80);
     }
     window.onload = ()=>{renderApiBtns('chatbase');}
+      <script>
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
   </script>
 </body>
 </html>
