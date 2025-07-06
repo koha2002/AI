@@ -1,35 +1,13 @@
-<script>
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = "login.html";
-  } else {
-    fetch("https://login-backend-pg7j.onrender.com/protected", {
-      headers: { "Authorization": "Bearer " + token }
-    }).then(res => {
-      if (!res.ok) {
-        localStorage.removeItem('token');
-        window.location.href = "login.html";
-      } else {
-        document.body.style.display = 'block';
-      }
-    }).catch(() => {
-      localStorage.removeItem('token');
-      window.location.href = "login.html";
-    });
-  }
-</script>
-
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Tài liệu học tập</title>
-  <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet" />
   <style>
     :root { --main: #185adb; }
+
     html, body {
       height: 100%; margin: 0; padding: 0;
       font-family: 'Montserrat', Arial, sans-serif;
@@ -38,9 +16,6 @@
       overflow-x: hidden;
     }
 
-     body { display: none; } /* ⛔Ẩn cho tới khi xác thực xong */
-
-    
     main {
       flex: 1 0 auto;
       width: 100vw;
@@ -50,7 +25,7 @@
 
     #star-canvas {
       position: fixed;
-      left: 0; top: 0;
+      top: 0; left: 0;
       width: 100vw; height: 100vh;
       z-index: 0;
       pointer-events: none;
@@ -70,14 +45,16 @@
     }
 
     .doc-main {
-      position: relative; z-index: 2;
-      max-width: 430px; margin: 80px auto 60px;
+      position: relative;
+      z-index: 2;
+      max-width: 430px;
+      margin: 80px auto 60px;
       background: rgba(18,32,67,0.96);
       border-radius: 26px;
-      box-shadow: 0 6px 32px 0 #12204385, 0 1px 4px #185adb09;
+      box-shadow: 0 6px 32px #12204385, 0 1px 4px #185adb09;
       padding: 38px 28px 34px;
       display: flex; flex-direction: column; align-items: center;
-      animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
+      animation: fadein 1s ease;
       backdrop-filter: blur(2.5px);
     }
 
@@ -92,8 +69,8 @@
     }
 
     @keyframes fadein {
-      from {opacity:0; transform:translateY(24px);}
-      to   {opacity:1; transform:none;}
+      from {opacity: 0; transform: translateY(24px);}
+      to {opacity: 1; transform: none;}
     }
 
     .doc-btn-group {
@@ -105,26 +82,28 @@
       gap: 14px; padding: 20px 0;
       border: none; border-radius: 17px;
       font-size: 1.22rem; font-weight: 700;
-      color: #fff; cursor: pointer; width: 100%;
+      color: #fff; cursor: pointer;
+      width: 100%;
       background: linear-gradient(92deg, #3864e6 15%, #2fc2ea 85%);
       box-shadow: 0 4px 18px #13204334, 0 1.5px 7px #119caa17;
       text-decoration: none;
       transition: transform 0.18s, box-shadow 0.18s, filter 0.17s;
       opacity: 0; animation: fadebtn 0.9s ease forwards;
     }
+
     .doc-btn:nth-child(1) {animation-delay: .2s;}
     .doc-btn:nth-child(2) {animation-delay: .44s;}
     .doc-btn:nth-child(3) {animation-delay: .67s;}
 
     @keyframes fadebtn {
       from {opacity: 0; transform: translateY(32px) scale(.97);}
-      to   {opacity: 1; transform: none;}
+      to {opacity: 1; transform: none;}
     }
 
-    .doc-btn.epu     { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%);}
-    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%);}
-    .doc-btn.tmu     { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%);}
-    .doc-btn.soon    { background: linear-gradient(90deg, #35ca7a 10%, #3ebea6 100%);}
+    .doc-btn.epu     { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%); }
+    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%); }
+    .doc-btn.tmu     { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%); }
+    .doc-btn.soon    { background: linear-gradient(90deg, #35ca7a 10%, #3ebea6 100%); }
 
     .doc-btn .icon {
       margin-right: 10px; font-size: 1.35em;
@@ -135,7 +114,6 @@
       transform: scale(1.045) translateY(-2px);
       filter: brightness(1.13) drop-shadow(0 8px 20px #6dcfff44);
       box-shadow: 0 14px 36px #263d63bb, 0 2.5px 8px #23bfae11;
-      z-index: 2;
     }
 
     .doc-btn:active {
@@ -174,15 +152,9 @@
     <div class="doc-main">
       <div class="doc-title">Tài liệu học tập</div>
       <div class="doc-btn-group">
-        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/Etg1I4MOqspNmjf0jplA_l4BegN8yNa1NzpwYUTYd1mDPg?e=GqkDDI" target="_blank" class="doc-btn epu">
-          <span class="icon">📚</span> Tài liệu EPU
-        </a>
-        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/ElTA6Kwz0tVFiX9ZEwn5Fl0BZoY0Ln0eYl_gMlCpxCDsZQ?e=npfUva" target="_blank" class="doc-btn english">
-          <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
-        </a>
-        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EqO9GauCprJJs0kgYYVk3pcBktGB99axjStsTgL1qdfwvQ?e=fgIC1X" target="_blank" class="doc-btn tmu">
-          <span class="icon">🏛️</span> Tài liệu TMU
-        </a>
+        <a href="#" class="doc-btn epu"><span class="icon">📚</span> Tài liệu EPU</a>
+        <a href="#" class="doc-btn english"><span class="icon">🇬🇧</span> Tài liệu Tiếng Anh</a>
+        <a href="#" class="doc-btn tmu"><span class="icon">🏛️</span> Tài liệu TMU</a>
         <a href="#" class="doc-btn soon"><span class="icon">⏳</span> Soon</a>
         <a href="#" class="doc-btn soon"><span class="icon">⏳</span> Soon</a>
       </div>
@@ -191,22 +163,32 @@
 
   <footer id="footer"></footer>
 
+  <!-- Script -->
   <script>
-    // Header
+    // Nhúng header
     fetch('mini-header.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('header-placeholder').innerHTML = html;
+
+        // ✅ Gán lại sự kiện click cho nút đăng xuất
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+          });
+        }
       });
 
-    // Footer
+    // Nhúng footer
     fetch('footer.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('footer').innerHTML = html;
       });
 
-    // Hiệu ứng nền
+    // Sao tĩnh
     const canvas = document.getElementById('star-canvas');
     const ctx = canvas.getContext('2d');
     let w = window.innerWidth, h = window.innerHeight;
@@ -240,6 +222,7 @@
     }
     animateStars();
 
+    // Chuột sáng
     const mouseLight = document.getElementById('mouse-light');
     document.addEventListener('mousemove', (e) => {
       mouseLight.style.left = e.clientX + 'px';
