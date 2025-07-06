@@ -130,7 +130,7 @@
       font-size: 18px;
       color: #555;
       user-select: none;
-      display: none; /* Chỉ hiện khi focus */
+      display: none; /* Ẩn icon mặc định */
     }
 
   </style>
@@ -244,14 +244,14 @@
     function showStrengthUI() {
       document.getElementById('strength-bar').style.display = 'block';
       document.getElementById('requirements').style.display = 'block';
-      document.querySelector(".eye-icon").style.display = "block";  // Hiển thị lại biểu tượng 👁 khi focus
+      document.querySelector(".eye-icon").style.display = "inline";  // Hiển thị lại icon 👁 khi focus vào ô mật khẩu
     }
 
     function hideStrengthUI() {
       setTimeout(() => {
         document.getElementById('strength-bar').style.display = 'none';
         document.getElementById('requirements').style.display = 'none';
-        document.querySelector(".eye-icon").style.display = "none";  // Ẩn biểu tượng 👁 khi blur
+        document.querySelector(".eye-icon").style.display = "none";  // Ẩn icon 👁 khi blur ra ngoài
       }, 150);
     }
 
