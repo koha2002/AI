@@ -44,7 +44,7 @@ if (!token) {
       display: flex; flex-direction: column;
     }
     /* Header mini */
-    .mini-header {
+      .mini-header {
       display: flex; align-items: center;
       background: #fff; box-shadow: 0 1px 8px #185adb09;
       height: 47px; min-height: 40px; padding: 0 15px 0 7px;
@@ -182,12 +182,15 @@ if (!token) {
   </style>
 </head>
 <body>
-  <header class="mini-header">
-    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
-      <img src="logo.png" alt="Trang chủ">
-    </button>
-    <span class="mini-title">Tra Cứu Học Thuật & AI</span>
-  </header>
+<div id="header-placeholder"></div>
+<script>
+  fetch('mini-header.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('header-placeholder').innerHTML = html;
+    });
+</script>
+
   <main>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 0 0;gap:12px;">
       <div style="font-weight:700;font-size:1.05rem;color:#185adb;margin-left:24px;display:flex;align-items:center;gap:7px">
