@@ -5,7 +5,7 @@
   <span class="mini-title">
     Xin chào, <span id="username-display">Khách</span>
   </span>
-  <button class="logout-btn" onclick="logout()" title="Đăng xuất">🚪 Đăng xuất</button>
+  <button class="logout-btn" title="Đăng xuất">🚪 Đăng xuất</button>
 </header>
 
 <style>
@@ -23,9 +23,12 @@
     cursor: pointer; border-radius:50%; width: 33px; height: 33px;
     margin-right: 7px; transition: background 0.14s;
   }
-  .home-btn:hover {background: #eaf3ff;}
-  .home-btn img {width:21px;height:21px;}
-  .mini-title {font-weight:700; font-size:1.07rem; color:#185adb; flex:1;}
+  .home-btn:hover { background: #eaf3ff; }
+  .home-btn img { width:21px; height:21px; }
+  .mini-title {
+    font-weight: 700; font-size: 1.07rem;
+    color: #185adb; flex: 1;
+  }
   .logout-btn {
     background: linear-gradient(90deg,#3a7bd5,#4a90e2);
     color: #fff; border: none; border-radius: 6px;
@@ -33,30 +36,35 @@
     cursor: pointer; transition: background 0.2s;
     font-size: 0.92rem;
   }
-  .logout-btn:hover {background: linear-gradient(90deg,#4a90e2,#3a7bd5);}
+  .logout-btn:hover {
+    background: linear-gradient(90deg,#4a90e2,#3a7bd5);
+  }
 </style>
 
 <script>
-  function logout() {
-    localStorage.removeItem('token');
-    window.location.href = 'login.html';
-  }
-
+  // Kiểm tra token tồn tại
   const token = localStorage.getItem('token');
-
   if (!token) {
-    // ⛔ Nếu không có token, ép quay về login
-    window.location.href = 'login.html';
+    window.location.href = "login.html";
   } else {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      if (payload.username) {
-        document.getElementById('username-display').textContent = payload.username;
-      }
+      const username = payload?.username || "Khách";
+      document.getElementById('username-display').textContent = username;
     } catch (e) {
       console.error("Lỗi khi giải mã token", e);
-      // Nếu token lỗi thì cũng điều hướng về login
-      window.location.href = 'login.html';
+      window.location.href = "login.html";
     }
   }
+
+  // Gán sự kiện logout (nếu file này nhúng bằng fetch thì cần gán lại)
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector('.logout-btn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      });
+    }
+  });
 </script>
