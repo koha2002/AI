@@ -203,11 +203,11 @@ body {
 </head>
 <body>
   <header class="mini-header">
-    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
-      <img src="logo.png" alt="Trang chủ">
-    </button>
-    <span class="mini-title">Danh sách Ứng dụng & Tool</span>
+    <span class="mini-title">Xin chào, <span id="username-display">...</span></span>
+    <button class="logout-btn" onclick="logout()">Đăng xuất</button>
   </header>
+
+  
   <main>
     <div class="app-grid-wrap">
       <div class="app-title">Ứng dụng nổi bật</div>
@@ -402,5 +402,11 @@ body {
       .then(html => { document.getElementById('footer').innerHTML = html; })
       .catch(()=>{});
   </script>
+
+
+
+
+
+  
 </body>
 </html>
