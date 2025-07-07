@@ -199,13 +199,66 @@ body {
     #footer > *, #footer > * > * {
       box-sizing: border-box !important;
     }
+    .logout-btn {
+  background: linear-gradient(90deg,#3a7bd5,#4a90e2);
+  color: #fff; border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+.logout-btn:hover {
+  background: linear-gradient(90deg,#4a90e2,#3a7bd5);
+}
   </style>
+  <script>
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = "login.html";
+  } else {
+    fetch("https://login-backend-pg7j.onrender.com/protected", {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => {
+      if (!res.ok) {
+        localStorage.removeItem('token');
+        window.location.href = "login.html";
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem('token');
+      window.location.href = "login.html";
+    });
+
+    // Giải mã token để hiển thị tên người dùng
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const username = payload?.username || "Khách";
+      window.addEventListener("DOMContentLoaded", () => {
+        const usernameEl = document.getElementById("username-display");
+        if (usernameEl) usernameEl.textContent = username;
+      });
+    } catch (e) {
+      console.error("Lỗi giải mã token:", e);
+      localStorage.removeItem('token');
+      window.location.href = "login.html";
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  }
+</script>
+
 </head>
 <body>
-  <header class="mini-header">
-    <span class="mini-title">Xin chào, <span id="username-display">...</span></span>
-    <button class="logout-btn" onclick="logout()">Đăng xuất</button>
-  </header>
+<header class="mini-header">
+  <span class="mini-title">Xin chào, <span id="username-display">...</span></span>
+  <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+</header>
+
 
   
   <main>
