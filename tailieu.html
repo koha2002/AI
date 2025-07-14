@@ -1,49 +1,34 @@
-<script>
-const token = localStorage.getItem('token');
-if (!token) {
-  window.location.href = "login.html";
-} else {
-  fetch("https://login-backend-pg7j.onrender.com/protected", {
-    headers: { "Authorization": "Bearer " + token }
-  })
-  .then(res => {
-    if (!res.ok) {
-      localStorage.removeItem('token');
-      window.location.href = "login.html";
-    }
-  });
-}
-</script>
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Tài liệu học tập</title>
-  <link rel="icon" type="image/png" href="logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
     :root { --main: #185adb; }
+
     html, body {
       height: 100%;
       margin: 0; padding: 0;
+    }
+    body {
+      min-height: 100vh;
       font-family: 'Montserrat', Arial, sans-serif;
+      /* Nền xanh đen kiểu night sky */
       background: radial-gradient(ellipse at 60% 40%, #233d61 0%, #0a1931 100%);
       display: flex; flex-direction: column;
+      position: relative;
       overflow-x: hidden;
     }
     main {
       flex: 1 0 auto;
       width: 100vw;
+      min-height: 70vh;
       display: flex; flex-direction: column;
       z-index: 2;
     }
+
     #star-canvas {
       position: fixed;
       left: 0; top: 0;
@@ -51,6 +36,7 @@ if (!token) {
       z-index: 0;
       pointer-events: none;
     }
+
     #mouse-light {
       position: fixed;
       top: 0; left: 0;
@@ -61,153 +47,232 @@ if (!token) {
       background: radial-gradient(circle, #86bcff44 0%, #fff0 80%);
       mix-blend-mode: lighten;
       z-index: 10;
+      transition: background 0.22s;
     }
+
     .mini-header {
       display: flex; align-items: center;
-      background: #fff; box-shadow: 0 1px 8px #185adb09;
-      height: 47px; padding: 0 15px;
-      border-bottom: 1.2px solid #e3e9f7;
-      position: sticky; top: 0; z-index: 30;
-      justify-content: space-between;
+      background: #192945d5; box-shadow: 0 1px 8px #185adb09;
+      height: 47px; min-height: 40px; padding: 0 15px 0 7px;
+      border-bottom: 1.2px solid #233d61;
+      position: sticky; top: 0; left: 0; right: 0; z-index: 20;
+      gap: 14px;
     }
-    .mini-title {
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: #185adb;
+    .home-btn {
+      background: none; border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border-radius:50%; width: 33px; height: 33px;
+      margin-right: 7px; transition: background 0.14s;
     }
-    .logout-btn {
-      background: linear-gradient(90deg,#3a7bd5,#4a90e2);
-      color: #fff; border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.92rem;
-    }
-    .logout-btn:hover {
-      background: linear-gradient(90deg,#4a90e2,#3a7bd5);
-    }
+    .home-btn:hover {background: #253d62;}
+    .home-btn img {width:21px;height:21px;}
+    .mini-title {font-weight:700; font-size:1.07rem; color:#63aaff;}
+
     .doc-main {
       position: relative;
+      z-index: 2;
       max-width: 430px;
-      margin: 80px auto;
+      margin: 80px auto 60px auto;
       background: rgba(18,32,67,0.96);
       border-radius: 26px;
-      box-shadow: 0 6px 32px #12204385;
-      padding: 38px 28px;
+      box-shadow: 0 6px 32px 0 #12204385, 0 1px 4px #185adb09;
+      padding: 38px 28px 34px 28px;
       display: flex; flex-direction: column; align-items: center;
+      animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
       backdrop-filter: blur(2.5px);
     }
     .doc-title {
-      font-size: 2rem;
+      font-size: 2.0rem;
       font-weight: 800;
       color: #63aaff;
       margin-bottom: 34px;
+      letter-spacing: 1.2px;
       text-align: center;
+      text-shadow: 0 2px 12px #185adb34;
+      animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
     }
+    @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
     .doc-btn-group {
-      display: flex; flex-direction: column;
-      gap: 28px; width: 100%;
+      display: flex; flex-direction: column; gap: 28px; width: 100%; margin-top: 8px;
     }
     .doc-btn {
       display: flex; align-items: center; justify-content: center;
-      gap: 14px; padding: 20px 0;
-      border: none; border-radius: 17px;
-      font-size: 1.22rem; font-weight: 700;
-      color: #fff; cursor: pointer;
+      gap: 14px;
+      padding: 20px 0;
+      border: none;
+      border-radius: 17px;
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
       width: 100%;
-      text-decoration: none;
       background: linear-gradient(92deg, #3864e6 15%, #2fc2ea 85%);
-      box-shadow: 0 4px 18px #13204334;
-      transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: 0 4px 18px #13204334, 0 1.5px 7px #119caa17;
+      text-decoration: none;
+      transition: 
+        transform 0.18s cubic-bezier(.59,1.4,.73,.96), 
+        box-shadow 0.18s, 
+        filter 0.17s;
+      will-change: transform;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadebtn 0.9s cubic-bezier(.32,1.28,.56,1.12) forwards;
     }
-    .doc-btn.epu     { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%); }
-    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%); }
-    .doc-btn.tmu     { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%); }
-    .doc-btn.soon    { background: linear-gradient(90deg, #35ca7a 10%, #3ebea6 100%); }
+    .doc-btn:nth-child(1) {animation-delay: .2s;}
+    .doc-btn:nth-child(2) {animation-delay: .44s;}
+    .doc-btn:nth-child(3) {animation-delay: .67s;}
+    @keyframes fadebtn {from{opacity:0;transform:translateY(32px) scale(.97);} to{opacity:1;transform:none;}}
+    .doc-btn.epu { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%);}
+    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%);}
+    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%);}
+    .doc-btn.soon { background: linear-gradient(90deg, #35ca7a 10%, #3ebea6 100%);}
     .doc-btn .icon {
-      font-size: 1.3rem;
+      margin-right: 10px; font-size: 1.35em;
+      filter: drop-shadow(0 1px 4px #185adb23);
+      user-select: none;
     }
+    .doc-btn:hover, .doc-btn:focus {
+      transform: scale(1.045) translateY(-2px) !important;
+      filter: brightness(1.13) drop-shadow(0 8px 20px #6dcfff44);
+      box-shadow: 0 14px 36px #263d63bb, 0 2.5px 8px #23bfae11;
+      z-index: 2;
+      outline: none;
+    }
+    .doc-btn:active {
+      transform: scale(0.96) translateY(1px) !important;
+      filter: brightness(0.97);
+    }
+    @media (max-width: 600px) {
+      .doc-main { padding: 10px 3px 25px 3px; max-width:98vw; }
+      .doc-title { font-size: 1.22rem; }
+      .doc-btn { font-size: 1.05rem; }
+    }
+
     footer {
       background: #122043;
       color: #8ebeff;
       text-align: center;
-      padding: 20px 10px;
+      padding: 26px 10px 16px 10px;
       font-size: 1.08rem;
       margin-top: 40px;
       border-radius: 22px 22px 0 0;
+      letter-spacing: .22px;
+      box-shadow: 0 -3px 22px #0a193112;
+      flex-shrink: 0;
+      z-index: 2;
+      position: relative;
     }
   </style>
 </head>
 <body>
+  <!-- Hiệu ứng nền động -->
   <canvas id="star-canvas"></canvas>
   <div id="mouse-light"></div>
-
-  <!-- HEADER -->
   <header class="mini-header">
-    <span class="mini-title">Xin chào, <span id="username-display">...</span></span>
-    <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
+      <img src="logo.png" alt="Trang chủ">
+    </button>
+    <span class="mini-title">Tra Cứu Học Thuật & AI</span>
   </header>
-
   <main>
     <div class="doc-main">
       <div class="doc-title">Tài liệu học tập</div>
-      <div class="doc-btn-group">
-        <a href="https://..." target="_blank" class="doc-btn epu"><span class="icon">📚</span> Tài liệu EPU</a>
-        <a href="https://..." target="_blank" class="doc-btn english"><span class="icon">🇬🇧</span> Tài liệu Tiếng Anh</a>
-        <a href="https://..." target="_blank" class="doc-btn tmu"><span class="icon">🏛️</span> Tài liệu TMU</a>
-        <a href="#" class="doc-btn soon"><span class="icon">⏳</span> Soon</a>
-        <a href="#" class="doc-btn soon"><span class="icon">⏳</span> Soon</a>
-      </div>
+<div class="doc-btn-group">
+  <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/Etg1I4MOqspNmjf0jplA_l4BegN8yNa1NzpwYUTYd1mDPg?e=GqkDDI" 
+    target="_blank" class="doc-btn epu">
+    <span class="icon">📚</span> Tài liệu EPU
+  </a>
+  <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/ElTA6Kwz0tVFiX9ZEwn5Fl0BZoY0Ln0eYl_gMlCpxCDsZQ?e=npfUva"
+    target="_blank" class="doc-btn english">
+    <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
+  </a>
+  <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EqO9GauCprJJs0kgYYVk3pcBktGB99axjStsTgL1qdfwvQ?e=fgIC1X" 
+    target="_blank" class="doc-btn tmu">
+    <span class="icon">🏛️</span> Tài liệu TMU
+  </a>
+  <a href="#" class="doc-btn soon" target="_blank" class="doc-btn soon">
+    <span class="icon">⏳</span> Soon
+  </a>
+  <a href="#" class="doc-btn soon" target="_blank" class="doc-btn soon">
+    <span class="icon">⏳</span> Soon
+  </a>
+</div>
     </div>
   </main>
-
   <footer id="footer"></footer>
-
   <script>
-    // Bảo vệ đăng nhập
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = "login.html";
-    } else {
-      fetch("https://login-backend-pg7j.onrender.com/protected", {
-        headers: { "Authorization": "Bearer " + token }
-      })
-      .then(res => {
-        if (!res.ok) {
-          localStorage.removeItem('token');
-          window.location.href = "login.html";
-        }
-      });
-    }
-
-    // Giải mã token để lấy username
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const username = payload?.username || "Khách";
-      document.getElementById("username-display").textContent = username;
-    } catch (e) {
-      console.error("Token lỗi:", e);
-      window.location.href = "login.html";
-    }
-
-    function logout() {
-      localStorage.removeItem("token");
-      window.location.href = "login.html";
-    }
-
-    // Hiệu ứng nền
+    // Hiệu ứng nền sao rơi và sao băng
     const canvas = document.getElementById('star-canvas');
     const ctx = canvas.getContext('2d');
-    let w = window.innerWidth, h = window.innerHeight;
-    canvas.width = w; canvas.height = h;
     let stars = [];
-    for (let i = 0; i < (w > 900 ? 140 : 70); i++) {
-      stars.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.3+0.3, o: Math.random()*0.5+0.4, speed: Math.random()*0.08+0.04 });
+    let shootingStars = [];
+    let w = window.innerWidth, h = window.innerHeight;
+
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+      createStars(w > 900 ? 140 : 70);
+      createShootingStars(w > 900 ? 5 : 2);
     }
-    function animateStars() {
+    window.addEventListener('resize', resize);
+
+    function randomStar() {
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.3 + 0.3,
+        o: Math.random() * 0.5 + 0.4,
+        speed: Math.random() * 0.08 + 0.04,
+      }
+    }
+
+    function createStars(count) {
+      stars = [];
+      for(let i=0; i<count; i++) stars.push(randomStar());
+    }
+    createStars(w > 900 ? 140 : 70);
+
+    // Shooting star object
+    function randomShootingStar() {
+      const side = Math.random();
+      // Xuất phát từ top hoặc 2 bên
+      let x, y, vx, vy;
+      if (side < 0.5) {
+        x = Math.random() * w;
+        y = -50;
+        vx = Math.random() * 3 + 4;
+        vy = Math.random() * 2 + 3.5;
+      } else {
+        x = -60;
+        y = Math.random() * h * 0.5;
+        vx = Math.random() * 5 + 3;
+        vy = Math.random() * 2 + 2.5;
+      }
+      return {
+        x, y,
+        vx,
+        vy,
+        len: Math.random() * 110 + 80,
+        life: 0,
+        maxLife: Math.random() * 15 + 14,
+        alpha: Math.random() * 0.5 + 0.35
+      }
+    }
+
+    function createShootingStars(count) {
+      shootingStars = [];
+      for(let i=0; i<count; i++) shootingStars.push(randomShootingStar());
+    }
+    createShootingStars(w > 900 ? 5 : 2);
+
+    function animate() {
       ctx.clearRect(0, 0, w, h);
-      for (let s of stars) {
+      // Sao tĩnh
+      for(let s of stars) {
+        ctx.save();
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
         ctx.globalAlpha = s.o;
@@ -215,20 +280,56 @@ if (!token) {
         ctx.shadowBlur = 8;
         ctx.shadowColor = "#96e0ff";
         ctx.fill();
-        s.x += s.speed;
+        ctx.restore();
+        s.x += s.speed * 0.6;
         if (s.x > w) s.x = 0;
       }
-      requestAnimationFrame(animateStars);
-    }
-    animateStars();
 
+      // Sao băng
+      for (let star of shootingStars) {
+        ctx.save();
+        ctx.globalAlpha = star.alpha * (1 - star.life / star.maxLife);
+        ctx.strokeStyle = "white";
+        ctx.shadowColor = "#b9eafe";
+        ctx.shadowBlur = 12;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(star.x, star.y);
+        ctx.lineTo(star.x - star.vx * star.len, star.y - star.vy * star.len);
+        ctx.stroke();
+        ctx.restore();
+
+        star.x += star.vx;
+        star.y += star.vy;
+        star.life++;
+        if (star.life > star.maxLife || star.x > w + 150 || star.y > h + 100) {
+          // Reset sao băng
+          Object.assign(star, randomShootingStar());
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Mouse light effect
     const mouseLight = document.getElementById('mouse-light');
     document.addEventListener('mousemove', (e) => {
       mouseLight.style.left = e.clientX + 'px';
       mouseLight.style.top = e.clientY + 'px';
       mouseLight.style.opacity = 1;
     });
-    document.addEventListener('mouseleave', () => { mouseLight.style.opacity = 0; });
+    document.addEventListener('mouseleave', () => {
+      mouseLight.style.opacity = 0;
+    });
+    document.addEventListener('mouseenter', () => {
+      mouseLight.style.opacity = 1;
+    });
+
+    // Footer nhúng từ file
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
   </script>
 </body>
 </html>
