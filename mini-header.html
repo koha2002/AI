@@ -3,52 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Header - Tra Cứu Học Thuật Và AI</title>
-    <!-- Tailwind CSS cho việc tạo kiểu nhanh chóng -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Google - Be Vietnam Pro -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Header - Tra Cứu Học Thuật Và AI</title>
+    <!-- 
+      LƯU Ý:
+      - Header này không còn phụ thuộc vào Tailwind CSS.
+      - Tất cả các style cần thiết đã được định nghĩa trong thẻ <style> dưới đây.
+      - Bạn có thể sao chép và dán khối <header>...</header> này vào bất kỳ đâu trong trang của bạn.
+    -->
     <style>
-        /* Sử dụng font Be Vietnam Pro cho toàn trang */
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: #f0f2f5; /* Màu nền xám nhạt cho thân trang */
+        /* Reset một vài style mặc định để đảm bảo tính nhất quán */
+        .ai-header-container button, .ai-header-container img {
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+        }
+
+        /* Container chính của header */
+        .ai-header-container {
+            /* Dính ở trên cùng khi cuộn */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            /* Bố cục Flexbox */
+            display: flex;
+            align-items: center;
+            gap: 16px; /* Khoảng cách giữa các phần tử */
+
+            /* Kích thước và màu sắc */
+            width: 100%;
+            height: 64px; /* 4rem */
+            padding: 0 16px; /* Đệm trái/phải */
+            background: linear-gradient(to right, #3b82f6, #4f46e5); /* Nền gradient xanh-tím */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            
+            /* Font chữ */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            color: white;
+        }
+
+        /* Nút logo */
+        .ai-header-logo-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            padding: 2px;
+        }
+
+        .ai-header-logo-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* Hình ảnh logo */
+        .ai-header-logo-img {
+            width: 100%;
+            height: 100%;
+            /* CẬP NHẬT: Đổi thành 'cover' để ảnh lấp đầy ô chứa, tự động cắt phần thừa */
+            object-fit: cover; 
+            /* CẬP NHẬT: Thêm lại border-radius để đảm bảo chính hình ảnh cũng được bo tròn */
+            border-radius: 50%;
+        }
+
+        /* Tiêu đề */
+        .ai-header-title {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 700;
+            white-space: nowrap; /* Ngăn không cho xuống dòng */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
-<body>
+<body style="margin: 0;">
 
-    <!-- 
-      Thành phần Header được cập nhật
-      - Tiêu đề được đổi thành "Tra Cứu Học Thuật Và AI".
-      - Tiêu đề được đặt cạnh logo.
-      - Bố cục được điều chỉnh để logo và tiêu đề nằm cùng một phía.
-    -->
-    <header class="sticky top-0 z-30 flex items-center justify-start w-full h-16 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg sm:px-6">
-        <!-- Nhóm logo và tiêu đề -->
-        <div class="flex items-center gap-4">
-            <!-- Nút Trang chủ với Logo -->
-            <button 
-                onclick="window.location.href='index.html'" 
-                title="Trang chủ" 
-                class="flex items-center justify-center w-12 h-12 p-1 transition duration-300 ease-in-out transform rounded-full hover:bg-white/20 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-75">
-                <!-- Thay thế SVG bằng thẻ IMG để hiển thị logo -->
-                <img 
-                    src="logo.png" 
-                    alt="Logo Trang chủ" 
-                    class="object-contain w-full h-full rounded-full"
-                    onerror="this.onerror=null;this.src='https://placehold.co/40x40/ffffff/3B82F6?text=Logo';"
-                >
-            </button>
+    <header class="ai-header-container">
+        <!-- Nút Trang chủ với Logo -->
+        <button 
+            onclick="window.location.href='index.html'" 
+            title="Trang chủ" 
+            class="ai-header-logo-btn">
+            <img 
+                src="logo.png" 
+                alt="Logo Trang chủ" 
+                class="ai-header-logo-img"
+                onerror="this.onerror=null;this.src='https://placehold.co/40x40/ffffff/3B82F6?text=Logo';"
+            >
+        </button>
 
-            <!-- Tiêu đề mới -->
-            <span class="text-xl font-bold text-white whitespace-nowrap" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
-                Tra Cứu Học Thuật Và AI
-            </span>
-        </div>
+        <!-- Tiêu đề -->
+        <span class="ai-header-title">
+            Tra Cứu Học Thuật Và AI
+        </span>
     </header>
+
+    <!-- Đặt nội dung trang của bạn ở đây -->
 
 </body>
 </html>
