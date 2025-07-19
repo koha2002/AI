@@ -53,17 +53,17 @@
     --text-secondary: #94a3b8;
     --text-intro: #a5b4fc;
     
-    /* CẬP NHẬT: Ý tưởng mới cho thẻ chức năng nổi bật hơn */
-    --card-gradient: linear-gradient(145deg, #475569 0%, #1e293b 100%);
-    --card-border: #475569;
-    --card-hover-bg: #334155;
+    /* CẬP NHẬT: Làm thẻ chức năng sáng và nổi bật hẳn lên */
+    --card-gradient: linear-gradient(145deg, #64748b 0%, #334155 100%);
+    --card-border: #94a3b8;
+    --card-hover-bg: #475569;
     --card-hover-border: #a5b4fc;
     --card-shadow: 0 4px 20px 0 rgba(0,0,0,0.25);
     --card-hover-shadow: 0 14px 36px 0 rgba(0,0,0,0.4);
     
     /* CẬP NHẬT: Sửa màu nền của icon để đồng bộ */
-    --feature-icon-bg: #475569; 
-    --feature-icon-border: #64748b;
+    --feature-icon-bg: #64748b; 
+    --feature-icon-border: #94a3b8;
     --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
     
     /* BIẾN MÀU CHO HEADER GỐC Ở CHẾ ĐỘ TỐI */
