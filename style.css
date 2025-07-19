@@ -65,10 +65,10 @@
     --card-shadow: 0 0 15px rgba(245, 158, 11, 0.1), 0 4px 20px 0 rgba(0,0,0,0.25);
     --card-hover-shadow: 0 0 25px rgba(245, 158, 11, 0.25), 0 14px 36px 0 rgba(0,0,0,0.4);
     
-    /* CẬP NHẬT: Nền icon đồng bộ với nền thẻ chức năng */
-    --feature-icon-bg: #1e293b; 
-    --feature-icon-border: #475569;
-    --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
+    /* CẬP NHẬT: Nền icon với hiệu ứng phát sáng màu nóng */
+    --feature-icon-bg: rgba(252, 211, 77, 0.05);
+    --feature-icon-border: rgba(252, 211, 77, 0.3);
+    --feature-icon-shadow: 0 0 15px rgba(252, 211, 77, 0.1);
     
     /* BIẾN MÀU CHO HEADER GỐC Ở CHẾ ĐỘ TỐI */
     --header-gradient: linear-gradient(110deg, #1e3a8a 0%, #1e293b 100%);
