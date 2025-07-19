@@ -1,5 +1,5 @@
 /* =================================================================== */
-/* STYLE.CSS HỢP NHẤT VÀ NÂNG CẤP                   */
+/* STYLE.CSS HỢP NHẤT VÀ NÂNG CẤP (KHÔI PHỤC HEADER GỐC)    */
 /* =================================================================== */
 
 /* ----- 1. ĐỊNH NGHĨA BIẾN MÀU CHO TOÀN TRANG ----- */
@@ -21,9 +21,16 @@
   --feature-icon-bg: #f0f5ff;
   --feature-icon-border: #e4ebfd;
   --feature-icon-shadow: 0 2px 14px #185adb25;
-  --header-bg: rgba(255, 255, 255, 0.85);
-  --header-border: #e5e7eb;
-  --header-text: #111827;
+  
+  /* BIẾN MÀU CHO HEADER GỐC */
+  --header-gradient: linear-gradient(110deg, #185adb 0%, #0a1931 100%);
+  --header-text: #fff;
+  --header-slogan-text: #b7d2fa;
+  --header-shadow: 0 8px 32px 0 #1d2b4420;
+  --logo-shadow: 0 3px 18px #fff5, 0 2px 18px #185adb55;
+  --logo-border: #fff7;
+
+  /* BIẾN MÀU CHO FOOTER */
   --footer-bg: rgba(255, 255, 255, 0.85);
   --footer-border: #e5e7eb;
   --footer-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
@@ -54,9 +61,16 @@
     --feature-icon-bg: #0f172a;
     --feature-icon-border: #334155;
     --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
-    --header-bg: rgba(15, 23, 42, 0.7);
-    --header-border: rgba(45, 55, 72, 0.5);
-    --header-text: #cbd5e1;
+    
+    /* BIẾN MÀU CHO HEADER GỐC Ở CHẾ ĐỘ TỐI */
+    --header-gradient: linear-gradient(110deg, #1e3a8a 0%, #1e293b 100%);
+    --header-text: #e0e7ff;
+    --header-slogan-text: #93c5fd;
+    --header-shadow: 0 8px 32px 0 #00000030;
+    --logo-shadow: 0 3px 18px #0005, 0 2px 18px #1e3a8a55;
+    --logo-border: #ffffffaa;
+
+    /* BIẾN MÀU CHO FOOTER Ở CHẾ ĐỘ TỐI */
     --footer-bg: rgba(15, 23, 42, 0.7);
     --footer-border: rgba(45, 55, 72, 0.5);
     --footer-shadow: 0 -2px 16px rgba(0,0,0,0.2);
@@ -121,34 +135,42 @@ main {
   position: fixed; left:0; top:0; z-index:1; pointer-events:none; width:100vw; height:100vh;
 }
 
-/* ----- 3. STYLE CHO HEADER (ĐỒNG BỘ) ----- */
-.ai-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    height: 64px;
-    padding: 0 24px;
-    box-sizing: border-box;
-    font-family: 'Montserrat', Arial, sans-serif;
-    background: var(--header-bg);
-    border-bottom: 1.5px solid var(--header-border);
-    transition: background-color 0.3s, border-color 0.3s;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+/* ----- 3. STYLE CHO HEADER GỐC (ĐÃ SỬ DỤNG BIẾN MÀU) ----- */
+header {
+  background: var(--header-gradient);
+  color: var(--header-text);
+  padding: 36px 0 30px 0;
+  text-align: center;
+  box-shadow: var(--header-shadow);
+  position: relative;
+  z-index: 2;
+  border-radius: 0 0 44px 44px;
 }
-.ai-header-logo-btn {
-    display: flex; align-items: center; justify-content: center;
-    width: 42px; height: 42px;
-    border-radius: 50%; cursor: pointer; background: none; border: none; padding: 0;
-    transition: transform 0.2s ease-in-out;
+.logo {
+  display: inline-block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  box-shadow: var(--logo-shadow);
+  border: 2.5px solid var(--logo-border);
+  background: #fff;
 }
-.ai-header-logo-btn:hover { transform: scale(1.1); }
-.ai-header-logo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.ai-header-title { font-size: 1.125rem; font-weight: 600; color: var(--header-text); transition: color 0.3s; }
+.site-title {
+  font-size: 2.15rem;
+  font-weight: 700;
+  margin: 7px 0 0 0;
+  letter-spacing: 1.2px;
+  text-shadow: 0 4px 22px #0008;
+}
+.site-slogan {
+  font-size: 1.18rem;
+  margin: 9px 0 0 0;
+  color: var(--header-slogan-text);
+  font-weight: 400;
+  text-shadow: 0 2px 18px #0002;
+}
 
 /* ----- 4. STYLE CHO CÁC THÀNH PHẦN TRANG CHỦ ----- */
 .intro {
