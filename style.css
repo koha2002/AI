@@ -52,14 +52,18 @@
     --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
     --text-intro: #a5b4fc;
-    --card-gradient: linear-gradient(145deg, #1e293b 60%, #0f172a 100%);
-    --card-border: #334155;
-    --card-hover-bg: #334155;
+    
+    /* CẬP NHẬT: Làm thẻ chức năng sáng và nổi bật hơn */
+    --card-gradient: linear-gradient(145deg, #334155 60%, #1e293b 100%);
+    --card-border: #475569;
+    --card-hover-bg: #475569;
     --card-hover-border: #a5b4fc;
     --card-shadow: 0 2px 16px 0 rgba(0,0,0,0.2);
     --card-hover-shadow: 0 14px 36px 0 rgba(0,0,0,0.3);
-    --feature-icon-bg: #0f172a;
-    --feature-icon-border: #334155;
+    
+    /* CẬP NHẬT: Sửa màu nền của icon để đồng bộ */
+    --feature-icon-bg: #334155; 
+    --feature-icon-border: #475569;
     --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
     
     /* BIẾN MÀU CHO HEADER GỐC Ở CHẾ ĐỘ TỐI */
@@ -220,7 +224,7 @@ header {
   background: var(--feature-icon-bg);
   box-shadow: var(--feature-icon-shadow);
   border: 2.5px solid var(--feature-icon-border);
-  transition: box-shadow 0.22s;
+  transition: box-shadow 0.22s, background-color 0.3s;
 }
 .feature-title {
   font-weight: 700;
