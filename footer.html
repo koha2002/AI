@@ -1,157 +1,151 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Footer Component</title>
-    <style>
-        /* ----- Ý TƯỞNG THIẾT KẾ MỚI -----
-         * Giao diện Sáng: Giữ phong cách tối giản, tinh chỉnh lại bóng đổ và màu sắc cho nhẹ nhàng hơn.
-         * Giao diện Tối: Áp dụng hiệu ứng "Glassmorphism" (Thủy tinh mờ) hiện đại.
-         * Bố cục: Luôn căn giữa nội dung trên mọi kích thước màn hình.
-        */
+<!-- HƯỚNG DẪN SỬ DỤNG: -->
+<!-- 1. Sao chép toàn bộ khối <style>...</style> và dán vào trong thẻ <head> của trang chính. -->
+<!-- 2. Sao chép khối <footer class="ai-footer">...</footer> và dán vào vị trí bạn muốn hiển thị footer (thường là ngay trước thẻ đóng </body>). -->
 
-        /* Định nghĩa các biến màu cho giao diện SÁNG (tinh chỉnh lại) */
+<style>
+    /* ----- Ý TƯỞNG THIẾT KẾ MỚI -----
+     * Giao diện Sáng: Giữ phong cách tối giản, tinh chỉnh lại bóng đổ và màu sắc cho nhẹ nhàng hơn.
+     * Giao diện Tối: Áp dụng hiệu ứng "Glassmorphism" (Thủy tinh mờ) hiện đại.
+     * Bố cục: Luôn căn giữa nội dung trên mọi kích thước màn hình.
+    */
+
+    /* Định nghĩa các biến màu cho giao diện SÁNG (tinh chỉnh lại) */
+    :root {
+        --footer-bg: rgba(255, 255, 255, 0.85); /* Hơi trong suốt một chút */
+        --footer-border: #e5e7eb;
+        --footer-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+        --footer-text-primary: #185adb;
+        --footer-text-secondary: #374151;
+        --footer-text-tertiary: #9ca3af;
+        --footer-icon-bg: #fff;
+        --footer-icon-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        --footer-icon-hover-bg: #f9fafb;
+        --footer-icon-hover-shadow: 0 4px 8px rgba(24, 90, 219, 0.15);
+    }
+
+    /* Định nghĩa lại các biến màu cho giao diện TỐI (hiệu ứng Glassmorphism) */
+    @media (prefers-color-scheme: dark) {
         :root {
-            --footer-bg: rgba(255, 255, 255, 0.85); /* Hơi trong suốt một chút */
-            --footer-border: #e5e7eb;
-            --footer-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
-            --footer-text-primary: #185adb;
-            --footer-text-secondary: #374151;
-            --footer-text-tertiary: #9ca3af;
-            --footer-icon-bg: #fff;
-            --footer-icon-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            --footer-icon-hover-bg: #f9fafb;
-            --footer-icon-hover-shadow: 0 4px 8px rgba(24, 90, 219, 0.15);
+            --footer-bg: rgba(15, 23, 42, 0.7); /* Nền xanh-xám trong mờ */
+            --footer-border: rgba(45, 55, 72, 0.5);
+            --footer-shadow: 0 -2px 16px rgba(0,0,0,0.2);
+            --footer-text-primary: #a5b4fc; /* Màu xanh tím nhạt */
+            --footer-text-secondary: #cbd5e1;
+            --footer-text-tertiary: #64748b;
+            --footer-icon-bg: rgba(30, 41, 59, 0.8);
+            --footer-icon-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            --footer-icon-hover-bg: rgba(51, 65, 85, 0.9);
+            --footer-icon-hover-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
+    }
+    
+    /* ----- Tái cấu trúc CSS cho Footer ----- */
 
-        /* Định nghĩa lại các biến màu cho giao diện TỐI (hiệu ứng Glassmorphism) */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --footer-bg: rgba(15, 23, 42, 0.7); /* Nền xanh-xám trong mờ */
-                --footer-border: rgba(45, 55, 72, 0.5);
-                --footer-shadow: 0 -2px 16px rgba(0,0,0,0.2);
-                --footer-text-primary: #a5b4fc; /* Màu xanh tím nhạt */
-                --footer-text-secondary: #cbd5e1;
-                --footer-text-tertiary: #64748b;
-                --footer-icon-bg: rgba(30, 41, 59, 0.8);
-                --footer-icon-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                --footer-icon-hover-bg: rgba(51, 65, 85, 0.9);
-                --footer-icon-hover-shadow: 0 4px 16px rgba(0,0,0,0.3);
-            }
-        }
+    .ai-footer {
+        width: 100%;
+        padding: 18px 24px 14px 24px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Căn giữa trên mọi màn hình */
+        gap: 20px;
+        flex-wrap: wrap;
+        box-sizing: border-box;
+        font-family: 'Montserrat', Arial, sans-serif;
         
-        /* ----- Tái cấu trúc CSS cho Footer ----- */
+        /* Áp dụng các biến màu */
+        background: var(--footer-bg);
+        border-top: 1.5px solid var(--footer-border);
+        box-shadow: var(--footer-shadow);
+        border-radius: 24px 24px 0 0;
+        transition: background-color 0.3s, border-color 0.3s;
 
-        .ai-footer {
-            width: 100%;
-            padding: 18px 24px 14px 24px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Căn giữa trên mọi màn hình */
-            gap: 20px;
-            flex-wrap: wrap;
-            box-sizing: border-box;
-            font-family: 'Montserrat', Arial, sans-serif;
-            
-            /* Áp dụng các biến màu */
-            background: var(--footer-bg);
-            border-top: 1.5px solid var(--footer-border);
-            box-shadow: var(--footer-shadow);
-            border-radius: 24px 24px 0 0;
-            transition: background-color 0.3s, border-color 0.3s;
+        /* Hiệu ứng Glassmorphism */
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
 
-            /* Hiệu ứng Glassmorphism */
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
+    .ai-footer-copyright {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--footer-text-secondary);
+        text-align: center; /* Đảm bảo text cũng căn giữa nếu bị xuống dòng */
+    }
 
-        .ai-footer-copyright {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--footer-text-secondary);
-            text-align: center; /* Đảm bảo text cũng căn giữa nếu bị xuống dòng */
-        }
+    .ai-footer-copyright .brand {
+        font-weight: 700;
+        color: var(--footer-text-primary);
+    }
 
-        .ai-footer-copyright .brand {
-            font-weight: 700;
-            color: var(--footer-text-primary);
-        }
+    .ai-footer-copyright .separator {
+        color: var(--footer-text-tertiary);
+        margin: 0 4px;
+    }
 
-        .ai-footer-copyright .separator {
-            color: var(--footer-text-tertiary);
-            margin: 0 4px;
-        }
+    .ai-footer-copyright .designer a {
+        color: var(--footer-text-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .ai-footer-social-links {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
 
-        .ai-footer-copyright .designer a {
-            color: var(--footer-text-primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .ai-footer-social-links {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+    .ai-footer-social-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--footer-icon-bg);
+        box-shadow: var(--footer-icon-shadow);
+        transition: transform 0.2s ease-in-out, box-shadow .17s, background .13s;
+    }
 
-        .ai-footer-social-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--footer-icon-bg);
-            box-shadow: var(--footer-icon-shadow);
-            transition: transform 0.2s ease-in-out, box-shadow .17s, background .13s;
+    .ai-footer-social-icon:hover,
+    .ai-footer-social-icon:focus {
+        transform: translateY(-3px); /* Hiệu ứng nhấc lên khi hover */
+        background: var(--footer-icon-hover-bg) !important;
+        box-shadow: var(--footer-icon-hover-shadow) !important;
+    }
+    
+    /* SVG fill color for dark mode */
+    @media (prefers-color-scheme: dark) {
+        .yt-icon-play {
+            fill: var(--footer-icon-bg);
         }
+        .fb-icon-f {
+             fill: var(--footer-text-primary);
+        }
+    }
 
-        .ai-footer-social-icon:hover,
-        .ai-footer-social-icon:focus {
-            transform: translateY(-3px); /* Hiệu ứng nhấc lên khi hover */
-            background: var(--footer-icon-hover-bg) !important;
-            box-shadow: var(--footer-icon-hover-shadow) !important;
-        }
-        
-        /* SVG fill color for dark mode */
-        @media (prefers-color-scheme: dark) {
-            .yt-icon-play {
-                fill: var(--footer-icon-bg);
-            }
-            .fb-icon-f {
-                 fill: var(--footer-text-primary);
-            }
-        }
+</style>
 
-    </style>
-</head>
-<body>
-    <!-- Bạn có thể sao chép toàn bộ khối <style> và <footer class="ai-footer"> vào file của mình -->
-    <footer class="ai-footer">
-        <span class="ai-footer-copyright">
-            &copy; 2025 <span class="brand">Tra Cứu Học Thuật &amp; AI</span>
-            <span class="separator">&bull;</span>
-            <span class="designer">Thiết kế bởi <a href="https://www.facebook.com/KOHA2002/" target="_blank">KoHa</a></span>
-        </span>
-        <span class="ai-footer-social-links">
-            <!-- YouTube -->
-            <a href="https://www.youtube.com/channel/UCH-j549S-5EHFTchh0deQmQ" target="_blank" title="YouTube KoHa" class="ai-footer-social-icon">
-                <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="16" cy="16" r="16" fill="var(--footer-icon-bg)"/>
-                    <path d="M24.8 11.9c-.2-.7-.7-1.2-1.4-1.3-1.7-.3-6.7-.3-6.7-.3s-5 0-6.7.3c-.7.1-1.2.6-1.4 1.3-.3 1.5-.3 4.7-.3 4.7s0 3.2.3 4.7c.2.7.7 1.2 1.4 1.3 1.7.3 6.7.3 6.7.3s5 0 6.7-.3c.7-.1 1.2-.6 1.4-1.3.3-1.5.3-4.7.3-4.7s0-3.2-.3-4.7z" fill="#FF0000"/>
-                    <path class="yt-icon-play" d="M14.2 18.8l5.2-2.8-5.2-2.8v5.6z" fill="#fff"/>
-                </svg>
-            </a>
-            <!-- Facebook -->
-            <a href="https://www.facebook.com/koha200/" target="_blank" title="Facebook KoHa" class="ai-footer-social-icon">
-                <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="16" cy="16" r="16" fill="var(--footer-icon-bg)"/>
-                    <path class="fb-icon-f" d="M18.1 16.9h1.7l.3-2.1h-2V13.5c0-.6.2-.9.9-.9h1.2V11h-1.6c-1.8 0-2.4.8-2.4 2.2v1.5h-1.1v2.1h1.1v5.1h2.3v-5.1z" fill="#185adb"/>
-                </svg>
-            </a>
-        </span>
-    </footer>
-</body>
-</html>
+<footer class="ai-footer">
+    <span class="ai-footer-copyright">
+        &copy; 2025 <span class="brand">Tra Cứu Học Thuật &amp; AI</span>
+        <span class="separator">&bull;</span>
+        <span class="designer">Thiết kế bởi <a href="https://www.facebook.com/KOHA2002/" target="_blank">KoHa</a></span>
+    </span>
+    <span class="ai-footer-social-links">
+        <!-- YouTube -->
+        <a href="https://www.youtube.com/channel/UCH-j549S-5EHFTchh0deQmQ" target="_blank" title="YouTube KoHa" class="ai-footer-social-icon">
+            <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="16" fill="var(--footer-icon-bg)"/>
+                <path d="M24.8 11.9c-.2-.7-.7-1.2-1.4-1.3-1.7-.3-6.7-.3-6.7-.3s-5 0-6.7.3c-.7.1-1.2.6-1.4 1.3-.3 1.5-.3 4.7-.3 4.7s0 3.2.3 4.7c.2.7.7 1.2 1.4 1.3 1.7.3 6.7.3 6.7.3s5 0 6.7-.3c.7-.1 1.2-.6 1.4-1.3.3-1.5.3-4.7.3-4.7s0-3.2-.3-4.7z" fill="#FF0000"/>
+                <path class="yt-icon-play" d="M14.2 18.8l5.2-2.8-5.2-2.8v5.6z" fill="#fff"/>
+            </svg>
+        </a>
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/koha200/" target="_blank" title="Facebook KoHa" class="ai-footer-social-icon">
+            <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="16" fill="var(--footer-icon-bg)"/>
+                <path class="fb-icon-f" d="M18.1 16.9h1.7l.3-2.1h-2V13.5c0-.6.2-.9.9-.9h1.2V11h-1.6c-1.8 0-2.4.8-2.4 2.2v1.5h-1.1v2.1h1.1v5.1h2.3v-5.1z" fill="#185adb"/>
+            </svg>
+        </a>
+    </span>
+</footer>
