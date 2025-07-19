@@ -51,19 +51,23 @@
     --bg-deco-2: radial-gradient(circle, #9bc3ff44 0%, #0f172a00 100%);
     --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
-    --text-intro: #a5b4fc;
     
-    /* CẬP NHẬT: Làm thẻ chức năng sáng và nổi bật hẳn lên */
-    --card-gradient: linear-gradient(145deg, #64748b 0%, #334155 100%);
-    --card-border: #94a3b8;
-    --card-hover-bg: #475569;
-    --card-hover-border: #a5b4fc;
-    --card-shadow: 0 4px 20px 0 rgba(0,0,0,0.25);
-    --card-hover-shadow: 0 14px 36px 0 rgba(0,0,0,0.4);
+    /* CẬP NHẬT: Dùng màu Vàng Hổ Phách (nóng) làm điểm nhấn */
+    --text-intro: #fcd34d; 
     
-    /* CẬP NHẬT: Sửa màu nền của icon để đồng bộ */
-    --feature-icon-bg: #64748b; 
-    --feature-icon-border: #94a3b8;
+    /* Thẻ chức năng với nền tối (lạnh) */
+    --card-gradient: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    
+    /* Viền và hiệu ứng hover màu Vàng Hổ Phách (nóng) */
+    --card-border: rgba(245, 158, 11, 0.4);
+    --card-hover-border: #f59e0b;
+    --card-hover-bg: #1e293b;
+    --card-shadow: 0 0 15px rgba(245, 158, 11, 0.1), 0 4px 20px 0 rgba(0,0,0,0.25);
+    --card-hover-shadow: 0 0 25px rgba(245, 158, 11, 0.25), 0 14px 36px 0 rgba(0,0,0,0.4);
+    
+    /* Icon vẫn giữ nền tối để tạo chiều sâu */
+    --feature-icon-bg: #1e293b; 
+    --feature-icon-border: #475569;
     --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
     
     /* BIẾN MÀU CHO HEADER GỐC Ở CHẾ ĐỘ TỐI */
