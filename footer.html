@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Footer - Tự động đổi giao diện Sáng/Tối</title>
+    <title>Footer Component</title>
     <style>
         /* ----- Ý TƯỞNG THIẾT KẾ MỚI -----
          * Giao diện Sáng: Giữ phong cách tối giản, tinh chỉnh lại bóng đổ và màu sắc cho nhẹ nhàng hơn.
@@ -41,13 +41,6 @@
             }
         }
         
-        body {
-            margin: 0;
-            font-family: 'Montserrat', Arial, sans-serif;
-            /* Demo nền trời sao để thấy rõ hiệu ứng */
-            background: #0f172a url('https://www.transparenttextures.com/patterns/stardust.png');
-        }
-
         /* ----- Tái cấu trúc CSS cho Footer ----- */
 
         .ai-footer {
@@ -60,6 +53,7 @@
             gap: 20px;
             flex-wrap: wrap;
             box-sizing: border-box;
+            font-family: 'Montserrat', Arial, sans-serif;
             
             /* Áp dụng các biến màu */
             background: var(--footer-bg);
@@ -72,8 +66,6 @@
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
-        
-        /* CẬP NHẬT: Đã loại bỏ media query thay đổi justify-content */
 
         .ai-footer-copyright {
             font-size: 1rem;
@@ -136,6 +128,7 @@
     </style>
 </head>
 <body>
+    <!-- Bạn có thể sao chép toàn bộ khối <style> và <footer class="ai-footer"> vào file của mình -->
     <footer class="ai-footer">
         <span class="ai-footer-copyright">
             &copy; 2025 <span class="brand">Tra Cứu Học Thuật &amp; AI</span>
