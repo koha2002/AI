@@ -1,14 +1,76 @@
+/* =================================================================== */
+/* STYLE.CSS HỢP NHẤT VÀ NÂNG CẤP                   */
+/* =================================================================== */
+
+/* ----- 1. ĐỊNH NGHĨA BIẾN MÀU CHO TOÀN TRANG ----- */
+
+/* Giao diện SÁNG (Mặc định, dựa trên code gốc của bạn) */
 :root {
-  --main: #185adb;
-  --bg1: #f4f9ff;
-  --bg2: #eaf3ff;
-  --radius: 22px;
-  --shadow: 0 8px 32px 0 #1d2b4420;
-  --gradient: linear-gradient(110deg, #185adb 0%, #0a1931 100%);
+  --bg-main: #f4f9ff;
+  --bg-deco-1: radial-gradient(circle, #185adb77 0%, #f4f9ff00 85%);
+  --bg-deco-2: radial-gradient(circle, #9bc3ff99 0%, #f4f9ff00 100%);
+  --text-primary: #222;
+  --text-secondary: #334b7a;
+  --text-intro: #185adb;
   --card-gradient: linear-gradient(145deg, #fff 60%, #e5eeff 100%);
+  --card-border: #e7edfa;
+  --card-hover-bg: #f7fbff;
+  --card-hover-border: #185adb;
+  --card-shadow: 0 2px 16px 0 #185adb22;
+  --card-hover-shadow: 0 14px 36px 0 #185adb38;
+  --feature-icon-bg: #f0f5ff;
+  --feature-icon-border: #e4ebfd;
+  --feature-icon-shadow: 0 2px 14px #185adb25;
+  --header-bg: rgba(255, 255, 255, 0.85);
+  --header-border: #e5e7eb;
+  --header-text: #111827;
+  --footer-bg: rgba(255, 255, 255, 0.85);
+  --footer-border: #e5e7eb;
+  --footer-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+  --footer-text-primary: #185adb;
+  --footer-text-secondary: #374151;
+  --footer-text-tertiary: #9ca3af;
+  --footer-icon-bg: #fff;
+  --footer-icon-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --footer-icon-hover-bg: #f9fafb;
+  --footer-icon-hover-shadow: 0 4px 8px rgba(24, 90, 219, 0.15);
 }
 
-/* Flexbox layout để footer luôn ở cuối trang */
+/* Giao diện TỐI (Áp dụng khi người dùng cài đặt) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-main: #0f172a;
+    --bg-deco-1: radial-gradient(circle, #185adb55 0%, #0f172a00 85%);
+    --bg-deco-2: radial-gradient(circle, #9bc3ff44 0%, #0f172a00 100%);
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-intro: #a5b4fc;
+    --card-gradient: linear-gradient(145deg, #1e293b 60%, #0f172a 100%);
+    --card-border: #334155;
+    --card-hover-bg: #334155;
+    --card-hover-border: #a5b4fc;
+    --card-shadow: 0 2px 16px 0 rgba(0,0,0,0.2);
+    --card-hover-shadow: 0 14px 36px 0 rgba(0,0,0,0.3);
+    --feature-icon-bg: #0f172a;
+    --feature-icon-border: #334155;
+    --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
+    --header-bg: rgba(15, 23, 42, 0.7);
+    --header-border: rgba(45, 55, 72, 0.5);
+    --header-text: #cbd5e1;
+    --footer-bg: rgba(15, 23, 42, 0.7);
+    --footer-border: rgba(45, 55, 72, 0.5);
+    --footer-shadow: 0 -2px 16px rgba(0,0,0,0.2);
+    --footer-text-primary: #a5b4fc;
+    --footer-text-secondary: #cbd5e1;
+    --footer-text-tertiary: #64748b;
+    --footer-icon-bg: rgba(30, 41, 59, 0.8);
+    --footer-icon-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    --footer-icon-hover-bg: rgba(51, 65, 85, 0.9);
+    --footer-icon-hover-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+}
+
+/* ----- 2. STYLE CHUNG CHO TRANG ----- */
 html, body {
   height: 100%;
   margin: 0;
@@ -20,10 +82,11 @@ body {
   display: flex;
   flex-direction: column;
   font-family: 'Montserrat', Arial, sans-serif;
-  background: var(--bg1);
-  color: #222;
+  background: var(--bg-main);
+  color: var(--text-primary);
   position: relative;
   overflow-x: hidden;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 main {
@@ -39,75 +102,61 @@ main {
   align-items: center;
 }
 
-/* Giúp footer không bị co lại khi nội dung ít */
-footer {
-  flex-shrink: 0;
-  background: #132043;
-  color: #a5c4fa;
-  text-align: center;
-  padding: 26px 10px 16px 10px;
-  font-size: 1.08rem;
-  margin-top: 40px;
-  border-radius: 22px 22px 0 0;
-  letter-spacing: .22px;
-  box-shadow: 0 -3px 22px #0a193112;
-}
-
-/* Các phần khác giữ nguyên */
 .bg-deco {
   position: fixed; z-index: 0; pointer-events: none;
   filter: blur(32px) opacity(.78);
+  transition: background 0.3s;
 }
 .bg-deco.left {
   top: -90px; left: -140px; width: 390px; height: 700px;
-  background: radial-gradient(circle, #185adb77 0%, #f4f9ff00 85%);
+  background: var(--bg-deco-1);
   border-radius: 56% 44% 46% 54% / 47% 42% 58% 53%;
 }
 .bg-deco.right {
   bottom: -140px; right: -150px; width: 400px; height: 600px;
-  background: radial-gradient(circle, #9bc3ff99 0%, #f4f9ff00 100%);
+  background: var(--bg-deco-2);
   border-radius: 53% 47% 59% 41% / 53% 47% 53% 47%;
 }
 .star-canvas {
   position: fixed; left:0; top:0; z-index:1; pointer-events:none; width:100vw; height:100vh;
 }
-header {
-  background: var(--gradient);
-  color: #fff;
-  padding: 36px 0 30px 0;
-  text-align: center;
-  box-shadow: var(--shadow);
-  position: relative;
-  z-index: 2;
-  border-radius: 0 0 44px 44px;
+
+/* ----- 3. STYLE CHO HEADER (ĐỒNG BỘ) ----- */
+.ai-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    height: 64px;
+    padding: 0 24px;
+    box-sizing: border-box;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: var(--header-bg);
+    border-bottom: 1.5px solid var(--header-border);
+    transition: background-color 0.3s, border-color 0.3s;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 }
-.logo {
-  display: inline-block;
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin-bottom: 10px;
-  box-shadow: 0 3px 18px #fff5, 0 2px 18px #185adb55;
-  border: 2.5px solid #fff7;
-  background: #fff;
+.ai-header-logo-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px;
+    border-radius: 50%; cursor: pointer; background: none; border: none; padding: 0;
+    transition: transform 0.2s ease-in-out;
 }
-.site-title {
-  font-size: 2.15rem;
-  font-weight: 700;
-  margin: 7px 0 0 0;
-  letter-spacing: 1.2px;
-  text-shadow: 0 4px 22px #0008;
-}
-.site-slogan {
-  font-size: 1.18rem;
-  margin: 9px 0 0 0;
-  color: #b7d2fa;
-  font-weight: 400;
-  text-shadow: 0 2px 18px #0002;
-}
+.ai-header-logo-btn:hover { transform: scale(1.1); }
+.ai-header-logo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.ai-header-title { font-size: 1.125rem; font-weight: 600; color: var(--header-text); transition: color 0.3s; }
+
+/* ----- 4. STYLE CHO CÁC THÀNH PHẦN TRANG CHỦ ----- */
 .intro {
-  font-size: 1.23rem; color: #185adb; text-align: center; margin-bottom: 28px; font-weight:600;
+  font-size: 1.23rem;
+  color: var(--text-intro);
+  text-align: center;
+  margin-bottom: 28px;
+  font-weight: 600;
   letter-spacing: .3px;
 }
 .dashboard {
@@ -121,15 +170,15 @@ header {
 }
 .feature {
   background: var(--card-gradient);
-  border-radius: var(--radius);
-  box-shadow: 0 2px 16px 0 #185adb22;
+  border-radius: 22px;
+  box-shadow: var(--card-shadow);
   padding: 35px 20px 25px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: transform .23s, box-shadow .23s, border .22s;
   cursor: pointer;
-  border: 2px solid #e7edfa;
+  border: 2px solid var(--card-border);
   text-align: center;
   text-decoration: none !important;
   position: relative;
@@ -138,30 +187,29 @@ header {
 }
 .feature:hover {
   transform: translateY(-7px) scale(1.035);
-  box-shadow: 0 14px 36px 0 #185adb38;
-  border: 2.7px solid #185adb;
-  background: #f7fbff;
+  box-shadow: var(--card-hover-shadow);
+  border: 2.7px solid var(--card-hover-border);
+  background: var(--card-hover-bg);
 }
 .feature-img {
   width: 70px; height: 70px; object-fit: cover;
   border-radius: 50%;
   margin-bottom: 16px;
-  background: #f0f5ff;
-  box-shadow: 0 2px 14px #185adb25;
-  border: 2.5px solid #e4ebfd;
-  background-color: #fff;
+  background: var(--feature-icon-bg);
+  box-shadow: var(--feature-icon-shadow);
+  border: 2.5px solid var(--feature-icon-border);
   transition: box-shadow 0.22s;
 }
 .feature-title {
   font-weight: 700;
   font-size: 1.15rem;
   margin-bottom: 10px;
-  color: #185adb;
+  color: var(--text-intro);
   letter-spacing: .1px;
 }
 .feature-desc {
   font-size: .99rem;
-  color: #334b7a;
+  color: var(--text-secondary);
   margin-bottom: 7px;
   line-height: 1.45;
   min-height: 48px;
@@ -169,13 +217,58 @@ header {
   margin-left: auto; margin-right: auto;
 }
 
-/* Responsive */
+/* ----- 5. STYLE CHO FOOTER (ĐỒNG BỘ) ----- */
+.ai-footer {
+    width: 100%;
+    padding: 18px 24px 14px 24px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: var(--footer-bg);
+    border-top: 1.5px solid var(--footer-border);
+    box-shadow: var(--footer-shadow);
+    border-radius: 24px 24px 0 0;
+    transition: background-color 0.3s, border-color 0.3s;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+.ai-footer-copyright {
+    font-size: 1rem; font-weight: 500;
+    color: var(--footer-text-secondary);
+    text-align: center;
+}
+.ai-footer-copyright .brand { font-weight: 700; color: var(--footer-text-primary); }
+.ai-footer-copyright .separator { color: var(--footer-text-tertiary); margin: 0 4px; }
+.ai-footer-copyright .designer a { color: var(--footer-text-primary); text-decoration: none; font-weight: 600; }
+.ai-footer-social-links { display: flex; align-items: center; gap: 16px; }
+.ai-footer-social-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--footer-icon-bg);
+    box-shadow: var(--footer-icon-shadow);
+    transition: transform 0.2s ease-in-out, box-shadow .17s, background .13s;
+}
+.ai-footer-social-icon:hover, .ai-footer-social-icon:focus {
+    transform: translateY(-3px);
+    background: var(--footer-icon-hover-bg) !important;
+    box-shadow: var(--footer-icon-hover-shadow) !important;
+}
+@media (prefers-color-scheme: dark) {
+    .yt-icon-play { fill: var(--footer-icon-bg); }
+    .fb-icon-f { fill: var(--footer-text-primary); }
+}
+
+/* ----- 6. RESPONSIVE ----- */
 @media (max-width:900px) {
   .dashboard { grid-template-columns: 1fr 1fr;}
 }
 @media (max-width:650px) {
-  header {padding:17px 0 7px 0;}
-  .site-title {font-size: 1.11rem;}
   .dashboard {grid-template-columns: 1fr;}
   .feature {padding: 15px 3vw 10px 3vw; min-height: 200px;}
 }
