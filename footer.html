@@ -5,42 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Footer - Tự động đổi giao diện Sáng/Tối</title>
     <style>
-        /* Định nghĩa các biến màu cho giao diện SÁNG (dựa trên code gốc của bạn) */
+        /* ----- Ý TƯỞNG THIẾT KẾ MỚI -----
+         * Giao diện Sáng: Giữ phong cách tối giản, tinh chỉnh lại bóng đổ và màu sắc cho nhẹ nhàng hơn.
+         * Giao diện Tối: Áp dụng hiệu ứng "Glassmorphism" (Thủy tinh mờ) hiện đại.
+         * Bố cục: Luôn căn giữa nội dung trên mọi kích thước màn hình.
+        */
+
+        /* Định nghĩa các biến màu cho giao diện SÁNG (tinh chỉnh lại) */
         :root {
-            --footer-bg: #f4f9ff;
-            --footer-border: #e3e9f7;
-            --footer-shadow: 0 -2px 16px #185adb13;
+            --footer-bg: rgba(255, 255, 255, 0.85); /* Hơi trong suốt một chút */
+            --footer-border: #e5e7eb;
+            --footer-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
             --footer-text-primary: #185adb;
-            --footer-text-secondary: #222;
-            --footer-text-tertiary: #97a4c1;
+            --footer-text-secondary: #374151;
+            --footer-text-tertiary: #9ca3af;
             --footer-icon-bg: #fff;
-            --footer-icon-shadow: 0 2px 8px #185adb18;
-            --footer-icon-hover-bg: #eaf3ff;
-            --footer-icon-hover-shadow: 0 4px 16px #185adb29;
+            --footer-icon-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --footer-icon-hover-bg: #f9fafb;
+            --footer-icon-hover-shadow: 0 4px 8px rgba(24, 90, 219, 0.15);
         }
 
-        /* Định nghĩa lại các biến màu cho giao diện TỐI (đồng bộ với header) */
+        /* Định nghĩa lại các biến màu cho giao diện TỐI (hiệu ứng Glassmorphism) */
         @media (prefers-color-scheme: dark) {
             :root {
-                --footer-bg: #0f172a;
-                --footer-border: #1e293b;
+                --footer-bg: rgba(15, 23, 42, 0.7); /* Nền xanh-xám trong mờ */
+                --footer-border: rgba(45, 55, 72, 0.5);
                 --footer-shadow: 0 -2px 16px rgba(0,0,0,0.2);
-                --footer-text-primary: #93c5fd; /* Màu xanh nhạt cho link */
-                --footer-text-secondary: #e2e8f0; /* Màu chữ chính */
-                --footer-text-tertiary: #64748b; /* Màu cho dấu • */
-                --footer-icon-bg: #1e293b;
+                --footer-text-primary: #a5b4fc; /* Màu xanh tím nhạt */
+                --footer-text-secondary: #cbd5e1;
+                --footer-text-tertiary: #64748b;
+                --footer-icon-bg: rgba(30, 41, 59, 0.8);
                 --footer-icon-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                --footer-icon-hover-bg: #334155;
+                --footer-icon-hover-bg: rgba(51, 65, 85, 0.9);
                 --footer-icon-hover-shadow: 0 4px 16px rgba(0,0,0,0.3);
             }
         }
         
-        /* Áp dụng các biến màu vào body để dễ dàng xem demo */
         body {
             margin: 0;
             font-family: 'Montserrat', Arial, sans-serif;
-            /* Thêm một màu nền cho body để thấy rõ footer */
-            background-color: var(--footer-bg); 
+            /* Demo nền trời sao để thấy rõ hiệu ứng */
+            background: #0f172a url('https://www.transparenttextures.com/patterns/stardust.png');
         }
 
         /* ----- Tái cấu trúc CSS cho Footer ----- */
@@ -51,8 +56,8 @@
             margin: 0 auto;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 18px;
+            justify-content: center; /* Căn giữa trên mọi màn hình */
+            gap: 20px;
             flex-wrap: wrap;
             box-sizing: border-box;
             
@@ -62,13 +67,19 @@
             box-shadow: var(--footer-shadow);
             border-radius: 24px 24px 0 0;
             transition: background-color 0.3s, border-color 0.3s;
+
+            /* Hiệu ứng Glassmorphism */
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
         }
+        
+        /* CẬP NHẬT: Đã loại bỏ media query thay đổi justify-content */
 
         .ai-footer-copyright {
-            font-size: 1.04rem;
-            font-weight: 600;
-            letter-spacing: .01em;
-            color: var(--footer-text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--footer-text-secondary);
+            text-align: center; /* Đảm bảo text cũng căn giữa nếu bị xuống dòng */
         }
 
         .ai-footer-copyright .brand {
@@ -78,40 +89,36 @@
 
         .ai-footer-copyright .separator {
             color: var(--footer-text-tertiary);
-        }
-
-        .ai-footer-copyright .designer {
-            font-weight: 500;
-            color: var(--footer-text-secondary);
+            margin: 0 4px;
         }
 
         .ai-footer-copyright .designer a {
             color: var(--footer-text-primary);
             text-decoration: none;
+            font-weight: 600;
         }
         
         .ai-footer-social-links {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 16px;
         }
 
         .ai-footer-social-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            
-            /* Áp dụng các biến màu */
             background: var(--footer-icon-bg);
             box-shadow: var(--footer-icon-shadow);
-            transition: box-shadow .17s, background .13s;
+            transition: transform 0.2s ease-in-out, box-shadow .17s, background .13s;
         }
 
         .ai-footer-social-icon:hover,
         .ai-footer-social-icon:focus {
+            transform: translateY(-3px); /* Hiệu ứng nhấc lên khi hover */
             background: var(--footer-icon-hover-bg) !important;
             box-shadow: var(--footer-icon-hover-shadow) !important;
         }
@@ -119,10 +126,10 @@
         /* SVG fill color for dark mode */
         @media (prefers-color-scheme: dark) {
             .yt-icon-play {
-                fill: var(--footer-icon-bg); /* Làm cho nút play có màu nền của icon */
+                fill: var(--footer-icon-bg);
             }
             .fb-icon-f {
-                 fill: var(--footer-text-primary); /* Làm cho chữ f có màu link */
+                 fill: var(--footer-text-primary);
             }
         }
 
