@@ -1,37 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Header - Tra Cứu Học Thuật Và AI</title>
+    <!-- Tailwind CSS cho việc tạo kiểu nhanh chóng -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Google - Be Vietnam Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Sử dụng font Be Vietnam Pro cho toàn trang */
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f0f2f5; /* Màu nền xám nhạt cho thân trang */
+        }
+    </style>
+</head>
+<body>
 
-<style>
-  .mini-header {
-    display: flex; align-items: center;
-    background: #fff; box-shadow: 0 1px 8px #185adb09;
-    height: 47px; min-height: 40px; padding: 0 15px 0 7px;
-    border-bottom: 1.2px solid #e3e9f7;
-    position: sticky; top: 0; left: 0; right: 0; z-index: 30;
-    gap: 14px;
-  }
-  .home-btn {
-    background: none; border: none;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border-radius:50%; width: 33px; height: 33px;
-    margin-right: 7px; transition: background 0.14s;
-  }
-  .home-btn:hover { background: #eaf3ff; }
-  .home-btn img { width:21px; height:21px; }
-  .mini-title {
-    font-weight: 700; font-size: 1.07rem;
-    color: #185adb; flex: 1;
-  }
-  .logout-btn {
-    background: linear-gradient(90deg,#3a7bd5,#4a90e2);
-    color: #fff; border: none; border-radius: 6px;
-    padding: 6px 12px; font-weight: 600;
-    cursor: pointer; transition: background 0.2s;
-    font-size: 0.92rem;
-  }
-  .logout-btn:hover {
-    background: linear-gradient(90deg,#4a90e2,#3a7bd5);
-  }
-</style>
+    <!-- 
+      Thành phần Header được cập nhật
+      - Tiêu đề được đổi thành "Tra Cứu Học Thuật Và AI".
+      - Tiêu đề được đặt cạnh logo.
+      - Bố cục được điều chỉnh để logo và tiêu đề nằm cùng một phía.
+    -->
+    <header class="sticky top-0 z-30 flex items-center justify-start w-full h-16 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg sm:px-6">
+        <!-- Nhóm logo và tiêu đề -->
+        <div class="flex items-center gap-4">
+            <!-- Nút Trang chủ với Logo -->
+            <button 
+                onclick="window.location.href='index.html'" 
+                title="Trang chủ" 
+                class="flex items-center justify-center w-12 h-12 p-1 transition duration-300 ease-in-out transform rounded-full hover:bg-white/20 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-75">
+                <!-- Thay thế SVG bằng thẻ IMG để hiển thị logo -->
+                <img 
+                    src="logo.png" 
+                    alt="Logo Trang chủ" 
+                    class="object-contain w-full h-full rounded-full"
+                    onerror="this.onerror=null;this.src='https://placehold.co/40x40/ffffff/3B82F6?text=Logo';"
+                >
+            </button>
 
-<script>
+            <!-- Tiêu đề mới -->
+            <span class="text-xl font-bold text-white whitespace-nowrap" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                Tra Cứu Học Thuật Và AI
+            </span>
+        </div>
+    </header>
 
-
+</body>
+</html>
