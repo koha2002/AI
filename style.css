@@ -65,7 +65,7 @@
     --card-shadow: 0 0 15px rgba(245, 158, 11, 0.1), 0 4px 20px 0 rgba(0,0,0,0.25);
     --card-hover-shadow: 0 0 25px rgba(245, 158, 11, 0.25), 0 14px 36px 0 rgba(0,0,0,0.4);
     
-    /* Icon vẫn giữ nền tối để tạo chiều sâu */
+    /* CẬP NHẬT: Nền icon đồng bộ với nền thẻ chức năng */
     --feature-icon-bg: #1e293b; 
     --feature-icon-border: #475569;
     --feature-icon-shadow: 0 2px 14px rgba(0,0,0,0.2);
