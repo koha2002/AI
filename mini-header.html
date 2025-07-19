@@ -33,18 +33,5 @@
 </style>
 
 <script>
-  // Kiểm tra token tồn tại
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = "login.html";
-  } else {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const username = payload?.username || "Khách";
-      document.getElementById('username-display').textContent = username;
-    } catch (e) {
-      console.error("Lỗi khi giải mã token", e);
-      window.location.href = "login.html";
-    }
-  }
+
 
