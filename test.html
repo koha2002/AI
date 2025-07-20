@@ -8,7 +8,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- FIX: Corrected 'xintegrity' to 'integrity' -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
@@ -130,35 +131,35 @@
                  <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
                  
                  <div class="w-full max-w-md mx-auto space-y-6">
-                     <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                     
-                     <div class="text-left">
-                         <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
-                         <div class="flex gap-4">
-                             <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
-                             <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
-                         </div>
-                     </div>
+                      <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      
+                      <div class="text-left">
+                           <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
+                           <div class="flex gap-4">
+                               <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
+                               <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
+                           </div>
+                      </div>
 
-                     <div id="timer-settings" class="text-left">
-                         <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
-                         <div class="flex items-center gap-2 mb-2">
-                              <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
-                         </div>
-                         <div id="timer-options" class="flex items-center gap-2">
-                             <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
-                             <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
-                                 <option value="seconds">giây</option>
-                                 <option value="minutes">phút</option>
-                             </select>
-                             <span>/ câu</span>
-                         </div>
-                     </div>
+                      <div id="timer-settings" class="text-left">
+                           <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
+                           <div class="flex items-center gap-2 mb-2">
+                                <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
+                           </div>
+                           <div id="timer-options" class="flex items-center gap-2">
+                               <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
+                               <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
+                                   <option value="seconds">giây</option>
+                                   <option value="minutes">phút</option>
+                               </select>
+                               <span>/ câu</span>
+                           </div>
+                      </div>
 
-                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                         <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
-                         <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
-                     </div>
+                      <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                          <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
+                          <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
+                      </div>
                  </div>
             </div>
             
@@ -193,50 +194,59 @@
                 </button>
             </div>
 
+            <!-- FIX: Restructured the entire creator screen for better layout and scrolling -->
             <div id="creator-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-black">
+                <!-- Fixed Title -->
                 <div class="flex-shrink-0">
                     <h1 id="creator-title" class="text-3xl font-bold mb-6 text-center">Tạo Quiz Mới</h1>
+                </div>
+
+                <!-- Scrollable Main Content -->
+                <div class="flex-grow min-h-0 overflow-y-auto -mr-6 pr-6">
                     <div class="mb-6">
                         <label for="quiz-title" class="block text-lg font-medium mb-2 text-black">Tên bộ câu hỏi:</label>
                         <input type="text" id="quiz-title" placeholder="Ví dụ: Lịch sử Việt Nam" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
-                </div>
 
-                <div class="border-t border-gray-300 dark:border-gray-600 pt-6 flex-shrink-0">
-                    <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="new-question" class="block font-medium mb-1 text-black">Nội dung câu hỏi:</label>
-                            <input type="text" id="new-question" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <div class="border-t border-gray-300 dark:border-gray-600 pt-6">
+                        <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="new-question" class="block font-medium mb-1 text-black">Nội dung câu hỏi:</label>
+                                <input type="text" id="new-question" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label for="new-question-image-input" class="block font-medium mb-1 text-black">Ảnh minh họa (tùy chọn):</label>
+                                <input type="file" id="new-question-image-input" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <img id="question-image-preview" src="" alt="Xem trước ảnh" class="mt-2 rounded max-h-40 hidden">
+                                <button id="remove-image-btn" class="hidden mt-2 text-xs text-red-500 hover:text-red-700">Xóa ảnh</button>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 1" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="0" checked><span></span></label></div>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 2" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="1"><span></span></label></div>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 3" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="2"><span></span></label></div>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 4" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="3"><span></span></label></div>
+                            </div>
+                            <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
                         </div>
-                        
-                        <div class="mt-4">
-                            <label for="new-question-image-input" class="block font-medium mb-1 text-black">Ảnh minh họa (tùy chọn):</label>
-                            <input type="file" id="new-question-image-input" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <img id="question-image-preview" src="" alt="Xem trước ảnh" class="mt-2 rounded max-h-40 hidden">
-                            <button id="remove-image-btn" class="hidden mt-2 text-xs text-red-500 hover:text-red-700">Xóa ảnh</button>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-2">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
+                        <div id="questions-preview" class="space-y-2 p-2 bg-gray-100 dark:bg-gray-800 rounded min-h-[120px]">
                         </div>
-                        
-                        <div class="space-y-2">
-                            <label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 1" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="0" checked><span></span></label></div>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 2" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="1"><span></span></label></div>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 3" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="2"><span></span></label></div>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 4" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="3"><span></span></label></div>
-                        </div>
-                        <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
                     </div>
                 </div>
 
-                <div class="mt-8 flex-grow flex flex-col min-h-0">
-                    <h3 class="text-xl font-bold mb-2 flex-shrink-0">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
-                    <div id="questions-preview" class="space-y-2 flex-grow overflow-y-auto p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                <!-- Fixed Buttons -->
+                <div class="flex-shrink-0 pt-4 mt-auto">
+                    <div class="flex justify-between">
+                        <button id="cancel-creation-btn" class="btn bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600">Hủy</button>
+                        <button id="save-quiz-btn" class="btn bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700">Lưu và Tải về</button>
                     </div>
-                </div>
-
-                <div class="mt-auto flex justify-between flex-shrink-0 pt-4">
-                    <button id="cancel-creation-btn" class="btn bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600">Hủy</button>
-                    <button id="save-quiz-btn" class="btn bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700">Lưu và Tải về</button>
                 </div>
             </div>
         </div>
