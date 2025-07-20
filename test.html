@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Danh sách Ứng dụng</title>
-  <link rel="icon" type="image/png" href="logo.png">
-  <style>
-    html, body {
-      height:100%;
-      margin:0;
-      padding:0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Vui - Tạo và Chơi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* THÊM LẠI: CSS để footer luôn ở cuối trang */
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .dark body {
             background-color: #1a1a2e;
         }
         .app-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 1.5rem; /* Adjust padding */
+            flex-grow: 1; /* Giúp nội dung chính co giãn */
+            padding: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -30,7 +32,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            height: calc(100vh - 3rem); /* Card height relative to viewport height */
+            height: calc(100vh - 3rem - 2rem); /* Điều chỉnh chiều cao cho phù hợp */
+            max-height: 850px;
             display: flex;
             flex-direction: column;
         }
@@ -46,7 +49,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
-        /* --- THAY ĐỔI BẮT ĐẦU --- */
         .answer-btn {
             background-color: white;
             color: #1f2937; /* text-gray-800 */
@@ -65,7 +67,6 @@
             color: white !important; 
             border-color: #dc3545 !important;
         }
-        /* --- THAY ĐỔI KẾT THÚC --- */
 
         .timer-bar-inner {
             height: 100%;
@@ -98,6 +99,8 @@
     </style>
 </head>
 <body class="dark:bg-gray-900 text-black">
+
+    <header id="main-header"></header>
 
     <div class="app-container">
         <div class="w-full max-w-screen-xl mx-auto z-10">
@@ -228,8 +231,27 @@
         </div>
     </div>
 
+    <footer id="main-footer"></footer>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // THÊM LẠI: Hàm để tải header và footer
+            const loadComponents = () => {
+                const headerPlaceholder = document.getElementById('main-header');
+                const footerPlaceholder = document.getElementById('main-footer');
+                
+                Promise.all([
+                    fetch('mini-header.html').then(response => response.ok ? response.text() : ''),
+                    fetch('footer.html').then(response => response.ok ? response.text() : '')
+                ])
+                .then(([headerHtml, footerHtml]) => {
+                    if (headerPlaceholder && headerHtml) headerPlaceholder.innerHTML = headerHtml;
+                    if (footerPlaceholder && footerHtml) footerPlaceholder.innerHTML = footerHtml;
+                })
+                .catch(error => console.error('Error loading components:', error));
+            };
+
             // --- DOM ELEMENTS ---
             const screens = { home: document.getElementById('home-screen'), playerName: document.getElementById('player-name-screen'), quiz: document.getElementById('quiz-screen'), end: document.getElementById('end-screen'), creator: document.getElementById('creator-screen') };
             const playerNameInput = document.getElementById('player-name');
@@ -332,7 +354,6 @@
                     showQuestion(currentQuizData[currentQuestionIndex]);
                 } else {
                     if (gameMode === 'practice' && wronglyAnsweredQuestions.length > 0) {
-                        // Start review round in practice mode
                         alert(`Bạn đã trả lời sai ${wronglyAnsweredQuestions.length} câu. Hãy làm lại những câu đó!`);
                         currentQuizData = [...wronglyAnsweredQuestions];
                         totalQuestionsInRound = currentQuizData.length;
@@ -351,15 +372,11 @@
                 scorePercentDisplay.textContent = `${percent}%`;
                 questionText.textContent = questionData.question;
                 const answerShapes = ['fa-triangle', 'fa-diamond', 'fa-square', 'fa-circle'];
-                // const answerColors = ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500']; // THAY ĐỔI: Xóa mảng màu
                 
                 questionData.answers.forEach((answer, index) => {
                     const button = document.createElement('button');
-                    // THAY ĐỔI: Biểu tượng vẫn giữ màu gốc để dễ phân biệt
                     const iconColorClass = ['text-red-500', 'text-blue-500', 'text-yellow-500', 'text-green-500'][index];
                     button.innerHTML = `<i class="fa-solid ${answerShapes[index]} mr-3 ${iconColorClass}"></i><span>${answer.text}</span>`;
-                    
-                    // THAY ĐỔI: Gán lớp CSS mặc định (nền trắng) thay vì các màu cụ thể
                     button.className = `answer-btn w-full font-bold py-4 px-5 rounded-lg text-left flex items-center text-lg btn`;
                     
                     if (answer.correct) button.dataset.correct = true;
@@ -390,15 +407,13 @@
                     }
                 }
                 
-                // THAY ĐỔI: Logic hiển thị màu câu trả lời
-                // Logic này sẽ luôn tô xanh câu đúng. Nếu câu đã chọn là sai, nó sẽ được tô đỏ.
                 Array.from(answerButtonsContainer.children).forEach(button => {
                     if (button.dataset.correct) {
                         button.classList.add('correct');
                     } else if (button === selectedBtn) {
                         button.classList.add('wrong');
                     }
-                    button.disabled = true; // Vô hiệu hóa tất cả các nút sau khi chọn
+                    button.disabled = true;
                 });
 
                 setTimeout(() => {
@@ -416,7 +431,6 @@
                     timerBar.style.width = `${widthPercentage}%`; timerBar.style.backgroundPosition = `${100 - widthPercentage}%`;
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        // THAY ĐỔI: Khi hết giờ, chỉ hiển thị câu trả lời đúng
                         Array.from(answerButtonsContainer.children).forEach(button => { 
                             if (button.dataset.correct) button.classList.add('correct'); 
                             button.disabled = true; 
@@ -524,6 +538,7 @@
             });
 
             // --- INITIALIZATION ---
+            loadComponents(); // THÊM LẠI: Gọi hàm tải header/footer
             loadQuizzesFromStorage();
             showScreen('home');
         });
