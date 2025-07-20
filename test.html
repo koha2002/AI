@@ -99,6 +99,12 @@
       align-items: center;
       gap: 6px;
     }
+    .toolbar-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--text-link);
+        stroke-width: 2;
+    }
     .toolbar-btn:hover { background: var(--btn-hover-bg); }
     .toolbar-btn:active { background: var(--btn-active-bg); }
     .toolbar-btn input[type="file"] { display: none; }
@@ -187,16 +193,37 @@
 
   <main>
     <div class="mindmap-toolbar">
-        <button class="toolbar-btn" id="add-child-btn" title="Thêm nút con (Tab)">➕ Con</button>
-        <button class="toolbar-btn" id="add-sibling-btn" title="Thêm nút ngang hàng (Enter)">➕ Ngang hàng</button>
-        <button class="toolbar-btn" id="delete-btn" title="Xóa nút (Delete)">🗑️ Xóa</button>
+        <button class="toolbar-btn" id="add-child-btn" title="Thêm nút con (Tab)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12H5"></path><path d="M14 12h5"></path><path d="M12 10V5"></path><path d="M12 14v5"></path><circle cx="12" cy="12" r="2"></circle></svg>
+            <span>Con</span>
+        </button>
+        <button class="toolbar-btn" id="add-sibling-btn" title="Thêm nút ngang hàng (Enter)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+            <span>Ngang hàng</span>
+        </button>
+        <button class="toolbar-btn" id="delete-btn" title="Xóa nút (Delete)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Xóa</span>
+        </button>
         <div class="toolbar-separator"></div>
-        <button class="toolbar-btn" id="add-connection-btn">🔗 Liên kết</button>
+        <button class="toolbar-btn" id="add-connection-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            <span>Liên kết</span>
+        </button>
         <div class="toolbar-separator"></div>
-        <button class="toolbar-btn" id="import-btn" onclick="document.getElementById('import-file').click();">📂 Mở</button>
+        <button class="toolbar-btn" id="import-btn" onclick="document.getElementById('import-file').click();">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Mở</span>
+        </button>
         <input type="file" id="import-file" accept=".json" style="display:none;">
-        <button class="toolbar-btn" id="export-json-btn">💾 Tải JSON</button>
-        <button class="toolbar-btn" id="export-pdf-btn">📄 Xuất PDF</button>
+        <button class="toolbar-btn" id="export-json-btn">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Tải JSON</span>
+        </button>
+        <button class="toolbar-btn" id="export-pdf-btn">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 15.5v-5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"></path></svg>
+            <span>Xuất PDF</span>
+        </button>
     </div>
 
     <div id="mindmap-container">
@@ -644,7 +671,7 @@
                     unit: 'px',
                     format: [fullWidth, fullHeight]
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, fullWidth, fullHeight);
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
                 pdf.save("mindmap.pdf");
             }).catch(err => {
                 console.error("Lỗi khi xuất PDF:", err);
