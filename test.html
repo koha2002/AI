@@ -5,20 +5,236 @@
   <title>Chat AI - Tra Cứu Học Thuật & AI</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <!-- CẬP NHẬT: Sử dụng file style.css chung -->
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* =================================================================== */
+    /* CSS RIÊNG CHO TRANG CHAT AI (KHÔNG ẢNH HƯỞNG TRANG KHÁC) */
+    /* =================================================================== */
+
+    /* ----- 1. ĐỊNH NGHĨA BIẾN MÀU ----- */
+    :root {
+      --bg-main: #f4f9ff;
+      --text-primary: #222;
+      --text-link: #185adb;
+      --header-bg: #fff;
+      --header-border: #e3e9f7;
+      --header-shadow: 0 1px 8px #185adb09;
+      --btn-hover-bg: #eaf3ff;
+      --mode-btn-text: #97a4c1;
+      --mode-btn-active-border: #185adb;
+      --api-btn-bg: #f4f7fe;
+      --api-btn-border: #b7d2fa;
+      --msg-bubble-ai-bg: #eaf3ff;
+      --msg-bubble-user-bg: linear-gradient(110deg, #185adb 0%, #356ad2 100%);
+      --msg-bubble-user-text: #fff;
+      --chat-input-bg: #fff;
+      --chat-input-border: #bdd1f6;
+      --chat-input-focus-border: #185adb;
+      --chat-input-shadow: 0 1px 12px #185adb0a;
+      --iframe-bg: #fff;
+      --popup-bg: #fff;
+      --popup-shadow: 0 10px 50px #185adb20;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-main: #0f172a;
+        --text-primary: #e2e8f0;
+        --text-link: #a5b4fc;
+        --header-bg: #1e293b;
+        --header-border: #334155;
+        --header-shadow: 0 1px 8px rgba(0,0,0,0.2);
+        --btn-hover-bg: #334155;
+        --mode-btn-text: #64748b;
+        --mode-btn-active-border: #a5b4fc;
+        --api-btn-bg: #1e293b;
+        --api-btn-border: #475569;
+        --msg-bubble-ai-bg: #1e293b;
+        --msg-bubble-user-bg: linear-gradient(110deg, #60a5fa 0%, #3b82f6 100%);
+        --chat-input-bg: #1e293b;
+        --chat-input-border: #475569;
+        --chat-input-focus-border: #a5b4fc;
+        --chat-input-shadow: none;
+        --iframe-bg: #0f172a;
+        --popup-bg: #1e293b;
+        --popup-shadow: 0 10px 50px rgba(0,0,0,0.3);
+      }
+      /* Đảo màu iframe để đồng bộ giao diện tối */
+      #chatbase-chat iframe, #koha-chat iframe {
+        filter: invert(0.95) hue-rotate(180deg);
+      }
+    }
+
+    /* ----- 2. STYLE CHUNG ----- */
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Montserrat', Arial, sans-serif;
+      display: flex; flex-direction: column;
+      height: 100vh; /* Bắt buộc trang chat chiếm toàn bộ chiều cao */
+      overflow: hidden; /* Ngăn cuộn */
+      box-sizing: border-box;
+    }
+    main {
+      flex: 1 1 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #footer { flex-shrink: 0; }
+
+    /* ----- 3. CÁC THÀNH PHẦN ----- */
+    .mini-header {
+      display: flex; align-items: center;
+      background: var(--header-bg);
+      box-shadow: var(--header-shadow);
+      height: 47px; min-height: 47px; padding: 0 15px 0 7px;
+      border-bottom: 1.2px solid var(--header-border);
+      position: relative; z-index: 30;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    .home-btn {
+      background: none; border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border-radius:50%; width: 33px; height: 33px;
+      margin-right: 7px; transition: background 0.14s;
+    }
+    .home-btn:hover { background: var(--btn-hover-bg); }
+    .home-btn img { width:21px; height:21px; }
+    .mini-title { font-weight:700; font-size:1.07rem; color: var(--text-link); }
+    
+    .mode-switcher {
+      display: flex;
+      border-bottom:1.2px solid var(--header-border);
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .mode-btn {
+      border: none; background: none;
+      padding: 15px 34px 10px 34px;
+      font-weight: 600; color: var(--mode-btn-text); font-size: 1.09rem;
+      cursor: pointer; border-bottom: 2.5px solid transparent;
+      transition: all .13s;
+    }
+    .mode-btn.active, .mode-btn:focus {
+      color: var(--text-link);
+      border-bottom-color: var(--mode-btn-active-border);
+    }
+    
+    .api-btns-group { margin-left:auto; display:flex; gap:8px; }
+    .api-btn, .getkey-btn {
+      background: var(--api-btn-bg); color: var(--text-link); border: 1px solid var(--api-btn-border);
+      border-radius: 7px; padding: 4px 11px; font-weight: 600; font-size: 0.96rem;
+      cursor: pointer; transition: background 0.13s;
+      display: flex; align-items: center; gap: 5px; text-decoration:none;
+    }
+    .api-btn:hover, .getkey-btn:hover { background: var(--btn-hover-bg); }
+    
+    .chat-body {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    #chatbase-chat, #koha-chat { padding: 0; }
+    #chatbase-chat iframe, #koha-chat iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--iframe-bg);
+    }
+    .msg-row {display: flex; padding: 0 16px; box-sizing: border-box;}
+    .msg-bubble {
+      max-width: 900px; min-width: 46px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      font-size: 1.13rem;
+      line-height: 1.7;
+      white-space: pre-line;
+      margin-bottom: 3px; word-break: break-word;
+      background: var(--header-bg); box-shadow: var(--header-shadow);
+    }
+    .msg-user {justify-content: flex-end;}
+    .msg-user .msg-bubble {
+      background: var(--msg-bubble-user-bg);
+      color: var(--msg-bubble-user-text); border-bottom-right-radius: 7px;
+    }
+    .msg-ai {justify-content: flex-start;}
+    .msg-ai .msg-bubble {
+      background: var(--msg-bubble-ai-bg);
+      color: var(--text-primary); border-bottom-left-radius: 7px;
+    }
+    
+    .chat-input-bar {
+      display: flex; align-items: flex-end; width:100%;
+      gap: 14px; background: none;
+      padding: 20px 16px 32px 16px;
+      border: none;
+      justify-content: center;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    .chat-input-bar input {
+      flex: 1; max-width:900px;
+      font-size: 1.18rem; padding: 16px 19px; border-radius: 14px;
+      border: 1.7px solid var(--chat-input-border); outline:none;
+      background: var(--chat-input-bg); color: var(--text-primary); transition: border 0.16s;
+      box-shadow: var(--chat-input-shadow);
+    }
+    .chat-input-bar input:focus {border-color: var(--chat-input-focus-border);}
+    .chat-input-bar button {
+      border: none; background: #185adb; color: #fff;
+      width: 52px; height: 52px; border-radius: 50%;
+      font-size: 1.47rem; display:flex; align-items:center;justify-content:center;
+      cursor:pointer; box-shadow:0 2px 10px #185adb18;
+      transition: background 0.13s;
+    }
+    .chat-input-bar button:active {background:#153772;}
+    
+    /* ----- POPUP ----- */
+    .popup-api-bg {position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;}
+    .popup-api-box {background:var(--popup-bg);border-radius:13px;padding:32px 34px;box-shadow:var(--popup-shadow);min-width:300px;max-width:94vw;text-align:center;}
+    .popup-api-box label {font-size:1.14rem;color:var(--text-link);font-weight:700;}
+    .popup-api-box input {margin-top:14px;padding:11px 13px;border-radius:8px;border:1.5px solid var(--chat-input-border);font-size:1.08rem;width:90%;max-width:340px; background: var(--chat-input-bg); color: var(--text-primary);}
+    .popup-api-box .popup-btns {margin-top:22px;display:flex;justify-content:center;gap:17px;}
+    .popup-api-box button {padding:10px 23px;border-radius:8px;font-weight:600;font-size:1.08rem;border:none;cursor:pointer;background:#185adb;color:#fff;transition:background 0.15s;}
+    .popup-api-box button.cancel {background:#e7eaf6;color:#185adb;}
+    .popup-api-box button:active {background:#133b86;}
+    .popup-api-box .popup-desc {font-size:.98rem;color:#888;margin:7px 0 16px 0;}
+    
+    /* ----- RESPONSIVE ----- */
+    @media (max-width:1100px){
+      .msg-bubble {max-width: 80vw;}
+    }
+    @media (max-width:650px){
+      .msg-bubble {max-width: 90vw;}
+      .chat-input-bar input{font-size:1.03rem;}
+    }
+  </style>
 </head>
 <body>
   
-  <!-- Header sẽ được tải vào đây -->
-  <div id="header"></div>
+  <header class="mini-header">
+    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
+      <img src="logo.png" alt="Trang chủ">
+    </button>
+    <span class="mini-title">Tra Cứu Học Thuật & AI</span>
+  </header>
 
   <main>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 0 0;gap:12px;">
-      <div class="chat-page-title">
-        <img src="icon-ai.png" alt="AI"> Trợ lý AI học tập
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 24px 0 24px;gap:12px;box-sizing: border-box;">
+      <div style="font-weight:700;font-size:1.05rem;color:var(--text-link);display:flex;align-items:center;gap:7px">
+        <img src="icon-ai.png" alt="AI" style="width:22px;height:22px;border-radius:50%;"> Trợ lý AI học tập
       </div>
-      <div class="api-btns-group" id="api-btns-group" style="margin-right:24px;"></div>
+      <div class="api-btns-group" id="api-btns-group"></div>
     </div>
 
     <div class="mode-switcher">
@@ -29,13 +245,13 @@
     </div>
 
     <div class="chat-body">
-      <div id="chatbase-chat" class="chat-messages" style="display:block;padding:0;">
+      <div id="chatbase-chat" class="chat-messages" style="display:block;">
         <iframe src="https://www.chatbase.co/chatbot-iframe/1pwNIgOXuse1aQvajtTiE" width="100%" allow="clipboard-write"></iframe>
       </div>
-      <div id="gpt-chat" class="chat-messages" style="display:none; padding: 16px 0;"></div>
-      <div id="gemini-chat" class="chat-messages" style="display:none; padding: 16px 0;"></div>
-      <div id="koha-chat" class="chat-messages" style="display:none;padding:0;">
-        <iframe src="nebulaAI.html" width="100%" style="border:none; min-height:72vh; display:block;" allow="clipboard-write"></iframe>
+      <div id="gpt-chat" class="chat-messages" style="display:none;"></div>
+      <div id="gemini-chat" class="chat-messages" style="display:none;"></div>
+      <div id="koha-chat" class="chat-messages" style="display:none;">
+        <iframe src="nebulaAI.html" width="100%" style="border:none;" allow="clipboard-write"></iframe>
       </div>
     </div>
     
@@ -50,7 +266,6 @@
     </div>
   </main>
   
-  <!-- Footer sẽ được tải vào đây -->
   <footer id="footer"></footer>
   
   <!-- Popup nhập API Key -->
@@ -68,15 +283,10 @@
   </div>
   
   <script>
-    // Nhúng header/footer từ file riêng
-    function loadHtml(id, file) {
-      fetch(file).then(res => res.text()).then(data => {
-        document.getElementById(id).innerHTML = data;
-      });
-    }
-    // CẬP NHẬT: Tải header nhỏ thay vì header lớn
-    loadHtml('header', 'mini-header.html'); 
-    loadHtml('footer', 'footer.html');
+    // Nhúng footer từ file riêng
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; });
 
     let chatMode = 'chatbase';
     function renderApiBtns(mode) {
