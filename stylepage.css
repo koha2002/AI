@@ -1,0 +1,222 @@
+/* =================================================================== */
+/* STYLEPAGE.CSS - DÀNH CHO CÁC TRANG CON                */
+/* =================================================================== */
+
+/* ----- 1. ĐỊNH NGHĨA BIẾN MÀU CHO TRANG CON ----- */
+
+/* Giao diện SÁNG (Mặc định) */
+:root {
+  --bg-main: #f4f9ff;
+  --text-primary: #222;
+  --text-link: #185adb;
+  --header-bg: #fff;
+  --header-border: #e3e9f7;
+  --header-shadow: 0 1px 8px #185adb09;
+  --btn-hover-bg: #eaf3ff;
+  --mode-btn-text: #97a4c1;
+  --mode-btn-active-border: #185adb;
+  --api-btn-bg: #f4f7fe;
+  --api-btn-border: #b7d2fa;
+  --msg-bubble-ai-bg: #eaf3ff;
+  --msg-bubble-user-bg: linear-gradient(110deg, #185adb 0%, #356ad2 100%);
+  --msg-bubble-user-text: #fff;
+  --chat-input-bg: #fff;
+  --chat-input-border: #bdd1f6;
+  --chat-input-focus-border: #185adb;
+  --chat-input-shadow: 0 1px 12px #185adb0a;
+  --iframe-border: #eee;
+  --iframe-shadow: 0 4px 16px #185adb0d;
+  --popup-bg: #fff;
+  --popup-shadow: 0 10px 50px #185adb20;
+}
+
+/* Giao diện TỐI */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-main: #0f172a;
+    --text-primary: #e2e8f0;
+    --text-link: #a5b4fc;
+    --header-bg: rgba(15, 23, 42, 0.7);
+    --header-border: rgba(45, 55, 72, 0.5);
+    --header-shadow: 0 1px 8px rgba(0,0,0,0.2);
+    --btn-hover-bg: #334155;
+    --mode-btn-text: #64748b;
+    --mode-btn-active-border: #a5b4fc;
+    --api-btn-bg: #1e293b;
+    --api-btn-border: #475569;
+    --msg-bubble-ai-bg: #1e293b;
+    --msg-bubble-user-bg: linear-gradient(110deg, #60a5fa 0%, #3b82f6 100%);
+    --msg-bubble-user-text: #fff;
+    --chat-input-bg: #1e293b;
+    --chat-input-border: #475569;
+    --chat-input-focus-border: #a5b4fc;
+    --chat-input-shadow: none;
+    --iframe-border: #334155;
+    --iframe-shadow: none;
+    --popup-bg: #1e293b;
+    --popup-shadow: 0 10px 50px rgba(0,0,0,0.3);
+  }
+}
+
+/* ----- 2. STYLE CHUNG ----- */
+html, body { height: 100%; min-height: 100%; }
+body {
+  background: var(--bg-main);
+  color: var(--text-primary);
+  margin: 0; padding: 0;
+  font-family: 'Montserrat', Arial, sans-serif;
+  display: flex; flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  transition: background-color 0.3s, color 0.3s;
+}
+main {
+  flex: 1 0 auto;
+  width: 100%;
+  display: flex; flex-direction: column;
+}
+#footer { flex-shrink: 0; margin-top: auto; }
+
+/* ----- 3. STYLE CHO HEADER NHỎ ----- */
+.mini-header {
+    display: flex; align-items: center;
+    background: var(--header-bg); 
+    box-shadow: var(--header-shadow);
+    height: 47px; min-height: 40px; padding: 0 15px 0 7px;
+    border-bottom: 1.2px solid var(--header-border);
+    position: sticky; top: 0; left: 0; right: 0; z-index: 30;
+    gap: 14px;
+    transition: background-color 0.3s, border-color 0.3s;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+.home-btn {
+    background: none; border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border-radius:50%; width: 33px; height: 33px;
+    margin-right: 7px; transition: background 0.14s;
+}
+.home-btn:hover {background: var(--btn-hover-bg);}
+.home-btn img {width:21px;height:21px;}
+.mini-title {
+    font-weight:700; 
+    font-size:1.07rem; 
+    color: var(--text-link);
+}
+
+/* ----- 4. STYLE CHO TRANG CHAT ----- */
+.chat-page-title {
+  font-weight:700; font-size:1.05rem;
+  color:var(--text-link);
+  display:flex; align-items:center; gap:7px;
+}
+.chat-page-title img {
+  width:22px; height:22px; border-radius:50%;
+}
+.mode-switcher {
+  display: flex; gap: 0;
+  border-bottom: 1.2px solid var(--header-border);
+  background: none; margin: 0;
+  width: 100%; justify-content: flex-start;
+}
+.mode-btn {
+  border: none; background: none;
+  padding: 15px 34px 10px 34px;
+  font-weight: 600; color: var(--mode-btn-text); font-size: 1.09rem;
+  cursor: pointer; border-bottom: 2.5px solid transparent; outline: none;
+  transition: all .13s;
+}
+.mode-btn.active, .mode-btn:focus {
+  color: var(--text-link); border-bottom-color: var(--mode-btn-active-border);
+}
+.api-btns-group {margin-left:auto;display:flex;gap:8px;}
+.api-btn, .getkey-btn {
+  background: var(--api-btn-bg); color: var(--text-link); border: 1px solid var(--api-btn-border); border-radius: 7px;
+  padding: 4px 11px; font-weight: 600; font-size: 0.96rem; cursor: pointer; transition: background 0.13s;
+  display: flex; align-items: center; gap: 5px; margin-left:5px; text-decoration:none;
+}
+.api-btn:hover, .getkey-btn:hover {background: var(--btn-hover-bg);}
+.chat-body {
+  flex: 1 1 auto; display: flex; flex-direction: column;
+  width: 100%; background: none;
+  overflow: hidden; /* Ngăn scrollbar của body */
+}
+.chat-messages {
+  flex: 1;
+  width: 100%; max-width: none;
+  padding: 0; margin: 0;
+  font-size: 1.12rem;
+  display: flex; flex-direction: column; gap: 10px;
+  background: none; box-shadow: none;
+  overflow-y: auto;
+}
+#chatbase-chat iframe, #koha-chat iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  background: var(--header-bg);
+  display: block;
+}
+.msg-row {display: flex; padding: 0 16px; box-sizing: border-box;}
+.msg-bubble {
+  max-width: 900px; min-width: 46px;
+  padding: 14px 22px;
+  border-radius: 16px;
+  font-size: 1.13rem;
+  line-height: 1.7;
+  white-space: pre-line;
+  margin-bottom: 3px; word-break: break-word;
+  background: var(--header-bg); box-shadow: var(--header-shadow);
+}
+.msg-user {justify-content: flex-end;}
+.msg-user .msg-bubble {
+  background: var(--msg-bubble-user-bg);
+  color: var(--msg-bubble-user-text); border-bottom-right-radius: 7px;
+}
+.msg-ai {justify-content: flex-start;}
+.msg-ai .msg-bubble {
+  background: var(--msg-bubble-ai-bg);
+  color: var(--text-primary); border-bottom-left-radius: 7px;
+}
+.chat-input-bar {
+  display: flex; align-items: flex-end; width:100%;
+  gap: 14px; background: none;
+  padding: 20px 16px 32px 16px;
+  border: none; border-radius: 0; box-shadow: none;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.chat-input-bar input {
+  flex: 1; max-width:900px;
+  font-size: 1.18rem; padding: 16px 19px; border-radius: 14px;
+  border: 1.7px solid var(--chat-input-border); outline:none;
+  background: var(--chat-input-bg); color: var(--text-primary); transition: border 0.16s;
+  box-shadow: var(--chat-input-shadow);
+}
+.chat-input-bar input:focus {border-color: var(--chat-input-focus-border);}
+.chat-input-bar button {
+  border: none; background: #185adb; color: #fff;
+  width: 52px; height: 52px; border-radius: 50%;
+  font-size: 1.47rem; display:flex; align-items:center;justify-content:center;
+  cursor:pointer; box-shadow:0 2px 10px #185adb18;
+  transition: background 0.13s;
+}
+.chat-input-bar button:active {background:#153772;}
+.popup-api-bg {position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;}
+.popup-api-box {background:var(--popup-bg);border-radius:13px;padding:32px 34px;box-shadow:var(--popup-shadow);min-width:300px;max-width:94vw;text-align:center;}
+.popup-api-box label {font-size:1.14rem;color:var(--text-link);font-weight:700;}
+.popup-api-box input {margin-top:14px;padding:11px 13px;border-radius:8px;border:1.5px solid var(--chat-input-border);font-size:1.08rem;width:90%;max-width:340px; background: var(--chat-input-bg); color: var(--text-primary);}
+.popup-api-box .popup-btns {margin-top:22px;display:flex;justify-content:center;gap:17px;}
+.popup-api-box button {padding:10px 23px;border-radius:8px;font-weight:600;font-size:1.08rem;border:none;cursor:pointer;background:#185adb;color:#fff;transition:background 0.15s;}
+.popup-api-box button.cancel {background:#e7eaf6;color:#185adb;}
+.popup-api-box button:active {background:#133b86;}
+.popup-api-box .popup-desc {font-size:.98rem;color:#888;margin:7px 0 16px 0;}
+
+/* ----- 5. RESPONSIVE ----- */
+@media (max-width:1100px){
+  .msg-bubble {max-width: 80vw;}
+}
+@media (max-width:650px){
+  .msg-bubble {max-width: 90vw;}
+  .chat-input-bar input{font-size:1.03rem;}
+}
