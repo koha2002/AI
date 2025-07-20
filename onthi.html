@@ -197,7 +197,11 @@
                     <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
                     <h1 id="end-title" class="text-4xl font-bold mb-2">Hoàn thành!</h1>
                     <p class="text-xl text-black mb-1">Chúc mừng, <span id="player-name-final" class="font-bold text-purple-500"></span>!</p>
-                    <p id="end-message" class="text-2xl mb-6">Tỷ lệ đúng của bạn là: <span id="final-score-percent" class="font-bold text-green-500">0%</span></p>
+                    <p id="end-message" class="text-2xl mb-2">Tỷ lệ đúng từ lần đầu: <span id="final-score-percent" class="font-bold text-green-500">0%</span></p>
+                    <p id="end-counts" class="text-xl mb-6">
+                        (<span class="font-semibold text-green-600">Đúng: <span id="correct-count">0</span></span>, 
+                        <span class="font-semibold text-red-600">Sai: <span id="wrong-count">0</span></span>)
+                    </p>
                 </div>
 
                 <div id="wrong-answers-container" class="hidden mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700 flex-grow flex flex-col min-h-0">
@@ -319,6 +323,9 @@
             const wrongAnswersContainer = document.getElementById('wrong-answers-container');
             const wrongAnswersList = document.getElementById('wrong-answers-list');
             const exportWrongBtn = document.getElementById('export-wrong-btn');
+            const correctCountDisplay = document.getElementById('correct-count');
+            const wrongCountDisplay = document.getElementById('wrong-count');
+            const endCountsContainer = document.getElementById('end-counts');
 
             // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
@@ -543,13 +550,18 @@
                 showScreen('end');
                 playerNameFinal.textContent = playerName;
                 const finalPercent = originalTotalQuestions > 0 ? Math.round((firstRoundCorrectAnswers / originalTotalQuestions) * 100) : 0;
+                const wrongCount = originalTotalQuestions - firstRoundCorrectAnswers;
                 
                 if (gameMode === 'practice' && initialWrongAnswers.length === 0) {
                     endTitle.textContent = "Luyện tập hoàn tất!";
                     endMessage.innerHTML = `Chúc mừng bạn đã trả lời đúng 100% tất cả các câu hỏi!`;
+                    endCountsContainer.classList.add('hidden');
                 } else {
                     endTitle.textContent = "Hoàn thành!";
                     endMessage.innerHTML = `Tỷ lệ đúng từ lần đầu: <span id="final-score-percent" class="font-bold text-green-500">${finalPercent}%</span>`;
+                    endCountsContainer.classList.remove('hidden');
+                    correctCountDisplay.textContent = firstRoundCorrectAnswers;
+                    wrongCountDisplay.textContent = wrongCount;
                 }
 
                 wrongAnswersList.innerHTML = '';
