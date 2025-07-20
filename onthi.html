@@ -326,7 +326,7 @@
             let currentQuizData = [];
             let newQuizQuestions = [];
             let wronglyAnsweredQuestions = [];
-            let correctAnswersCount, totalQuestionsInRound;
+            let correctAnswersCount, totalQuestionsInRound, originalTotalQuestions; // FIX: Added originalTotalQuestions
             let currentQuestionIndex, timerInterval, playerName, selectedQuizIndex;
             let gameMode, isTimerEnabled, timePerQuestion;
             let editingQuizIndex = null, editingQuestionIndex = null;
@@ -364,7 +364,11 @@
                 timePerQuestion = timeUnitSelect.value === 'minutes' ? timeValue * 60 : timeValue;
 
                 currentQuizData = [...allQuizzes[selectedQuizIndex].questions].sort(() => Math.random() - 0.5); // Shuffle questions
-                totalQuestionsInRound = currentQuizData.length;
+                
+                // FIX: Initialize original total and round total
+                originalTotalQuestions = currentQuizData.length;
+                totalQuestionsInRound = currentQuizData.length; 
+                
                 wronglyAnsweredQuestions = [];
                 correctAnswersCount = 0;
                 currentQuestionIndex = 0;
@@ -381,7 +385,7 @@
                     if (gameMode === 'practice' && wronglyAnsweredQuestions.length > 0) {
                         alert(`Bạn đã trả lời sai ${wronglyAnsweredQuestions.length} câu. Hãy làm lại những câu đó!`);
                         currentQuizData = [...wronglyAnsweredQuestions];
-                        totalQuestionsInRound = currentQuizData.length;
+                        totalQuestionsInRound = currentQuizData.length; // This now correctly sets the total for the practice round
                         wronglyAnsweredQuestions = [];
                         currentQuestionIndex = 0;
                         setNextQuestion();
@@ -393,7 +397,9 @@
             
             function showQuestion(questionData) {
                 questionProgress.textContent = `${currentQuestionIndex + 1}/${totalQuestionsInRound}`;
-                const percent = totalQuestionsInRound > 0 ? Math.round((correctAnswersCount / totalQuestionsInRound) * 100) : 0;
+                
+                // FIX: Calculate percentage based on the original total number of questions
+                const percent = originalTotalQuestions > 0 ? Math.round((correctAnswersCount / originalTotalQuestions) * 100) : 0;
                 scorePercentDisplay.textContent = `${percent}%`;
                 questionText.textContent = questionData.question;
                 
