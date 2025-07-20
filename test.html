@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>Tạo Mindmap - Tra Cứu Học Thuật & AI</title>
   <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* =================================================================== */
-    /* CSS RIÊNG CHO TRANG MINDMAP (PHIÊN BẢN ĐƠN GIẢN)                   */
+    /* CSS RIÊNG CHO TRANG MINDMAP (PHIÊN BẢN ĐƠN GIẢN)                      */
     /* =================================================================== */
 
     :root {
@@ -159,7 +159,7 @@
     .size-control input[type="range"] { width: 100%; }
 
     /* ----- MINDMAP CANVAS ----- */
-    #mindmap-container { width: 100%; height: 100%; flex-grow: 1; cursor: grab; }
+    #mindmap-container { width: 100%; height: 100%; flex-grow: 1; cursor: grab; background-color: var(--bg-main); }
     #mindmap-container:active { cursor: grabbing; }
     .node .shape { stroke: var(--node-stroke); stroke-width: 2px; filter: drop-shadow(var(--node-shadow)); }
     .node-foreign-object {
@@ -172,6 +172,10 @@
         font-size: 14px;
         line-height: 1.2;
         word-break: break-word;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
     }
     .link { fill: none; stroke: var(--link-stroke); stroke-width: 2px; }
     .custom-link { fill: none; stroke: #f59e0b; stroke-width: 2.5px; stroke-dasharray: 5,5; }
@@ -179,7 +183,7 @@
     .node-input {
       width: 100%; height: 100%; border: none; background-color: transparent; text-align: center;
       font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: var(--node-text);
-      outline: none; box-sizing: border-box; padding: 0 5px;
+      outline: none; box-sizing: border-box; padding: 5px; resize: none;
     }
     .note-icon {
         font-size: 12px;
@@ -231,7 +235,7 @@
     </div>
 
     <div id="mindmap-container">
-      <svg width="100%" height="100%"></svg>
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <div class="sidebar" id="sidebar">
@@ -258,11 +262,11 @@
         <div class="sidebar-title">Màu sắc</div>
         <div class="sidebar-control">
           <label for="node-bg-color-picker">Màu nền</label>
-          <input type="color" id="node-bg-color-picker">
+          <input type="color" id="node-bg-color-picker" value="#ffffff">
         </div>
          <div class="sidebar-control" style="margin-top: 8px;">
           <label for="node-text-color-picker">Màu chữ</label>
-          <input type="color" id="node-text-color-picker">
+          <input type="color" id="node-text-color-picker" value="#111827">
         </div>
       </div>
       <div class="sidebar-section">
@@ -285,18 +289,10 @@
   
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- html2canvas is no longer needed for the new export method -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
 
   <script>
-    // Nhúng header/footer
-    function loadHtml(id, file) {
-      fetch(file).then(res => res.text()).then(data => {
-        document.getElementById(id).innerHTML = data;
-      });
-    }
-    loadHtml('header', 'mini-header.html');
-    loadHtml('footer', 'footer.html');
-
     document.addEventListener('DOMContentLoaded', () => {
         const svg = d3.select("#mindmap-container svg");
         const g = svg.append("g");
@@ -320,11 +316,11 @@
 
         const zoom = d3.zoom()
             .scaleExtent([0.1, 2])
-            .filter(event => event.button === 1 || event.type === 'wheel')
             .on("zoom", (event) => g.attr("transform", event.transform));
+        
         svg.call(zoom);
-
-        // --- HỆ THỐNG LƯU TRỮ ĐƠN GIẢN ---
+        
+        // --- DATA MANAGEMENT ---
         function saveData() {
             if (forestData) {
                 localStorage.setItem('mindmapData', JSON.stringify(forestData));
@@ -333,11 +329,15 @@
 
         function loadData() {
             const savedData = localStorage.getItem('mindmapData');
-            const data = savedData ? JSON.parse(savedData) : [createDefaultNode("Chủ đề chính")];
-            if (!Array.isArray(data) || data.length === 0) {
+            try {
+                const data = savedData ? JSON.parse(savedData) : [createDefaultNode("Chủ đề chính")];
+                if (!Array.isArray(data) || data.length === 0) {
+                   return [createDefaultNode("Chủ đề chính")];
+                }
+                return data;
+            } catch (e) {
                 return [createDefaultNode("Chủ đề chính")];
             }
-            return data;
         }
 
         function createDefaultNode(name, children = []) {
@@ -360,8 +360,7 @@
             };
         }
 
-        // --- KẾT THÚC HỆ THỐNG LƯU TRỮ ---
-
+        // --- D3 RENDERING ---
         function update() {
             const allNodes = [];
             const allLinks = [];
@@ -380,8 +379,14 @@
                 allNodes.push(...nodes);
                 allLinks.push(...links);
 
-                const bounds = d3.extent(nodes, d => d.y);
-                offsetX += (bounds[1] - bounds[0]) + 250;
+                if (nodes.length > 1) {
+                    const yCoords = nodes.map(d => d.y);
+                    const min_y = d3.min(yCoords);
+                    const max_y = d3.max(yCoords);
+                    offsetX += (max_y - min_y) + 250; 
+                } else if (nodes.length === 1) {
+                    offsetX += (nodes[0].data.width || defaultNodeSize.width) + 250;
+                }
             });
 
             gLinks.selectAll("path.link")
@@ -390,42 +395,34 @@
                 .attr("class", "link")
                 .attr("d", d => `M${d.source.y_offset},${d.source.x}C${(d.source.y_offset + d.target.y_offset)/2},${d.source.x} ${(d.source.y_offset + d.target.y_offset)/2},${d.target.x} ${d.target.y_offset},${d.target.x}`);
             
-            // Logic vẽ liên kết tùy chỉnh...
-
             const node = gNodes.selectAll("g.node")
                 .data(allNodes, d => d.data.id)
                 .join(
                     enter => enter.append("g")
                         .attr("class", "node")
                         .attr("transform", d => `translate(${d.y_offset},${d.x})`)
-                        .on("contextmenu", handleNodeClick)
-                        .each(function(d) {
+                        .on("click", handleNodeClick)
+                        .each(function(d) { // 'each' to correctly scope 'this'
                             const group = d3.select(this);
-                            const data = d.data;
-                            const nodeWidth = data.width || defaultNodeSize.width;
-                            const nodeHeight = data.height || defaultNodeSize.height;
-                            const shapeType = data.shape || 'rectangle';
-                            const bgColor = data.backgroundColor || getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
-                            
                             let shape;
-                            if (shapeType === 'rectangle') shape = group.append("rect").attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2).attr("rx", 8).attr("ry", 8);
-                            else if (shapeType === 'ellipse') shape = group.append("ellipse").attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
-                            else if (shapeType === 'diamond') {
-                                const w = nodeWidth / 2; const h = nodeHeight / 2;
-                                shape = group.append("path").attr("d", `M 0 ${-h} L ${w} 0 L 0 ${h} L ${-w} 0 Z`);
-                            }
-                            shape.attr("class", "shape").style("fill", bgColor);
+                            if (d.data.shape === 'rectangle') shape = group.append("rect").attr("rx", 8).attr("ry", 8);
+                            else if (d.data.shape === 'ellipse') shape = group.append("ellipse");
+                            else if (d.data.shape === 'diamond') shape = group.append("path");
+                            else shape = group.append("rect").attr("rx", 8).attr("ry", 8); // Default
+                            shape.attr("class", "shape");
 
                             const fo = group.append("foreignObject")
-                                .on("dblclick", (event) => { event.stopPropagation(); editNodeText(d, d3.select(this).select("foreignObject")); });
+                                .on("dblclick", (event) => { 
+                                    event.stopPropagation(); 
+                                    editNodeText(d, d3.select(this).select("foreignObject")); 
+                                });
 
                             fo.append("xhtml:div")
                                 .attr("class", "node-foreign-object")
                                 .append("xhtml:div")
                                 .attr("class", "node-text-div");
 
-                            group.filter(d => d.data.note && d.data.note.trim() !== "")
-                                .append("text")
+                            group.append("text")
                                 .attr("class", "note-icon")
                                 .text("📝");
                         }),
@@ -433,19 +430,19 @@
                     exit => exit.remove()
                 );
             
-            node.attr("transform", d => `translate(${d.y_offset},${d.x})`);
+            node.transition().duration(500).attr("transform", d => `translate(${d.y_offset},${d.x})`);
+            
             node.select(".shape")
                 .each(function(d) {
                     const shape = d3.select(this);
                     const data = d.data;
                     const nodeWidth = data.width || defaultNodeSize.width;
                     const nodeHeight = data.height || defaultNodeSize.height;
-                    const shapeType = data.shape || 'rectangle';
                     
                     shape.style("fill", data.backgroundColor);
-                    if (shapeType === 'rectangle') shape.attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2);
-                    else if (shapeType === 'ellipse') shape.attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
-                    else if (shapeType === 'diamond') {
+                    if (data.shape === 'rectangle') shape.attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2);
+                    else if (data.shape === 'ellipse') shape.attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
+                    else if (data.shape === 'diamond') {
                         const w = nodeWidth / 2; const h = nodeHeight / 2;
                         shape.attr("d", `M 0 ${-h} L ${w} 0 L 0 ${h} L ${-w} 0 Z`);
                     }
@@ -465,34 +462,15 @@
                 .html(d => d.data.name);
 
             node.select(".note-icon")
-                .attr("x", d => (d.data.width || defaultNodeSize.width) / 2 - 15)
-                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 15);
+                .attr("x", d => (d.data.width || defaultNodeSize.width) / 2 - 20)
+                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 15)
+                .style("display", d => (d.data.note && d.data.note.trim() !== "") ? "block" : "none");
         }
         
+        // --- INTERACTIONS ---
         function handleNodeClick(event, d) {
-            event.preventDefault();
             event.stopPropagation();
-            if (connectionMode) {
-                if (!connectionStartNode) {
-                    connectionStartNode = d;
-                    selectNode(d);
-                } else {
-                    if (connectionStartNode.data.id !== d.data.id) {
-                        if (!connectionStartNode.data.connections) connectionStartNode.data.connections = [];
-                        if (!connectionStartNode.data.connections.includes(d.data.id)) {
-                             connectionStartNode.data.connections.push(d.data.id);
-                        }
-                        update();
-                        saveData();
-                    }
-                    connectionMode = false;
-                    connectionStartNode = null;
-                    document.body.style.cursor = 'default';
-                    alert("Đã tạo liên kết!");
-                }
-            } else {
-                selectNode(d);
-            }
+            selectNode(d);
         }
 
         function selectNode(d) {
@@ -504,7 +482,7 @@
         }
         
         function deselectAll() {
-            if (selectedNode) d3.selectAll(".node").filter(nd => nd.data.id === selectedNode.data.id).classed("selected", false);
+            if (selectedNode) d3.selectAll(".node").classed("selected", false);
             selectedNode = null;
             sidebar.classList.remove('visible');
         }
@@ -515,7 +493,7 @@
             widthSlider.value = data.width || defaultNodeSize.width;
             heightSlider.value = data.height || defaultNodeSize.height;
             widthValueSpan.textContent = widthSlider.value;
-            heightValueSpan.textContent = heightSlider.value;
+            heightValueSpan.textContent = heightValueSpan.value;
             bgColorPicker.value = data.backgroundColor;
             textColorPicker.value = data.textColor;
             boldBtn.classList.toggle('active', !!data.isBold);
@@ -535,9 +513,16 @@
                 .html(d.data.name)
                 .on("blur", function() {
                     d.data.name = this.value;
-                    div.html(d.data.name).style("display", "flex");
-                    d3.select(this).remove();
+                    update(); // Redraw to apply changes
                     saveData();
+                    d3.select(this).remove();
+                    div.style("display", "flex"); // Show the div again
+                })
+                .on("keydown", function(event) {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        this.blur();
+                    }
                 });
             
             input.node().focus();
@@ -547,11 +532,19 @@
         function addNode(isSibling) {
             if (!selectedNode) { alert("Vui lòng chọn một nút!"); return; }
             const newNodeData = createDefaultNode();
-            let parentData = isSibling ? selectedNode.parent.data : selectedNode.data;
+            let parentData;
 
-            if (!selectedNode.parent && isSibling) { alert("Không thể thêm nút ngang hàng cho chủ đề chính."); return; }
+            if (isSibling) {
+                if (!selectedNode.parent) {
+                     alert("Không thể thêm nút ngang hàng cho chủ đề chính.");
+                     return;
+                }
+                parentData = selectedNode.parent.data;
+            } else {
+                 parentData = selectedNode.data;
+            }
+
             if (!parentData.children) parentData.children = [];
-            
             parentData.children.push(newNodeData);
             
             update();
@@ -560,20 +553,20 @@
 
         function deleteNode() {
             if (!selectedNode) return;
-            if (!selectedNode.parent) { // It's a root node
+            if (!selectedNode.parent) {
                 if (forestData.length <= 1) {
                     alert("Không thể xóa chủ đề chính cuối cùng!");
                     return;
                 }
                 forestData = forestData.filter(root => root.id !== selectedNode.data.id);
-            } else { // It's a child node
+            } else {
                 const parentData = selectedNode.parent.data;
-                const index = parentData.children.indexOf(selectedNode.data);
+                const index = parentData.children.findIndex(child => child.id === selectedNode.data.id);
                 if (index > -1) parentData.children.splice(index, 1);
             }
             
-            update();
             deselectAll();
+            update();
             saveData();
         }
 
@@ -586,16 +579,17 @@
             const parent = svg.node().parentElement;
             const fullWidth = parent.clientWidth, fullHeight = parent.clientHeight;
             if (bounds.width === 0 || bounds.height === 0) return;
-            const scale = 0.85 / Math.max(bounds.width / fullWidth, bounds.height / fullHeight);
-            const translate = [fullWidth / 2 - scale * (bounds.x + bounds.width / 2), fullHeight / 2 - scale * (bounds.y + bounds.height / 2)];
+            const scale = 0.9 / Math.max(bounds.width / fullWidth, bounds.height / fullHeight);
+            const translate = [
+                fullWidth / 2 - scale * (bounds.x + bounds.width / 2), 
+                fullHeight / 2 - scale * (bounds.y + bounds.height / 2)
+            ];
 
-            svg.transition().duration(750).call(
-                zoom.transform,
-                d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
-            );
+            const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
+            svg.transition().duration(750).call(zoom.transform, transform);
         }
 
-        // Gán sự kiện
+        // --- EVENT LISTENERS ---
         document.getElementById('add-root-btn').onclick = () => {
             forestData.push(createDefaultNode("Chủ đề mới"));
             update();
@@ -608,32 +602,21 @@
         document.getElementById('shape-ellipse-btn').onclick = () => setShape('ellipse');
         document.getElementById('shape-diamond-btn').onclick = () => setShape('diamond');
         
-        widthSlider.oninput = (e) => {
-            if(selectedNode) { selectedNode.data.width = +e.target.value; widthValueSpan.textContent = e.target.value; update(); saveData(); }
-        };
-        heightSlider.oninput = (e) => {
-            if(selectedNode) { selectedNode.data.height = +e.target.value; heightValueSpan.textContent = e.target.value; update(); saveData(); }
-        };
-
+        widthSlider.oninput = (e) => { if(selectedNode) { selectedNode.data.width = +e.target.value; widthValueSpan.textContent = e.target.value; update(); saveData(); } };
+        heightSlider.oninput = (e) => { if(selectedNode) { selectedNode.data.height = +e.target.value; heightValueSpan.textContent = e.target.value; update(); saveData(); } };
         bgColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.backgroundColor = e.target.value; update(); saveData(); } };
         textColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.textColor = e.target.value; update(); saveData(); } };
         boldBtn.onclick = () => { if(selectedNode) { selectedNode.data.isBold = !selectedNode.data.isBold; update(); updateSidebar(); saveData(); } };
         italicBtn.onclick = () => { if(selectedNode) { selectedNode.data.isItalic = !selectedNode.data.isItalic; update(); updateSidebar(); saveData(); } };
         document.getElementById('font-size-increase-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) + 1; update(); saveData(); } };
-        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) - 1; update(); saveData(); } };
+        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = Math.max(8, (selectedNode.data.fontSize || 14) - 1); update(); saveData(); } };
         noteEditor.onblur = (e) => { if(selectedNode) { selectedNode.data.note = e.target.value; update(); saveData(); } };
-        document.getElementById('add-connection-btn').onclick = () => {
-            connectionMode = true;
-            connectionStartNode = null;
-            document.body.style.cursor = 'crosshair';
-            alert("Chọn nút bắt đầu, sau đó chọn nút kết thúc để tạo liên kết.");
-        };
-
-        svg.on('click', deselectAll);
         
-        document.getElementById('zoom-in-btn').onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 1.2);
-        document.getElementById('zoom-out-btn').onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 0.8);
-        document.getElementById('zoom-fit-btn').onclick = zoomToFit;
+        svg.on('click', (event) => {
+            if (event.target === svg.node()) {
+                deselectAll();
+            }
+        });
 
         d3.select("body").on("keydown", function(event) {
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
@@ -659,59 +642,114 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        forestData = JSON.parse(e.target.result);
-                        update();
-                        saveData();
-                    } catch (err) { alert("File không hợp lệ!"); }
+                        const importedData = JSON.parse(e.target.result);
+                        if(Array.isArray(importedData)) {
+                            forestData = importedData;
+                            update();
+                            saveData();
+                            zoomToFit();
+                        } else {
+                            alert("File JSON không có cấu trúc hợp lệ.");
+                        }
+                    } catch (err) { alert("File không hợp lệ hoặc bị lỗi!"); }
                 };
                 reader.readAsText(file);
             }
         };
         
+        // =============================================================
+        //  PDF EXPORT FUNCTION - NEW ROBUST METHOD
+        // =============================================================
         document.getElementById('export-pdf-btn').onclick = () => {
             const { jsPDF } = window.jspdf;
-            const svgElement = document.querySelector("#mindmap-container svg");
+            const svgElement = svg.node();
             
+            deselectAll(); 
+
+            // 1. Get the bounding box of the whole mindmap content
             const originalTransform = g.attr("transform");
-            g.attr("transform", "");
-
+            g.attr("transform", ""); // Reset for accurate bbox calculation
             const bounds = g.node().getBBox();
+            g.attr("transform", originalTransform); // Restore original transform
+
+            if (bounds.width === 0 || bounds.height === 0) {
+                alert("Không có nội dung để xuất.");
+                return;
+            }
+
             const padding = 50;
-            const fullWidth = bounds.width + padding * 2;
-            const fullHeight = bounds.height + padding * 2;
+            const imageWidth = bounds.width + padding * 2;
+            const imageHeight = bounds.height + padding * 2;
 
-            svg.attr('width', fullWidth).attr('height', fullHeight);
-            g.attr('transform', `translate(${-bounds.x + padding}, ${-bounds.y + padding})`);
+            // 2. Create a temporary clone of the SVG to manipulate for export
+            const svgClone = svgElement.cloneNode(true);
+            const gClone = d3.select(svgClone).select('g');
+            
+            // Set clone's dimensions and position content inside
+            d3.select(svgClone)
+                .attr("width", imageWidth)
+                .attr("height", imageHeight)
+                .style("background-color", getComputedStyle(document.body).getPropertyValue('--bg-main').trim());
 
-            html2canvas(svgElement, {
-                backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-main').trim(),
-                scale: 2
-            }).then(canvas => {
-                svg.attr('width', '100%').attr('height', '100%');
-                g.attr("transform", originalTransform);
+            gClone.attr('transform', `translate(${-bounds.x + padding}, ${-bounds.y + padding})`);
 
+            // 3. Serialize the SVG clone to an XML string
+            const serializer = new XMLSerializer();
+            let svgString = serializer.serializeToString(svgClone);
+
+            // 4. Create a data URL from the SVG string
+            const svgBlob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+            const url = URL.createObjectURL(svgBlob);
+
+            // 5. Use an Image object to render the SVG, then draw to a canvas
+            const img = new Image();
+            img.onload = function() {
+                // Create a temporary canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = imageWidth;
+                canvas.height = imageHeight;
+                const ctx = canvas.getContext('2d');
+                
+                // Fill background on canvas
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-main').trim();
+                ctx.fillRect(0, 0, imageWidth, imageHeight);
+
+                // Draw the rendered SVG image onto the canvas
+                ctx.drawImage(img, 0, 0);
+
+                // Clean up the object URL
+                URL.revokeObjectURL(url);
+
+                // 6. Create PDF from the canvas image data
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF({
-                    orientation: fullWidth > fullHeight ? 'landscape' : 'portrait',
+                    orientation: imageWidth > imageHeight ? 'landscape' : 'portrait',
                     unit: 'px',
-                    format: [fullWidth, fullHeight]
+                    format: [imageWidth, imageHeight]
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+                pdf.addImage(imgData, 'PNG', 0, 0, imageWidth, imageHeight);
                 pdf.save("mindmap.pdf");
-            }).catch(err => {
-                console.error("Lỗi khi xuất PDF:", err);
-                svg.attr('width', '100%').attr('height', '100%');
-                g.attr("transform", originalTransform);
-            });
+            };
+            
+            img.onerror = function(e) {
+                console.error("Lỗi khi tải ảnh SVG:", e);
+                alert("Đã xảy ra lỗi trong quá trình tạo ảnh từ mindmap. Vui lòng thử lại.");
+                URL.revokeObjectURL(url);
+            }
+
+            img.src = url;
         };
 
-        // Khởi tạo
+        // --- INITIALIZE ---
         function initializeApp() {
             forestData = loadData();
             update();
-            const hierarchy = d3.hierarchy(forestData[0]);
-            selectNode(hierarchy);
-            zoomToFit();
+            if(forestData.length > 0) {
+                const hierarchy = d3.hierarchy(forestData[0]);
+                selectNode(hierarchy);
+            }
+            setTimeout(zoomToFit, 100); // Delay to ensure layout is stable
         }
 
         initializeApp();
