@@ -1,759 +1,542 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Tạo Mindmap - Tra Cứu Học Thuật & AI</title>
-  <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    /* =================================================================== */
-    /* CSS RIÊNG CHO TRANG MINDMAP (PHIÊN BẢN ĐƠN GIẢN)                      */
-    /* =================================================================== */
-
-    :root {
-      --bg-main: #f4f9ff;
-      --text-primary: #222;
-      --text-link: #185adb;
-      --toolbar-bg: #fff;
-      --toolbar-border: #e3e9f7;
-      --toolbar-shadow: 0 2px 12px rgba(24, 90, 219, 0.08);
-      --btn-bg: #f0f5ff;
-      --btn-border: #d6e4ff;
-      --btn-hover-bg: #eaf3ff;
-      --btn-active-bg: #dbe8ff;
-      --node-bg: #fff;
-      --node-stroke: #185adb;
-      --node-text: #111827;
-      --node-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-      --link-stroke: #9ca3af;
-      --sidebar-bg: #ffffff;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-main: #0f172a;
-        --text-primary: #e2e8f0;
-        --text-link: #a5b4fc;
-        --toolbar-bg: #1e293b;
-        --toolbar-border: #334155;
-        --toolbar-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-        --btn-bg: #334155;
-        --btn-border: #475569;
-        --btn-hover-bg: #475569;
-        --btn-active-bg: #64748b;
-        --node-bg: #1e293b;
-        --node-stroke: #a5b4fc;
-        --node-text: #e2e8f0;
-        --node-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-        --link-stroke: #64748b;
-        --sidebar-bg: #1e293b;
-      }
-    }
-
-    /* ----- STYLE CHUNG ----- */
-    html, body { height: 100%; margin: 0; padding: 0; }
-    body {
-      background: var(--bg-main);
-      color: var(--text-primary);
-      font-family: 'Montserrat', Arial, sans-serif;
-      display: flex; flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-      box-sizing: border-box;
-    }
-    main {
-      flex: 1 1 auto;
-      width: 100%;
-      display: flex;
-      overflow: hidden;
-      position: relative;
-    }
-    #footer { flex-shrink: 0; }
-
-    /* ----- THANH CÔNG CỤ ----- */
-    .mindmap-toolbar {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      z-index: 20;
-      background: var(--toolbar-bg);
-      border: 1px solid var(--toolbar-border);
-      box-shadow: var(--toolbar-shadow);
-      border-radius: 12px;
-      padding: 8px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .toolbar-btn {
-      background: var(--btn-bg);
-      border: 1px solid var(--btn-border);
-      color: var(--text-link);
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: background-color 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .toolbar-btn svg {
-        width: 16px;
-        height: 16px;
-        stroke: var(--text-link);
-        stroke-width: 2;
-    }
-    .toolbar-btn:hover { background: var(--btn-hover-bg); }
-    .toolbar-btn:active { background: var(--btn-active-bg); }
-    .toolbar-btn input[type="file"] { display: none; }
-    .toolbar-separator {
-      width: 1px;
-      height: 24px;
-      background-color: var(--toolbar-border);
-    }
-    
-    /* ----- SIDEBAR THUỘC TÍNH ----- */
-    .sidebar {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 240px;
-      height: 100%;
-      background: var(--sidebar-bg);
-      border-left: 1px solid var(--toolbar-border);
-      box-shadow: -2px 0 12px rgba(0,0,0,0.05);
-      z-index: 20;
-      padding: 16px;
-      box-sizing: border-box;
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-      overflow-y: auto;
-    }
-    .sidebar.visible { transform: translateX(0); }
-    .sidebar-section { margin-bottom: 24px; }
-    .sidebar-title { font-weight: 700; font-size: 16px; margin-bottom: 12px; }
-    .sidebar-control { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .sidebar-control label { font-size: 14px; width: 100%; }
-    .sidebar-control input[type="color"] {
-      -webkit-appearance: none; width: 40px; height: 40px; border: none;
-      cursor: pointer; background: none; padding: 0;
-    }
-    .sidebar-control input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    .sidebar-control input[type="color"]::-webkit-color-swatch { border: 1px solid var(--toolbar-border); border-radius: 8px; }
-    .format-btns { display: flex; gap: 8px; }
-    .format-btns button { font-family: serif; font-size: 18px; width: 40px; height: 40px; }
-    .format-btns button.active { background-color: var(--btn-active-bg); border-color: var(--text-link); }
-    #note-editor {
-        width: 100%;
-        height: 150px;
-        background-color: var(--bg-main);
-        border: 1px solid var(--toolbar-border);
-        border-radius: 8px;
-        color: var(--text-primary);
-        font-family: 'Montserrat', Arial, sans-serif;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-    .size-control input[type="range"] { width: 100%; }
-
-    /* ----- MINDMAP CANVAS ----- */
-    #mindmap-container { width: 100%; height: 100%; flex-grow: 1; cursor: grab; background-color: var(--bg-main); }
-    #mindmap-container:active { cursor: grabbing; }
-    .node .shape { stroke: var(--node-stroke); stroke-width: 2px; filter: drop-shadow(var(--node-shadow)); }
-    .node-foreign-object {
-      text-align: center; padding: 5px; box-sizing: border-box;
-      overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;
-      pointer-events: none;
-    }
-    .node-text-div {
-        color: var(--node-text);
-        font-size: 14px;
-        line-height: 1.2;
-        word-break: break-word;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-    .link { fill: none; stroke: var(--link-stroke); stroke-width: 2px; }
-    .custom-link { fill: none; stroke: #f59e0b; stroke-width: 2.5px; stroke-dasharray: 5,5; }
-    .node.selected .shape { stroke: #f59e0b; stroke-width: 3px; }
-    .node-input {
-      width: 100%; height: 100%; border: none; background-color: transparent; text-align: center;
-      font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: var(--node-text);
-      outline: none; box-sizing: border-box; padding: 5px; resize: none;
-    }
-    .note-icon {
-        font-size: 12px;
-        fill: var(--text-secondary);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Vui - Tạo và Chơi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FIX: Corrected 'xintegrity' to 'integrity' -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .dark body {
+            background-color: #1a1a2e;
+        }
+        .app-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1.5rem; /* Adjust padding */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            height: calc(100vh - 3rem); /* Card height relative to viewport height */
+            display: flex;
+            flex-direction: column;
+        }
+        .dark .card {
+            background-color: rgba(26, 26, 46, 0.85);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn {
+             transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .answer-btn.correct {
+            background-color: #28a745 !important; color: white !important; border-color: #28a745 !important;
+        }
+        .answer-btn.wrong {
+            background-color: #dc3545 !important; color: white !important; border-color: #dc3545 !important;
+        }
+        .timer-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #facc15, #f87171);
+            background-size: 200%;
+            transition: width 1s linear, background-position 1s linear;
+            border-radius: 8px;
+        }
+        /* Custom radio/checkbox */
+        .custom-control input { display: none; }
+        .custom-control span {
+            height: 20px; width: 20px; border: 2px solid #9ca3af;
+            display: inline-block; position: relative; cursor: pointer;
+        }
+        .custom-radio span { border-radius: 50%; }
+        .custom-checkbox span { border-radius: 4px; }
+        .custom-control input:checked + span { border-color: #28a745; background-color: #28a745; }
+        .custom-control input:checked + span::after {
+            content: ''; position: absolute;
+        }
+        .custom-radio input:checked + span::after {
+            width: 8px; height: 8px; background: white; border-radius: 50%;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .custom-checkbox input:checked + span::after {
+            left: 6px; top: 2px; width: 5px; height: 10px;
+            border: solid white; border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+    </style>
 </head>
-<body>
-  
-  <div id="header"></div>
+<body class="dark:bg-gray-900 text-black">
 
-  <main>
-    <div class="mindmap-toolbar">
-        <button class="toolbar-btn" id="add-root-btn" title="Thêm nút chính">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-            <span>Chính</span>
-        </button>
-        <button class="toolbar-btn" id="add-child-btn" title="Thêm nút con (Tab)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12H5"></path><path d="M14 12h5"></path><path d="M12 10V5"></path><path d="M12 14v5"></path><circle cx="12" cy="12" r="2"></circle></svg>
-            <span>Con</span>
-        </button>
-        <button class="toolbar-btn" id="add-sibling-btn" title="Thêm nút ngang hàng (Enter)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-            <span>Ngang hàng</span>
-        </button>
-        <button class="toolbar-btn" id="delete-btn" title="Xóa nút (Delete)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            <span>Xóa</span>
-        </button>
-        <div class="toolbar-separator"></div>
-        <button class="toolbar-btn" id="add-connection-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-            <span>Liên kết</span>
-        </button>
-        <div class="toolbar-separator"></div>
-        <button class="toolbar-btn" id="import-btn" onclick="document.getElementById('import-file').click();">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span>Mở</span>
-        </button>
-        <input type="file" id="import-file" accept=".json" style="display:none;">
-        <button class="toolbar-btn" id="export-json-btn">
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span>Tải JSON</span>
-        </button>
-        <button class="toolbar-btn" id="export-pdf-btn">
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 15.5v-5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"></path></svg>
-            <span>Xuất PDF</span>
-        </button>
+    <div class="app-container">
+        <div class="w-full max-w-screen-xl mx-auto z-10">
+
+            <!-- Home Screen -->
+            <div id="home-screen" class="card p-8 rounded-2xl shadow-2xl text-black">
+                <div class="text-center flex-shrink-0">
+                    <i class="fas fa-rocket text-5xl text-purple-500 mb-4"></i>
+                    <h1 class="text-4xl font-bold mb-2">Chào mừng đến Quiz Vui!</h1>
+                    <p class="text-lg text-black mb-6">Chọn một quiz để bắt đầu hoặc tạo quiz của riêng bạn.</p>
+                </div>
+                <div class="my-8 flex-grow flex flex-col min-h-0">
+                    <h2 class="text-2xl font-bold mb-4 text-center flex-shrink-0">Danh sách Quiz có sẵn</h2>
+                    <div id="quiz-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-grow overflow-y-auto p-2">
+                        <!-- Quiz list generated by JS -->
+                    </div>
+                </div>
+                <div class="text-center mt-auto flex-shrink-0 pt-4">
+                     <button id="import-quiz-btn" class="btn bg-orange-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-orange-600 shadow-lg">
+                        <i class="fas fa-upload mr-2"></i> Nhập Quiz từ file
+                    </button>
+                     <button id="go-to-creator-btn" class="btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 shadow-lg">
+                        <i class="fas fa-plus mr-2"></i> Tạo Quiz Mới
+                    </button>
+                    <input type="file" id="import-file-input" class="hidden" accept=".json">
+                </div>
+            </div>
+
+            <!-- Player Name & Settings Screen -->
+            <div id="player-name-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
+                 <h1 class="text-3xl font-bold mb-4">Sẵn sàng chơi!</h1>
+                 <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
+                 
+                 <div class="w-full max-w-md mx-auto space-y-6">
+                    <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    
+                    <!-- Game Mode -->
+                    <div class="text-left">
+                        <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
+                        <div class="flex gap-4">
+                            <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
+                            <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
+                        </div>
+                    </div>
+
+                    <!-- Timer Settings -->
+                    <div id="timer-settings" class="text-left">
+                        <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
+                        <div class="flex items-center gap-2 mb-2">
+                             <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
+                        </div>
+                        <div id="timer-options" class="flex items-center gap-2">
+                            <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
+                            <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
+                                <option value="seconds">giây</option>
+                                <option value="minutes">phút</option>
+                            </select>
+                            <span>/ câu</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
+                        <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
+                    </div>
+                 </div>
+            </div>
+            
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden card p-6 sm:p-8 rounded-2xl shadow-2xl text-black justify-center">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-lg font-bold">
+                            Câu hỏi: <span id="question-progress">1/10</span>
+                            <span id="review-indicator" class="text-sm text-yellow-600 font-medium ml-2 hidden">(Làm lại câu sai)</span>
+                        </div>
+                        <div class="text-lg font-bold text-green-500">Đúng: <span id="score-percent">0%</span></div>
+                    </div>
+                    <div id="timer-container" class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-4 mb-6 shadow-inner">
+                        <div id="timer-bar" class="timer-bar-inner"></div>
+                    </div>
+                    <div class="min-h-[100px] flex items-center justify-center">
+                         <h2 id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></h2>
+                    </div>
+                    <div id="answer-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
+                </div>
+            </div>
+
+            <!-- End Screen -->
+            <div id="end-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
+                <div class="w-full">
+                    <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
+                    <h1 id="end-title" class="text-4xl font-bold mb-2">Hoàn thành!</h1>
+                    <p class="text-xl text-black mb-1">Chúc mừng, <span id="player-name-final" class="font-bold text-purple-500"></span>!</p>
+                    <p id="end-message" class="text-2xl mb-6">Tỷ lệ đúng của bạn là: <span class="font-bold text-green-500">0%</span></p>
+                    
+                    <div id="wrong-questions-list" class="mt-4 text-left max-w-2xl mx-auto hidden">
+                        <h3 class="font-bold text-lg mb-2 text-center">Các câu bạn đã sai ban đầu:</h3>
+                        <ul id="wrong-questions-ul" class="list-disc list-inside text-sm space-y-1 bg-gray-100 p-4 rounded-lg max-h-40 overflow-y-auto">
+                            <!-- JS will populate this -->
+                        </ul>
+                    </div>
+
+                    <button id="back-to-home-btn" class="btn mt-8 bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 shadow-lg">
+                        Về trang chủ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Creator Screen -->
+            <div id="creator-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-black">
+                <div class="flex-shrink-0">
+                    <h1 id="creator-title" class="text-3xl font-bold mb-6 text-center">Tạo Quiz Mới</h1>
+                    <div class="mb-6">
+                        <label for="quiz-title" class="block text-lg font-medium mb-2 text-black">Tên bộ câu hỏi:</label>
+                        <input type="text" id="quiz-title" placeholder="Ví dụ: Lịch sử Việt Nam" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-300 dark:border-gray-600 pt-6 flex-shrink-0">
+                    <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="new-question" class="block font-medium mb-1 text-black">Nội dung câu hỏi:</label>
+                            <input type="text" id="new-question" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>
+                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 1" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="0" checked><span></span></label></div>
+                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 2" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="1"><span></span></label></div>
+                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 3" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="2"><span></span></label></div>
+                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 4" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="3"><span></span></label></div>
+                        </div>
+                        <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex-grow flex flex-col min-h-0">
+                    <h3 class="text-xl font-bold mb-2 flex-shrink-0">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
+                    <div id="questions-preview" class="space-y-2 flex-grow overflow-y-auto p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                        <!-- Preview of added questions -->
+                    </div>
+                </div>
+
+                <div class="mt-auto flex justify-between flex-shrink-0 pt-4">
+                    <button id="cancel-creation-btn" class="btn bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600">Hủy</button>
+                    <button id="save-quiz-btn" class="btn bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700">Lưu và Tải về</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="mindmap-container">
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"></svg>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM ELEMENTS ---
+            const screens = { home: document.getElementById('home-screen'), playerName: document.getElementById('player-name-screen'), quiz: document.getElementById('quiz-screen'), end: document.getElementById('end-screen'), creator: document.getElementById('creator-screen') };
+            const playerNameInput = document.getElementById('player-name');
+            const startBtn = document.getElementById('start-btn');
+            const backToHomeBtn = document.getElementById('back-to-home-btn');
+            const backFromPlayerNameBtn = document.getElementById('back-from-player-name-btn');
+            
+            // Settings UI
+            const gameModeRadios = document.querySelectorAll('input[name="game-mode"]');
+            const timerSettingsDiv = document.getElementById('timer-settings');
+            const timerEnabledCheckbox = document.getElementById('timer-enabled');
+            const timerOptionsDiv = document.getElementById('timer-options');
+            const timeValueInput = document.getElementById('time-value');
+            const timeUnitSelect = document.getElementById('time-unit');
 
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-title">Hình dạng</div>
-        <div class="sidebar-control format-btns">
-          <button class="toolbar-btn" id="shape-rect-btn" title="Hình chữ nhật">▭</button>
-          <button class="toolbar-btn" id="shape-ellipse-btn" title="Hình elip">⬬</button>
-          <button class="toolbar-btn" id="shape-diamond-btn" title="Hình thoi">◇</button>
-        </div>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Kích thước</div>
-        <div class="sidebar-control size-control">
-            <label for="node-width-slider">Chiều rộng: <span id="width-value">160</span>px</label>
-            <input type="range" id="node-width-slider" min="60" max="400" value="160">
-        </div>
-        <div class="sidebar-control size-control" style="margin-top: 8px;">
-            <label for="node-height-slider">Chiều cao: <span id="height-value">60</span>px</label>
-            <input type="range" id="node-height-slider" min="40" max="200" value="60">
-        </div>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Màu sắc</div>
-        <div class="sidebar-control">
-          <label for="node-bg-color-picker">Màu nền</label>
-          <input type="color" id="node-bg-color-picker" value="#ffffff">
-        </div>
-         <div class="sidebar-control" style="margin-top: 8px;">
-          <label for="node-text-color-picker">Màu chữ</label>
-          <input type="color" id="node-text-color-picker" value="#111827">
-        </div>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Văn bản</div>
-        <div class="sidebar-control format-btns">
-          <button class="toolbar-btn" id="bold-btn" title="In đậm"><b>B</b></button>
-          <button class="toolbar-btn" id="italic-btn" title="In nghiêng"><i>I</i></button>
-          <button class="toolbar-btn" id="font-size-increase-btn" title="Tăng cỡ chữ">A+</button>
-          <button class="toolbar-btn" id="font-size-decrease-btn" title="Giảm cỡ chữ">A-</button>
-        </div>
-      </div>
-       <div class="sidebar-section">
-        <div class="sidebar-title">Ghi chú</div>
-        <textarea id="note-editor" placeholder="Thêm ghi chú chi tiết..."></textarea>
-      </div>
-    </div>
-  </main>
-  
-  <div id="footer"></div>
-  
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- html2canvas is no longer needed for the new export method -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
+            // Quiz UI
+            const questionProgress = document.getElementById('question-progress');
+            const reviewIndicator = document.getElementById('review-indicator');
+            const scorePercentDisplay = document.getElementById('score-percent');
+            const timerContainer = document.getElementById('timer-container');
+            const timerBar = document.getElementById('timer-bar');
+            const questionText = document.getElementById('question-text');
+            const answerButtonsContainer = document.getElementById('answer-buttons');
+            const endTitle = document.getElementById('end-title');
+            const endMessage = document.getElementById('end-message');
+            const playerNameFinal = document.getElementById('player-name-final');
+            const wrongQuestionsListContainer = document.getElementById('wrong-questions-list');
+            const wrongQuestionsUl = document.getElementById('wrong-questions-ul');
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const svg = d3.select("#mindmap-container svg");
-        const g = svg.append("g");
-        const gLinks = g.append("g").attr("class", "links");
-        const gNodes = g.append("g").attr("class", "nodes");
+            // Creator UI
+            const goToCreatorBtn = document.getElementById('go-to-creator-btn');
+            const importQuizBtn = document.getElementById('import-quiz-btn');
+            const importFileInput = document.getElementById('import-file-input');
+            const creatorTitle = document.getElementById('creator-title');
+            const quizTitleInput = document.getElementById('quiz-title');
+            const questionEditorTitle = document.getElementById('question-editor-title');
+            const newQuestionInput = document.getElementById('new-question');
+            const answerInputs = document.querySelectorAll('input[name="answer"]');
+            const correctRadioBtns = document.querySelectorAll('input[name="correct-answer"]');
+            const addQuestionBtn = document.getElementById('add-question-btn');
+            const questionsPreview = document.getElementById('questions-preview');
+            const questionCount = document.getElementById('question-count');
+            const saveQuizBtn = document.getElementById('save-quiz-btn');
+            const cancelCreationBtn = document.getElementById('cancel-creation-btn');
 
-        const sidebar = document.getElementById('sidebar');
-        const widthSlider = document.getElementById('node-width-slider');
-        const heightSlider = document.getElementById('node-height-slider');
-        const widthValueSpan = document.getElementById('width-value');
-        const heightValueSpan = document.getElementById('height-value');
-        const bgColorPicker = document.getElementById('node-bg-color-picker');
-        const textColorPicker = document.getElementById('node-text-color-picker');
-        const boldBtn = document.getElementById('bold-btn');
-        const italicBtn = document.getElementById('italic-btn');
-        const noteEditor = document.getElementById('note-editor');
+            // --- QUIZ DATA & STATE ---
+            const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", answers: [{ text: "TP. Hồ Chí Minh", correct: false }, { text: "Đà Nẵng", correct: false }, { text: "Hà Nội", correct: true }, { text: "Hải Phòng", correct: false }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", answers: [{ text: "Sao Kim", correct: false }, { text: "Sao Hỏa", correct: true }, { text: "Sao Mộc", correct: false }, { text: "Sao Thổ", correct: false }] } ] }];
+            let allQuizzes = [];
+            let currentQuizData = [];
+            let newQuizQuestions = [];
+            let wronglyAnsweredQuestions = [];
+            let initialWrongAnswers = [];
+            let correctAnswersCount, totalQuestionsInRound;
+            let currentQuestionIndex, timerInterval, playerName, selectedQuizIndex;
+            let gameMode, isTimerEnabled, timePerQuestion, isReviewRound;
+            let editingQuizIndex = null, editingQuestionIndex = null;
 
-        let forestData = [], selectedNode, connectionMode = false, connectionStartNode = null;
-        const defaultNodeSize = { width: 160, height: 60 };
-        const treeLayout = d3.tree().nodeSize([120, 220]);
+            // --- CORE FUNCTIONS ---
+            function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
+            function loadQuizzesFromStorage() { const storedQuizzes = localStorage.getItem('allQuizzes'); try { allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz; } catch (e) { allQuizzes = defaultQuiz; } renderQuizList(); }
+            function saveQuizzesToStorage() { localStorage.setItem('allQuizzes', JSON.stringify(allQuizzes)); }
 
-        const zoom = d3.zoom()
-            .scaleExtent([0.1, 2])
-            .on("zoom", (event) => g.attr("transform", event.transform));
-        
-        svg.call(zoom);
-        
-        // --- DATA MANAGEMENT ---
-        function saveData() {
-            if (forestData) {
-                localStorage.setItem('mindmapData', JSON.stringify(forestData));
+            function renderQuizList() {
+                quizListContainer.innerHTML = '';
+                if (allQuizzes.length === 0) { quizListContainer.innerHTML = `<p class="text-center text-gray-500 col-span-full">Chưa có quiz nào. Hãy tạo một cái!</p>`; return; }
+                allQuizzes.forEach((quiz, index) => {
+                    const quizCardContainer = document.createElement('div'); quizCardContainer.className = 'relative group';
+                    const quizCard = document.createElement('div'); quizCard.className = 'p-4 rounded-lg text-white text-center cursor-pointer btn h-full flex flex-col justify-center min-h-[120px]'; quizCard.style.background = `linear-gradient(45deg, hsl(${index*50}, 60%, 50%), hsl(${index*50 + 60}, 60%, 50%))`; quizCard.innerHTML = `<h3 class="text-xl font-bold">${quiz.title}</h3><p>${quiz.questions.length} câu hỏi</p>`;
+                    quizCard.addEventListener('click', () => { selectedQuizIndex = index; showScreen('playerName'); });
+                    const controls = document.createElement('div'); controls.className = 'absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity';
+                    const editBtn = document.createElement('button'); editBtn.className = 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center btn'; editBtn.innerHTML = '<i class="fas fa-pencil-alt fa-xs"></i>'; editBtn.title = 'Sửa quiz này'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); startEditingQuiz(index); });
+                    const deleteBtn = document.createElement('button'); deleteBtn.className = 'bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center btn'; deleteBtn.innerHTML = '<i class="fas fa-trash-alt fa-xs"></i>'; deleteBtn.title = 'Xóa quiz này'; deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); if (confirm(`Bạn có chắc muốn xóa bộ câu hỏi "${quiz.title}" không?`)) { deleteQuiz(index); } });
+                    controls.appendChild(editBtn); controls.appendChild(deleteBtn); quizCardContainer.appendChild(quizCard); quizCardContainer.appendChild(controls); quizListContainer.appendChild(quizCardContainer);
+                });
             }
-        }
 
-        function loadData() {
-            const savedData = localStorage.getItem('mindmapData');
-            try {
-                const data = savedData ? JSON.parse(savedData) : [createDefaultNode("Chủ đề chính")];
-                if (!Array.isArray(data) || data.length === 0) {
-                   return [createDefaultNode("Chủ đề chính")];
+            function deleteQuiz(index) { allQuizzes.splice(index, 1); saveQuizzesToStorage(); renderQuizList(); }
+            function exportQuizToJson(quizData) { const dataStr = JSON.stringify(quizData, null, 2); const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${quizData.title.replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+
+            // --- QUIZ GAME LOGIC ---
+            function startGame() {
+                playerName = playerNameInput.value || "Người chơi";
+                gameMode = document.querySelector('input[name="game-mode"]:checked').value;
+                isTimerEnabled = timerEnabledCheckbox.checked;
+                let timeValue = parseInt(timeValueInput.value) || 15;
+                timePerQuestion = timeUnitSelect.value === 'minutes' ? timeValue * 60 : timeValue;
+                currentQuizData = [...allQuizzes[selectedQuizIndex].questions].sort(() => Math.random() - 0.5);
+                totalQuestionsInRound = currentQuizData.length;
+                wronglyAnsweredQuestions = [];
+                initialWrongAnswers = [];
+                correctAnswersCount = 0;
+                currentQuestionIndex = 0;
+                isReviewRound = false;
+                showScreen('quiz');
+                setNextQuestion();
+            }
+
+            function setNextQuestion() {
+                resetState();
+                if (currentQuestionIndex < currentQuizData.length) {
+                    showQuestion(currentQuizData[currentQuestionIndex]);
+                } else {
+                    if (gameMode === 'practice' && wronglyAnsweredQuestions.length > 0) {
+                        alert(`Bạn đã trả lời sai ${wronglyAnsweredQuestions.length} câu. Hãy làm lại những câu đó!`);
+                        currentQuizData = [...wronglyAnsweredQuestions];
+                        totalQuestionsInRound = currentQuizData.length;
+                        wronglyAnsweredQuestions = [];
+                        currentQuestionIndex = 0;
+                        isReviewRound = true;
+                        setNextQuestion();
+                    } else {
+                        endGame();
+                    }
                 }
-                return data;
-            } catch (e) {
-                return [createDefaultNode("Chủ đề chính")];
             }
-        }
+            
+            function showQuestion(questionData) {
+                questionProgress.textContent = `${currentQuestionIndex + 1}/${totalQuestionsInRound}`;
+                const totalOriginalQuestions = allQuizzes[selectedQuizIndex].questions.length;
+                const percent = totalOriginalQuestions > 0 ? Math.round((correctAnswersCount / totalOriginalQuestions) * 100) : 0;
+                scorePercentDisplay.textContent = `${percent}%`;
+                questionText.textContent = questionData.question;
+                reviewIndicator.classList.toggle('hidden', !isReviewRound);
+                const answerShapes = ['fa-triangle', 'fa-diamond', 'fa-square', 'fa-circle'];
+                const answerColors = ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500'];
+                questionData.answers.forEach((answer, index) => {
+                    const button = document.createElement('button');
+                    button.innerHTML = `<i class="fa-solid ${answerShapes[index]} mr-3"></i><span>${answer.text}</span>`;
+                    button.className = `answer-btn w-full text-white font-bold py-4 px-5 rounded-lg text-left flex items-center text-lg btn ${answerColors[index]}`;
+                    if (answer.correct) button.dataset.correct = true;
+                    button.addEventListener('click', selectAnswer);
+                    answerButtonsContainer.appendChild(button);
+                });
+                if (gameMode === 'test' && isTimerEnabled) {
+                    timerContainer.classList.remove('hidden');
+                    startTimer();
+                } else {
+                    timerContainer.classList.add('hidden');
+                }
+            }
 
-        function createDefaultNode(name, children = []) {
-            const defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
-            const defaultText = getComputedStyle(document.documentElement).getPropertyValue('--node-text').trim();
-            return {
-                id: `node-${Date.now()}-${Math.random()}`,
-                name: name || "Nút mới",
-                shape: "rectangle",
-                width: defaultNodeSize.width,
-                height: defaultNodeSize.height,
-                backgroundColor: defaultBg,
-                textColor: defaultText,
-                fontSize: 14,
-                isBold: false,
-                isItalic: false,
-                note: "",
-                connections: [],
-                children: children
-            };
-        }
+            function resetState() { clearInterval(timerInterval); answerButtonsContainer.innerHTML = ''; }
 
-        // --- D3 RENDERING ---
-        function update() {
-            const allNodes = [];
-            const allLinks = [];
-            let offsetX = 0;
+            function selectAnswer(e) {
+                clearInterval(timerInterval);
+                const selectedBtn = e.currentTarget;
+                const isCorrect = selectedBtn.dataset.correct === 'true';
+                const currentQuestion = currentQuizData[currentQuestionIndex];
 
-            forestData.forEach(rootNodeData => {
-                const hierarchyRoot = d3.hierarchy(rootNodeData);
-                const tree = treeLayout(hierarchyRoot);
-                const nodes = tree.descendants();
-                const links = tree.links();
-
-                nodes.forEach(node => {
-                    node.y_offset = node.y + offsetX;
+                if (isCorrect) {
+                    if (!isReviewRound) correctAnswersCount++;
+                } else {
+                    wronglyAnsweredQuestions.push(currentQuestion);
+                    if (!isReviewRound) {
+                        initialWrongAnswers.push(currentQuestion);
+                    }
+                }
+                
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    if (button.dataset.correct) button.classList.add('correct');
+                    else if (button === selectedBtn) button.classList.add('wrong');
+                    button.disabled = true;
                 });
 
-                allNodes.push(...nodes);
-                allLinks.push(...links);
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    setNextQuestion();
+                }, 1500);
+            }
 
-                if (nodes.length > 1) {
-                    const yCoords = nodes.map(d => d.y);
-                    const min_y = d3.min(yCoords);
-                    const max_y = d3.max(yCoords);
-                    offsetX += (max_y - min_y) + 250; 
-                } else if (nodes.length === 1) {
-                    offsetX += (nodes[0].data.width || defaultNodeSize.width) + 250;
+            function startTimer() {
+                let timeLeft = timePerQuestion;
+                timerBar.style.width = '100%'; timerBar.style.backgroundPosition = '0%';
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    const widthPercentage = (timeLeft / timePerQuestion) * 100;
+                    timerBar.style.width = `${widthPercentage}%`; timerBar.style.backgroundPosition = `${100 - widthPercentage}%`;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        const currentQuestion = currentQuizData[currentQuestionIndex];
+                        if (gameMode === 'practice') {
+                            wronglyAnsweredQuestions.push(currentQuestion);
+                            if (!isReviewRound) { initialWrongAnswers.push(currentQuestion); }
+                        }
+                        Array.from(answerButtonsContainer.children).forEach(button => { if (button.dataset.correct) button.classList.add('correct'); button.disabled = true; });
+                        setTimeout(() => { currentQuestionIndex++; setNextQuestion(); }, 1500);
+                    }
+                }, 1000);
+            }
+
+            function endGame() {
+                showScreen('end');
+                playerNameFinal.textContent = playerName;
+                const totalQuestions = allQuizzes[selectedQuizIndex].questions.length;
+                const finalPercent = totalQuestions > 0 ? Math.round((correctAnswersCount / totalQuestions) * 100) : 0;
+                
+                wrongQuestionsListContainer.classList.add('hidden');
+                
+                if (gameMode === 'practice') {
+                    endTitle.textContent = "Luyện tập hoàn tất!";
+                    endMessage.innerHTML = `Chúc mừng bạn đã trả lời đúng 100% tất cả các câu hỏi!`;
+                    if (initialWrongAnswers.length > 0) {
+                        wrongQuestionsListContainer.classList.remove('hidden');
+                        wrongQuestionsUl.innerHTML = '';
+                        initialWrongAnswers.forEach(q => {
+                            const li = document.createElement('li');
+                            li.textContent = q.question;
+                            wrongQuestionsUl.appendChild(li);
+                        });
+                    }
+                } else {
+                    endTitle.textContent = "Hoàn thành!";
+                    endMessage.innerHTML = `Tỷ lệ đúng của bạn là: <span class="font-bold text-green-500">${finalPercent}%</span>`;
                 }
+            }
+
+            // --- QUIZ CREATOR LOGIC ---
+            function resetCreatorForm() { editingQuizIndex = null; creatorTitle.textContent = 'Tạo Quiz Mới'; saveQuizBtn.textContent = 'Lưu và Tải về'; quizTitleInput.value = ''; newQuizQuestions = []; updateQuestionPreview(); resetQuestionForm(); }
+            function resetQuestionForm() { editingQuestionIndex = null; questionEditorTitle.textContent = 'Thêm câu hỏi mới'; addQuestionBtn.textContent = 'Thêm câu hỏi này'; addQuestionBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600'); addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600'); newQuestionInput.value = ''; answerInputs.forEach(input => input.value = ''); correctRadioBtns[0].checked = true; }
+            
+            function updateQuestionPreview() {
+                questionsPreview.innerHTML = '';
+                questionCount.textContent = newQuizQuestions.length;
+                newQuizQuestions.forEach((q, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between p-1 bg-gray-200 dark:bg-gray-700 rounded text-sm';
+                    item.innerHTML = `<span class="flex-1 mr-2 truncate">${index + 1}. ${q.question}</span><div class="flex gap-2 flex-shrink-0"><button data-edit-question="${index}" class="text-blue-500 hover:text-blue-700"><i class="fas fa-pencil-alt fa-xs"></i></button><button data-delete-question="${index}" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt fa-xs"></i></button></div>`;
+                    questionsPreview.appendChild(item);
+                });
+            }
+            
+            questionsPreview.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('[data-edit-question]'); const deleteBtn = e.target.closest('[data-delete-question]');
+                if (editBtn) { loadQuestionForEdit(parseInt(editBtn.dataset.editQuestion)); }
+                if (deleteBtn) { if (confirm('Bạn có chắc muốn xóa câu hỏi này?')) { deleteQuestion(parseInt(deleteBtn.dataset.deleteQuestion)); } }
             });
 
-            gLinks.selectAll("path.link")
-                .data(allLinks, d => d.target.data.id)
-                .join("path")
-                .attr("class", "link")
-                .attr("d", d => `M${d.source.y_offset},${d.source.x}C${(d.source.y_offset + d.target.y_offset)/2},${d.source.x} ${(d.source.y_offset + d.target.y_offset)/2},${d.target.x} ${d.target.y_offset},${d.target.x}`);
-            
-            const node = gNodes.selectAll("g.node")
-                .data(allNodes, d => d.data.id)
-                .join(
-                    enter => enter.append("g")
-                        .attr("class", "node")
-                        .attr("transform", d => `translate(${d.y_offset},${d.x})`)
-                        .on("click", handleNodeClick)
-                        .each(function(d) { // 'each' to correctly scope 'this'
-                            const group = d3.select(this);
-                            let shape;
-                            if (d.data.shape === 'rectangle') shape = group.append("rect").attr("rx", 8).attr("ry", 8);
-                            else if (d.data.shape === 'ellipse') shape = group.append("ellipse");
-                            else if (d.data.shape === 'diamond') shape = group.append("path");
-                            else shape = group.append("rect").attr("rx", 8).attr("ry", 8); // Default
-                            shape.attr("class", "shape");
-
-                            const fo = group.append("foreignObject")
-                                .on("dblclick", (event) => { 
-                                    event.stopPropagation(); 
-                                    editNodeText(d, d3.select(this).select("foreignObject")); 
-                                });
-
-                            fo.append("xhtml:div")
-                                .attr("class", "node-foreign-object")
-                                .append("xhtml:div")
-                                .attr("class", "node-text-div");
-
-                            group.append("text")
-                                .attr("class", "note-icon")
-                                .text("📝");
-                        }),
-                    update => update,
-                    exit => exit.remove()
-                );
-            
-            node.transition().duration(500).attr("transform", d => `translate(${d.y_offset},${d.x})`);
-            
-            node.select(".shape")
-                .each(function(d) {
-                    const shape = d3.select(this);
-                    const data = d.data;
-                    const nodeWidth = data.width || defaultNodeSize.width;
-                    const nodeHeight = data.height || defaultNodeSize.height;
-                    
-                    shape.style("fill", data.backgroundColor);
-                    if (data.shape === 'rectangle') shape.attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2);
-                    else if (data.shape === 'ellipse') shape.attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
-                    else if (data.shape === 'diamond') {
-                        const w = nodeWidth / 2; const h = nodeHeight / 2;
-                        shape.attr("d", `M 0 ${-h} L ${w} 0 L 0 ${h} L ${-w} 0 Z`);
-                    }
-                });
-
-            node.select("foreignObject")
-                .attr("width", d => (d.data.width || defaultNodeSize.width) - 10)
-                .attr("height", d => (d.data.height || defaultNodeSize.height) - 10)
-                .attr("x", d => -(d.data.width || defaultNodeSize.width) / 2 + 5)
-                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 5);
-            
-            node.select(".node-text-div")
-                .style("font-weight", d => d.data.isBold ? "bold" : "normal")
-                .style("font-style", d => d.data.isItalic ? "italic" : "normal")
-                .style("font-size", d => (d.data.fontSize || 14) + 'px')
-                .style("color", d => d.data.textColor)
-                .html(d => d.data.name);
-
-            node.select(".note-icon")
-                .attr("x", d => (d.data.width || defaultNodeSize.width) / 2 - 20)
-                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 15)
-                .style("display", d => (d.data.note && d.data.note.trim() !== "") ? "block" : "none");
-        }
-        
-        // --- INTERACTIONS ---
-        function handleNodeClick(event, d) {
-            event.stopPropagation();
-            selectNode(d);
-        }
-
-        function selectNode(d) {
-            if (selectedNode) d3.selectAll(".node").filter(nd => nd.data.id === selectedNode.data.id).classed("selected", false);
-            selectedNode = d;
-            d3.selectAll(".node").filter(nd => nd.data.id === d.data.id).classed("selected", true);
-            updateSidebar();
-            sidebar.classList.add('visible');
-        }
-        
-        function deselectAll() {
-            if (selectedNode) d3.selectAll(".node").classed("selected", false);
-            selectedNode = null;
-            sidebar.classList.remove('visible');
-        }
-
-        function updateSidebar() {
-            if (!selectedNode) return;
-            const data = selectedNode.data;
-            widthSlider.value = data.width || defaultNodeSize.width;
-            heightSlider.value = data.height || defaultNodeSize.height;
-            widthValueSpan.textContent = widthSlider.value;
-            heightValueSpan.textContent = heightValueSpan.value;
-            bgColorPicker.value = data.backgroundColor;
-            textColorPicker.value = data.textColor;
-            boldBtn.classList.toggle('active', !!data.isBold);
-            italicBtn.classList.toggle('active', !!data.isItalic);
-            noteEditor.value = data.note || "";
-        }
-
-        function editNodeText(d, foreignObject) {
-            const div = foreignObject.select(".node-text-div");
-            div.style("display", "none");
-
-            const input = foreignObject.select(".node-foreign-object").append("xhtml:textarea")
-                .attr("class", "node-input")
-                .style("font-weight", d.data.isBold ? "bold" : "normal")
-                .style("font-style", d.data.isItalic ? "italic" : "normal")
-                .style("font-size", (d.data.fontSize || 14) + 'px')
-                .html(d.data.name)
-                .on("blur", function() {
-                    d.data.name = this.value;
-                    update(); // Redraw to apply changes
-                    saveData();
-                    d3.select(this).remove();
-                    div.style("display", "flex"); // Show the div again
-                })
-                .on("keydown", function(event) {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                        event.preventDefault();
-                        this.blur();
-                    }
-                });
-            
-            input.node().focus();
-            input.node().select();
-        }
-
-        function addNode(isSibling) {
-            if (!selectedNode) { alert("Vui lòng chọn một nút!"); return; }
-            const newNodeData = createDefaultNode();
-            let parentData;
-
-            if (isSibling) {
-                if (!selectedNode.parent) {
-                     alert("Không thể thêm nút ngang hàng cho chủ đề chính.");
-                     return;
-                }
-                parentData = selectedNode.parent.data;
-            } else {
-                 parentData = selectedNode.data;
-            }
-
-            if (!parentData.children) parentData.children = [];
-            parentData.children.push(newNodeData);
-            
-            update();
-            saveData();
-        }
-
-        function deleteNode() {
-            if (!selectedNode) return;
-            if (!selectedNode.parent) {
-                if (forestData.length <= 1) {
-                    alert("Không thể xóa chủ đề chính cuối cùng!");
-                    return;
-                }
-                forestData = forestData.filter(root => root.id !== selectedNode.data.id);
-            } else {
-                const parentData = selectedNode.parent.data;
-                const index = parentData.children.findIndex(child => child.id === selectedNode.data.id);
-                if (index > -1) parentData.children.splice(index, 1);
+            function loadQuestionForEdit(index) {
+                editingQuestionIndex = index; const questionData = newQuizQuestions[index];
+                questionEditorTitle.textContent = `Sửa câu hỏi ${index + 1}`; addQuestionBtn.textContent = 'Cập nhật câu hỏi'; addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600'); addQuestionBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                newQuestionInput.value = questionData.question;
+                questionData.answers.forEach((ans, i) => { answerInputs[i].value = ans.text; if (ans.correct) { correctRadioBtns[i].checked = true; } });
             }
             
-            deselectAll();
-            update();
-            saveData();
-        }
-
-        function setShape(shape) {
-            if (selectedNode) { selectedNode.data.shape = shape; update(); saveData(); }
-        }
-        
-        function zoomToFit() {
-            const bounds = g.node().getBBox();
-            const parent = svg.node().parentElement;
-            const fullWidth = parent.clientWidth, fullHeight = parent.clientHeight;
-            if (bounds.width === 0 || bounds.height === 0) return;
-            const scale = 0.9 / Math.max(bounds.width / fullWidth, bounds.height / fullHeight);
-            const translate = [
-                fullWidth / 2 - scale * (bounds.x + bounds.width / 2), 
-                fullHeight / 2 - scale * (bounds.y + bounds.height / 2)
-            ];
-
-            const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
-            svg.transition().duration(750).call(zoom.transform, transform);
-        }
-
-        // --- EVENT LISTENERS ---
-        document.getElementById('add-root-btn').onclick = () => {
-            forestData.push(createDefaultNode("Chủ đề mới"));
-            update();
-            saveData();
-        };
-        document.getElementById('add-child-btn').onclick = () => addNode(false);
-        document.getElementById('add-sibling-btn').onclick = () => addNode(true);
-        document.getElementById('delete-btn').onclick = deleteNode;
-        document.getElementById('shape-rect-btn').onclick = () => setShape('rectangle');
-        document.getElementById('shape-ellipse-btn').onclick = () => setShape('ellipse');
-        document.getElementById('shape-diamond-btn').onclick = () => setShape('diamond');
-        
-        widthSlider.oninput = (e) => { if(selectedNode) { selectedNode.data.width = +e.target.value; widthValueSpan.textContent = e.target.value; update(); saveData(); } };
-        heightSlider.oninput = (e) => { if(selectedNode) { selectedNode.data.height = +e.target.value; heightValueSpan.textContent = e.target.value; update(); saveData(); } };
-        bgColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.backgroundColor = e.target.value; update(); saveData(); } };
-        textColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.textColor = e.target.value; update(); saveData(); } };
-        boldBtn.onclick = () => { if(selectedNode) { selectedNode.data.isBold = !selectedNode.data.isBold; update(); updateSidebar(); saveData(); } };
-        italicBtn.onclick = () => { if(selectedNode) { selectedNode.data.isItalic = !selectedNode.data.isItalic; update(); updateSidebar(); saveData(); } };
-        document.getElementById('font-size-increase-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) + 1; update(); saveData(); } };
-        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = Math.max(8, (selectedNode.data.fontSize || 14) - 1); update(); saveData(); } };
-        noteEditor.onblur = (e) => { if(selectedNode) { selectedNode.data.note = e.target.value; update(); saveData(); } };
-        
-        svg.on('click', (event) => {
-            if (event.target === svg.node()) {
-                deselectAll();
+            function deleteQuestion(index) { newQuizQuestions.splice(index, 1); updateQuestionPreview(); if(editingQuestionIndex === index) { resetQuestionForm(); } }
+            
+            function startEditingQuiz(index) {
+                resetCreatorForm(); editingQuizIndex = index; const quizToEdit = allQuizzes[index];
+                creatorTitle.textContent = `Chỉnh sửa Quiz: ${quizToEdit.title}`; saveQuizBtn.textContent = 'Lưu thay đổi và Tải về';
+                quizTitleInput.value = quizToEdit.title; newQuizQuestions = JSON.parse(JSON.stringify(quizToEdit.questions));
+                updateQuestionPreview(); showScreen('creator');
             }
-        });
 
-        d3.select("body").on("keydown", function(event) {
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
-            if (!selectedNode) return;
-            switch (event.key) {
-                case "Tab": event.preventDefault(); addNode(false); break;
-                case "Enter": event.preventDefault(); addNode(true); break;
-                case "Delete": case "Backspace": event.preventDefault(); deleteNode(); break;
-            }
-        });
+            addQuestionBtn.addEventListener('click', () => {
+                const question = newQuestionInput.value.trim(); const answers = Array.from(answerInputs).map(input => input.value.trim()); const correctIndex = document.querySelector('input[name="correct-answer"]:checked').value;
+                if (!question || answers.some(a => a === '')) { alert('Vui lòng điền đầy đủ nội dung câu hỏi và các lựa chọn.'); return; }
+                const questionData = { question: question, answers: answers.map((text, index) => ({ text: text, correct: index == correctIndex })) };
+                if (editingQuestionIndex !== null) { newQuizQuestions[editingQuestionIndex] = questionData; } else { newQuizQuestions.push(questionData); }
+                updateQuestionPreview(); resetQuestionForm(); newQuestionInput.focus();
+            });
 
-        document.getElementById('export-json-btn').onclick = () => {
-            const dataStr = JSON.stringify(forestData, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url; a.download = "mindmap.json"; a.click(); URL.revokeObjectURL(url);
-        };
-
-        document.getElementById('import-file').onchange = (event) => {
-            const file = event.target.files[0];
-            if (file) {
+            saveQuizBtn.addEventListener('click', () => {
+                const title = quizTitleInput.value.trim();
+                if (!title) { alert('Vui lòng nhập tên cho bộ câu hỏi.'); return; }
+                if (newQuizQuestions.length === 0) { alert('Vui lòng thêm ít nhất một câu hỏi.'); return; }
+                const newQuiz = { title: title, questions: newQuizQuestions };
+                if (editingQuizIndex !== null) { allQuizzes[editingQuizIndex] = newQuiz; alert('Đã cập nhật quiz thành công!'); } else { allQuizzes.push(newQuiz); }
+                exportQuizToJson(newQuiz); saveQuizzesToStorage(); renderQuizList(); showScreen('home');
+            });
+            
+            importQuizBtn.addEventListener('click', () => importFileInput.click());
+            importFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0]; if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        const importedData = JSON.parse(e.target.result);
-                        if(Array.isArray(importedData)) {
-                            forestData = importedData;
-                            update();
-                            saveData();
-                            zoomToFit();
-                        } else {
-                            alert("File JSON không có cấu trúc hợp lệ.");
-                        }
-                    } catch (err) { alert("File không hợp lệ hoặc bị lỗi!"); }
+                        const importedQuiz = JSON.parse(e.target.result);
+                        if (importedQuiz.title && Array.isArray(importedQuiz.questions)) { allQuizzes.push(importedQuiz); saveQuizzesToStorage(); renderQuizList(); alert(`Đã nhập thành công quiz: "${importedQuiz.title}"`); } else { alert('File JSON không hợp lệ.'); }
+                    } catch (error) { alert('Lỗi khi đọc file. Vui lòng kiểm tra lại file JSON.'); }
                 };
-                reader.readAsText(file);
-            }
-        };
-        
-        // =============================================================
-        //  PDF EXPORT FUNCTION - NEW ROBUST METHOD
-        // =============================================================
-        document.getElementById('export-pdf-btn').onclick = () => {
-            const { jsPDF } = window.jspdf;
-            const svgElement = svg.node();
+                reader.readAsText(file); importFileInput.value = '';
+            });
+
+            // --- EVENT LISTENERS ---
+            startBtn.addEventListener('click', startGame);
+            backToHomeBtn.addEventListener('click', () => showScreen('home'));
+            backFromPlayerNameBtn.addEventListener('click', () => showScreen('home'));
+            goToCreatorBtn.addEventListener('click', () => { resetCreatorForm(); showScreen('creator'); });
+            cancelCreationBtn.addEventListener('click', () => { showScreen('home'); });
             
-            deselectAll(); 
+            // Settings listeners
+            gameModeRadios.forEach(radio => radio.addEventListener('change', () => {
+                timerSettingsDiv.style.display = radio.value === 'test' ? 'block' : 'none';
+            }));
+            timerEnabledCheckbox.addEventListener('change', () => {
+                timerOptionsDiv.style.display = timerEnabledCheckbox.checked ? 'flex' : 'none';
+            });
 
-            // 1. Get the bounding box of the whole mindmap content
-            const originalTransform = g.attr("transform");
-            g.attr("transform", ""); // Reset for accurate bbox calculation
-            const bounds = g.node().getBBox();
-            g.attr("transform", originalTransform); // Restore original transform
-
-            if (bounds.width === 0 || bounds.height === 0) {
-                alert("Không có nội dung để xuất.");
-                return;
-            }
-
-            const padding = 50;
-            const imageWidth = bounds.width + padding * 2;
-            const imageHeight = bounds.height + padding * 2;
-
-            // 2. Create a temporary clone of the SVG to manipulate for export
-            const svgClone = svgElement.cloneNode(true);
-            const gClone = d3.select(svgClone).select('g');
-            
-            // Set clone's dimensions and position content inside
-            d3.select(svgClone)
-                .attr("width", imageWidth)
-                .attr("height", imageHeight)
-                .style("background-color", getComputedStyle(document.body).getPropertyValue('--bg-main').trim());
-
-            gClone.attr('transform', `translate(${-bounds.x + padding}, ${-bounds.y + padding})`);
-
-            // 3. Serialize the SVG clone to an XML string
-            const serializer = new XMLSerializer();
-            let svgString = serializer.serializeToString(svgClone);
-
-            // 4. Create a data URL from the SVG string
-            const svgBlob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-            const url = URL.createObjectURL(svgBlob);
-
-            // 5. Use an Image object to render the SVG, then draw to a canvas
-            const img = new Image();
-            img.onload = function() {
-                // Create a temporary canvas
-                const canvas = document.createElement('canvas');
-                canvas.width = imageWidth;
-                canvas.height = imageHeight;
-                const ctx = canvas.getContext('2d');
-                
-                // Fill background on canvas
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-main').trim();
-                ctx.fillRect(0, 0, imageWidth, imageHeight);
-
-                // Draw the rendered SVG image onto the canvas
-                ctx.drawImage(img, 0, 0);
-
-                // Clean up the object URL
-                URL.revokeObjectURL(url);
-
-                // 6. Create PDF from the canvas image data
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({
-                    orientation: imageWidth > imageHeight ? 'landscape' : 'portrait',
-                    unit: 'px',
-                    format: [imageWidth, imageHeight]
-                });
-
-                pdf.addImage(imgData, 'PNG', 0, 0, imageWidth, imageHeight);
-                pdf.save("mindmap.pdf");
-            };
-            
-            img.onerror = function(e) {
-                console.error("Lỗi khi tải ảnh SVG:", e);
-                alert("Đã xảy ra lỗi trong quá trình tạo ảnh từ mindmap. Vui lòng thử lại.");
-                URL.revokeObjectURL(url);
-            }
-
-            img.src = url;
-        };
-
-        // --- INITIALIZE ---
-        function initializeApp() {
-            forestData = loadData();
-            update();
-            if(forestData.length > 0) {
-                const hierarchy = d3.hierarchy(forestData[0]);
-                selectNode(hierarchy);
-            }
-            setTimeout(zoomToFit, 100); // Delay to ensure layout is stable
-        }
-
-        initializeApp();
-    });
-  </script>
+            // --- INITIALIZATION ---
+            loadQuizzesFromStorage();
+            showScreen('home');
+        });
+    </script>
 </body>
 </html>
