@@ -207,6 +207,7 @@
     .node-foreign-object {
       text-align: center; padding: 5px; box-sizing: border-box;
       overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;
+      pointer-events: none;
     }
     .node-text-div {
         color: var(--node-text);
@@ -357,7 +358,7 @@
         const noteEditor = document.getElementById('note-editor');
         const savedMapsList = document.getElementById('saved-maps-list');
 
-        let root, selectedNode, i = 0, connectionMode = false, connectionStartNode = null;
+        let root, selectedNode, connectionMode = false, connectionStartNode = null;
         let activeMapId = null;
         const defaultNodeSize = { width: 160, height: 60 };
         const treeLayout = d3.tree().nodeSize([120, 220]);
@@ -458,7 +459,7 @@
                 if (newCollection.length > 0) {
                     loadMap(newCollection.sort((a,b) => b.lastModified - a.lastModified)[0].id);
                 } else {
-                    handleNewBtnClick(true); // Tạo mới mà không lưu cái cũ (vì nó đã bị xóa)
+                    handleNewBtnClick(true);
                 }
             }
             renderSavedMapsList();
@@ -645,6 +646,7 @@
                 selectedNode.data.children.push(newNodeData);
             }
             
+            root = d3.hierarchy(root.data); // SỬA LỖI Ở ĐÂY
             update(root);
             saveActiveMapData();
         }
@@ -655,6 +657,7 @@
             const index = parent.data.children.indexOf(selectedNode.data);
             if (index > -1) parent.data.children.splice(index, 1);
             
+            root = d3.hierarchy(root.data); // SỬA LỖI Ở ĐÂY
             update(root);
             deselectAll();
             saveActiveMapData();
