@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        /* THÊM LẠI: CSS để footer luôn ở cuối trang */
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: #f0f2f5;
@@ -21,7 +20,7 @@
         }
         .app-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            flex-grow: 1; /* Giúp nội dung chính co giãn */
+            flex-grow: 1;
             padding: 1.5rem;
             display: flex;
             align-items: center;
@@ -32,10 +31,13 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            height: calc(100vh - 3rem - 2rem); /* Điều chỉnh chiều cao cho phù hợp */
-            max-height: 850px;
+            /* SỬA: Xóa dòng height cố định này đi. Flexbox sẽ tự xử lý. */
+            /* height: calc(100vh - 3rem - 2rem); */
+            max-height: 850px; /* Giữ lại max-height để giao diện không quá dài trên màn hình lớn */
             display: flex;
             flex-direction: column;
+            padding: 2rem; /* Thêm padding cho card đẹp hơn */
+            border-radius: 1.5rem; /* Tăng bo góc cho card */
         }
         .dark .card {
             background-color: rgba(26, 26, 46, 0.85);
@@ -51,11 +53,11 @@
         
         .answer-btn {
             background-color: white;
-            color: #1f2937; /* text-gray-800 */
-            border: 2px solid #d1d5db; /* border-gray-300 */
+            color: #1f2937;
+            border: 2px solid #d1d5db;
         }
         .answer-btn:hover {
-            background-color: #f3f4f6; /* bg-gray-100 */
+            background-color: #f3f4f6;
         }
         .answer-btn.correct {
             background-color: #28a745 !important; 
@@ -75,7 +77,6 @@
             transition: width 1s linear, background-position 1s linear;
             border-radius: 8px;
         }
-        /* Custom radio/checkbox */
         .custom-control input { display: none; }
         .custom-control span {
             height: 20px; width: 20px; border: 2px solid #9ca3af;
@@ -105,7 +106,7 @@
     <div class="app-container">
         <div class="w-full max-w-screen-xl mx-auto z-10">
 
-            <div id="home-screen" class="card p-8 rounded-2xl shadow-2xl text-black">
+            <div id="home-screen" class="card shadow-2xl text-black">
                 <div class="text-center flex-shrink-0">
                     <i class="fas fa-rocket text-5xl text-purple-500 mb-4"></i>
                     <h1 class="text-4xl font-bold mb-2">Chào mừng đến Quiz Vui!</h1>
@@ -127,7 +128,7 @@
                 </div>
             </div>
 
-            <div id="player-name-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
+            <div id="player-name-screen" class="hidden card shadow-2xl text-center text-black justify-center">
                  <h1 class="text-3xl font-bold mb-4">Sẵn sàng chơi!</h1>
                  <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
                  
@@ -164,7 +165,7 @@
                  </div>
             </div>
             
-            <div id="quiz-screen" class="hidden card p-6 sm:p-8 rounded-2xl shadow-2xl text-black justify-center">
+            <div id="quiz-screen" class="hidden card shadow-2xl text-black justify-center">
                 <div>
                     <div class="flex justify-between items-center mb-4">
                         <div class="text-lg font-bold">Câu hỏi: <span id="question-progress">1/10</span></div>
@@ -180,7 +181,7 @@
                 </div>
             </div>
 
-            <div id="end-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
+            <div id="end-screen" class="hidden card shadow-2xl text-center text-black justify-center">
                 <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
                 <h1 id="end-title" class="text-4xl font-bold mb-2">Hoàn thành!</h1>
                 <p class="text-xl text-black mb-1">Chúc mừng, <span id="player-name-final" class="font-bold text-purple-500"></span>!</p>
@@ -190,7 +191,7 @@
                 </button>
             </div>
 
-            <div id="creator-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-black">
+            <div id="creator-screen" class="hidden card shadow-2xl text-black">
                 <div class="flex-shrink-0">
                     <h1 id="creator-title" class="text-3xl font-bold mb-6 text-center">Tạo Quiz Mới</h1>
                     <div class="mb-6">
@@ -236,7 +237,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // THÊM LẠI: Hàm để tải header và footer
             const loadComponents = () => {
                 const headerPlaceholder = document.getElementById('main-header');
                 const footerPlaceholder = document.getElementById('main-footer');
@@ -259,15 +259,13 @@
             const backToHomeBtn = document.getElementById('back-to-home-btn');
             const backFromPlayerNameBtn = document.getElementById('back-from-player-name-btn');
             
-            // Settings UI
+            // ... (phần còn lại của JS giữ nguyên không đổi)
             const gameModeRadios = document.querySelectorAll('input[name="game-mode"]');
             const timerSettingsDiv = document.getElementById('timer-settings');
             const timerEnabledCheckbox = document.getElementById('timer-enabled');
             const timerOptionsDiv = document.getElementById('timer-options');
             const timeValueInput = document.getElementById('time-value');
             const timeUnitSelect = document.getElementById('time-unit');
-
-            // Quiz UI
             const questionProgress = document.getElementById('question-progress');
             const scorePercentDisplay = document.getElementById('score-percent');
             const timerContainer = document.getElementById('timer-container');
@@ -279,8 +277,6 @@
             const playerNameFinal = document.getElementById('player-name-final');
             const finalScorePercentDisplay = document.getElementById('final-score-percent');
             const quizListContainer = document.getElementById('quiz-list');
-
-            // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
             const importQuizBtn = document.getElementById('import-quiz-btn');
             const importFileInput = document.getElementById('import-file-input');
@@ -295,8 +291,6 @@
             const questionCount = document.getElementById('question-count');
             const saveQuizBtn = document.getElementById('save-quiz-btn');
             const cancelCreationBtn = document.getElementById('cancel-creation-btn');
-
-            // --- QUIZ DATA & STATE ---
             const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", answers: [{ text: "TP. Hồ Chí Minh", correct: false }, { text: "Đà Nẵng", correct: false }, { text: "Hà Nội", correct: true }, { text: "Hải Phòng", correct: false }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", answers: [{ text: "Sao Kim", correct: false }, { text: "Sao Hỏa", correct: true }, { text: "Sao Mộc", correct: false }, { text: "Sao Thổ", correct: false }] } ] }];
             let allQuizzes = [];
             let currentQuizData = [];
@@ -306,12 +300,9 @@
             let currentQuestionIndex, timerInterval, playerName, selectedQuizIndex;
             let gameMode, isTimerEnabled, timePerQuestion;
             let editingQuizIndex = null, editingQuestionIndex = null;
-
-            // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
             function loadQuizzesFromStorage() { const storedQuizzes = localStorage.getItem('allQuizzes'); try { allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz; } catch (e) { allQuizzes = defaultQuiz; } renderQuizList(); }
             function saveQuizzesToStorage() { localStorage.setItem('allQuizzes', JSON.stringify(allQuizzes)); }
-
             function renderQuizList() {
                 quizListContainer.innerHTML = '';
                 if (allQuizzes.length === 0) { quizListContainer.innerHTML = `<p class="text-center text-gray-500 col-span-full">Chưa có quiz nào. Hãy tạo một cái!</p>`; return; }
@@ -325,29 +316,22 @@
                     controls.appendChild(editBtn); controls.appendChild(deleteBtn); quizCardContainer.appendChild(quizCard); quizCardContainer.appendChild(controls); quizListContainer.appendChild(quizCardContainer);
                 });
             }
-
             function deleteQuiz(index) { allQuizzes.splice(index, 1); saveQuizzesToStorage(); renderQuizList(); }
             function exportQuizToJson(quizData) { const dataStr = JSON.stringify(quizData, null, 2); const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${quizData.title.replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-
-            // --- QUIZ GAME LOGIC ---
             function startGame() {
                 playerName = playerNameInput.value || "Người chơi";
                 gameMode = document.querySelector('input[name="game-mode"]:checked').value;
                 isTimerEnabled = timerEnabledCheckbox.checked;
-                
                 let timeValue = parseInt(timeValueInput.value) || 15;
                 timePerQuestion = timeUnitSelect.value === 'minutes' ? timeValue * 60 : timeValue;
-
-                currentQuizData = [...allQuizzes[selectedQuizIndex].questions].sort(() => Math.random() - 0.5); // Shuffle questions
+                currentQuizData = [...allQuizzes[selectedQuizIndex].questions].sort(() => Math.random() - 0.5);
                 totalQuestionsInRound = currentQuizData.length;
                 wronglyAnsweredQuestions = [];
                 correctAnswersCount = 0;
                 currentQuestionIndex = 0;
-                
                 showScreen('quiz');
                 setNextQuestion();
             }
-
             function setNextQuestion() {
                 resetState();
                 if (currentQuestionIndex < currentQuizData.length) {
@@ -365,25 +349,21 @@
                     }
                 }
             }
-            
             function showQuestion(questionData) {
                 questionProgress.textContent = `${currentQuestionIndex + 1}/${totalQuestionsInRound}`;
                 const percent = totalQuestionsInRound > 0 ? Math.round((correctAnswersCount / totalQuestionsInRound) * 100) : 0;
                 scorePercentDisplay.textContent = `${percent}%`;
                 questionText.textContent = questionData.question;
                 const answerShapes = ['fa-triangle', 'fa-diamond', 'fa-square', 'fa-circle'];
-                
                 questionData.answers.forEach((answer, index) => {
                     const button = document.createElement('button');
                     const iconColorClass = ['text-red-500', 'text-blue-500', 'text-yellow-500', 'text-green-500'][index];
                     button.innerHTML = `<i class="fa-solid ${answerShapes[index]} mr-3 ${iconColorClass}"></i><span>${answer.text}</span>`;
                     button.className = `answer-btn w-full font-bold py-4 px-5 rounded-lg text-left flex items-center text-lg btn`;
-                    
                     if (answer.correct) button.dataset.correct = true;
                     button.addEventListener('click', selectAnswer);
                     answerButtonsContainer.appendChild(button);
                 });
-
                 if (gameMode === 'test' && isTimerEnabled) {
                     timerContainer.classList.remove('hidden');
                     startTimer();
@@ -391,14 +371,11 @@
                     timerContainer.classList.add('hidden');
                 }
             }
-
             function resetState() { clearInterval(timerInterval); answerButtonsContainer.innerHTML = ''; }
-
             function selectAnswer(e) {
                 clearInterval(timerInterval);
                 const selectedBtn = e.currentTarget;
                 const isCorrect = selectedBtn.dataset.correct === 'true';
-
                 if (isCorrect) {
                     correctAnswersCount++;
                 } else {
@@ -406,7 +383,6 @@
                         wronglyAnsweredQuestions.push(currentQuizData[currentQuestionIndex]);
                     }
                 }
-                
                 Array.from(answerButtonsContainer.children).forEach(button => {
                     if (button.dataset.correct) {
                         button.classList.add('correct');
@@ -415,13 +391,11 @@
                     }
                     button.disabled = true;
                 });
-
                 setTimeout(() => {
                     currentQuestionIndex++;
                     setNextQuestion();
                 }, 1500);
             }
-
             function startTimer() {
                 let timeLeft = timePerQuestion;
                 timerBar.style.width = '100%'; timerBar.style.backgroundPosition = '0%';
@@ -439,13 +413,11 @@
                     }
                 }, 1000);
             }
-
             function endGame() {
                 showScreen('end');
                 playerNameFinal.textContent = playerName;
                 const totalQuestions = allQuizzes[selectedQuizIndex].questions.length;
                 const finalPercent = totalQuestions > 0 ? Math.round((correctAnswersCount / totalQuestions) * 100) : 0;
-                
                 if (gameMode === 'practice') {
                     endTitle.textContent = "Luyện tập hoàn tất!";
                     endMessage.innerHTML = `Chúc mừng bạn đã trả lời đúng 100% tất cả các câu hỏi!`;
@@ -454,11 +426,8 @@
                     endMessage.innerHTML = `Tỷ lệ đúng của bạn là: <span id="final-score-percent" class="font-bold text-green-500">${finalPercent}%</span>`;
                 }
             }
-
-            // --- QUIZ CREATOR LOGIC ---
             function resetCreatorForm() { editingQuizIndex = null; creatorTitle.textContent = 'Tạo Quiz Mới'; saveQuizBtn.textContent = 'Lưu và Tải về'; quizTitleInput.value = ''; newQuizQuestions = []; updateQuestionPreview(); resetQuestionForm(); }
             function resetQuestionForm() { editingQuestionIndex = null; questionEditorTitle.textContent = 'Thêm câu hỏi mới'; addQuestionBtn.textContent = 'Thêm câu hỏi này'; addQuestionBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600'); addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600'); newQuestionInput.value = ''; answerInputs.forEach(input => input.value = ''); correctRadioBtns[0].checked = true; }
-            
             function updateQuestionPreview() {
                 questionsPreview.innerHTML = '';
                 questionCount.textContent = newQuizQuestions.length;
@@ -469,29 +438,24 @@
                     questionsPreview.appendChild(item);
                 });
             }
-            
             questionsPreview.addEventListener('click', (e) => {
                 const editBtn = e.target.closest('[data-edit-question]'); const deleteBtn = e.target.closest('[data-delete-question]');
                 if (editBtn) { loadQuestionForEdit(parseInt(editBtn.dataset.editQuestion)); }
                 if (deleteBtn) { if (confirm('Bạn có chắc muốn xóa câu hỏi này?')) { deleteQuestion(parseInt(deleteBtn.dataset.deleteQuestion)); } }
             });
-
             function loadQuestionForEdit(index) {
                 editingQuestionIndex = index; const questionData = newQuizQuestions[index];
                 questionEditorTitle.textContent = `Sửa câu hỏi ${index + 1}`; addQuestionBtn.textContent = 'Cập nhật câu hỏi'; addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600'); addQuestionBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
                 newQuestionInput.value = questionData.question;
                 questionData.answers.forEach((ans, i) => { answerInputs[i].value = ans.text; if (ans.correct) { correctRadioBtns[i].checked = true; } });
             }
-            
             function deleteQuestion(index) { newQuizQuestions.splice(index, 1); updateQuestionPreview(); if(editingQuestionIndex === index) { resetQuestionForm(); } }
-            
             function startEditingQuiz(index) {
                 resetCreatorForm(); editingQuizIndex = index; const quizToEdit = allQuizzes[index];
                 creatorTitle.textContent = `Chỉnh sửa Quiz: ${quizToEdit.title}`; saveQuizBtn.textContent = 'Lưu thay đổi và Tải về';
                 quizTitleInput.value = quizToEdit.title; newQuizQuestions = JSON.parse(JSON.stringify(quizToEdit.questions));
                 updateQuestionPreview(); showScreen('creator');
             }
-
             addQuestionBtn.addEventListener('click', () => {
                 const question = newQuestionInput.value.trim(); const answers = Array.from(answerInputs).map(input => input.value.trim()); const correctIndex = document.querySelector('input[name="correct-answer"]:checked').value;
                 if (!question || answers.some(a => a === '')) { alert('Vui lòng điền đầy đủ nội dung câu hỏi và các lựa chọn.'); return; }
@@ -499,7 +463,6 @@
                 if (editingQuestionIndex !== null) { newQuizQuestions[editingQuestionIndex] = questionData; } else { newQuizQuestions.push(questionData); }
                 updateQuestionPreview(); resetQuestionForm(); newQuestionInput.focus();
             });
-
             saveQuizBtn.addEventListener('click', () => {
                 const title = quizTitleInput.value.trim();
                 if (!title) { alert('Vui lòng nhập tên cho bộ câu hỏi.'); return; }
@@ -508,7 +471,6 @@
                 if (editingQuizIndex !== null) { allQuizzes[editingQuizIndex] = newQuiz; alert('Đã cập nhật quiz thành công!'); } else { allQuizzes.push(newQuiz); }
                 exportQuizToJson(newQuiz); saveQuizzesToStorage(); renderQuizList(); showScreen('home');
             });
-            
             importQuizBtn.addEventListener('click', () => importFileInput.click());
             importFileInput.addEventListener('change', (event) => {
                 const file = event.target.files[0]; if (!file) return;
@@ -521,24 +483,18 @@
                 };
                 reader.readAsText(file); importFileInput.value = '';
             });
-
-            // --- EVENT LISTENERS ---
             startBtn.addEventListener('click', startGame);
             backToHomeBtn.addEventListener('click', () => showScreen('home'));
             backFromPlayerNameBtn.addEventListener('click', () => showScreen('home'));
             goToCreatorBtn.addEventListener('click', () => { resetCreatorForm(); showScreen('creator'); });
             cancelCreationBtn.addEventListener('click', () => { showScreen('home'); });
-            
-            // Settings listeners
             gameModeRadios.forEach(radio => radio.addEventListener('change', () => {
                 timerSettingsDiv.style.display = radio.value === 'test' ? 'block' : 'none';
             }));
             timerEnabledCheckbox.addEventListener('change', () => {
                 timerOptionsDiv.style.display = timerEnabledCheckbox.checked ? 'flex' : 'none';
             });
-
-            // --- INITIALIZATION ---
-            loadComponents(); // THÊM LẠI: Gọi hàm tải header/footer
+            loadComponents();
             loadQuizzesFromStorage();
             showScreen('home');
         });
