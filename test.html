@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
     /* =================================================================== */
-    /* CSS RIÊNG CHO TRANG MINDMAP (NÂNG CẤP CHUYÊN NGHIỆP)              */
+    /* CSS RIÊNG CHO TRANG MINDMAP (PHIÊN BẢN ĐƠN GIẢN)                   */
     /* =================================================================== */
 
     :root {
@@ -70,8 +70,8 @@
     }
     #footer { flex-shrink: 0; }
 
-    /* ----- THANH MENU ----- */
-    .menubar {
+    /* ----- THANH CÔNG CỤ ----- */
+    .mindmap-toolbar {
       position: absolute;
       top: 16px;
       left: 16px;
@@ -80,89 +80,32 @@
       border: 1px solid var(--toolbar-border);
       box-shadow: var(--toolbar-shadow);
       border-radius: 12px;
-      padding: 4px;
-      display: flex;
-      gap: 4px;
-    }
-    .menu-item {
-      position: relative;
-    }
-    .menu-btn {
-      background: none;
-      border: none;
-      color: var(--text-primary);
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .menu-btn:hover { background: var(--btn-hover-bg); }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background-color: var(--toolbar-bg);
-      min-width: 220px;
-      box-shadow: var(--toolbar-shadow);
-      border: 1px solid var(--toolbar-border);
-      border-radius: 8px;
       padding: 8px;
-      z-index: 21;
-    }
-    .dropdown-content button, .saved-map-item button {
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      color: var(--text-primary);
-      font-size: 14px;
       display: flex;
-      align-items: center;
       gap: 8px;
+      align-items: center;
     }
-    .dropdown-content button svg {
-        width: 16px;
-        height: 16px;
-        stroke-width: 2;
-        flex-shrink: 0;
-    }
-    .dropdown-content button:hover { background-color: var(--btn-hover-bg); }
-    .menu-item:hover .dropdown-content { display: block; }
-    .dropdown-separator {
-      height: 1px;
-      background-color: var(--toolbar-border);
-      margin: 8px 0;
-    }
-    .saved-maps-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .saved-map-item {
+    .toolbar-btn {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-link);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background-color 0.2s;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 4px 8px;
-      border-radius: 6px;
+      gap: 6px;
     }
-    .saved-map-item:hover {
-      background-color: var(--btn-hover-bg);
-    }
-    .saved-map-name {
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex-grow: 1;
-    }
-    .saved-map-actions button {
-      width: auto;
-      padding: 4px 8px;
-      font-size: 12px;
+    .toolbar-btn:hover { background: var(--btn-hover-bg); }
+    .toolbar-btn:active { background: var(--btn-active-bg); }
+    .toolbar-btn input[type="file"] { display: none; }
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      background-color: var(--toolbar-border);
     }
     
     /* ----- SIDEBAR THUỘC TÍNH ----- */
@@ -243,76 +186,17 @@
   <div id="header"></div>
 
   <main>
-    <div class="menubar">
-        <div class="menu-item">
-            <button class="menu-btn">File</button>
-            <div class="dropdown-content">
-                <button id="new-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-                    Tạo mới
-                </button>
-                <div class="dropdown-separator"></div>
-                <div style="padding: 0 8px; font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">SƠ ĐỒ ĐÃ LƯU</div>
-                <div class="saved-maps-list" id="saved-maps-list"></div>
-                <div class="dropdown-separator"></div>
-                <button id="import-btn" onclick="document.getElementById('import-file').click();">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    Mở file dự án
-                </button>
-                <input type="file" id="import-file" accept=".json" style="display:none;">
-                <button id="export-json-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Tải file dự án
-                </button>
-                <button id="export-pdf-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 15.5v-5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"></path></svg>
-                    Xuất PDF
-                </button>
-            </div>
-        </div>
-        <div class="menu-item">
-            <button class="menu-btn">Chèn</button>
-            <div class="dropdown-content">
-                <button id="add-child-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12H5"></path><path d="M14 12h5"></path><path d="M12 10V5"></path><path d="M12 14v5"></path><circle cx="12" cy="12" r="2"></circle></svg>
-                    Nút con (Tab)
-                </button>
-                <button id="add-sibling-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-                    Nút ngang hàng (Enter)
-                </button>
-                <button id="add-connection-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                    Tạo liên kết
-                </button>
-            </div>
-        </div>
-        <div class="menu-item">
-            <button class="menu-btn">Chỉnh sửa</button>
-            <div class="dropdown-content">
-                <button id="delete-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    Xóa nút (Delete)
-                </button>
-            </div>
-        </div>
-        <div class="menu-item">
-            <button class="menu-btn">Xem</button>
-            <div class="dropdown-content">
-                <button id="zoom-in-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                    Phóng to
-                </button>
-                <button id="zoom-out-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                    Thu nhỏ
-                </button>
-                <button id="zoom-fit-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="M21 3l-7 7"></path><path d="M3 21l7-7"></path></svg>
-                    Vừa màn hình
-                </button>
-            </div>
-        </div>
+    <div class="mindmap-toolbar">
+        <button class="toolbar-btn" id="add-child-btn" title="Thêm nút con (Tab)">➕ Con</button>
+        <button class="toolbar-btn" id="add-sibling-btn" title="Thêm nút ngang hàng (Enter)">➕ Ngang hàng</button>
+        <button class="toolbar-btn" id="delete-btn" title="Xóa nút (Delete)">🗑️ Xóa</button>
+        <div class="toolbar-separator"></div>
+        <button class="toolbar-btn" id="add-connection-btn">🔗 Liên kết</button>
+        <div class="toolbar-separator"></div>
+        <button class="toolbar-btn" id="import-btn" onclick="document.getElementById('import-file').click();">📂 Mở</button>
+        <input type="file" id="import-file" accept=".json" style="display:none;">
+        <button class="toolbar-btn" id="export-json-btn">💾 Tải JSON</button>
+        <button class="toolbar-btn" id="export-pdf-btn">📄 Xuất PDF</button>
     </div>
 
     <div id="mindmap-container">
@@ -398,10 +282,8 @@
         const boldBtn = document.getElementById('bold-btn');
         const italicBtn = document.getElementById('italic-btn');
         const noteEditor = document.getElementById('note-editor');
-        const savedMapsList = document.getElementById('saved-maps-list');
 
         let rootData, selectedNode, connectionMode = false, connectionStartNode = null;
-        let activeMapId = null;
         const defaultNodeSize = { width: 160, height: 60 };
         const treeLayout = d3.tree().nodeSize([120, 220]);
 
@@ -411,33 +293,19 @@
             .on("zoom", (event) => g.attr("transform", event.transform));
         svg.call(zoom);
 
-        // --- HỆ THỐNG QUẢN LÝ FILE ---
-        function getCollection() {
-            const collection = localStorage.getItem('mindmapCollection');
-            return collection ? JSON.parse(collection) : [];
-        }
-
-        function saveCollection(collection) {
-            localStorage.setItem('mindmapCollection', JSON.stringify(collection));
-        }
-
-        function getMapById(id) {
-            const collection = getCollection();
-            return collection.find(map => map.id === id);
-        }
-        
-        function saveActiveMapData() {
-            if (!rootData || !activeMapId) return;
-            let collection = getCollection();
-            const mapIndex = collection.findIndex(map => map.id === activeMapId);
-            if (mapIndex > -1) {
-                collection[mapIndex].data = rootData;
-                collection[mapIndex].lastModified = Date.now();
-                saveCollection(collection);
+        // --- HỆ THỐNG LƯU TRỮ ĐƠN GIẢN ---
+        function saveData() {
+            if (rootData) {
+                localStorage.setItem('mindmapData', JSON.stringify(rootData));
             }
         }
 
-        function createDefaultData(name) {
+        function loadData() {
+            const savedData = localStorage.getItem('mindmapData');
+            return savedData ? JSON.parse(savedData) : createDefaultData();
+        }
+
+        function createDefaultData() {
             const defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
             const defaultText = getComputedStyle(document.documentElement).getPropertyValue('--node-text').trim();
             
@@ -457,78 +325,19 @@
                 children: children
             });
 
-            return { 
-                id: `map-${Date.now()}`,
-                name: name || `Sơ đồ mới ${new Date().toLocaleTimeString()}`,
-                lastModified: Date.now(),
-                data: createNode("Chủ đề chính", [
-                    createNode("Nhánh 1", [
-                        createNode("Ý tưởng 1.1"),
-                        createNode("Ý tưởng 1.2")
-                    ]),
-                    createNode("Nhánh 2", [
-                        createNode("Ý tưởng 2.1")
-                    ]),
-                    createNode("Nhánh 3")
-                ])
-            };
+            return createNode("Chủ đề chính", [
+                createNode("Nhánh 1", [
+                    createNode("Ý tưởng 1.1"),
+                    createNode("Ý tưởng 1.2")
+                ]),
+                createNode("Nhánh 2", [
+                    createNode("Ý tưởng 2.1")
+                ]),
+                createNode("Nhánh 3")
+            ]);
         }
 
-        function loadMap(mapId) {
-            const map = getMapById(mapId);
-            if (map) {
-                activeMapId = map.id;
-                rootData = map.data;
-                update();
-                const hierarchy = d3.hierarchy(rootData);
-                selectNode(hierarchy);
-                zoomToFit();
-            }
-        }
-        
-        function renderSavedMapsList() {
-            const collection = getCollection().sort((a, b) => b.lastModified - a.lastModified);
-            savedMapsList.innerHTML = '';
-            if (collection.length === 0) {
-                savedMapsList.innerHTML = '<div style="padding: 8px; font-size: 12px; color: grey;">Chưa có sơ đồ nào.</div>';
-                return;
-            }
-            collection.forEach(map => {
-                const item = document.createElement('div');
-                item.className = 'saved-map-item';
-                item.innerHTML = `
-                    <span class="saved-map-name">${map.name}</span>
-                    <div class="saved-map-actions">
-                        <button title="Sửa">✏️</button>
-                        <button title="Xuất PDF">📄</button>
-                        <button title="Xóa">🗑️</button>
-                    </div>
-                `;
-                const buttons = item.querySelectorAll('button');
-                buttons[0].onclick = () => loadMap(map.id);
-                buttons[1].onclick = () => exportPdfById(map.id);
-                buttons[2].onclick = () => deleteMap(map.id);
-                savedMapsList.appendChild(item);
-            });
-        }
-
-        function deleteMap(mapId) {
-            if (!confirm("Bạn có chắc muốn xóa vĩnh viễn sơ đồ này?")) return;
-            let collection = getCollection();
-            collection = collection.filter(map => map.id !== mapId);
-            saveCollection(collection);
-            if (activeMapId === mapId) {
-                const newCollection = getCollection();
-                if (newCollection.length > 0) {
-                    loadMap(newCollection.sort((a,b) => b.lastModified - a.lastModified)[0].id);
-                } else {
-                    initializeApp(true);
-                }
-            }
-            renderSavedMapsList();
-        }
-        
-        // --- KẾT THÚC HỆ THỐNG QUẢN LÝ FILE ---
+        // --- KẾT THÚC HỆ THỐNG LƯU TRỮ ---
 
         function update() {
             const hierarchyRoot = d3.hierarchy(rootData);
@@ -623,7 +432,7 @@
                              connectionStartNode.data.connections.push(d.data.id);
                         }
                         update();
-                        saveActiveMapData();
+                        saveData();
                     }
                     connectionMode = false;
                     connectionStartNode = null;
@@ -677,7 +486,7 @@
                     d.data.name = this.value;
                     div.html(d.data.name).style("display", "block");
                     d3.select(this).remove();
-                    saveActiveMapData();
+                    saveData();
                 });
             
             input.node().focus();
@@ -697,7 +506,7 @@
             parentData.children.push(newNodeData);
             
             update(d3.hierarchy(rootData));
-            saveActiveMapData();
+            saveData();
         }
 
         function deleteNode() {
@@ -708,11 +517,11 @@
             
             update(d3.hierarchy(rootData));
             deselectAll();
-            saveActiveMapData();
+            saveData();
         }
 
         function setShape(shape) {
-            if (selectedNode) { selectedNode.data.shape = shape; update(d3.hierarchy(rootData)); saveActiveMapData(); }
+            if (selectedNode) { selectedNode.data.shape = shape; update(d3.hierarchy(rootData)); saveData(); }
         }
         
         function zoomToFit() {
@@ -742,7 +551,7 @@
                 selectedNode.data.width = +e.target.value;
                 widthValueSpan.textContent = e.target.value;
                 update(d3.hierarchy(rootData));
-                saveActiveMapData();
+                saveData();
             }
         };
         heightSlider.oninput = (e) => {
@@ -750,17 +559,17 @@
                 selectedNode.data.height = +e.target.value;
                 heightValueSpan.textContent = e.target.value;
                 update(d3.hierarchy(rootData));
-                saveActiveMapData();
+                saveData();
             }
         };
 
-        bgColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.backgroundColor = e.target.value; update(d3.hierarchy(rootData)); saveActiveMapData(); } };
-        textColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.textColor = e.target.value; update(d3.hierarchy(rootData)); saveActiveMapData(); } };
-        boldBtn.onclick = () => { if(selectedNode) { selectedNode.data.isBold = !selectedNode.data.isBold; update(d3.hierarchy(rootData)); updateSidebar(); saveActiveMapData(); } };
-        italicBtn.onclick = () => { if(selectedNode) { selectedNode.data.isItalic = !selectedNode.data.isItalic; update(d3.hierarchy(rootData)); updateSidebar(); saveActiveMapData(); } };
-        document.getElementById('font-size-increase-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) + 1; update(d3.hierarchy(rootData)); saveActiveMapData(); } };
-        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) - 1; update(d3.hierarchy(rootData)); saveActiveMapData(); } };
-        noteEditor.onblur = (e) => { if(selectedNode) { selectedNode.data.note = e.target.value; update(d3.hierarchy(rootData)); saveActiveMapData(); } };
+        bgColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.backgroundColor = e.target.value; update(d3.hierarchy(rootData)); saveData(); } };
+        textColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.textColor = e.target.value; update(d3.hierarchy(rootData)); saveData(); } };
+        boldBtn.onclick = () => { if(selectedNode) { selectedNode.data.isBold = !selectedNode.data.isBold; update(d3.hierarchy(rootData)); updateSidebar(); saveData(); } };
+        italicBtn.onclick = () => { if(selectedNode) { selectedNode.data.isItalic = !selectedNode.data.isItalic; update(d3.hierarchy(rootData)); updateSidebar(); saveData(); } };
+        document.getElementById('font-size-increase-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) + 1; update(d3.hierarchy(rootData)); saveData(); } };
+        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) - 1; update(d3.hierarchy(rootData)); saveData(); } };
+        noteEditor.onblur = (e) => { if(selectedNode) { selectedNode.data.note = e.target.value; update(d3.hierarchy(rootData)); saveData(); } };
         document.getElementById('add-connection-btn').onclick = () => {
             connectionMode = true;
             connectionStartNode = null;
@@ -768,7 +577,6 @@
             alert("Chọn nút bắt đầu, sau đó chọn nút kết thúc để tạo liên kết.");
         };
 
-        document.getElementById('save-btn').onclick = () => { saveActiveMapData(); alert("Đã lưu sơ đồ!"); };
         svg.on('click', deselectAll);
         
         document.getElementById('zoom-in-btn').onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 1.2);
@@ -786,13 +594,11 @@
         });
 
         document.getElementById('export-json-btn').onclick = () => {
-            const mapData = getMapById(activeMapId);
-            if (!mapData) return alert("Không tìm thấy sơ đồ để xuất!");
-            const dataStr = JSON.stringify(mapData, null, 2);
+            const dataStr = JSON.stringify(rootData, null, 2);
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = url; a.download = `${mapData.name}.json`; a.click(); URL.revokeObjectURL(url);
+            a.href = url; a.download = "mindmap.json"; a.click(); URL.revokeObjectURL(url);
         };
 
         document.getElementById('import-file').onchange = (event) => {
@@ -801,67 +607,59 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        const mapData = JSON.parse(e.target.result);
-                        let collection = getCollection();
-                        collection.push(mapData);
-                        saveCollection(collection);
-                        loadMap(mapData.id);
-                        renderSavedMapsList();
+                        rootData = JSON.parse(e.target.result);
+                        update();
+                        saveData();
                     } catch (err) { alert("File không hợp lệ!"); }
                 };
                 reader.readAsText(file);
             }
         };
         
-        function exportPdfById(mapId) {
-            const mapToExport = getMapById(mapId);
-            if (!mapToExport) return;
+        document.getElementById('export-pdf-btn').onclick = () => {
+            const { jsPDF } = window.jspdf;
+            const svgElement = document.querySelector("#mindmap-container svg");
             
-            const tempContainer = d3.select("body").append("div").style("position", "absolute").style("left", "-9999px");
-            const tempSvg = tempContainer.append("svg");
-            const tempG = tempSvg.append("g");
-            
-            const tempHierarchy = d3.hierarchy(mapToExport.data);
-            treeLayout(tempHierarchy);
+            const originalTransform = g.attr("transform");
+            g.attr("transform", "");
 
-            // Tạm thời vẽ lại trên SVG ẩn để lấy kích thước chính xác
-            // Logic vẽ tương tự hàm update()
-            // ... (phần này có thể được module hóa để tránh lặp code)
+            const bounds = g.node().getBBox();
+            const padding = 50;
+            const fullWidth = bounds.width + padding * 2;
+            const fullHeight = bounds.height + padding * 2;
 
-            html2canvas(tempSvg.node(), {
+            svg.attr('width', fullWidth).attr('height', fullHeight);
+            g.attr('transform', `translate(${-bounds.x + padding}, ${-bounds.y + padding})`);
+
+            html2canvas(svgElement, {
                 backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-main').trim(),
                 scale: 2
             }).then(canvas => {
-                const { jsPDF } = window.jspdf;
+                svg.attr('width', '100%').attr('height', '100%');
+                g.attr("transform", originalTransform);
+
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF({
-                    orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+                    orientation: fullWidth > fullHeight ? 'landscape' : 'portrait',
                     unit: 'px',
-                    format: [canvas.width, canvas.height]
+                    format: [fullWidth, fullHeight]
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save(`${mapToExport.name}.pdf`);
-                tempContainer.remove();
+                pdf.addImage(imgData, 'PNG', 0, 0, fullWidth, fullHeight);
+                pdf.save("mindmap.pdf");
+            }).catch(err => {
+                console.error("Lỗi khi xuất PDF:", err);
+                svg.attr('width', '100%').attr('height', '100%');
+                g.attr("transform", originalTransform);
             });
-        }
-
-        document.getElementById('export-pdf-btn').onclick = () => exportPdfById(activeMapId);
+        };
 
         // Khởi tạo
-        function initializeApp(forceNew = false) {
-            let collection = getCollection();
-            if (collection.length === 0 || forceNew) {
-                const newMap = createDefaultData();
-                if (forceNew) {
-                    collection = [newMap];
-                } else {
-                    collection.push(newMap);
-                }
-                saveCollection(collection);
-            }
-            const lastMap = collection.sort((a,b) => b.lastModified - a.lastModified)[0];
-            loadMap(lastMap.id);
-            renderSavedMapsList();
+        function initializeApp() {
+            rootData = loadData();
+            update();
+            const hierarchy = d3.hierarchy(rootData);
+            selectNode(hierarchy);
+            zoomToFit();
         }
 
         initializeApp();
