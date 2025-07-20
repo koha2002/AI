@@ -31,13 +31,13 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            /* SỬA: Xóa dòng height cố định này đi. Flexbox sẽ tự xử lý. */
-            /* height: calc(100vh - 3rem - 2rem); */
-            max-height: 850px; /* Giữ lại max-height để giao diện không quá dài trên màn hình lớn */
+            /* SỬA: Đặt chiều cao 100% để lấp đầy thẻ cha */
+            height: 100%;
+            max-height: 850px;
             display: flex;
             flex-direction: column;
-            padding: 2rem; /* Thêm padding cho card đẹp hơn */
-            border-radius: 1.5rem; /* Tăng bo góc cho card */
+            padding: 2rem;
+            border-radius: 1.5rem;
         }
         .dark .card {
             background-color: rgba(26, 26, 46, 0.85);
@@ -104,7 +104,7 @@
     <header id="main-header"></header>
 
     <div class="app-container">
-        <div class="w-full max-w-screen-xl mx-auto z-10">
+        <div class="w-full max-w-screen-xl mx-auto z-10 h-full">
 
             <div id="home-screen" class="card shadow-2xl text-black">
                 <div class="text-center flex-shrink-0">
@@ -234,8 +234,8 @@
 
     <footer id="main-footer"></footer>
 
-
     <script>
+        // Phần Javascript giữ nguyên không thay đổi
         document.addEventListener('DOMContentLoaded', () => {
             const loadComponents = () => {
                 const headerPlaceholder = document.getElementById('main-header');
@@ -251,15 +251,11 @@
                 })
                 .catch(error => console.error('Error loading components:', error));
             };
-
-            // --- DOM ELEMENTS ---
             const screens = { home: document.getElementById('home-screen'), playerName: document.getElementById('player-name-screen'), quiz: document.getElementById('quiz-screen'), end: document.getElementById('end-screen'), creator: document.getElementById('creator-screen') };
             const playerNameInput = document.getElementById('player-name');
             const startBtn = document.getElementById('start-btn');
             const backToHomeBtn = document.getElementById('back-to-home-btn');
             const backFromPlayerNameBtn = document.getElementById('back-from-player-name-btn');
-            
-            // ... (phần còn lại của JS giữ nguyên không đổi)
             const gameModeRadios = document.querySelectorAll('input[name="game-mode"]');
             const timerSettingsDiv = document.getElementById('timer-settings');
             const timerEnabledCheckbox = document.getElementById('timer-enabled');
