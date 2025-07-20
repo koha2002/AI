@@ -121,7 +121,6 @@
       cursor: pointer;
       color: var(--text-primary);
       font-size: 14px;
-      /* CẬP NHẬT: Thêm flexbox để căn chỉnh icon */
       display: flex;
       align-items: center;
       gap: 8px;
@@ -441,17 +440,37 @@
         function createDefaultData(name) {
             const defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
             const defaultText = getComputedStyle(document.documentElement).getPropertyValue('--node-text').trim();
+            
+            const createNode = (nodeName, children = []) => ({
+                id: `node-${Date.now()}-${Math.random()}`,
+                name: nodeName,
+                shape: "rectangle",
+                width: defaultNodeSize.width,
+                height: defaultNodeSize.height,
+                backgroundColor: defaultBg,
+                textColor: defaultText,
+                fontSize: 14,
+                isBold: false,
+                isItalic: false,
+                note: "",
+                connections: [],
+                children: children
+            });
+
             return { 
                 id: `map-${Date.now()}`,
                 name: name || `Sơ đồ mới ${new Date().toLocaleTimeString()}`,
                 lastModified: Date.now(),
-                data: {
-                    id: `node-${Date.now()}`,
-                    name: "Chủ đề chính", shape: "rectangle", 
-                    width: defaultNodeSize.width, height: defaultNodeSize.height,
-                    backgroundColor: defaultBg, textColor: defaultText,
-                    fontSize: 14, isBold: false, isItalic: false, note: "", connections: [], children: [] 
-                }
+                data: createNode("Chủ đề chính", [
+                    createNode("Nhánh 1", [
+                        createNode("Ý tưởng 1.1"),
+                        createNode("Ý tưởng 1.2")
+                    ]),
+                    createNode("Nhánh 2", [
+                        createNode("Ý tưởng 2.1")
+                    ]),
+                    createNode("Nhánh 3")
+                ])
             };
         }
 
