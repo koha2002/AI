@@ -2,432 +2,421 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tài liệu học tập</title>
-  <!-- Sử dụng logo.png từ file của bạn -->
+  <title>Chat AI - Tra Cứu Học Thuật & AI</title>
   <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
+    /* ----- BIẾN MÀU CHO GIAO DIỆN SÁNG/TỐI ----- */
     :root {
-      --main: #185adb;
+      --bg-main: #f4f9ff;
+      --text-main: #222;
+      --text-link: #185adb;
+      --header-bg: #fff;
+      --header-border: #e3e9f7;
+      --header-shadow: 0 1px 8px #185adb09;
+      --btn-hover-bg: #eaf3ff;
+      --mode-btn-text: #97a4c1;
+      --mode-btn-active-border: #185adb;
+      --api-btn-bg: #f4f7fe;
+      --api-btn-border: #b7d2fa;
+      --msg-bubble-ai-bg: #eaf3ff;
+      --msg-bubble-user-bg: linear-gradient(110deg, #185adb 0%, #356ad2 100%);
+      --msg-bubble-user-text: #fff;
+      --chat-input-bg: #fff;
+      --chat-input-border: #bdd1f6;
+      --chat-input-focus-border: #185adb;
+      --chat-input-shadow: 0 1px 12px #185adb0a;
+      --iframe-border: #eee;
+      --iframe-shadow: 0 4px 16px #185adb0d;
+      --popup-bg: #fff;
+      --popup-shadow: 0 10px 50px #185adb20;
     }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-main: #0f172a;
+        --text-main: #e2e8f0;
+        --text-link: #a5b4fc;
+        --header-bg: rgba(15, 23, 42, 0.7);
+        --header-border: rgba(45, 55, 72, 0.5);
+        --header-shadow: 0 1px 8px rgba(0,0,0,0.2);
+        --btn-hover-bg: #334155;
+        --mode-btn-text: #64748b;
+        --mode-btn-active-border: #a5b4fc;
+        --api-btn-bg: #1e293b;
+        --api-btn-border: #475569;
+        --msg-bubble-ai-bg: #1e293b;
+        --msg-bubble-user-bg: linear-gradient(110deg, #60a5fa 0%, #3b82f6 100%);
+        --msg-bubble-user-text: #fff;
+        --chat-input-bg: #1e293b;
+        --chat-input-border: #475569;
+        --chat-input-focus-border: #a5b4fc;
+        --chat-input-shadow: none;
+        --iframe-border: #334155;
+        --iframe-shadow: none;
+        --popup-bg: #1e293b;
+        --popup-shadow: 0 10px 50px rgba(0,0,0,0.3);
+      }
     }
 
+    /* ----- STYLE CHUNG ----- */
+    html, body { height: 100%; min-height: 100%; }
     body {
-      min-height: 100vh;
+      background: var(--bg-main);
+      color: var(--text-main);
+      margin: 0; padding: 0;
       font-family: 'Montserrat', Arial, sans-serif;
-      /* Nền xanh đen kiểu night sky */
-      background: radial-gradient(ellipse at 60% 40%, #233d61 0%, #0a1931 100%);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow-x: hidden;
+      display: flex; flex-direction: column;
+      height: 100vh;
+      box-sizing: border-box;
+      transition: background-color 0.3s, color 0.3s;
     }
-
     main {
       flex: 1 0 auto;
-      width: 100%;
-      min-height: 70vh;
-      display: flex;
-      flex-direction: column;
-      z-index: 2;
-    }
-
-    /* Hiệu ứng nền sao */
-    #star-canvas {
-      position: fixed;
-      left: 0;
-      top: 0;
       width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+      min-height: 70vh;
+      display: flex; flex-direction: column;
     }
-
-    /* Hiệu ứng ánh sáng theo chuột */
-    #mouse-light {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 120px;
-      height: 120px;
-      margin-left: -60px;
-      margin-top: -60px;
-      pointer-events: none;
-      border-radius: 50%;
-      background: radial-gradient(circle, #86bcff44 0%, #fff0 80%);
-      mix-blend-mode: lighten;
-      z-index: 10;
-      transition: opacity 0.3s;
-      opacity: 0;
+    #footer { flex-shrink: 0; margin-top: 0; }
+    
+    /* ----- CÁC THÀNH PHẦN CHAT ----- */
+    .mode-switcher {
+      display: flex; gap: 0;
+      border-bottom: 1.2px solid var(--header-border);
+      background: none; margin: 0;
+      width: 100%; justify-content: flex-start;
     }
-
-    /* Header (Style cho header được tải từ file ngoài) */
-    /* Các style này đảm bảo header hiển thị đúng khi được fetch */
-    .mini-header {
-      display: flex;
-      align-items: center;
-      background: #192945d5;
-      box-shadow: 0 1px 8px #185adb09;
-      height: 47px;
-      min-height: 40px;
-      padding: 0 15px 0 7px;
-      border-bottom: 1.2px solid #233d61;
-      position: sticky;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 20;
-      gap: 14px;
-      backdrop-filter: blur(4px);
+    .mode-btn {
+      border: none; background: none;
+      padding: 15px 34px 10px 34px;
+      font-weight: 600; color: var(--mode-btn-text); font-size: 1.09rem;
+      cursor: pointer; border-bottom: 2.5px solid transparent; outline: none;
+      transition: all .13s;
     }
-
-    .home-btn {
-      background: none;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border-radius: 50%;
-      width: 33px;
-      height: 33px;
-      margin-right: 7px;
-      transition: background 0.14s;
+    .mode-btn.active, .mode-btn:focus {
+      color: var(--text-link); border-bottom-color: var(--mode-btn-active-border);
     }
-    .home-btn:hover { background: #253d62; }
-    .home-btn img { width: 21px; height: 21px; border-radius: 4px; }
-    .mini-title { font-weight: 700; font-size: 1.07rem; color: #63aaff; }
-
-    /* Nội dung chính */
-    .doc-main {
-      position: relative;
-      z-index: 2;
-      max-width: 430px;
-      width: 90%;
-      margin: 80px auto 60px auto;
-      background: rgba(18, 32, 67, 0.96);
-      border-radius: 26px;
-      box-shadow: 0 6px 32px 0 #12204385, 0 1px 4px #185adb09;
-      padding: 38px 28px 34px 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      animation: fadein 1s cubic-bezier(.43, .94, .71, 1.36);
-      backdrop-filter: blur(2.5px);
+    .api-btns-group {margin-left:auto;display:flex;gap:8px;}
+    .api-btn, .getkey-btn {
+      background: var(--api-btn-bg); color: var(--text-link); border: 1px solid var(--api-btn-border); border-radius: 7px;
+      padding: 4px 11px; font-weight: 600; font-size: 0.96rem; cursor: pointer; transition: background 0.13s;
+      display: flex; align-items: center; gap: 5px; margin-left:5px; text-decoration:none;
     }
-
-    .doc-title {
-      font-size: 2.0rem;
-      font-weight: 800;
-      color: #63aaff;
-      margin-bottom: 34px;
-      letter-spacing: 1.2px;
-      text-align: center;
-      text-shadow: 0 2px 12px #185adb34;
-      animation: fadein 1.1s cubic-bezier(.43, .94, .71, 1.36);
+    .api-btn:hover, .getkey-btn:hover {background: var(--btn-hover-bg);}
+    
+    .chat-body {
+      flex: 1 1 auto; display: flex; flex-direction: column;
+      min-height: 65vh; width: 100vw; background: none;
     }
-
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: none; }
-    }
-
-    .doc-btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .doc-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      padding: 20px 0;
-      border: none;
-      border-radius: 17px;
-      font-size: 1.22rem;
-      font-weight: 700;
-      color: #fff;
-      cursor: pointer;
-      width: 100%;
-      background: linear-gradient(92deg, #3864e6 15%, #2fc2ea 85%);
-      box-shadow: 0 4px 18px #13204334, 0 1.5px 7px #119caa17;
-      text-decoration: none;
-      transition:
-        transform 0.18s cubic-bezier(.59, 1.4, .73, .96),
-        box-shadow 0.18s,
-        filter 0.17s;
-      will-change: transform;
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadebtn 0.9s cubic-bezier(.32, 1.28, .56, 1.12) forwards;
-    }
-
-    .doc-btn:nth-child(1) { animation-delay: .2s; }
-    .doc-btn:nth-child(2) { animation-delay: .44s; }
-    .doc-btn:nth-child(3) { animation-delay: .67s; }
-    .doc-btn:nth-child(4) { animation-delay: .8s; }
-    .doc-btn:nth-child(5) { animation-delay: .9s; }
-
-
-    @keyframes fadebtn {
-      from { opacity: 0; transform: translateY(32px) scale(.97); }
-      to { opacity: 1; transform: none; }
-    }
-
-    .doc-btn.epu { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%); }
-    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%); }
-    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%); }
-    .doc-btn.soon { background: linear-gradient(90deg, #6c757d 10%, #495057 100%); }
-
-    .doc-btn .icon {
-      margin-right: 10px;
-      font-size: 1.35em;
-      filter: drop-shadow(0 1px 4px #185adb23);
-      user-select: none;
-    }
-
-    .doc-btn:hover, .doc-btn:focus {
-      transform: scale(1.045) translateY(-2px) !important;
-      filter: brightness(1.13) drop-shadow(0 8px 20px #6dcfff44);
-      box-shadow: 0 14px 36px #263d63bb, 0 2.5px 8px #23bfae11;
-      z-index: 2;
-      outline: none;
-    }
-
-    .doc-btn:active {
-      transform: scale(0.96) translateY(1px) !important;
-      filter: brightness(0.97);
-    }
-
-    /* Footer */
-    footer {
-      background: #122043;
-      color: #8ebeff;
-      text-align: center;
-      padding: 26px 10px 16px 10px;
-      font-size: 1.08rem;
-      margin-top: 40px;
-      border-radius: 22px 22px 0 0;
-      letter-spacing: .22px;
-      box-shadow: 0 -3px 22px #0a193112;
-      flex-shrink: 0;
-      z-index: 2;
-      position: relative;
+    .chat-messages {
+      width: 100vw; max-width: none;
+      padding: 0; margin: 0;
+      min-height: 340px;
+      font-size: 1.12rem;
+      display: flex; flex-direction: column; gap: 10px;
+      background: none; box-shadow: none;
+      overflow-y: auto;
     }
     
-    /* Responsive Design */
-    @media (max-width: 600px) {
-      .doc-main { padding: 25px 15px; max-width: 95vw; margin-top: 40px; }
-      .doc-title { font-size: 1.7rem; }
-      .doc-btn { font-size: 1.05rem; padding: 18px 0;}
+    #chatbase-chat iframe, #koha-chat iframe {
+      width: 100vw !important;
+      min-width: 100vw !important;
+      max-width: 100vw !important;
+      height: calc(100vh - 135px) !important;
+      border-radius: 10px;
+      border: 1.5px solid var(--iframe-border);
+      background: var(--header-bg);
+      box-shadow: var(--iframe-shadow);
+      display: block;
+    }
+    .msg-row {display: flex; padding: 0 16px; box-sizing: border-box;}
+    .msg-bubble {
+      max-width: 900px; min-width: 46px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      font-size: 1.13rem;
+      line-height: 1.7;
+      white-space: pre-line;
+      margin-bottom: 3px; word-break: break-word;
+      background: var(--header-bg); box-shadow: var(--header-shadow);
+    }
+    .msg-user {justify-content: flex-end;}
+    .msg-user .msg-bubble {
+      background: var(--msg-bubble-user-bg);
+      color: var(--msg-bubble-user-text); border-bottom-right-radius: 7px;
+    }
+    .msg-ai {justify-content: flex-start;}
+    .msg-ai .msg-bubble {
+      background: var(--msg-bubble-ai-bg);
+      color: var(--text-main); border-bottom-left-radius: 7px;
+    }
+    
+    .chat-input-bar {
+      display: flex; align-items: flex-end; width:100%;
+      gap: 14px; background: none;
+      padding: 20px 16px 32px 16px;
+      border: none; border-radius: 0; box-shadow: none;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .chat-input-bar input {
+      flex: 1; max-width:900px;
+      font-size: 1.18rem; padding: 16px 19px; border-radius: 14px;
+      border: 1.7px solid var(--chat-input-border); outline:none;
+      background: var(--chat-input-bg); color: var(--text-main); transition: border 0.16s;
+      box-shadow: var(--chat-input-shadow);
+    }
+    .chat-input-bar input:focus {border-color: var(--chat-input-focus-border);}
+    .chat-input-bar button {
+      border: none; background: #185adb; color: #fff;
+      width: 52px; height: 52px; border-radius: 50%;
+      font-size: 1.47rem; display:flex; align-items:center;justify-content:center;
+      cursor:pointer; box-shadow:0 2px 10px #185adb18;
+      transition: background 0.13s;
+    }
+    .chat-input-bar button:active {background:#153772;}
+    
+    /* ----- POPUP ----- */
+    .popup-api-bg {position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;}
+    .popup-api-box {background:var(--popup-bg);border-radius:13px;padding:32px 34px;box-shadow:var(--popup-shadow);min-width:300px;max-width:94vw;text-align:center;}
+    .popup-api-box label {font-size:1.14rem;color:var(--text-link);font-weight:700;}
+    .popup-api-box input {margin-top:14px;padding:11px 13px;border-radius:8px;border:1.5px solid var(--chat-input-border);font-size:1.08rem;width:90%;max-width:340px; background: var(--chat-input-bg); color: var(--text-main);}
+    .popup-api-box .popup-btns {margin-top:22px;display:flex;justify-content:center;gap:17px;}
+    .popup-api-box button {padding:10px 23px;border-radius:8px;font-weight:600;font-size:1.08rem;border:none;cursor:pointer;background:#185adb;color:#fff;transition:background 0.15s;}
+    .popup-api-box button.cancel {background:#e7eaf6;color:#185adb;}
+    .popup-api-box button:active {background:#133b86;}
+    .popup-api-box .popup-desc {font-size:.98rem;color:#888;margin:7px 0 16px 0;}
+    
+    /* ----- RESPONSIVE ----- */
+    @media (max-width:1100px){
+      .msg-bubble {max-width: 80vw;}
+      #chatbase-chat iframe, #koha-chat iframe {height:calc(100vh - 115px) !important;}
+    }
+    @media (max-width:650px){
+      .msg-bubble {max-width: 90vw;}
+      .chat-input-bar input{font-size:1.03rem;}
+      #chatbase-chat iframe, #koha-chat iframe {height:calc(100vh - 90px) !important;}
     }
   </style>
 </head>
 <body>
-  <!-- Hiệu ứng nền động -->
-  <canvas id="star-canvas"></canvas>
-  <div id="mouse-light"></div>
-
-  <!-- Placeholder cho header sẽ được tải bằng JavaScript -->
-  <header id="header-placeholder"></header>
+  
+  <!-- Header sẽ được tải vào đây -->
+  <div id="header"></div>
 
   <main>
-    <div class="doc-main">
-      <div class="doc-title">Tài liệu học tập</div>
-      <div class="doc-btn-group">
-        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/Etg1I4MOqspNmjf0jplA_l4BegN8yNa1NzpwYUTYd1mDPg?e=GqkDDI" target="_blank" class="doc-btn epu">
-          <span class="icon">📚</span> Tài liệu EPU
-        </a>
-        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/ElTA6Kwz0tVFiX9ZEwn5Fl0BZoY0Ln0eYl_gMlCpxCDsZQ?e=npfUva" target="_blank" class="doc-btn english">
-          <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
-        </a>
-        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EqO9GauCprJJs0kgYYVk3pcBktGB99axjStsTgL1qdfwvQ?e=fgIC1X" target="_blank" class="doc-btn tmu">
-          <span class="icon">🏛️</span> Tài liệu TMU
-        </a>
-        <a href="#" class="doc-btn soon">
-          <span class="icon">⏳</span> Sắp có...
-        </a>
-        <a href="#" class="doc-btn soon">
-          <span class="icon">⏳</span> Sắp có...
-        </a>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 0 0;gap:12px;">
+      <div style="font-weight:700;font-size:1.05rem;color:var(--text-link);margin-left:24px;display:flex;align-items:center;gap:7px">
+        <img src="icon-ai.png" alt="AI" style="width:22px;height:22px;border-radius:50%;"> Trợ lý AI học tập
+      </div>
+      <div class="api-btns-group" id="api-btns-group" style="margin-right:24px;"></div>
+    </div>
+
+    <div class="mode-switcher">
+      <button class="mode-btn active" onclick="switchMode('chatbase')">Chatbase</button>
+      <button class="mode-btn" onclick="switchMode('gpt')">Chat GPT</button>
+      <button class="mode-btn" onclick="switchMode('gemini')">Chat Gemini</button>
+      <button class="mode-btn" onclick="switchMode('koha')">Virtual Assistant KoHa</button>
+    </div>
+
+    <div class="chat-body">
+      <div id="chatbase-chat" class="chat-messages" style="display:block;padding:0;">
+        <iframe src="https://www.chatbase.co/chatbot-iframe/1pwNIgOXuse1aQvajtTiE" width="100%" allow="clipboard-write"></iframe>
+      </div>
+      <div id="gpt-chat" class="chat-messages" style="display:none; padding: 16px 0;"></div>
+      <div id="gemini-chat" class="chat-messages" style="display:none; padding: 16px 0;"></div>
+      <div id="koha-chat" class="chat-messages" style="display:none;padding:0;">
+        <iframe src="nebulaAI.html" width="100%" style="border:none; min-height:72vh; display:block;" allow="clipboard-write"></iframe>
       </div>
     </div>
+    
+    <div class="chat-input-bar" id="chatbase-input" style="display:none;"></div>
+    <div class="chat-input-bar" id="gpt-input" style="display:none;">
+      <input id="userMsg-gpt" type="text" placeholder="Nhập câu hỏi..." autocomplete="off" onkeydown="if(event.key==='Enter'){sendMsgGPT();}">
+      <button onclick="sendMsgGPT()"><span>&#10148;</span></button>
+    </div>
+    <div class="chat-input-bar" id="gemini-input" style="display:none;">
+      <input id="userMsg-gemini" type="text" placeholder="Nhập câu hỏi..." autocomplete="off" onkeydown="if(event.key==='Enter'){sendMsgGemini();}">
+      <button onclick="sendMsgGemini()"><span>&#10148;</span></button>
+    </div>
   </main>
-
-  <footer id="footer">
-      <!-- Nội dung footer sẽ được tải bằng JavaScript -->
-      <p>Đang tải nội dung footer...</p>
-  </footer>
-
+  
+  <!-- Footer sẽ được tải vào đây -->
+  <footer id="footer"></footer>
+  
+  <!-- Popup nhập API Key -->
+  <div class="popup-api-bg" id="popup-api" style="display:none;">
+    <div class="popup-api-box">
+      <label id="popup-label"></label>
+      <div class="popup-desc" id="popup-desc"></div>
+      <input id="popup-api-key" type="password" placeholder="">
+      <div class="popup-btns">
+        <button onclick="saveAPIKey()">Lưu Key</button>
+        <button class="cancel" onclick="closeAPIKeyPopup()">Hủy</button>
+        <button class="cancel" onclick="removeAPIKey()" style="background:#ffebe7;color:#c44;">Xóa key</button>
+      </div>
+    </div>
+  </div>
+  
   <script>
-    // Hiệu ứng nền sao rơi và sao băng
-    const canvas = document.getElementById('star-canvas');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-    let shootingStars = [];
-    let w = window.innerWidth, h = window.innerHeight;
-
-    function resize() {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
-      createStars(w > 900 ? 140 : 70);
-      createShootingStars(w > 900 ? 5 : 2);
+    // Nhúng header/footer từ file riêng
+    function loadHtml(id, file) {
+      fetch(file).then(res => res.text()).then(data => {
+        document.getElementById(id).innerHTML = data;
+      });
     }
-    window.addEventListener('resize', resize);
+    loadHtml('header', 'mini-header.html'); // Tải header
+    loadHtml('footer', 'footer.html');     // Tải footer
 
-    function randomStar() {
-      return {
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 1.3 + 0.3,
-        o: Math.random() * 0.5 + 0.4,
-        speed: Math.random() * 0.08 + 0.04,
+    let chatMode = 'chatbase';
+    function renderApiBtns(mode) {
+      const group = document.getElementById('api-btns-group');
+      if(!group) return;
+      group.innerHTML = '';
+      if(mode==='gpt') {
+        group.innerHTML = `
+          <a class="getkey-btn" href="https://platform.openai.com/settings/organization/api-keys" target="_blank">🔗 Lấy GPT Key</a>
+          <button class="api-btn" onclick="openAPIKeyPopup('gpt')">🔑 Nhập GPT Key</button>
+        `;
+      } else if(mode==='gemini') {
+        group.innerHTML = `
+          <a class="getkey-btn" href="https://aistudio.google.com/apikey" target="_blank">🔗 Lấy Gemini Key</a>
+          <button class="api-btn" onclick="openAPIKeyPopup('gemini')">🔑 Nhập Gemini Key</button>
+        `;
       }
     }
-
-    function createStars(count) {
-      stars = [];
-      for (let i = 0; i < count; i++) stars.push(randomStar());
+    function switchMode(mode) {
+      chatMode = mode;
+      document.querySelectorAll('.mode-btn').forEach((el,i)=>{
+        el.classList.toggle('active', (['chatbase','gpt','gemini','koha'][i]===mode));
+      });
+      document.getElementById('chatbase-chat').style.display = mode==='chatbase'?'block':'none';
+      document.getElementById('chatbase-input').style.display = 'none';
+      document.getElementById('gpt-chat').style.display = mode==='gpt'?'flex':'none';
+      document.getElementById('gpt-input').style.display = mode==='gpt'?'flex':'none';
+      document.getElementById('gemini-chat').style.display = mode==='gemini'?'flex':'none';
+      document.getElementById('gemini-input').style.display = mode==='gemini'?'flex':'none';
+      document.getElementById('koha-chat').style.display = mode==='koha'?'block':'none';
+      renderApiBtns(mode);
+      scrollToBottom();
     }
 
-    // Sao băng
-    function randomShootingStar() {
-      const side = Math.random();
-      let x, y, vx, vy;
-      if (side < 0.5) { // Xuất phát từ trên
-        x = Math.random() * w;
-        y = -50;
-        vx = (Math.random() - 0.5) * 6; // Có thể bay sang trái hoặc phải
-        vy = Math.random() * 2 + 3.5;
-      } else { // Xuất phát từ bên trái
-        x = -60;
-        y = Math.random() * h * 0.7;
-        vx = Math.random() * 5 + 3;
-        vy = Math.random() * 2 - 1; // Có thể bay lên hoặc xuống
-      }
-      return {
-        x, y, vx, vy,
-        len: Math.random() * 110 + 80,
-        life: 0,
-        maxLife: Math.random() * 80 + 60, // Tăng thời gian sống
-        alpha: Math.random() * 0.5 + 0.35
-      }
+    // Các hàm API Key và Chat giữ nguyên...
+    function getAPIKey(type) {
+      if (type==='gpt') return localStorage.getItem('openai_api_key')||'';
+      if (type==='gemini') return localStorage.getItem('gemini_api_key')||'';
+      return '';
     }
-
-    function createShootingStars(count) {
-      shootingStars = [];
-      for (let i = 0; i < count; i++) shootingStars.push(randomShootingStar());
+    function setAPIKey(type, key) {
+      if (type==='gpt') localStorage.setItem('openai_api_key', key.trim());
+      if (type==='gemini') localStorage.setItem('gemini_api_key', key.trim());
     }
-
-    function animate() {
-      ctx.clearRect(0, 0, w, h);
-      // Vẽ sao tĩnh
-      for (let s of stars) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-        ctx.globalAlpha = s.o;
-        ctx.fillStyle = "#fff";
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "#96e0ff";
-        ctx.fill();
-        ctx.restore();
-        s.x += s.speed * 0.6;
-        if (s.x > w + s.r) s.x = -s.r;
+    function removeAPIKey() {
+      if (window.apiKeyType === 'gpt') localStorage.removeItem('openai_api_key');
+      if (window.apiKeyType === 'gemini') localStorage.removeItem('gemini_api_key');
+      document.getElementById('popup-api-key').value = '';
+      alert('Đã xóa API key khỏi trình duyệt.');
+      closeAPIKeyPopup();
+    }
+    function openAPIKeyPopup(type) {
+      window.apiKeyType = type;
+      const box = document.getElementById('popup-api');
+      box.style.display = 'flex';
+      let label = "API Key";
+      let desc = "";
+      let ph = "";
+      if(type==='gpt') {
+        label = "Nhập OpenAI API Key (GPT)";
+        desc = "Tạo key ở <a href='https://platform.openai.com/settings/organization/api-keys' target='_blank'>https://platform.openai.com/...</a><br>(Ví dụ: sk-...)";
+        ph = "sk-...";
       }
-
-      // Vẽ sao băng
-      for (let star of shootingStars) {
-        ctx.save();
-        ctx.globalAlpha = star.alpha * (1 - star.life / star.maxLife);
-        const gradient = ctx.createLinearGradient(star.x, star.y, star.x - star.vx * star.len, star.y - star.vy * star.len);
-        gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-        gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-        ctx.strokeStyle = gradient;
-        ctx.shadowColor = "#b9eafe";
-        ctx.shadowBlur = 12;
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.moveTo(star.x, star.y);
-        ctx.lineTo(star.x - star.vx, star.y - star.vy); // Chỉ vẽ một đoạn ngắn để tạo hiệu ứng mờ
-        ctx.stroke();
-        ctx.restore();
-
-        star.x += star.vx;
-        star.y += star.vy;
-        star.life++;
-        if (star.life > star.maxLife || star.x > w + 150 || star.y > h + 100 || star.x < -150) {
-          Object.assign(star, randomShootingStar());
-        }
+      if(type==='gemini') {
+        label = "Nhập Google Gemini API Key";
+        desc = "Tạo key ở <a href='https://aistudio.google.com/apikey' target='_blank'>https://aistudio.google.com/apikey</a><br>(Ví dụ: AIza...)";
+        ph = "AIza...";
       }
-
-      requestAnimationFrame(animate);
+      document.getElementById('popup-label').innerHTML = label;
+      document.getElementById('popup-desc').innerHTML = desc + "<br>(Chỉ lưu trên trình duyệt, không gửi đi đâu)";
+      document.getElementById('popup-api-key').placeholder = ph;
+      document.getElementById('popup-api-key').value = getAPIKey(type);
+      setTimeout(()=>{document.getElementById('popup-api-key').focus()}, 120);
+    }
+    function closeAPIKeyPopup() {document.getElementById('popup-api').style.display = 'none';}
+    function saveAPIKey() {
+      let val = document.getElementById('popup-api-key').value;
+      if(val.length < 10) return alert('API key không hợp lệ!');
+      setAPIKey(window.apiKeyType, val);
+      alert('Đã lưu API key vào trình duyệt!');
+      closeAPIKeyPopup();
     }
     
-    // Khởi tạo và bắt đầu animation
-    resize();
-    animate();
-
-    // Hiệu ứng ánh sáng theo chuột
-    const mouseLight = document.getElementById('mouse-light');
-    document.addEventListener('mousemove', (e) => {
-      mouseLight.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-    });
-    document.addEventListener('mouseleave', () => { mouseLight.style.opacity = 0; });
-    document.addEventListener('mouseenter', () => { mouseLight.style.opacity = 1; });
-
-    // Tải nội dung header từ file html bên ngoài
-    fetch('mini-header.html')
-      .then(response => {
-        if (response.ok) {
-          return response.text();
-        }
-        throw new Error('Không tìm thấy mini-header.html');
-      })
-      .then(html => {
-        document.getElementById('header-placeholder').innerHTML = html;
-      })
-      .catch(error => {
-        console.warn(error);
-        // Header dự phòng nếu không tải được file
-        document.getElementById('header-placeholder').innerHTML = `
-        <header class="mini-header">
-          <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
-            <img src="logo.png" alt="Trang chủ">
-          </button>
-          <span class="mini-title">Tra Cứu Học Thuật & AI</span>
-        </header>`;
-      });
-
-    // Tải nội dung footer từ file html bên ngoài
-    fetch('footer.html')
-      .then(response => {
-        if (response.ok) {
-          return response.text();
-        }
-        throw new Error('Không tìm thấy footer.html');
-      })
-      .then(html => {
-        document.getElementById('footer').innerHTML = html;
-      })
-      .catch(error => {
-        console.warn(error);
-        document.getElementById('footer').innerHTML = `<p>&copy; ${new Date().getFullYear()} Bản quyền thuộc về bạn. Tạo một file footer.html để thay đổi nội dung này.</p>`;
-      });
+    let gptMsgs = [], geminiMsgs = [];
+    async function sendMsgGPT() {
+      let key = getAPIKey('gpt');
+      let msg = document.getElementById('userMsg-gpt').value.trim();
+      if (!key) { openAPIKeyPopup('gpt'); return; }
+      if (!msg) return;
+      gptMsgs.push({role:'user',content:msg});
+      renderChat('gpt-chat', gptMsgs);
+      document.getElementById('userMsg-gpt').value = '';
+      gptMsgs.push({role:'assistant',content:'<i>Đang trả lời...</i>'});
+      renderChat('gpt-chat', gptMsgs); scrollToBottom();
+      try {
+        let res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json','Authorization': `Bearer ${key}`},
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{role:"system",content:"Bạn là trợ lý AI học tập, trả lời ngắn gọn, thân thiện."},
+              ...gptMsgs.filter(m=>m.role==='user')]
+          })
+        });
+        let data = await res.json();
+        gptMsgs.pop();
+        let reply = data.choices?.[0]?.message?.content || "Có lỗi xảy ra!";
+        gptMsgs.push({role:'assistant',content:reply});
+        renderChat('gpt-chat', gptMsgs); scrollToBottom();
+      } catch (e) {gptMsgs.pop();gptMsgs.push({role:'assistant',content:'Lỗi gọi API!'});renderChat('gpt-chat', gptMsgs);}
+    }
+    async function sendMsgGemini() {
+      let key = getAPIKey('gemini');
+      let msg = document.getElementById('userMsg-gemini').value.trim();
+      if (!key) { openAPIKeyPopup('gemini'); return; }
+      if (!msg) return;
+      geminiMsgs.push({role:'user',content:msg});
+      renderChat('gemini-chat', geminiMsgs);
+      document.getElementById('userMsg-gemini').value = '';
+      geminiMsgs.push({role:'assistant',content:'<i>Đang trả lời...</i>'});
+      renderChat('gemini-chat', geminiMsgs); scrollToBottom();
+      try {
+        let URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+        let res = await fetch(URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({contents: [{parts: [{text: msg}]}]})
+          }
+        );
+        let data = await res.json();
+        geminiMsgs.pop();
+        let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Có lỗi xảy ra!";
+        geminiMsgs.push({role:'assistant',content:reply});
+        renderChat('gemini-chat', geminiMsgs); scrollToBottom();
+      } catch (e) {geminiMsgs.pop();geminiMsgs.push({role:'assistant',content:'Lỗi gọi API!'});renderChat('gemini-chat', geminiMsgs);}
+    }
+    function renderChat(boxId, msgs) {
+      let html = '';
+      for(let m of msgs){
+        let user = (m.role==='user');
+        html += `<div class="msg-row ${user?'msg-user':'msg-ai'}"><div class="msg-bubble">${m.content}</div></div>`;
+      }
+      document.getElementById(boxId).innerHTML = html;
+    }
+    function scrollToBottom() {
+      setTimeout(()=>{
+        document.querySelectorAll('.chat-messages').forEach(box=>{box.scrollTop = box.scrollHeight+77;});
+      }, 80);
+    }
+    window.onload = ()=>{renderApiBtns('chatbase');}
   </script>
 </body>
 </html>
