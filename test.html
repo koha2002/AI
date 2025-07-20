@@ -193,6 +193,10 @@
 
   <main>
     <div class="mindmap-toolbar">
+        <button class="toolbar-btn" id="add-root-btn" title="Thêm nút chính">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span>Chính</span>
+        </button>
         <button class="toolbar-btn" id="add-child-btn" title="Thêm nút con (Tab)">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12H5"></path><path d="M14 12h5"></path><path d="M12 10V5"></path><path d="M12 14v5"></path><circle cx="12" cy="12" r="2"></circle></svg>
             <span>Con</span>
@@ -310,7 +314,7 @@
         const italicBtn = document.getElementById('italic-btn');
         const noteEditor = document.getElementById('note-editor');
 
-        let rootData, selectedNode, connectionMode = false, connectionStartNode = null;
+        let forestData = [], selectedNode, connectionMode = false, connectionStartNode = null;
         const defaultNodeSize = { width: 160, height: 60 };
         const treeLayout = d3.tree().nodeSize([120, 220]);
 
@@ -322,23 +326,26 @@
 
         // --- HỆ THỐNG LƯU TRỮ ĐƠN GIẢN ---
         function saveData() {
-            if (rootData) {
-                localStorage.setItem('mindmapData', JSON.stringify(rootData));
+            if (forestData) {
+                localStorage.setItem('mindmapData', JSON.stringify(forestData));
             }
         }
 
         function loadData() {
             const savedData = localStorage.getItem('mindmapData');
-            return savedData ? JSON.parse(savedData) : createDefaultData();
+            const data = savedData ? JSON.parse(savedData) : [createDefaultNode("Chủ đề chính")];
+            if (!Array.isArray(data) || data.length === 0) {
+                return [createDefaultNode("Chủ đề chính")];
+            }
+            return data;
         }
 
-        function createDefaultData() {
+        function createDefaultNode(name, children = []) {
             const defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
             const defaultText = getComputedStyle(document.documentElement).getPropertyValue('--node-text').trim();
-            
-            const createNode = (nodeName, children = []) => ({
+            return {
                 id: `node-${Date.now()}-${Math.random()}`,
-                name: nodeName,
+                name: name || "Nút mới",
                 shape: "rectangle",
                 width: defaultNodeSize.width,
                 height: defaultNodeSize.height,
@@ -350,99 +357,116 @@
                 note: "",
                 connections: [],
                 children: children
-            });
-
-            return createNode("Chủ đề chính", [
-                createNode("Nhánh 1", [
-                    createNode("Ý tưởng 1.1"),
-                    createNode("Ý tưởng 1.2")
-                ]),
-                createNode("Nhánh 2", [
-                    createNode("Ý tưởng 2.1")
-                ]),
-                createNode("Nhánh 3")
-            ]);
+            };
         }
 
         // --- KẾT THÚC HỆ THỐNG LƯU TRỮ ---
 
         function update() {
-            const hierarchyRoot = d3.hierarchy(rootData);
-            const treeData = treeLayout(hierarchyRoot);
-            const nodes = treeData.descendants();
-            const links = treeData.descendants().slice(1);
+            const allNodes = [];
+            const allLinks = [];
+            let offsetX = 0;
 
-            gLinks.selectAll("path").remove();
-            gNodes.selectAll(".node").remove();
+            forestData.forEach(rootNodeData => {
+                const hierarchyRoot = d3.hierarchy(rootNodeData);
+                const tree = treeLayout(hierarchyRoot);
+                const nodes = tree.descendants();
+                const links = tree.links();
+
+                nodes.forEach(node => {
+                    node.y_offset = node.y + offsetX;
+                });
+
+                allNodes.push(...nodes);
+                allLinks.push(...links);
+
+                const bounds = d3.extent(nodes, d => d.y);
+                offsetX += (bounds[1] - bounds[0]) + 250;
+            });
 
             gLinks.selectAll("path.link")
-                .data(links, d => d.data.id)
-                .enter().append("path")
+                .data(allLinks, d => d.target.data.id)
+                .join("path")
                 .attr("class", "link")
-                .attr("d", d => `M${d.y},${d.x}C${(d.y + d.parent.y) / 2},${d.x} ${(d.y + d.parent.y) / 2},${d.parent.x} ${d.parent.y},${d.parent.x}`);
-
-            const nodeMap = new Map(hierarchyRoot.descendants().map(d => [d.data.id, d]));
-            hierarchyRoot.descendants().forEach(sourceNode => {
-                if (sourceNode.data.connections) {
-                    sourceNode.data.connections.forEach(targetId => {
-                        const targetNode = nodeMap.get(targetId);
-                        if (targetNode) {
-                            gLinks.append("path")
-                                .attr("class", "custom-link")
-                                .attr("d", `M${sourceNode.y},${sourceNode.x} L${targetNode.y},${targetNode.x}`);
-                        }
-                    });
-                }
-            });
+                .attr("d", d => `M${d.source.y_offset},${d.source.x}C${(d.source.y_offset + d.target.y_offset)/2},${d.source.x} ${(d.source.y_offset + d.target.y_offset)/2},${d.target.x} ${d.target.y_offset},${d.target.x}`);
+            
+            // Logic vẽ liên kết tùy chỉnh...
 
             const node = gNodes.selectAll("g.node")
-                .data(nodes, d => d.data.id)
-                .enter().append("g")
-                .attr("class", "node")
-                .attr("transform", d => `translate(${d.y},${d.x})`)
-                .on("contextmenu", handleNodeClick);
+                .data(allNodes, d => d.data.id)
+                .join(
+                    enter => enter.append("g")
+                        .attr("class", "node")
+                        .attr("transform", d => `translate(${d.y_offset},${d.x})`)
+                        .on("contextmenu", handleNodeClick)
+                        .each(function(d) {
+                            const group = d3.select(this);
+                            const data = d.data;
+                            const nodeWidth = data.width || defaultNodeSize.width;
+                            const nodeHeight = data.height || defaultNodeSize.height;
+                            const shapeType = data.shape || 'rectangle';
+                            const bgColor = data.backgroundColor || getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
+                            
+                            let shape;
+                            if (shapeType === 'rectangle') shape = group.append("rect").attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2).attr("rx", 8).attr("ry", 8);
+                            else if (shapeType === 'ellipse') shape = group.append("ellipse").attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
+                            else if (shapeType === 'diamond') {
+                                const w = nodeWidth / 2; const h = nodeHeight / 2;
+                                shape = group.append("path").attr("d", `M 0 ${-h} L ${w} 0 L 0 ${h} L ${-w} 0 Z`);
+                            }
+                            shape.attr("class", "shape").style("fill", bgColor);
 
-            node.each(function(d) {
-                const group = d3.select(this);
-                const data = d.data;
-                const nodeWidth = data.width || defaultNodeSize.width;
-                const nodeHeight = data.height || defaultNodeSize.height;
-                const shapeType = data.shape || 'rectangle';
-                const bgColor = data.backgroundColor || getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
-                
-                let shape;
-                if (shapeType === 'rectangle') shape = group.append("rect").attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2).attr("rx", 8).attr("ry", 8);
-                else if (shapeType === 'ellipse') shape = group.append("ellipse").attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
-                else if (shapeType === 'diamond') {
-                    const w = nodeWidth / 2; const h = nodeHeight / 2;
-                    shape = group.append("path").attr("d", `M 0 ${-h} L ${w} 0 L 0 ${h} L ${-w} 0 Z`);
-                }
-                shape.attr("class", "shape").style("fill", bgColor);
-            });
+                            const fo = group.append("foreignObject")
+                                .on("dblclick", (event) => { event.stopPropagation(); editNodeText(d, d3.select(this).select("foreignObject")); });
 
-            const fo = node.append("foreignObject")
+                            fo.append("xhtml:div")
+                                .attr("class", "node-foreign-object")
+                                .append("xhtml:div")
+                                .attr("class", "node-text-div");
+
+                            group.filter(d => d.data.note && d.data.note.trim() !== "")
+                                .append("text")
+                                .attr("class", "note-icon")
+                                .text("📝");
+                        }),
+                    update => update,
+                    exit => exit.remove()
+                );
+            
+            node.attr("transform", d => `translate(${d.y_offset},${d.x})`);
+            node.select(".shape")
+                .each(function(d) {
+                    const shape = d3.select(this);
+                    const data = d.data;
+                    const nodeWidth = data.width || defaultNodeSize.width;
+                    const nodeHeight = data.height || defaultNodeSize.height;
+                    const shapeType = data.shape || 'rectangle';
+                    
+                    shape.style("fill", data.backgroundColor);
+                    if (shapeType === 'rectangle') shape.attr("width", nodeWidth).attr("height", nodeHeight).attr("x", -nodeWidth / 2).attr("y", -nodeHeight / 2);
+                    else if (shapeType === 'ellipse') shape.attr("rx", nodeWidth / 2).attr("ry", nodeHeight / 2);
+                    else if (shapeType === 'diamond') {
+                        const w = nodeWidth / 2; const h = nodeHeight / 2;
+                        shape.attr("d", `M 0 ${-h} L ${w} 0 L 0 ${h} L ${-w} 0 Z`);
+                    }
+                });
+
+            node.select("foreignObject")
                 .attr("width", d => (d.data.width || defaultNodeSize.width) - 10)
                 .attr("height", d => (d.data.height || defaultNodeSize.height) - 10)
                 .attr("x", d => -(d.data.width || defaultNodeSize.width) / 2 + 5)
-                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 5)
-                .on("dblclick", (event, d) => { event.stopPropagation(); editNodeText(d, fo); });
-
-            fo.append("xhtml:div")
-                .attr("class", "node-foreign-object")
-                .append("xhtml:div")
-                .attr("class", "node-text-div")
+                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 5);
+            
+            node.select(".node-text-div")
                 .style("font-weight", d => d.data.isBold ? "bold" : "normal")
                 .style("font-style", d => d.data.isItalic ? "italic" : "normal")
                 .style("font-size", d => (d.data.fontSize || 14) + 'px')
-                .style("color", d => d.data.textColor || getComputedStyle(document.documentElement).getPropertyValue('--node-text').trim())
+                .style("color", d => d.data.textColor)
                 .html(d => d.data.name);
 
-            node.filter(d => d.data.note && d.data.note.trim() !== "")
-                .append("text")
-                .attr("class", "note-icon")
+            node.select(".note-icon")
                 .attr("x", d => (d.data.width || defaultNodeSize.width) / 2 - 15)
-                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 15)
-                .text("📝");
+                .attr("y", d => -(d.data.height || defaultNodeSize.height) / 2 + 15);
         }
         
         function handleNodeClick(event, d) {
@@ -511,7 +535,7 @@
                 .html(d.data.name)
                 .on("blur", function() {
                     d.data.name = this.value;
-                    div.html(d.data.name).style("display", "block");
+                    div.html(d.data.name).style("display", "flex");
                     d3.select(this).remove();
                     saveData();
                 });
@@ -522,9 +546,7 @@
 
         function addNode(isSibling) {
             if (!selectedNode) { alert("Vui lòng chọn một nút!"); return; }
-            const defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--node-bg').trim();
-            const defaultText = getComputedStyle(document.documentElement).getPropertyValue('--node-text').trim();
-            const newNodeData = { id: `node-${Date.now()}`, name: "Nút mới", shape: "rectangle", width: defaultNodeSize.width, height: defaultNodeSize.height, backgroundColor: defaultBg, textColor: defaultText, fontSize: 14, isBold: false, isItalic: false, note: "", connections: [] };
+            const newNodeData = createDefaultNode();
             let parentData = isSibling ? selectedNode.parent.data : selectedNode.data;
 
             if (!selectedNode.parent && isSibling) { alert("Không thể thêm nút ngang hàng cho chủ đề chính."); return; }
@@ -532,23 +554,31 @@
             
             parentData.children.push(newNodeData);
             
-            update(d3.hierarchy(rootData));
+            update();
             saveData();
         }
 
         function deleteNode() {
-            if (!selectedNode || !selectedNode.parent) { alert("Không thể xóa chủ đề chính!"); return; }
-            const parentData = selectedNode.parent.data;
-            const index = parentData.children.indexOf(selectedNode.data);
-            if (index > -1) parentData.children.splice(index, 1);
+            if (!selectedNode) return;
+            if (!selectedNode.parent) { // It's a root node
+                if (forestData.length <= 1) {
+                    alert("Không thể xóa chủ đề chính cuối cùng!");
+                    return;
+                }
+                forestData = forestData.filter(root => root.id !== selectedNode.data.id);
+            } else { // It's a child node
+                const parentData = selectedNode.parent.data;
+                const index = parentData.children.indexOf(selectedNode.data);
+                if (index > -1) parentData.children.splice(index, 1);
+            }
             
-            update(d3.hierarchy(rootData));
+            update();
             deselectAll();
             saveData();
         }
 
         function setShape(shape) {
-            if (selectedNode) { selectedNode.data.shape = shape; update(d3.hierarchy(rootData)); saveData(); }
+            if (selectedNode) { selectedNode.data.shape = shape; update(); saveData(); }
         }
         
         function zoomToFit() {
@@ -566,6 +596,11 @@
         }
 
         // Gán sự kiện
+        document.getElementById('add-root-btn').onclick = () => {
+            forestData.push(createDefaultNode("Chủ đề mới"));
+            update();
+            saveData();
+        };
         document.getElementById('add-child-btn').onclick = () => addNode(false);
         document.getElementById('add-sibling-btn').onclick = () => addNode(true);
         document.getElementById('delete-btn').onclick = deleteNode;
@@ -574,29 +609,19 @@
         document.getElementById('shape-diamond-btn').onclick = () => setShape('diamond');
         
         widthSlider.oninput = (e) => {
-            if(selectedNode) {
-                selectedNode.data.width = +e.target.value;
-                widthValueSpan.textContent = e.target.value;
-                update(d3.hierarchy(rootData));
-                saveData();
-            }
+            if(selectedNode) { selectedNode.data.width = +e.target.value; widthValueSpan.textContent = e.target.value; update(); saveData(); }
         };
         heightSlider.oninput = (e) => {
-            if(selectedNode) {
-                selectedNode.data.height = +e.target.value;
-                heightValueSpan.textContent = e.target.value;
-                update(d3.hierarchy(rootData));
-                saveData();
-            }
+            if(selectedNode) { selectedNode.data.height = +e.target.value; heightValueSpan.textContent = e.target.value; update(); saveData(); }
         };
 
-        bgColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.backgroundColor = e.target.value; update(d3.hierarchy(rootData)); saveData(); } };
-        textColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.textColor = e.target.value; update(d3.hierarchy(rootData)); saveData(); } };
-        boldBtn.onclick = () => { if(selectedNode) { selectedNode.data.isBold = !selectedNode.data.isBold; update(d3.hierarchy(rootData)); updateSidebar(); saveData(); } };
-        italicBtn.onclick = () => { if(selectedNode) { selectedNode.data.isItalic = !selectedNode.data.isItalic; update(d3.hierarchy(rootData)); updateSidebar(); saveData(); } };
-        document.getElementById('font-size-increase-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) + 1; update(d3.hierarchy(rootData)); saveData(); } };
-        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) - 1; update(d3.hierarchy(rootData)); saveData(); } };
-        noteEditor.onblur = (e) => { if(selectedNode) { selectedNode.data.note = e.target.value; update(d3.hierarchy(rootData)); saveData(); } };
+        bgColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.backgroundColor = e.target.value; update(); saveData(); } };
+        textColorPicker.oninput = (e) => { if(selectedNode) { selectedNode.data.textColor = e.target.value; update(); saveData(); } };
+        boldBtn.onclick = () => { if(selectedNode) { selectedNode.data.isBold = !selectedNode.data.isBold; update(); updateSidebar(); saveData(); } };
+        italicBtn.onclick = () => { if(selectedNode) { selectedNode.data.isItalic = !selectedNode.data.isItalic; update(); updateSidebar(); saveData(); } };
+        document.getElementById('font-size-increase-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) + 1; update(); saveData(); } };
+        document.getElementById('font-size-decrease-btn').onclick = () => { if(selectedNode) { selectedNode.data.fontSize = (selectedNode.data.fontSize || 14) - 1; update(); saveData(); } };
+        noteEditor.onblur = (e) => { if(selectedNode) { selectedNode.data.note = e.target.value; update(); saveData(); } };
         document.getElementById('add-connection-btn').onclick = () => {
             connectionMode = true;
             connectionStartNode = null;
@@ -621,7 +646,7 @@
         });
 
         document.getElementById('export-json-btn').onclick = () => {
-            const dataStr = JSON.stringify(rootData, null, 2);
+            const dataStr = JSON.stringify(forestData, null, 2);
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -634,7 +659,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        rootData = JSON.parse(e.target.result);
+                        forestData = JSON.parse(e.target.result);
                         update();
                         saveData();
                     } catch (err) { alert("File không hợp lệ!"); }
@@ -682,9 +707,9 @@
 
         // Khởi tạo
         function initializeApp() {
-            rootData = loadData();
+            forestData = loadData();
             update();
-            const hierarchy = d3.hierarchy(rootData);
+            const hierarchy = d3.hierarchy(forestData[0]);
             selectNode(hierarchy);
             zoomToFit();
         }
