@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" xintegrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
@@ -286,6 +287,19 @@
         </div>
     </div>
 
+    <!-- Export Modal -->
+    <div id="export-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center dark:bg-gray-800">
+            <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Chọn định dạng xuất</h2>
+            <p class="mb-6 text-gray-700 dark:text-gray-300">Xuất tài liệu cho quiz: <strong id="export-quiz-title" class="text-purple-600 dark:text-purple-400"></strong></p>
+            <div class="flex gap-4 justify-center">
+                <button id="export-pdf-btn" class="btn bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button>
+                <button id="export-doc-btn" class="btn bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-file-word mr-2"></i>Xuất Word (.docx)</button>
+            </div>
+            <button id="cancel-export-btn" class="mt-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">Hủy</button>
+        </div>
+    </div>
+
     <footer id="main-footer"></footer>
 
 
@@ -343,6 +357,11 @@
             const correctCountDisplay = document.getElementById('correct-count');
             const wrongCountDisplay = document.getElementById('wrong-count');
             const endCountsContainer = document.getElementById('end-counts');
+            const exportModal = document.getElementById('export-modal');
+            const exportQuizTitle = document.getElementById('export-quiz-title');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+            const exportDocBtn = document.getElementById('export-doc-btn');
+            const cancelExportBtn = document.getElementById('cancel-export-btn');
 
             // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
@@ -379,6 +398,7 @@
             let currentQuestionImageBase64 = null;
             let currentAnswerImages = [null, null, null, null];
             let draggedItemIndex = null;
+            let quizToExportIndex = null;
 
             // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
@@ -393,9 +413,23 @@
                     const quizCard = document.createElement('div'); quizCard.className = 'p-4 rounded-lg text-white text-center cursor-pointer btn h-full flex flex-col justify-center min-h-[120px]'; quizCard.style.background = `linear-gradient(45deg, hsl(${index*50}, 60%, 50%), hsl(${index*50 + 60}, 60%, 50%))`; quizCard.innerHTML = `<h3 class="text-xl font-bold">${quiz.title}</h3><p>${quiz.questions.length} câu hỏi</p>`;
                     quizCard.addEventListener('click', () => { selectedQuizIndex = index; showScreen('playerName'); });
                     const controls = document.createElement('div'); controls.className = 'absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity';
+                    
+                    const exportDocBtn = document.createElement('button');
+                    exportDocBtn.className = 'bg-teal-500 text-white rounded-full w-6 h-6 flex items-center justify-center btn';
+                    exportDocBtn.innerHTML = '<i class="fas fa-file-alt fa-xs"></i>';
+                    exportDocBtn.title = 'Xuất câu hỏi + đáp án làm tài liệu';
+                    exportDocBtn.addEventListener('click', (e) => { e.stopPropagation(); showExportOptions(index); });
+
                     const editBtn = document.createElement('button'); editBtn.className = 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center btn'; editBtn.innerHTML = '<i class="fas fa-pencil-alt fa-xs"></i>'; editBtn.title = 'Sửa quiz này'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); startEditingQuiz(index); });
+                    
                     const deleteBtn = document.createElement('button'); deleteBtn.className = 'bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center btn'; deleteBtn.innerHTML = '<i class="fas fa-trash-alt fa-xs"></i>'; deleteBtn.title = 'Xóa quiz này'; deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); if (confirm(`Bạn có chắc muốn xóa bộ câu hỏi "${quiz.title}" không?`)) { deleteQuiz(index); } });
-                    controls.appendChild(editBtn); controls.appendChild(deleteBtn); quizCardContainer.appendChild(quizCard); quizCardContainer.appendChild(controls); quizListContainer.appendChild(quizCardContainer);
+                    
+                    controls.appendChild(exportDocBtn);
+                    controls.appendChild(editBtn);
+                    controls.appendChild(deleteBtn);
+                    quizCardContainer.appendChild(quizCard);
+                    quizCardContainer.appendChild(controls);
+                    quizListContainer.appendChild(quizCardContainer);
                 });
             }
 
@@ -621,6 +655,64 @@
                     questions: initialWrongAnswers
                 };
                 exportQuizToJson(wrongAnswersQuiz);
+            }
+
+            // --- EXPORT DOCUMENT LOGIC ---
+            function showExportOptions(index) {
+                quizToExportIndex = index;
+                exportQuizTitle.textContent = allQuizzes[index].title;
+                exportModal.classList.remove('hidden');
+            }
+
+            function exportAsDocument(quizIndex, format) {
+                const quiz = allQuizzes[quizIndex];
+                const questions = JSON.parse(JSON.stringify(quiz.questions));
+                
+                questions.sort((a, b) => a.question.localeCompare(b.question, 'vi'));
+
+                let contentHtml = `<div style="font-family: Arial, sans-serif; line-height: 1.6;"><h1>${quiz.title}</h1>`;
+                questions.forEach(q => {
+                    const correctAnswer = q.answers.find(a => a.correct);
+                    contentHtml += `<div style="margin-bottom: 20px; page-break-inside: avoid;">`;
+                    contentHtml += `<p><b>${q.question}</b></p>`;
+                    if (q.image) {
+                        contentHtml += `<img src="${q.image}" style="max-width: 300px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;">`;
+                    }
+                    contentHtml += `<p style="color: #28a745;"><b>&rArr;</b> ${correctAnswer.text || ''}</p>`;
+                    if (correctAnswer.image) {
+                        contentHtml += `<img src="${correctAnswer.image}" style="max-width: 200px; margin-top: 5px; border-radius: 8px;">`;
+                    }
+                    contentHtml += `</div><hr style="border: none; border-top: 1px solid #eee;">`;
+                });
+                contentHtml += `</div>`;
+
+                if (format === 'pdf') {
+                    const element = document.createElement('div');
+                    element.innerHTML = contentHtml;
+                    const opt = {
+                        margin:       [0.5, 0.5, 0.5, 0.5],
+                        filename:     `${quiz.title}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2, useCORS: true },
+                        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                    };
+                    html2pdf().from(element).set(opt).save();
+                } else if (format === 'docx') {
+                    const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+                        "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+                        "xmlns='http://www.w3.org/TR/REC-html40'>"+
+                        "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
+                    const footer = "</body></html>";
+                    const sourceHTML = header + contentHtml + footer;
+
+                    const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+                    const fileDownload = document.createElement("a");
+                    document.body.appendChild(fileDownload);
+                    fileDownload.href = source;
+                    fileDownload.download = `${quiz.title}.docx`;
+                    fileDownload.click();
+                    document.body.removeChild(fileDownload);
+                }
             }
 
             // --- QUIZ CREATOR LOGIC ---
@@ -973,6 +1065,16 @@
             }));
             timerEnabledCheckbox.addEventListener('change', () => {
                 timerOptionsDiv.style.display = timerEnabledCheckbox.checked ? 'flex' : 'none';
+            });
+            
+            cancelExportBtn.addEventListener('click', () => exportModal.classList.add('hidden'));
+            exportPdfBtn.addEventListener('click', () => {
+                exportAsDocument(quizToExportIndex, 'pdf');
+                exportModal.classList.add('hidden');
+            });
+            exportDocBtn.addEventListener('click', () => {
+                exportAsDocument(quizToExportIndex, 'docx');
+                exportModal.classList.add('hidden');
             });
 
             // --- INITIALIZATION ---
