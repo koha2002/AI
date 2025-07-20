@@ -6,7 +6,6 @@
     <title>Quiz Vui - Tạo và Chơi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- FIX: Corrected 'xintegrity' to 'integrity' -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -153,10 +152,7 @@
             <div id="quiz-screen" class="hidden card p-6 sm:p-8 rounded-2xl shadow-2xl text-black justify-center">
                 <div>
                     <div class="flex justify-between items-center mb-4">
-                        <div class="text-lg font-bold">
-                            Câu hỏi: <span id="question-progress">1/10</span>
-                            <span id="review-indicator" class="text-sm text-yellow-600 font-medium ml-2 hidden">(Làm lại câu sai)</span>
-                        </div>
+                        <div class="text-lg font-bold">Câu hỏi: <span id="question-progress">1/10</span></div>
                         <div class="text-lg font-bold text-green-500">Đúng: <span id="score-percent">0%</span></div>
                     </div>
                     <div id="timer-container" class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-4 mb-6 shadow-inner">
@@ -171,23 +167,13 @@
 
             <!-- End Screen -->
             <div id="end-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
-                <div class="w-full">
-                    <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
-                    <h1 id="end-title" class="text-4xl font-bold mb-2">Hoàn thành!</h1>
-                    <p class="text-xl text-black mb-1">Chúc mừng, <span id="player-name-final" class="font-bold text-purple-500"></span>!</p>
-                    <p id="end-message" class="text-2xl mb-6">Tỷ lệ đúng của bạn là: <span class="font-bold text-green-500">0%</span></p>
-                    
-                    <div id="wrong-questions-list" class="mt-4 text-left max-w-2xl mx-auto hidden">
-                        <h3 class="font-bold text-lg mb-2 text-center">Các câu bạn đã sai ban đầu:</h3>
-                        <ul id="wrong-questions-ul" class="list-disc list-inside text-sm space-y-1 bg-gray-100 p-4 rounded-lg max-h-40 overflow-y-auto">
-                            <!-- JS will populate this -->
-                        </ul>
-                    </div>
-
-                    <button id="back-to-home-btn" class="btn mt-8 bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 shadow-lg">
-                        Về trang chủ
-                    </button>
-                </div>
+                <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
+                <h1 id="end-title" class="text-4xl font-bold mb-2">Hoàn thành!</h1>
+                <p class="text-xl text-black mb-1">Chúc mừng, <span id="player-name-final" class="font-bold text-purple-500"></span>!</p>
+                <p id="end-message" class="text-2xl mb-6">Tỷ lệ đúng của bạn là: <span id="final-score-percent" class="font-bold text-green-500">0%</span></p>
+                <button id="back-to-home-btn" class="btn bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 shadow-lg">
+                    Về trang chủ
+                </button>
             </div>
 
             <!-- Creator Screen -->
@@ -252,7 +238,6 @@
 
             // Quiz UI
             const questionProgress = document.getElementById('question-progress');
-            const reviewIndicator = document.getElementById('review-indicator');
             const scorePercentDisplay = document.getElementById('score-percent');
             const timerContainer = document.getElementById('timer-container');
             const timerBar = document.getElementById('timer-bar');
@@ -261,8 +246,8 @@
             const endTitle = document.getElementById('end-title');
             const endMessage = document.getElementById('end-message');
             const playerNameFinal = document.getElementById('player-name-final');
-            const wrongQuestionsListContainer = document.getElementById('wrong-questions-list');
-            const wrongQuestionsUl = document.getElementById('wrong-questions-ul');
+            const finalScorePercentDisplay = document.getElementById('final-score-percent');
+            const quizListContainer = document.getElementById('quiz-list');
 
             // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
@@ -286,10 +271,9 @@
             let currentQuizData = [];
             let newQuizQuestions = [];
             let wronglyAnsweredQuestions = [];
-            let initialWrongAnswers = [];
             let correctAnswersCount, totalQuestionsInRound;
             let currentQuestionIndex, timerInterval, playerName, selectedQuizIndex;
-            let gameMode, isTimerEnabled, timePerQuestion, isReviewRound;
+            let gameMode, isTimerEnabled, timePerQuestion;
             let editingQuizIndex = null, editingQuestionIndex = null;
 
             // --- CORE FUNCTIONS ---
@@ -319,15 +303,16 @@
                 playerName = playerNameInput.value || "Người chơi";
                 gameMode = document.querySelector('input[name="game-mode"]:checked').value;
                 isTimerEnabled = timerEnabledCheckbox.checked;
+                
                 let timeValue = parseInt(timeValueInput.value) || 15;
                 timePerQuestion = timeUnitSelect.value === 'minutes' ? timeValue * 60 : timeValue;
-                currentQuizData = [...allQuizzes[selectedQuizIndex].questions].sort(() => Math.random() - 0.5);
+
+                currentQuizData = [...allQuizzes[selectedQuizIndex].questions].sort(() => Math.random() - 0.5); // Shuffle questions
                 totalQuestionsInRound = currentQuizData.length;
                 wronglyAnsweredQuestions = [];
-                initialWrongAnswers = [];
                 correctAnswersCount = 0;
                 currentQuestionIndex = 0;
-                isReviewRound = false;
+                
                 showScreen('quiz');
                 setNextQuestion();
             }
@@ -338,12 +323,12 @@
                     showQuestion(currentQuizData[currentQuestionIndex]);
                 } else {
                     if (gameMode === 'practice' && wronglyAnsweredQuestions.length > 0) {
+                        // Start review round in practice mode
                         alert(`Bạn đã trả lời sai ${wronglyAnsweredQuestions.length} câu. Hãy làm lại những câu đó!`);
                         currentQuizData = [...wronglyAnsweredQuestions];
                         totalQuestionsInRound = currentQuizData.length;
                         wronglyAnsweredQuestions = [];
                         currentQuestionIndex = 0;
-                        isReviewRound = true;
                         setNextQuestion();
                     } else {
                         endGame();
@@ -353,11 +338,9 @@
             
             function showQuestion(questionData) {
                 questionProgress.textContent = `${currentQuestionIndex + 1}/${totalQuestionsInRound}`;
-                const totalOriginalQuestions = allQuizzes[selectedQuizIndex].questions.length;
-                const percent = totalOriginalQuestions > 0 ? Math.round((correctAnswersCount / totalOriginalQuestions) * 100) : 0;
+                const percent = totalQuestionsInRound > 0 ? Math.round((correctAnswersCount / totalQuestionsInRound) * 100) : 0;
                 scorePercentDisplay.textContent = `${percent}%`;
                 questionText.textContent = questionData.question;
-                reviewIndicator.classList.toggle('hidden', !isReviewRound);
                 const answerShapes = ['fa-triangle', 'fa-diamond', 'fa-square', 'fa-circle'];
                 const answerColors = ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500'];
                 questionData.answers.forEach((answer, index) => {
@@ -382,14 +365,12 @@
                 clearInterval(timerInterval);
                 const selectedBtn = e.currentTarget;
                 const isCorrect = selectedBtn.dataset.correct === 'true';
-                const currentQuestion = currentQuizData[currentQuestionIndex];
 
                 if (isCorrect) {
-                    if (!isReviewRound) correctAnswersCount++;
+                    correctAnswersCount++;
                 } else {
-                    wronglyAnsweredQuestions.push(currentQuestion);
-                    if (!isReviewRound) {
-                        initialWrongAnswers.push(currentQuestion);
+                    if (gameMode === 'practice') {
+                        wronglyAnsweredQuestions.push(currentQuizData[currentQuestionIndex]);
                     }
                 }
                 
@@ -414,11 +395,6 @@
                     timerBar.style.width = `${widthPercentage}%`; timerBar.style.backgroundPosition = `${100 - widthPercentage}%`;
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        const currentQuestion = currentQuizData[currentQuestionIndex];
-                        if (gameMode === 'practice') {
-                            wronglyAnsweredQuestions.push(currentQuestion);
-                            if (!isReviewRound) { initialWrongAnswers.push(currentQuestion); }
-                        }
                         Array.from(answerButtonsContainer.children).forEach(button => { if (button.dataset.correct) button.classList.add('correct'); button.disabled = true; });
                         setTimeout(() => { currentQuestionIndex++; setNextQuestion(); }, 1500);
                     }
@@ -431,23 +407,12 @@
                 const totalQuestions = allQuizzes[selectedQuizIndex].questions.length;
                 const finalPercent = totalQuestions > 0 ? Math.round((correctAnswersCount / totalQuestions) * 100) : 0;
                 
-                wrongQuestionsListContainer.classList.add('hidden');
-                
                 if (gameMode === 'practice') {
                     endTitle.textContent = "Luyện tập hoàn tất!";
                     endMessage.innerHTML = `Chúc mừng bạn đã trả lời đúng 100% tất cả các câu hỏi!`;
-                    if (initialWrongAnswers.length > 0) {
-                        wrongQuestionsListContainer.classList.remove('hidden');
-                        wrongQuestionsUl.innerHTML = '';
-                        initialWrongAnswers.forEach(q => {
-                            const li = document.createElement('li');
-                            li.textContent = q.question;
-                            wrongQuestionsUl.appendChild(li);
-                        });
-                    }
                 } else {
                     endTitle.textContent = "Hoàn thành!";
-                    endMessage.innerHTML = `Tỷ lệ đúng của bạn là: <span class="font-bold text-green-500">${finalPercent}%</span>`;
+                    endMessage.innerHTML = `Tỷ lệ đúng của bạn là: <span id="final-score-percent" class="font-bold text-green-500">${finalPercent}%</span>`;
                 }
             }
 
