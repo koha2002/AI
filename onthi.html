@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện Đề</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- FIX: Corrected 'xintegrity' to 'integrity' -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        /* THÊM LẠI: CSS để footer luôn ở cuối trang */
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: #f0f2f5;
@@ -21,7 +23,7 @@
         }
         .app-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            flex-grow: 1; /* Giúp nội dung chính co giãn */
+            flex-grow: 1;
             padding: 1.5rem;
             display: flex;
             align-items: center;
@@ -32,7 +34,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            height: calc(100vh - 3rem - 2rem); /* Điều chỉnh chiều cao cho phù hợp */
+            height: calc(100vh - 3rem - 2rem);
             max-height: 850px;
             display: flex;
             flex-direction: column;
@@ -48,14 +50,13 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        
         .answer-btn {
             background-color: white;
-            color: #1f2937; /* text-gray-800 */
-            border: 2px solid #d1d5db; /* border-gray-300 */
+            color: #1f2937;
+            border: 2px solid #d1d5db;
         }
         .answer-btn:hover {
-            background-color: #f3f4f6; /* bg-gray-100 */
+            background-color: #f3f4f6;
         }
         .answer-btn.correct {
             background-color: #28a745 !important; 
@@ -67,7 +68,6 @@
             color: white !important; 
             border-color: #dc3545 !important;
         }
-
         .timer-bar-inner {
             height: 100%;
             background: linear-gradient(90deg, #4ade80, #facc15, #f87171);
@@ -75,7 +75,6 @@
             transition: width 1s linear, background-position 1s linear;
             border-radius: 8px;
         }
-        /* Custom radio/checkbox */
         .custom-control input { display: none; }
         .custom-control span {
             height: 20px; width: 20px; border: 2px solid #9ca3af;
@@ -114,7 +113,7 @@
                 <div class="my-8 flex-grow flex flex-col min-h-0">
                     <h2 class="text-2xl font-bold mb-4 text-center flex-shrink-0">Danh sách Quiz có sẵn</h2>
                     <div id="quiz-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-grow overflow-y-auto p-2">
-                        </div>
+                    </div>
                 </div>
                 <div class="text-center mt-auto flex-shrink-0 pt-4">
                      <button id="import-quiz-btn" class="btn bg-orange-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-orange-600 shadow-lg">
@@ -132,35 +131,35 @@
                  <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
                  
                  <div class="w-full max-w-md mx-auto space-y-6">
-                     <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                     
-                     <div class="text-left">
-                         <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
-                         <div class="flex gap-4">
-                             <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
-                             <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
-                         </div>
-                     </div>
+                      <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      
+                      <div class="text-left">
+                           <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
+                           <div class="flex gap-4">
+                               <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
+                               <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
+                           </div>
+                      </div>
 
-                     <div id="timer-settings" class="text-left">
-                         <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
-                         <div class="flex items-center gap-2 mb-2">
-                              <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
-                         </div>
-                         <div id="timer-options" class="flex items-center gap-2">
-                             <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
-                             <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
-                                 <option value="seconds">giây</option>
-                                 <option value="minutes">phút</option>
-                             </select>
-                             <span>/ câu</span>
-                         </div>
-                     </div>
+                      <div id="timer-settings" class="text-left">
+                           <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
+                           <div class="flex items-center gap-2 mb-2">
+                                <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
+                           </div>
+                           <div id="timer-options" class="flex items-center gap-2">
+                               <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
+                               <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
+                                   <option value="seconds">giây</option>
+                                   <option value="minutes">phút</option>
+                               </select>
+                               <span>/ câu</span>
+                           </div>
+                      </div>
 
-                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                         <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
-                         <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
-                     </div>
+                      <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                          <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
+                          <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
+                      </div>
                  </div>
             </div>
             
@@ -173,6 +172,11 @@
                     <div id="timer-container" class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-4 mb-6 shadow-inner">
                         <div id="timer-bar" class="timer-bar-inner"></div>
                     </div>
+                    
+                    <div class="text-center mb-4">
+                        <img id="quiz-question-image" src="" alt="Ảnh câu hỏi" class="max-h-60 mx-auto rounded-lg shadow-md hidden">
+                    </div>
+
                     <div class="min-h-[100px] flex items-center justify-center">
                          <h2 id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></h2>
                     </div>
@@ -190,42 +194,59 @@
                 </button>
             </div>
 
+            <!-- FIX: Restructured the entire creator screen for better layout and scrolling -->
             <div id="creator-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-black">
+                <!-- Fixed Title -->
                 <div class="flex-shrink-0">
                     <h1 id="creator-title" class="text-3xl font-bold mb-6 text-center">Tạo Quiz Mới</h1>
+                </div>
+
+                <!-- Scrollable Main Content -->
+                <div class="flex-grow min-h-0 overflow-y-auto -mr-6 pr-6">
                     <div class="mb-6">
                         <label for="quiz-title" class="block text-lg font-medium mb-2 text-black">Tên bộ câu hỏi:</label>
                         <input type="text" id="quiz-title" placeholder="Ví dụ: Lịch sử Việt Nam" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
-                </div>
 
-                <div class="border-t border-gray-300 dark:border-gray-600 pt-6 flex-shrink-0">
-                    <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="new-question" class="block font-medium mb-1 text-black">Nội dung câu hỏi:</label>
-                            <input type="text" id="new-question" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <div class="border-t border-gray-300 dark:border-gray-600 pt-6">
+                        <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="new-question" class="block font-medium mb-1 text-black">Nội dung câu hỏi:</label>
+                                <input type="text" id="new-question" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label for="new-question-image-input" class="block font-medium mb-1 text-black">Ảnh minh họa (tùy chọn):</label>
+                                <input type="file" id="new-question-image-input" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <img id="question-image-preview" src="" alt="Xem trước ảnh" class="mt-2 rounded max-h-40 hidden">
+                                <button id="remove-image-btn" class="hidden mt-2 text-xs text-red-500 hover:text-red-700">Xóa ảnh</button>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 1" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="0" checked><span></span></label></div>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 2" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="1"><span></span></label></div>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 3" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="2"><span></span></label></div>
+                                <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 4" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="3"><span></span></label></div>
+                            </div>
+                            <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 1" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="0" checked><span></span></label></div>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 2" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="1"><span></span></label></div>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 3" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="2"><span></span></label></div>
-                            <div class="flex items-center space-x-2"><input type="text" name="answer" placeholder="Lựa chọn 4" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"><label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="3"><span></span></label></div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-2">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
+                        <div id="questions-preview" class="space-y-2 p-2 bg-gray-100 dark:bg-gray-800 rounded min-h-[120px]">
                         </div>
-                        <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
                     </div>
                 </div>
 
-                <div class="mt-8 flex-grow flex flex-col min-h-0">
-                    <h3 class="text-xl font-bold mb-2 flex-shrink-0">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
-                    <div id="questions-preview" class="space-y-2 flex-grow overflow-y-auto p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                        </div>
-                </div>
-
-                <div class="mt-auto flex justify-between flex-shrink-0 pt-4">
-                    <button id="cancel-creation-btn" class="btn bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600">Hủy</button>
-                    <button id="save-quiz-btn" class="btn bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700">Lưu và Tải về</button>
+                <!-- Fixed Buttons -->
+                <div class="flex-shrink-0 pt-4 mt-auto">
+                    <div class="flex justify-between">
+                        <button id="cancel-creation-btn" class="btn bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600">Hủy</button>
+                        <button id="save-quiz-btn" class="btn bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700">Lưu và Tải về</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -236,7 +257,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // THÊM LẠI: Hàm để tải header và footer
             const loadComponents = () => {
                 const headerPlaceholder = document.getElementById('main-header');
                 const footerPlaceholder = document.getElementById('main-footer');
@@ -273,6 +293,7 @@
             const timerContainer = document.getElementById('timer-container');
             const timerBar = document.getElementById('timer-bar');
             const questionText = document.getElementById('question-text');
+            const quizQuestionImage = document.getElementById('quiz-question-image'); // Thêm biến cho ảnh quiz
             const answerButtonsContainer = document.getElementById('answer-buttons');
             const endTitle = document.getElementById('end-title');
             const endMessage = document.getElementById('end-message');
@@ -288,6 +309,9 @@
             const quizTitleInput = document.getElementById('quiz-title');
             const questionEditorTitle = document.getElementById('question-editor-title');
             const newQuestionInput = document.getElementById('new-question');
+            const newQuestionImageInput = document.getElementById('new-question-image-input'); // Thêm biến cho input ảnh
+            const questionImagePreview = document.getElementById('question-image-preview'); // Thêm biến cho xem trước ảnh
+            const removeImageBtn = document.getElementById('remove-image-btn'); // Thêm biến cho nút xóa ảnh
             const answerInputs = document.querySelectorAll('input[name="answer"]');
             const correctRadioBtns = document.querySelectorAll('input[name="correct-answer"]');
             const addQuestionBtn = document.getElementById('add-question-btn');
@@ -306,6 +330,7 @@
             let currentQuestionIndex, timerInterval, playerName, selectedQuizIndex;
             let gameMode, isTimerEnabled, timePerQuestion;
             let editingQuizIndex = null, editingQuestionIndex = null;
+            let currentImageBase64 = null; // Biến lưu chuỗi Base64 của ảnh
 
             // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
@@ -371,6 +396,16 @@
                 const percent = totalQuestionsInRound > 0 ? Math.round((correctAnswersCount / totalQuestionsInRound) * 100) : 0;
                 scorePercentDisplay.textContent = `${percent}%`;
                 questionText.textContent = questionData.question;
+                
+                // Hiển thị hoặc ẩn ảnh
+                if (questionData.image) {
+                    quizQuestionImage.src = questionData.image;
+                    quizQuestionImage.classList.remove('hidden');
+                } else {
+                    quizQuestionImage.src = '';
+                    quizQuestionImage.classList.add('hidden');
+                }
+                
                 const answerShapes = ['fa-triangle', 'fa-diamond', 'fa-square', 'fa-circle'];
                 
                 questionData.answers.forEach((answer, index) => {
@@ -392,7 +427,12 @@
                 }
             }
 
-            function resetState() { clearInterval(timerInterval); answerButtonsContainer.innerHTML = ''; }
+            function resetState() {
+                clearInterval(timerInterval);
+                answerButtonsContainer.innerHTML = '';
+                quizQuestionImage.classList.add('hidden'); // Ẩn ảnh khi reset
+                quizQuestionImage.src = '';
+            }
 
             function selectAnswer(e) {
                 clearInterval(timerInterval);
@@ -457,7 +497,23 @@
 
             // --- QUIZ CREATOR LOGIC ---
             function resetCreatorForm() { editingQuizIndex = null; creatorTitle.textContent = 'Tạo Quiz Mới'; saveQuizBtn.textContent = 'Lưu và Tải về'; quizTitleInput.value = ''; newQuizQuestions = []; updateQuestionPreview(); resetQuestionForm(); }
-            function resetQuestionForm() { editingQuestionIndex = null; questionEditorTitle.textContent = 'Thêm câu hỏi mới'; addQuestionBtn.textContent = 'Thêm câu hỏi này'; addQuestionBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600'); addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600'); newQuestionInput.value = ''; answerInputs.forEach(input => input.value = ''); correctRadioBtns[0].checked = true; }
+            
+            function resetQuestionForm() {
+                editingQuestionIndex = null;
+                questionEditorTitle.textContent = 'Thêm câu hỏi mới';
+                addQuestionBtn.textContent = 'Thêm câu hỏi này';
+                addQuestionBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                newQuestionInput.value = '';
+                answerInputs.forEach(input => input.value = '');
+                correctRadioBtns[0].checked = true;
+                // Reset phần ảnh
+                newQuestionImageInput.value = '';
+                questionImagePreview.classList.add('hidden');
+                questionImagePreview.src = '';
+                removeImageBtn.classList.add('hidden');
+                currentImageBase64 = null;
+            }
             
             function updateQuestionPreview() {
                 questionsPreview.innerHTML = '';
@@ -465,7 +521,12 @@
                 newQuizQuestions.forEach((q, index) => {
                     const item = document.createElement('div');
                     item.className = 'flex items-center justify-between p-1 bg-gray-200 dark:bg-gray-700 rounded text-sm';
-                    item.innerHTML = `<span class="flex-1 mr-2 truncate">${index + 1}. ${q.question}</span><div class="flex gap-2 flex-shrink-0"><button data-edit-question="${index}" class="text-blue-500 hover:text-blue-700"><i class="fas fa-pencil-alt fa-xs"></i></button><button data-delete-question="${index}" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt fa-xs"></i></button></div>`;
+                    let previewText = `<span class="flex-1 mr-2 truncate">${index + 1}. `;
+                    if (q.image) { // Thêm icon ảnh nếu có
+                        previewText += `<i class="fas fa-image text-blue-400 mr-1"></i>`;
+                    }
+                    previewText += `${q.question}</span>`;
+                    item.innerHTML = `${previewText}<div class="flex gap-2 flex-shrink-0"><button data-edit-question="${index}" class="text-blue-500 hover:text-blue-700"><i class="fas fa-pencil-alt fa-xs"></i></button><button data-delete-question="${index}" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt fa-xs"></i></button></div>`;
                     questionsPreview.appendChild(item);
                 });
             }
@@ -477,10 +538,22 @@
             });
 
             function loadQuestionForEdit(index) {
-                editingQuestionIndex = index; const questionData = newQuizQuestions[index];
-                questionEditorTitle.textContent = `Sửa câu hỏi ${index + 1}`; addQuestionBtn.textContent = 'Cập nhật câu hỏi'; addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600'); addQuestionBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                resetQuestionForm();
+                editingQuestionIndex = index;
+                const questionData = newQuizQuestions[index];
+                questionEditorTitle.textContent = `Sửa câu hỏi ${index + 1}`;
+                addQuestionBtn.textContent = 'Cập nhật câu hỏi';
+                addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                addQuestionBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
                 newQuestionInput.value = questionData.question;
                 questionData.answers.forEach((ans, i) => { answerInputs[i].value = ans.text; if (ans.correct) { correctRadioBtns[i].checked = true; } });
+                // Tải ảnh (nếu có)
+                if (questionData.image) {
+                    questionImagePreview.src = questionData.image;
+                    questionImagePreview.classList.remove('hidden');
+                    removeImageBtn.classList.remove('hidden');
+                    currentImageBase64 = questionData.image;
+                }
             }
             
             function deleteQuestion(index) { newQuizQuestions.splice(index, 1); updateQuestionPreview(); if(editingQuestionIndex === index) { resetQuestionForm(); } }
@@ -493,9 +566,17 @@
             }
 
             addQuestionBtn.addEventListener('click', () => {
-                const question = newQuestionInput.value.trim(); const answers = Array.from(answerInputs).map(input => input.value.trim()); const correctIndex = document.querySelector('input[name="correct-answer"]:checked').value;
+                const question = newQuestionInput.value.trim();
+                const answers = Array.from(answerInputs).map(input => input.value.trim());
+                const correctIndex = document.querySelector('input[name="correct-answer"]:checked').value;
                 if (!question || answers.some(a => a === '')) { alert('Vui lòng điền đầy đủ nội dung câu hỏi và các lựa chọn.'); return; }
-                const questionData = { question: question, answers: answers.map((text, index) => ({ text: text, correct: index == correctIndex })) };
+                
+                const questionData = {
+                    question: question,
+                    image: currentImageBase64, // Thêm chuỗi base64 vào đây
+                    answers: answers.map((text, index) => ({ text: text, correct: index == correctIndex }))
+                };
+                
                 if (editingQuestionIndex !== null) { newQuizQuestions[editingQuestionIndex] = questionData; } else { newQuizQuestions.push(questionData); }
                 updateQuestionPreview(); resetQuestionForm(); newQuestionInput.focus();
             });
@@ -521,6 +602,29 @@
                 };
                 reader.readAsText(file); importFileInput.value = '';
             });
+            
+            // Logic xử lý ảnh
+            newQuestionImageInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) { return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentImageBase64 = e.target.result;
+                    questionImagePreview.src = e.target.result;
+                    questionImagePreview.classList.remove('hidden');
+                    removeImageBtn.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            removeImageBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                newQuestionImageInput.value = '';
+                questionImagePreview.classList.add('hidden');
+                questionImagePreview.src = '';
+                removeImageBtn.classList.add('hidden');
+                currentImageBase64 = null;
+            });
 
             // --- EVENT LISTENERS ---
             startBtn.addEventListener('click', startGame);
@@ -529,7 +633,6 @@
             goToCreatorBtn.addEventListener('click', () => { resetCreatorForm(); showScreen('creator'); });
             cancelCreationBtn.addEventListener('click', () => { showScreen('home'); });
             
-            // Settings listeners
             gameModeRadios.forEach(radio => radio.addEventListener('change', () => {
                 timerSettingsDiv.style.display = radio.value === 'test' ? 'block' : 'none';
             }));
@@ -538,7 +641,7 @@
             });
 
             // --- INITIALIZATION ---
-            loadComponents(); // THÊM LẠI: Gọi hàm tải header/footer
+            loadComponents();
             loadQuizzesFromStorage();
             showScreen('home');
         });
