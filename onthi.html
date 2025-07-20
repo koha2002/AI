@@ -8,7 +8,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
@@ -94,6 +94,13 @@
             border: solid white; border-width: 0 3px 3px 0;
             transform: rotate(45deg);
         }
+        .question-preview-item.dragging {
+            opacity: 0.5;
+            background: #e0e0e0;
+        }
+        .question-preview-item.drag-over {
+            border-top: 2px dashed #3498db;
+        }
     </style>
 </head>
 <body class="dark:bg-gray-900 text-black">
@@ -106,7 +113,7 @@
             <div id="home-screen" class="card p-8 rounded-2xl shadow-2xl text-black">
                 <div class="text-center flex-shrink-0">
                     <i class="fas fa-rocket text-5xl text-purple-500 mb-4"></i>
-                    <h1 class="text-4xl font-bold mb-2">Chào mừng đến với ôn thi cùng Quiz </h1>
+                    <h1 class="text-4xl font-bold mb-2">Chào mừng đến Quiz Vui!</h1>
                     <p class="text-lg text-black mb-6">Chọn một quiz để bắt đầu hoặc tạo quiz của riêng bạn.</p>
                 </div>
                 <div class="my-8 flex-grow flex flex-col min-h-0">
@@ -257,7 +264,13 @@
                     </div>
 
                     <div class="mt-8">
-                        <h3 class="text-xl font-bold mb-2">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-bold">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
+                            <button id="import-questions-btn" class="btn bg-indigo-500 text-white font-bold py-1 px-3 rounded-lg hover:bg-indigo-600 text-sm">
+                                <i class="fas fa-file-import mr-2"></i>Bổ sung từ file
+                            </button>
+                            <input type="file" id="import-questions-input" class="hidden" accept=".json">
+                        </div>
                         <div id="questions-preview" class="space-y-2 p-2 bg-gray-100 dark:bg-gray-800 rounded min-h-[120px]">
                         </div>
                     </div>
@@ -348,6 +361,8 @@
             const questionCount = document.getElementById('question-count');
             const saveQuizBtn = document.getElementById('save-quiz-btn');
             const cancelCreationBtn = document.getElementById('cancel-creation-btn');
+            const importQuestionsBtn = document.getElementById('import-questions-btn');
+            const importQuestionsInput = document.getElementById('import-questions-input');
 
             // --- QUIZ DATA & STATE ---
             const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
@@ -363,6 +378,7 @@
             let editingQuizIndex = null, editingQuestionIndex = null;
             let currentQuestionImageBase64 = null;
             let currentAnswerImages = [null, null, null, null];
+            let draggedItemIndex = null;
 
             // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
@@ -709,8 +725,10 @@
                 questionCount.textContent = newQuizQuestions.length;
                 newQuizQuestions.forEach((q, index) => {
                     const item = document.createElement('div');
-                    item.className = 'flex items-center justify-between p-1 bg-gray-200 dark:bg-gray-700 rounded text-sm';
-                    let previewText = `<span class="flex-1 mr-2 truncate">${index + 1}. `;
+                    item.className = 'question-preview-item flex items-center justify-between p-2 bg-gray-200 dark:bg-gray-700 rounded text-sm cursor-move';
+                    item.draggable = true;
+                    item.dataset.index = index;
+                    let previewText = `<span class="flex-1 mr-2 truncate"><i class="fas fa-grip-vertical mr-2 text-gray-400"></i>${index + 1}. `;
                     if (q.image) {
                         previewText += `<i class="fas fa-image text-blue-400 mr-1"></i>`;
                     }
@@ -867,6 +885,77 @@
                 removeImageBtn.classList.add('hidden');
                 currentQuestionImageBase64 = null;
             });
+
+            // --- DRAG AND DROP LOGIC ---
+            questionsPreview.addEventListener('dragstart', e => {
+                if (e.target.classList.contains('question-preview-item')) {
+                    draggedItemIndex = parseInt(e.target.dataset.index);
+                    e.target.classList.add('dragging');
+                }
+            });
+
+            questionsPreview.addEventListener('dragend', e => {
+                if (e.target.classList.contains('question-preview-item')) {
+                    e.target.classList.remove('dragging');
+                    draggedItemIndex = null;
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                }
+            });
+
+            questionsPreview.addEventListener('dragover', e => {
+                e.preventDefault();
+                const target = e.target.closest('.question-preview-item');
+                if (target && parseInt(target.dataset.index) !== draggedItemIndex) {
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    target.classList.add('drag-over');
+                }
+            });
+            
+            questionsPreview.addEventListener('dragleave', e => {
+                 const target = e.target.closest('.question-preview-item');
+                 if(target) {
+                    target.classList.remove('drag-over');
+                 }
+            });
+
+            questionsPreview.addEventListener('drop', e => {
+                e.preventDefault();
+                const target = e.target.closest('.question-preview-item');
+                if (target) {
+                    target.classList.remove('drag-over');
+                    const droppedOnIndex = parseInt(target.dataset.index);
+                    if (draggedItemIndex !== null && draggedItemIndex !== droppedOnIndex) {
+                        const itemToMove = newQuizQuestions.splice(draggedItemIndex, 1)[0];
+                        newQuizQuestions.splice(droppedOnIndex, 0, itemToMove);
+                        updateQuestionPreview();
+                    }
+                }
+            });
+            
+            // --- IMPORT QUESTIONS LOGIC ---
+            importQuestionsBtn.addEventListener('click', () => importQuestionsInput.click());
+            importQuestionsInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (Array.isArray(data.questions)) {
+                            newQuizQuestions.push(...data.questions);
+                            updateQuestionPreview();
+                            alert(`Đã bổ sung thành công ${data.questions.length} câu hỏi.`);
+                        } else {
+                            alert('File JSON không hợp lệ. Cần có một mảng "questions".');
+                        }
+                    } catch (error) {
+                        alert('Lỗi khi đọc file. Vui lòng kiểm tra lại file JSON.');
+                    }
+                };
+                reader.readAsText(file);
+                importQuestionsInput.value = '';
+            });
+
 
             // --- EVENT LISTENERS ---
             startBtn.addEventListener('click', startGame);
