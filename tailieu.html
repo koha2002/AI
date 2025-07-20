@@ -2,85 +2,126 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tài liệu học tập</title>
+  <!-- Sử dụng logo.png từ file của bạn -->
   <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --main: #185adb; }
+    :root {
+      --main: #185adb;
+    }
 
     html, body {
       height: 100%;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
     }
+
     body {
       min-height: 100vh;
       font-family: 'Montserrat', Arial, sans-serif;
       /* Nền xanh đen kiểu night sky */
       background: radial-gradient(ellipse at 60% 40%, #233d61 0%, #0a1931 100%);
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       position: relative;
       overflow-x: hidden;
     }
+
     main {
       flex: 1 0 auto;
-      width: 100vw;
+      width: 100%;
       min-height: 70vh;
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       z-index: 2;
     }
 
+    /* Hiệu ứng nền sao */
     #star-canvas {
       position: fixed;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: 0;
       pointer-events: none;
     }
 
+    /* Hiệu ứng ánh sáng theo chuột */
     #mouse-light {
       position: fixed;
-      top: 0; left: 0;
-      width: 120px; height: 120px;
-      margin-left: -60px; margin-top: -60px;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: 120px;
+      margin-left: -60px;
+      margin-top: -60px;
       pointer-events: none;
       border-radius: 50%;
       background: radial-gradient(circle, #86bcff44 0%, #fff0 80%);
       mix-blend-mode: lighten;
       z-index: 10;
-      transition: background 0.22s;
+      transition: opacity 0.3s;
+      opacity: 0;
     }
 
+    /* Header (Style cho header được tải từ file ngoài) */
+    /* Các style này đảm bảo header hiển thị đúng khi được fetch */
     .mini-header {
-      display: flex; align-items: center;
-      background: #192945d5; box-shadow: 0 1px 8px #185adb09;
-      height: 47px; min-height: 40px; padding: 0 15px 0 7px;
+      display: flex;
+      align-items: center;
+      background: #192945d5;
+      box-shadow: 0 1px 8px #185adb09;
+      height: 47px;
+      min-height: 40px;
+      padding: 0 15px 0 7px;
       border-bottom: 1.2px solid #233d61;
-      position: sticky; top: 0; left: 0; right: 0; z-index: 20;
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
       gap: 14px;
+      backdrop-filter: blur(4px);
     }
-    .home-btn {
-      background: none; border: none;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; border-radius:50%; width: 33px; height: 33px;
-      margin-right: 7px; transition: background 0.14s;
-    }
-    .home-btn:hover {background: #253d62;}
-    .home-btn img {width:21px;height:21px;}
-    .mini-title {font-weight:700; font-size:1.07rem; color:#63aaff;}
 
+    .home-btn {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 33px;
+      height: 33px;
+      margin-right: 7px;
+      transition: background 0.14s;
+    }
+    .home-btn:hover { background: #253d62; }
+    .home-btn img { width: 21px; height: 21px; border-radius: 4px; }
+    .mini-title { font-weight: 700; font-size: 1.07rem; color: #63aaff; }
+
+    /* Nội dung chính */
     .doc-main {
       position: relative;
       z-index: 2;
       max-width: 430px;
+      width: 90%;
       margin: 80px auto 60px auto;
-      background: rgba(18,32,67,0.96);
+      background: rgba(18, 32, 67, 0.96);
       border-radius: 26px;
       box-shadow: 0 6px 32px 0 #12204385, 0 1px 4px #185adb09;
       padding: 38px 28px 34px 28px;
-      display: flex; flex-direction: column; align-items: center;
-      animation: fadein 1s cubic-bezier(.43,.94,.71,1.36);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadein 1s cubic-bezier(.43, .94, .71, 1.36);
       backdrop-filter: blur(2.5px);
     }
+
     .doc-title {
       font-size: 2.0rem;
       font-weight: 800;
@@ -89,14 +130,26 @@
       letter-spacing: 1.2px;
       text-align: center;
       text-shadow: 0 2px 12px #185adb34;
-      animation: fadein 1.1s cubic-bezier(.43,.94,.71,1.36);
+      animation: fadein 1.1s cubic-bezier(.43, .94, .71, 1.36);
     }
-    @keyframes fadein {from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: none; }
+    }
+
     .doc-btn-group {
-      display: flex; flex-direction: column; gap: 28px; width: 100%; margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      width: 100%;
+      margin-top: 8px;
     }
+
     .doc-btn {
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       gap: 14px;
       padding: 20px 0;
       border: none;
@@ -109,29 +162,41 @@
       background: linear-gradient(92deg, #3864e6 15%, #2fc2ea 85%);
       box-shadow: 0 4px 18px #13204334, 0 1.5px 7px #119caa17;
       text-decoration: none;
-      transition: 
-        transform 0.18s cubic-bezier(.59,1.4,.73,.96), 
-        box-shadow 0.18s, 
+      transition:
+        transform 0.18s cubic-bezier(.59, 1.4, .73, .96),
+        box-shadow 0.18s,
         filter 0.17s;
       will-change: transform;
       position: relative;
       overflow: hidden;
       opacity: 0;
-      animation: fadebtn 0.9s cubic-bezier(.32,1.28,.56,1.12) forwards;
+      animation: fadebtn 0.9s cubic-bezier(.32, 1.28, .56, 1.12) forwards;
     }
-    .doc-btn:nth-child(1) {animation-delay: .2s;}
-    .doc-btn:nth-child(2) {animation-delay: .44s;}
-    .doc-btn:nth-child(3) {animation-delay: .67s;}
-    @keyframes fadebtn {from{opacity:0;transform:translateY(32px) scale(.97);} to{opacity:1;transform:none;}}
-    .doc-btn.epu { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%);}
-    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%);}
-    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%);}
-    .doc-btn.soon { background: linear-gradient(90deg, #35ca7a 10%, #3ebea6 100%);}
+
+    .doc-btn:nth-child(1) { animation-delay: .2s; }
+    .doc-btn:nth-child(2) { animation-delay: .44s; }
+    .doc-btn:nth-child(3) { animation-delay: .67s; }
+    .doc-btn:nth-child(4) { animation-delay: .8s; }
+    .doc-btn:nth-child(5) { animation-delay: .9s; }
+
+
+    @keyframes fadebtn {
+      from { opacity: 0; transform: translateY(32px) scale(.97); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .doc-btn.epu { background: linear-gradient(90deg, #3864e6 18%, #2fc2ea 100%); }
+    .doc-btn.english { background: linear-gradient(90deg, #d6a23f 18%, #ff5c85 90%); }
+    .doc-btn.tmu { background: linear-gradient(90deg, #34ca7a 10%, #3ebea7 100%); }
+    .doc-btn.soon { background: linear-gradient(90deg, #6c757d 10%, #495057 100%); }
+
     .doc-btn .icon {
-      margin-right: 10px; font-size: 1.35em;
+      margin-right: 10px;
+      font-size: 1.35em;
       filter: drop-shadow(0 1px 4px #185adb23);
       user-select: none;
     }
+
     .doc-btn:hover, .doc-btn:focus {
       transform: scale(1.045) translateY(-2px) !important;
       filter: brightness(1.13) drop-shadow(0 8px 20px #6dcfff44);
@@ -139,16 +204,13 @@
       z-index: 2;
       outline: none;
     }
+
     .doc-btn:active {
       transform: scale(0.96) translateY(1px) !important;
       filter: brightness(0.97);
     }
-    @media (max-width: 600px) {
-      .doc-main { padding: 10px 3px 25px 3px; max-width:98vw; }
-      .doc-title { font-size: 1.22rem; }
-      .doc-btn { font-size: 1.05rem; }
-    }
 
+    /* Footer */
     footer {
       background: #122043;
       color: #8ebeff;
@@ -163,44 +225,54 @@
       z-index: 2;
       position: relative;
     }
+    
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .doc-main { padding: 25px 15px; max-width: 95vw; margin-top: 40px; }
+      .doc-title { font-size: 1.7rem; }
+      .doc-btn { font-size: 1.05rem; padding: 18px 0;}
+    }
   </style>
 </head>
 <body>
   <!-- Hiệu ứng nền động -->
   <canvas id="star-canvas"></canvas>
   <div id="mouse-light"></div>
-  <header class="mini-header">
-    <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
-      <img src="logo.png" alt="Trang chủ">
-    </button>
-    <span class="mini-title">Tra Cứu Học Thuật & AI</span>
-  </header>
+
+  <!-- Placeholder cho header sẽ được tải bằng JavaScript -->
+  <header id="header-placeholder"></header>
+
   <main>
     <div class="doc-main">
       <div class="doc-title">Tài liệu học tập</div>
-<div class="doc-btn-group">
-  <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/Etg1I4MOqspNmjf0jplA_l4BegN8yNa1NzpwYUTYd1mDPg?e=GqkDDI" 
-    target="_blank" class="doc-btn epu">
-    <span class="icon">📚</span> Tài liệu EPU
-  </a>
-  <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/ElTA6Kwz0tVFiX9ZEwn5Fl0BZoY0Ln0eYl_gMlCpxCDsZQ?e=npfUva"
-    target="_blank" class="doc-btn english">
-    <span class="icon">🇬🇧</span> Tài liệu Tiếng Anh
-  </a>
-  <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EqO9GauCprJJs0kgYYVk3pcBktGB99axjStsTgL1qdfwvQ?e=fgIC1X" 
-    target="_blank" class="doc-btn tmu">
-    <span class="icon">🏛️</span> Tài liệu TMU
-  </a>
-  <a href="#" class="doc-btn soon" target="_blank" class="doc-btn soon">
-    <span class="icon">⏳</span> Soon
-  </a>
-  <a href="#" class="doc-btn soon" target="_blank" class="doc-btn soon">
-    <span class="icon">⏳</span> Soon
-  </a>
-</div>
+      <div class="doc-btn-group">
+        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/Etg1I4MOqspNmjf0jplA_l4BegN8yNa1NzpwYUTYd1mDPg?e=GqkDDI" target="_blank" class="doc-btn epu">
+          <span class="icon">📚</span> Tài liệu EPU
+        </a>
+        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/ElTA6Kwz0tVFiX9ZEwn5Fl0BZoY0Ln0eYl_gMlCpxCDsZQ?e=npfUva" target="_blank" class="doc-btn english">
+          <span class="icon">🌐</span> Tài liệu Tiếng Anh
+        </a>
+        <a href="https://koha2002-my.sharepoint.com/:f:/g/personal/koha2002_koha2002_onmicrosoft_com/EqO9GauCprJJs0kgYYVk3pcBktGB99axjStsTgL1qdfwvQ?e=fgIC1X" target="_blank" class="doc-btn tmu">
+          <span class="icon">🏛️</span> Tài liệu TMU
+        </a>
+        <a href="#" class="doc-btn soon">
+          <span class="icon">⏳</span> Sắp có...
+        </a>
+        <a href="#" class="doc-btn soon">
+          <span class="icon">⏳</span> Sắp có...
+        </a>
+        <a href="#" class="doc-btn soon">
+          <span class="icon">⏳</span> Sắp có...
+        </a>
+      </div>
     </div>
   </main>
-  <footer id="footer"></footer>
+
+  <footer id="footer">
+      <!-- Nội dung footer sẽ được tải bằng JavaScript -->
+      <p>Đang tải nội dung footer...</p>
+  </footer>
+
   <script>
     // Hiệu ứng nền sao rơi và sao băng
     const canvas = document.getElementById('star-canvas');
@@ -231,47 +303,42 @@
 
     function createStars(count) {
       stars = [];
-      for(let i=0; i<count; i++) stars.push(randomStar());
+      for (let i = 0; i < count; i++) stars.push(randomStar());
     }
-    createStars(w > 900 ? 140 : 70);
 
-    // Shooting star object
+    // Sao băng
     function randomShootingStar() {
       const side = Math.random();
-      // Xuất phát từ top hoặc 2 bên
       let x, y, vx, vy;
-      if (side < 0.5) {
+      if (side < 0.5) { // Xuất phát từ trên
         x = Math.random() * w;
         y = -50;
-        vx = Math.random() * 3 + 4;
+        vx = (Math.random() - 0.5) * 6; // Có thể bay sang trái hoặc phải
         vy = Math.random() * 2 + 3.5;
-      } else {
+      } else { // Xuất phát từ bên trái
         x = -60;
-        y = Math.random() * h * 0.5;
+        y = Math.random() * h * 0.7;
         vx = Math.random() * 5 + 3;
-        vy = Math.random() * 2 + 2.5;
+        vy = Math.random() * 2 - 1; // Có thể bay lên hoặc xuống
       }
       return {
-        x, y,
-        vx,
-        vy,
+        x, y, vx, vy,
         len: Math.random() * 110 + 80,
         life: 0,
-        maxLife: Math.random() * 15 + 14,
+        maxLife: Math.random() * 80 + 60, // Tăng thời gian sống
         alpha: Math.random() * 0.5 + 0.35
       }
     }
 
     function createShootingStars(count) {
       shootingStars = [];
-      for(let i=0; i<count; i++) shootingStars.push(randomShootingStar());
+      for (let i = 0; i < count; i++) shootingStars.push(randomShootingStar());
     }
-    createShootingStars(w > 900 ? 5 : 2);
 
     function animate() {
       ctx.clearRect(0, 0, w, h);
-      // Sao tĩnh
-      for(let s of stars) {
+      // Vẽ sao tĩnh
+      for (let s of stars) {
         ctx.save();
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
@@ -282,54 +349,88 @@
         ctx.fill();
         ctx.restore();
         s.x += s.speed * 0.6;
-        if (s.x > w) s.x = 0;
+        if (s.x > w + s.r) s.x = -s.r;
       }
 
-      // Sao băng
+      // Vẽ sao băng
       for (let star of shootingStars) {
         ctx.save();
         ctx.globalAlpha = star.alpha * (1 - star.life / star.maxLife);
-        ctx.strokeStyle = "white";
+        const gradient = ctx.createLinearGradient(star.x, star.y, star.x - star.vx * star.len, star.y - star.vy * star.len);
+        gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+        gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+        ctx.strokeStyle = gradient;
         ctx.shadowColor = "#b9eafe";
         ctx.shadowBlur = 12;
         ctx.lineWidth = 2.2;
         ctx.beginPath();
         ctx.moveTo(star.x, star.y);
-        ctx.lineTo(star.x - star.vx * star.len, star.y - star.vy * star.len);
+        ctx.lineTo(star.x - star.vx, star.y - star.vy); // Chỉ vẽ một đoạn ngắn để tạo hiệu ứng mờ
         ctx.stroke();
         ctx.restore();
 
         star.x += star.vx;
         star.y += star.vy;
         star.life++;
-        if (star.life > star.maxLife || star.x > w + 150 || star.y > h + 100) {
-          // Reset sao băng
+        if (star.life > star.maxLife || star.x > w + 150 || star.y > h + 100 || star.x < -150) {
           Object.assign(star, randomShootingStar());
         }
       }
 
       requestAnimationFrame(animate);
     }
+    
+    // Khởi tạo và bắt đầu animation
+    resize();
     animate();
 
-    // Mouse light effect
+    // Hiệu ứng ánh sáng theo chuột
     const mouseLight = document.getElementById('mouse-light');
     document.addEventListener('mousemove', (e) => {
-      mouseLight.style.left = e.clientX + 'px';
-      mouseLight.style.top = e.clientY + 'px';
-      mouseLight.style.opacity = 1;
+      mouseLight.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
     });
-    document.addEventListener('mouseleave', () => {
-      mouseLight.style.opacity = 0;
-    });
-    document.addEventListener('mouseenter', () => {
-      mouseLight.style.opacity = 1;
-    });
+    document.addEventListener('mouseleave', () => { mouseLight.style.opacity = 0; });
+    document.addEventListener('mouseenter', () => { mouseLight.style.opacity = 1; });
 
-    // Footer nhúng từ file
+    // Tải nội dung header từ file html bên ngoài
+    fetch('mini-header.html')
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error('Không tìm thấy mini-header.html');
+      })
+      .then(html => {
+        document.getElementById('header-placeholder').innerHTML = html;
+      })
+      .catch(error => {
+        console.warn(error);
+        // Header dự phòng nếu không tải được file
+        document.getElementById('header-placeholder').innerHTML = `
+        <header class="mini-header">
+          <button class="home-btn" onclick="window.location.href='index.html'" title="Trang chủ">
+            <img src="logo.png" alt="Trang chủ">
+          </button>
+          <span class="mini-title">Tra Cứu Học Thuật & AI</span>
+        </header>`;
+      });
+
+    // Tải nội dung footer từ file html bên ngoài
     fetch('footer.html')
-      .then(r => r.text())
-      .then(html => { document.getElementById('footer').innerHTML = html; });
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error('Không tìm thấy footer.html');
+      })
+      .then(html => {
+        document.getElementById('footer').innerHTML = html;
+      })
+      .catch(error => {
+        console.warn(error);
+        document.getElementById('footer').innerHTML = `<p>&copy; ${new Date().getFullYear()} Bản quyền thuộc về bạn. Tạo một file footer.html để thay đổi nội dung này.</p>`;
+      });
   </script>
 </body>
 </html>
