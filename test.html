@@ -172,6 +172,9 @@
             
             <div id="quiz-screen" class="hidden card p-6 sm:p-8 rounded-2xl shadow-2xl text-black overflow-hidden flex flex-col">
                 <div class="flex-shrink-0">
+                    <div id="practice-round-notification" class="hidden text-center bg-yellow-100 text-yellow-800 font-bold p-2 rounded-lg mb-4">
+                        Làm lại các câu hỏi đã sai
+                    </div>
                     <div class="flex justify-between items-center mb-4">
                         <div class="text-lg font-bold">Câu hỏi: <span id="question-progress">1/10</span></div>
                         <div class="text-lg font-bold text-green-500">Đúng: <span id="score-percent">0%</span></div>
@@ -315,6 +318,7 @@
             const questionText = document.getElementById('question-text');
             const quizQuestionImage = document.getElementById('quiz-question-image');
             const answerButtonsContainer = document.getElementById('answer-buttons');
+            const practiceRoundNotification = document.getElementById('practice-round-notification');
             const endTitle = document.getElementById('end-title');
             const endMessage = document.getElementById('end-message');
             const playerNameFinal = document.getElementById('player-name-final');
@@ -409,6 +413,7 @@
                 correctAnswersCount = 0;
                 firstRoundCorrectAnswers = 0;
                 currentQuestionIndex = 0;
+                practiceRoundNotification.classList.add('hidden');
 
                 currentQuizData.forEach(q => {
                     questionAttemptCounts[q.question] = 1;
@@ -427,7 +432,7 @@
                         firstRoundCorrectAnswers = correctAnswersCount;
                     }
                     if (gameMode === 'practice' && wronglyAnsweredQuestions.length > 0) {
-                        alert(`Bạn đã trả lời sai ${wronglyAnsweredQuestions.length} câu. Hãy làm lại những câu đó!`);
+                        practiceRoundNotification.classList.remove('hidden');
                         isInitialRound = false;
                         currentQuizData = [...wronglyAnsweredQuestions];
                         
