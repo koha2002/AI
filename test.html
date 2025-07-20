@@ -77,8 +77,13 @@
         }
         .custom-control input { display: none; }
         .custom-control span {
-            height: 20px; width: 20px; border: 2px solid #9ca3af;
-            display: inline-block; position: relative; cursor: pointer;
+            height: 28px;
+            width: 28px;
+            border: 2px solid #9ca3af;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
         }
         .custom-radio span { border-radius: 50%; }
         .custom-checkbox span { border-radius: 4px; }
@@ -87,8 +92,13 @@
             content: ''; position: absolute;
         }
         .custom-radio input:checked + span::after {
-            width: 8px; height: 8px; background: white; border-radius: 50%;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         .custom-checkbox input:checked + span::after {
             left: 6px; top: 2px; width: 5px; height: 10px;
@@ -724,7 +734,10 @@
                     editorDiv.innerHTML = `
                         <div class="flex items-center space-x-2">
                             <input type="text" name="answer-text" placeholder="Lựa chọn ${i + 1}" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <label class="custom-control custom-radio"><input type="radio" name="correct-answer" value="${i}"><span></span></label>
+                            <label class="custom-control custom-radio flex items-center p-1 cursor-pointer">
+                                <input type="radio" name="correct-answer" value="${i}">
+                                <span></span>
+                            </label>
                         </div>
                         <div class="flex items-center gap-2">
                             <button type="button" class="btn text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded" data-answer-index="${i}">Chọn ảnh</button>
@@ -735,7 +748,6 @@
                     `;
                     answerEditorContainer.appendChild(editorDiv);
                 }
-                answerEditorContainer.querySelector('input[name="correct-answer"]').checked = true;
 
                 answerEditorContainer.querySelectorAll('button[data-answer-index]').forEach(btn => {
                     const index = btn.dataset.answerIndex;
@@ -806,7 +818,7 @@
                 currentQuestionImageBase64 = null;
                 
                 answerEditorContainer.querySelectorAll('input[name="answer-text"]').forEach(input => input.value = '');
-                answerEditorContainer.querySelector('input[name="correct-answer"]').checked = true;
+                answerEditorContainer.querySelectorAll('input[name="correct-answer"]').forEach(radio => radio.checked = false);
                 for (let i = 0; i < 4; i++) {
                     removeAnswerImage(i);
                 }
@@ -889,7 +901,13 @@
                 const question = newQuestionInput.value.trim();
                 const answerTextInputs = answerEditorContainer.querySelectorAll('input[name="answer-text"]');
                 const answerTexts = Array.from(answerTextInputs).map(input => input.value.trim());
-                const correctIndex = answerEditorContainer.querySelector('input[name="correct-answer"]:checked').value;
+                const correctRadio = answerEditorContainer.querySelector('input[name="correct-answer"]:checked');
+
+                if (!correctRadio) {
+                    alert('Vui lòng chọn một đáp án đúng.');
+                    return;
+                }
+                const correctIndex = correctRadio.value;
 
                 if (!question || answerTexts.some((a, i) => a === '' && !currentAnswerImages[i])) {
                     alert('Vui lòng điền nội dung câu hỏi và ít nhất là văn bản hoặc hình ảnh cho mỗi lựa chọn.');
