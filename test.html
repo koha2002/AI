@@ -11,17 +11,13 @@
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: #f0f2f5;
-            display: flex; /* ADDED: To make footer stick to bottom */
-            flex-direction: column; /* ADDED: To make footer stick to bottom */
-            min-height: 100vh; /* ADDED: To make footer stick to bottom */
         }
         .dark body {
             background-color: #1a1a2e;
         }
         .app-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            /* min-height: 100vh;  REMOVED: Body now handles the min-height */
-            flex-grow: 1; /* ADDED: To make main content fill space */
+            min-height: 100vh;
             padding: 1.5rem; /* Adjust padding */
             display: flex;
             align-items: center;
@@ -32,28 +28,43 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            height: calc(100vh - 3rem - 2rem); /* Adjusted for padding and potential header/footer */
-            max-height: 850px; /* Added max-height for very tall screens */
+            height: calc(100vh - 3rem); /* Card height relative to viewport height */
             display: flex;
             flex-direction: column;
         }
         .dark .card {
             background-color: rgba(26, 26, 46, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .btn {
-            transition: all 0.2s ease-in-out;
+             transition: all 0.2s ease-in-out;
         }
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        
+        /* --- THAY ĐỔI BẮT ĐẦU --- */
+        .answer-btn {
+            background-color: white;
+            color: #1f2937; /* text-gray-800 */
+            border: 2px solid #d1d5db; /* border-gray-300 */
+        }
+        .answer-btn:hover {
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
         .answer-btn.correct {
-            background-color: #28a745 !important; color: white !important; border-color: #28a745 !important;
+            background-color: #28a745 !important; 
+            color: white !important; 
+            border-color: #28a745 !important;
         }
         .answer-btn.wrong {
-            background-color: #dc3545 !important; color: white !important; border-color: #dc3545 !important;
+            background-color: #dc3545 !important; 
+            color: white !important; 
+            border-color: #dc3545 !important;
         }
+        /* --- THAY ĐỔI KẾT THÚC --- */
+
         .timer-bar-inner {
             height: 100%;
             background: linear-gradient(90deg, #4ade80, #facc15, #f87171);
@@ -86,8 +97,6 @@
 </head>
 <body class="dark:bg-gray-900 text-black">
 
-    <header id="main-header"></header>
-
     <div class="app-container">
         <div class="w-full max-w-screen-xl mx-auto z-10">
 
@@ -103,51 +112,51 @@
                         </div>
                 </div>
                 <div class="text-center mt-auto flex-shrink-0 pt-4">
-                        <button id="import-quiz-btn" class="btn bg-orange-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-orange-600 shadow-lg">
-                            <i class="fas fa-upload mr-2"></i> Nhập Quiz từ file
-                        </button>
-                        <button id="go-to-creator-btn" class="btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 shadow-lg">
-                            <i class="fas fa-plus mr-2"></i> Tạo Quiz Mới
-                        </button>
+                     <button id="import-quiz-btn" class="btn bg-orange-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-orange-600 shadow-lg">
+                         <i class="fas fa-upload mr-2"></i> Nhập Quiz từ file
+                     </button>
+                     <button id="go-to-creator-btn" class="btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 shadow-lg">
+                         <i class="fas fa-plus mr-2"></i> Tạo Quiz Mới
+                     </button>
                     <input type="file" id="import-file-input" class="hidden" accept=".json">
                 </div>
             </div>
 
             <div id="player-name-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
-                    <h1 class="text-3xl font-bold mb-4">Sẵn sàng chơi!</h1>
-                    <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
-                    
-                    <div class="w-full max-w-md mx-auto space-y-6">
-                        <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        
-                        <div class="text-left">
-                            <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
-                            <div class="flex gap-4">
-                                <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
-                                <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
-                            </div>
-                        </div>
+                 <h1 class="text-3xl font-bold mb-4">Sẵn sàng chơi!</h1>
+                 <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
+                 
+                 <div class="w-full max-w-md mx-auto space-y-6">
+                     <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                     
+                     <div class="text-left">
+                         <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
+                         <div class="flex gap-4">
+                             <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="test" checked><span></span>Kiểm tra</label>
+                             <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
+                         </div>
+                     </div>
 
-                        <div id="timer-settings" class="text-left">
-                            <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
-                            <div class="flex items-center gap-2 mb-2">
-                                    <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
-                            </div>
-                            <div id="timer-options" class="flex items-center gap-2">
-                                <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
-                                <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
-                                    <option value="seconds">giây</option>
-                                    <option value="minutes">phút</option>
-                                </select>
-                                <span>/ câu</span>
-                            </div>
-                        </div>
+                     <div id="timer-settings" class="text-left">
+                         <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
+                         <div class="flex items-center gap-2 mb-2">
+                              <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="timer-enabled" checked><span></span>Đếm ngược thời gian</label>
+                         </div>
+                         <div id="timer-options" class="flex items-center gap-2">
+                             <input type="number" id="time-value" value="15" class="w-20 px-2 py-1 rounded border-2 border-gray-300">
+                             <select id="time-unit" class="px-2 py-1 rounded border-2 border-gray-300">
+                                 <option value="seconds">giây</option>
+                                 <option value="minutes">phút</option>
+                             </select>
+                             <span>/ câu</span>
+                         </div>
+                     </div>
 
-                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
-                            <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
-                        </div>
-                    </div>
+                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                         <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
+                         <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
+                     </div>
+                 </div>
             </div>
             
             <div id="quiz-screen" class="hidden card p-6 sm:p-8 rounded-2xl shadow-2xl text-black justify-center">
@@ -160,7 +169,7 @@
                         <div id="timer-bar" class="timer-bar-inner"></div>
                     </div>
                     <div class="min-h-[100px] flex items-center justify-center">
-                            <h2 id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></h2>
+                         <h2 id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></h2>
                     </div>
                     <div id="answer-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
                 </div>
@@ -217,28 +226,8 @@
         </div>
     </div>
 
-    <footer id="main-footer"></footer>
-
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- ADDED: Function to load header and footer ---
-            const loadComponents = () => {
-                const headerPlaceholder = document.getElementById('main-header');
-                const footerPlaceholder = document.getElementById('main-footer');
-                
-                // Use Promise.all to fetch both components concurrently
-                Promise.all([
-                    fetch('mini-header.html').then(response => response.ok ? response.text() : ''),
-                    fetch('footer.html').then(response => response.ok ? response.text() : '')
-                ])
-                .then(([headerHtml, footerHtml]) => {
-                    if (headerPlaceholder && headerHtml) headerPlaceholder.innerHTML = headerHtml;
-                    if (footerPlaceholder && footerHtml) footerPlaceholder.innerHTML = footerHtml;
-                })
-                .catch(error => console.error('Error loading components:', error));
-            };
-
             // --- DOM ELEMENTS ---
             const screens = { home: document.getElementById('home-screen'), playerName: document.getElementById('player-name-screen'), quiz: document.getElementById('quiz-screen'), end: document.getElementById('end-screen'), creator: document.getElementById('creator-screen') };
             const playerNameInput = document.getElementById('player-name');
@@ -360,15 +349,22 @@
                 scorePercentDisplay.textContent = `${percent}%`;
                 questionText.textContent = questionData.question;
                 const answerShapes = ['fa-triangle', 'fa-diamond', 'fa-square', 'fa-circle'];
-                const answerColors = ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500'];
+                // const answerColors = ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500']; // THAY ĐỔI: Xóa mảng màu
+                
                 questionData.answers.forEach((answer, index) => {
                     const button = document.createElement('button');
-                    button.innerHTML = `<i class="fa-solid ${answerShapes[index]} mr-3"></i><span>${answer.text}</span>`;
-                    button.className = `answer-btn w-full text-white font-bold py-4 px-5 rounded-lg text-left flex items-center text-lg btn ${answerColors[index]}`;
+                    // THAY ĐỔI: Biểu tượng vẫn giữ màu gốc để dễ phân biệt
+                    const iconColorClass = ['text-red-500', 'text-blue-500', 'text-yellow-500', 'text-green-500'][index];
+                    button.innerHTML = `<i class="fa-solid ${answerShapes[index]} mr-3 ${iconColorClass}"></i><span>${answer.text}</span>`;
+                    
+                    // THAY ĐỔI: Gán lớp CSS mặc định (nền trắng) thay vì các màu cụ thể
+                    button.className = `answer-btn w-full font-bold py-4 px-5 rounded-lg text-left flex items-center text-lg btn`;
+                    
                     if (answer.correct) button.dataset.correct = true;
                     button.addEventListener('click', selectAnswer);
                     answerButtonsContainer.appendChild(button);
                 });
+
                 if (gameMode === 'test' && isTimerEnabled) {
                     timerContainer.classList.remove('hidden');
                     startTimer();
@@ -392,10 +388,15 @@
                     }
                 }
                 
+                // THAY ĐỔI: Logic hiển thị màu câu trả lời
+                // Logic này sẽ luôn tô xanh câu đúng. Nếu câu đã chọn là sai, nó sẽ được tô đỏ.
                 Array.from(answerButtonsContainer.children).forEach(button => {
-                    if (button.dataset.correct) button.classList.add('correct');
-                    else if (button === selectedBtn) button.classList.add('wrong');
-                    button.disabled = true;
+                    if (button.dataset.correct) {
+                        button.classList.add('correct');
+                    } else if (button === selectedBtn) {
+                        button.classList.add('wrong');
+                    }
+                    button.disabled = true; // Vô hiệu hóa tất cả các nút sau khi chọn
                 });
 
                 setTimeout(() => {
@@ -413,7 +414,11 @@
                     timerBar.style.width = `${widthPercentage}%`; timerBar.style.backgroundPosition = `${100 - widthPercentage}%`;
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        Array.from(answerButtonsContainer.children).forEach(button => { if (button.dataset.correct) button.classList.add('correct'); button.disabled = true; });
+                        // THAY ĐỔI: Khi hết giờ, chỉ hiển thị câu trả lời đúng
+                        Array.from(answerButtonsContainer.children).forEach(button => { 
+                            if (button.dataset.correct) button.classList.add('correct'); 
+                            button.disabled = true; 
+                        });
                         setTimeout(() => { currentQuestionIndex++; setNextQuestion(); }, 1500);
                     }
                 }, 1000);
@@ -517,7 +522,6 @@
             });
 
             // --- INITIALIZATION ---
-            loadComponents(); // ADDED: Call the function to load header/footer
             loadQuizzesFromStorage();
             showScreen('home');
         });
