@@ -1,5 +1,4 @@
 // api/convert.js
-
 import { formidable } from 'formidable';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
@@ -28,10 +27,7 @@ const getMimeType = (filename) => {
 };
 
 export default async function handler(req, res) {
-    console.log("Bắt đầu xử lý yêu cầu /api/convert");
-
     if (req.method !== 'POST') {
-        console.log("Lỗi: Phương thức không hợp lệ -", req.method);
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
@@ -40,10 +36,8 @@ export default async function handler(req, res) {
         console.error("CRITICAL ERROR: Biến môi trường ILOVEPDF_API_KEY không tồn tại!");
         return res.status(500).json({ message: 'API key không được cấu hình trên server.' });
     }
-    console.log("Bước 1: Đã tìm thấy API key.");
 
     try {
-        console.log("Bước 2: Bắt đầu xác thực với iLovePDF...");
         const authResponse = await fetch('https://api.ilovepdf.com/v1/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -52,17 +46,13 @@ export default async function handler(req, res) {
         if (!authResponse.ok) throw new Error(`Không thể xác thực với iLovePDF. Status: ${authResponse.status}`);
         const authData = await authResponse.json();
         const bearerToken = authData.token;
-        console.log("Bước 2: Xác thực thành công.");
 
-        console.log("Bước 3: Bắt đầu phân tích file tải lên...");
         const form = formidable({});
         const [fields, files] = await form.parse(req);
         
         const conversionType = fields.conversionType[0];
         const uploadedFile = files.file[0];
-        console.log(`Bước 3: Phân tích file thành công. Loại chuyển đổi: ${conversionType}, Tên file: ${uploadedFile.originalFilename}`);
 
-        console.log("Bước 4: Bắt đầu tác vụ mới trên iLovePDF...");
         const startResponse = await fetch(`https://api.ilovepdf.com/v1/start/${conversionType}`, {
             headers: { 'Authorization': `Bearer ${bearerToken}` }
         });
@@ -72,9 +62,7 @@ export default async function handler(req, res) {
         }
         const startData = await startResponse.json();
         const { server, task } = startData;
-        console.log(`Bước 4: Bắt đầu tác vụ thành công. Task ID: ${task}`);
 
-        console.log("Bước 5: Bắt đầu tải file lên server của iLovePDF...");
         const uploadFormData = new FormData();
         uploadFormData.append('task', task);
         uploadFormData.append('file', fs.createReadStream(uploadedFile.filepath), uploadedFile.originalFilename);
@@ -85,9 +73,7 @@ export default async function handler(req, res) {
             body: uploadFormData,
         });
         if (!uploadResponse.ok) throw new Error(`Tải file lên thất bại. Status: ${uploadResponse.status}`);
-        console.log("Bước 5: Tải file lên thành công.");
 
-        console.log("Bước 6: Bắt đầu xử lý file...");
         const processResponse = await fetch(`https://${server}/v1/process`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${bearerToken}`, 'Content-Type': 'application/json' },
@@ -96,26 +82,21 @@ export default async function handler(req, res) {
         if (!processResponse.ok) throw new Error(`Xử lý file thất bại. Status: ${processResponse.status}`);
         const processData = await processResponse.json();
         const outputFileName = processData.download_filename;
-        console.log(`Bước 6: Xử lý file thành công. Tên file đầu ra: ${outputFileName}`);
 
-        console.log("Bước 7: Bắt đầu tải file kết quả về...");
         const downloadResponse = await fetch(`https://${server}/v1/download/${task}`, {
             headers: { 'Authorization': `Bearer ${bearerToken}` }
         });
         if (!downloadResponse.ok) throw new Error(`Tải file kết quả thất bại. Status: ${downloadResponse.status}`);
-        console.log("Bước 7: Tải file kết quả thành công.");
         
         const fileArrayBuffer = await downloadResponse.arrayBuffer();
         const fileBuffer = Buffer.from(fileArrayBuffer);
 
         const mimeType = getMimeType(outputFileName);
         
-        console.log(`Bước 8: Chuẩn bị gửi file về cho người dùng. MimeType: ${mimeType}, Tên file: ${outputFileName}`);
         res.setHeader('Content-Type', mimeType);
         res.setHeader('Content-Disposition', `attachment; filename="${outputFileName}"`);
         
         res.status(200).send(fileBuffer);
-        console.log("Bước 9: Đã gửi file thành công!");
 
     } catch (error) {
         console.error("--- LỖI XẢY RA ---");
