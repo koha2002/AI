@@ -12,6 +12,25 @@ export const config = {
     },
 };
 
+// Hàm hỗ trợ để xác định loại file từ tên
+const getMimeType = (filename) => {
+    const extension = filename.split('.').pop().toLowerCase();
+    switch (extension) {
+        case 'pdf': return 'application/pdf';
+        case 'doc': return 'application/msword';
+        case 'docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        case 'jpg':
+        case 'jpeg': return 'image/jpeg';
+        case 'png': return 'image/png';
+        case 'ppt': return 'application/vnd.ms-powerpoint';
+        case 'pptx': return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+        case 'xls': return 'application/vnd.ms-excel';
+        case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        default: return 'application/octet-stream'; // Loại mặc định cho các file khác
+    }
+};
+
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
@@ -82,14 +101,14 @@ export default async function handler(req, res) {
             throw new Error('Không thể tải file đã chuyển đổi từ iLovePDF.');
         }
 
-        // *** SỬA LỖI: Chuyển file thành Buffer trước khi gửi ***
-        // Lấy nội dung file dưới dạng ArrayBuffer
         const fileArrayBuffer = await downloadResponse.arrayBuffer();
-        // Chuyển nó thành Buffer của Node.js
         const fileBuffer = Buffer.from(fileArrayBuffer);
 
+        // *** SỬA LỖI: Đặt Content-Type một cách tường minh ***
+        const mimeType = getMimeType(outputFileName);
+        
         // Thiết lập header để trình duyệt hiểu đây là file tải về
-        res.setHeader('Content-Type', downloadResponse.headers.get('content-type'));
+        res.setHeader('Content-Type', mimeType);
         res.setHeader('Content-Disposition', `attachment; filename="${outputFileName}"`);
         
         // Gửi toàn bộ file về cho người dùng
