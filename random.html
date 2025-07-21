@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng Quay May Mắn - Giao diện mới</title>
+    <title>Vòng Quay May Mắn - Sửa lỗi & Cải tiến</title>
     <!-- Thêm logo trang web -->
     <link rel="icon" type="image/png" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,14 +11,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            height: 100%;
+        }
         body { 
             font-family: 'Be Vietnam Pro', sans-serif; 
             background-color: #111827; 
             color: #f3f4f6;
             background-image: linear-gradient(to bottom right, #111827, #1f2937);
+            display: flex;
+            flex-direction: column;
         }
         #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        #app-container { position: relative; z-index: 10; }
+        #app-container { 
+            position: relative; 
+            z-index: 10;
+            flex: 1 0 auto; /* Cho phép container này phát triển và co lại */
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex-grow: 1; /* Đảm bảo main content chiếm không gian trống */
+        }
+        #footer-placeholder {
+            flex-shrink: 0; /* Ngăn footer co lại */
+        }
         #wheel-pointer { position: absolute; left: 50%; top: -20px; transform: translateX(-50%); z-index: 20; filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)); }
         #wheel-container { 
             cursor: pointer; 
@@ -37,18 +54,9 @@
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
         
-        /* Cải tiến hiệu ứng cho Modal */
-        .modal {
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-        .modal.hidden {
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
-        .modal-content {
-            transition: transform 0.25s ease;
-        }
+        .modal { transition: opacity 0.25s ease, transform 0.25s ease; }
+        .modal.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .modal-content { transition: transform 0.25s ease; }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -81,7 +89,10 @@
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h2 class="text-2xl font-semibold text-blue-300">Nhập lựa chọn</h2>
-                            <button id="shuffleButton" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-md">Xáo trộn</button>
+                            <div class="flex space-x-2">
+                                <button id="shuffleButton" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-md transition-colors">Xáo trộn</button>
+                                <button id="clearAllButton" class="text-sm bg-red-800 hover:bg-red-700 px-3 py-1 rounded-md transition-colors">Xóa tất cả</button>
+                            </div>
                         </div>
                         <textarea id="namesInput" class="w-full h-80 p-3 border-2 border-gray-600 rounded-md bg-gray-900 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Nhập tên 1&#10;Nhập tên 2&#10;Nhập tên 3">An
 Bình
@@ -160,6 +171,7 @@ Nam</textarea>
         const mainTitle = getEl('mainTitle');
         const wheelContainer = getEl('wheel-container');
         const removeWinnerButton = getEl('removeWinnerButton');
+        const clearAllButton = getEl('clearAllButton');
 
         // --- State ---
         let options = [], pastWinners = [];
@@ -280,6 +292,12 @@ Nam</textarea>
             let entries = namesInput.value.split('\n').filter(n => n.trim() !== '');
             for (let i = entries.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [entries[i], entries[j]] = [entries[j], entries[i]]; }
             namesInput.value = entries.join('\n');
+            drawWheel();
+        });
+        clearAllButton.addEventListener('click', () => {
+            namesInput.value = '';
+            pastWinners = [];
+            updateResultsList();
             drawWheel();
         });
         namesInput.addEventListener('input', () => { if (isSpinning) return; currentRotation = 0; drawWheel(); });
