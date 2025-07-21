@@ -65,7 +65,7 @@
                         <div class="flex flex-col items-center justify-center">
                             <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4m16-4l-4-4m0 0l-4 4m4-4v12"></path></svg>
                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Nhấp để tải lên</span> hoặc kéo thả</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Hỗ trợ: JPG, PNG, DOCX, PDF...</p>
+                            <p id="supported-files-text" class="text-xs text-gray-500 dark:text-gray-400">Hỗ trợ: DOCX, PPTX, XLSX...</p>
                         </div>
                     </div>
 
@@ -108,8 +108,36 @@
         const removeFileBtn = document.getElementById('removeFileBtn');
         const convertBtn = document.getElementById('convertBtn');
         const statusEl = document.getElementById('status');
+        const supportedFilesText = document.getElementById('supported-files-text');
         
         let selectedFile = null;
+
+        // *** MỚI: Định nghĩa các loại file được hỗ trợ cho mỗi loại chuyển đổi ***
+        const supportedExtensions = {
+            'officetopdf': { exts: ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], text: 'Hỗ trợ: DOCX, PPTX, XLSX...' },
+            'jpgtopdf':    { exts: ['jpg', 'jpeg'], text: 'Hỗ trợ: JPG, JPEG' },
+            'pngtopdf':    { exts: ['png'], text: 'Hỗ trợ: PNG' },
+            'pdftoword':   { exts: ['pdf'], text: 'Hỗ trợ: PDF' },
+            'pdftojpg':    { exts: ['pdf'], text: 'Hỗ trợ: PDF' },
+        };
+
+        // Hàm cập nhật văn bản gợi ý
+        function updateSupportedFilesText() {
+            const conversionType = conversionTypeSelect.value;
+            supportedFilesText.textContent = supportedExtensions[conversionType]?.text || 'Vui lòng chọn loại chuyển đổi';
+            resetFile(); // Reset file khi thay đổi loại chuyển đổi
+        }
+
+        // Hàm kiểm tra file có hợp lệ không
+        function validateFile(file, conversionType) {
+            if (!file) return false;
+            const fileName = file.name.toLowerCase();
+            const validExts = supportedExtensions[conversionType]?.exts;
+            if (!validExts) return false; // Không có loại chuyển đổi hợp lệ
+
+            return validExts.some(ext => fileName.endsWith(`.${ext}`));
+        }
+
 
         // Xử lý sự kiện kéo-thả
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
@@ -123,8 +151,20 @@
         dropZone.addEventListener('click', () => { fileInput.click(); });
         fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) { handleFile(e.target.files[0]); } });
         removeFileBtn.addEventListener('click', () => { resetFile(); });
+        conversionTypeSelect.addEventListener('change', updateSupportedFilesText);
+
 
         function handleFile(file) {
+            const conversionType = conversionTypeSelect.value;
+            
+            // *** MỚI: Kiểm tra file trước khi xử lý ***
+            if (!validateFile(file, conversionType)) {
+                showStatus(`Lỗi: Tệp tin không hợp lệ. Vui lòng chọn một tệp ${supportedExtensions[conversionType]?.text.replace('Hỗ trợ: ', '')}.`, 'error');
+                resetFile();
+                return;
+            }
+
+            hideStatus();
             selectedFile = file;
             fileNameEl.textContent = file.name;
             fileSizeEl.textContent = `Kích thước: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
@@ -167,26 +207,19 @@
             try {
                 const response = await fetch('/api/convert', { method: 'POST', body: formData });
 
-                // *** PHẦN GỠ LỖI MỚI ***
-                console.log("Đã nhận phản hồi từ server. Status:", response.status);
-                console.log("Headers từ server:", Object.fromEntries(response.headers.entries()));
-
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error("Nội dung lỗi từ server:", errorText);
                     let errorMessage = 'Lỗi không xác định từ máy chủ.';
                     try {
                         const errorJson = JSON.parse(errorText);
                         errorMessage = errorJson.message || errorMessage;
                     } catch (e) {
-                        errorMessage = "Server đã trả về lỗi không phải định dạng JSON. Vui lòng kiểm tra Logs trên Vercel.";
+                         errorMessage = "Server đã trả về lỗi không phải định dạng JSON. Vui lòng kiểm tra Logs trên Vercel.";
                     }
                     throw new Error(errorMessage);
                 }
 
                 const blob = await response.blob();
-                console.log("Đã tạo blob thành công. Loại blob:", blob.type, "Kích thước:", blob.size);
-
                 const outputFileNameHeader = response.headers.get('Content-Disposition');
                 let outputFileName = 'converted-file'; 
 
@@ -194,7 +227,6 @@
                     const parts = outputFileNameHeader.split('filename=');
                     if (parts.length > 1) { outputFileName = parts[1].replace(/"/g, ''); }
                 }
-                console.log("Tên file tải về sẽ là:", outputFileName);
                 
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -209,18 +241,16 @@
                 showStatus(`✅ Chuyển đổi thành công! Tệp <strong>${outputFileName}</strong> đã được tải xuống.`, 'success');
 
             } catch (error) {
-                console.error('Lỗi ở phía client:', error);
                 showStatus(`❌ Lỗi: ${error.message}`, 'error');
             } finally {
                 convertBtn.disabled = false;
-                // Không reset file để người dùng có thể thử lại nếu cần
+                resetFile(); // Reset file sau khi hoàn tất
             }
         });
-    </script>
-    
-    <!-- Script để tải Header và Footer -->
-    <script>
+
+        // Khởi tạo văn bản gợi ý khi tải trang
         document.addEventListener("DOMContentLoaded", function() {
+            updateSupportedFilesText();
             fetch('mini-header.html').then(response => response.text()).then(data => { document.getElementById('mini-header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
             fetch('footer.html').then(response => response.text()).then(data => { document.getElementById('footer-placeholder').innerHTML = data; }).catch(error => console.error('Error loading footer:', error));
         });
