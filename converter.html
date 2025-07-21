@@ -195,6 +195,60 @@
         let selectedFiles = [];
         let watermarkImageFile = null;
 
+        // --- IndexedDB Helper Functions for Temporary Storage ---
+        const DB_NAME = 'iLoveApiFileStore';
+        const STORE_NAME = 'tempFiles';
+        const FILES_KEY = 'lastSelection';
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = () => reject("Lỗi khi mở IndexedDB");
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+            });
+        }
+
+        async function saveFilesToDB(files) {
+            // Most modern browsers can clone File objects directly into IndexedDB.
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put(files, FILES_KEY);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject("Lỗi khi lưu file vào DB");
+            });
+        }
+
+        async function getFilesFromDB() {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(FILES_KEY);
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject("Lỗi khi lấy file từ DB");
+            });
+        }
+
+        async function clearFilesFromDB() {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(FILES_KEY);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject("Lỗi khi xóa file khỏi DB");
+            });
+        }
+
+
         // --- EVENT LISTENERS ---
         toolSelect.addEventListener('change', (e) => updateUIForTool(e.target.value));
         fileInput.addEventListener('change', (e) => handleFileSelection(e.target.files));
@@ -206,6 +260,8 @@
             if (e.target.files.length > 0) watermarkImageFile = e.target.files[0];
         });
         processButton.addEventListener('click', executeTask);
+        document.addEventListener('DOMContentLoaded', loadStateOnStart);
+
 
         // --- MAIN LOGIC ---
         async function executeTask() {
@@ -222,7 +278,6 @@
                 const task = ilovepdf.newTask(selectedTool);
                 updateStatus('Đã tạo tác vụ. Bắt đầu tải file lên...', 'info');
                 
-                // Handle watermark image upload first if needed
                 let watermarkServerFilename = null;
                 if (selectedTool === 'watermark' && watermarkModeSelect.value === 'image') {
                     if (!watermarkImageFile) throw new Error('Vui lòng chọn file ảnh để đóng dấu.');
@@ -231,7 +286,6 @@
                     watermarkServerFilename = addedFile.server_filename;
                 }
 
-                // Upload main files
                 for (const file of selectedFiles) {
                     await task.addFile(file);
                 }
@@ -242,7 +296,7 @@
                 updateStatus('Xử lý thành công! Đang chuẩn bị tải xuống...', 'success');
 
                 await task.download();
-                resetUI();
+                await resetUI();
                 updateStatus('Tải xuống hoàn tất!', 'success');
 
             } catch (error) {
@@ -260,49 +314,40 @@
 
             const toolConfig = {
                 pdf: { accept: '.pdf', multiple: false, label: 'Chọn file PDF' },
-                image: { accept: 'image/*', multiple: false, label: 'Chọn file ảnh' },
+                image: { accept: 'image/*', multiple: true, label: 'Chọn file ảnh' },
                 office: { accept: '.doc,.docx,.xls,.xlsx,.ppt,.pptx', multiple: true, label: 'Chọn file Office' }
             };
             
-            let config = toolConfig.pdf; // default
-            if (['compressimage', 'resizeimage', 'convertimage', 'removebackgroundimage', 'watermarkimage'].includes(tool)) {
+            let config = toolConfig.pdf;
+            if (['compressimage', 'resizeimage', 'convertimage', 'removebackgroundimage', 'watermarkimage', 'imagepdf'].includes(tool)) {
                 config = toolConfig.image;
             } else if (tool === 'officepdf') {
                 config = toolConfig.office;
-            } else if (tool === 'imagepdf') {
-                 config = toolConfig.image;
             }
 
             fileInput.accept = config.accept;
             fileInput.multiple = ['merge', 'officepdf', 'imagepdf'].includes(tool);
             fileInputLabel.textContent = `2. ${config.label}${fileInput.multiple ? ' (có thể chọn nhiều file)' : ''}:`;
             
-            resetFileInput();
             updateProcessButtonText();
         }
 
         function getProcessOptions(tool, watermarkServerFilename) {
             const options = {};
             switch (tool) {
-                case 'compress':
-                    options.compression_level = document.getElementById('compress-level').value;
-                    break;
+                case 'compress': options.compression_level = document.getElementById('compress-level').value; break;
                 case 'split':
                     const ranges = document.getElementById('split-ranges').value;
                     if (!ranges) throw new Error('Vui lòng nhập số trang hoặc khoảng trang cần tách.');
                     options.ranges = ranges;
                     break;
-                case 'pdfjpg':
-                    options.pdfjpg_mode = document.getElementById('pdfjpg-mode').value;
-                    break;
+                case 'pdfjpg': options.pdfjpg_mode = document.getElementById('pdfjpg-mode').value; break;
                 case 'protect':
                     const password = document.getElementById('protect-password').value;
                     if (!password) throw new Error('Vui lòng nhập mật khẩu để bảo vệ file.');
                     options.password = password;
                     break;
-                case 'rotate':
-                    options.rotate = document.getElementById('rotate-degrees').value;
-                    break;
+                case 'rotate': options.rotate = document.getElementById('rotate-degrees').value; break;
                 case 'pagenumber':
                     options.pages = document.getElementById('pagenumber-pages').value;
                     options.starting_number = parseInt(document.getElementById('pagenumber-start').value);
@@ -332,38 +377,36 @@
                     options.margin = parseInt(document.getElementById('imagepdf-margin').value);
                     options.pagesize = document.getElementById('imagepdf-pagesize').value;
                     break;
-                case 'pdfa':
-                    options.conformance = document.getElementById('pdfa-conformance').value;
-                    break;
-                case 'compressimage':
-                    options.compression_level = document.getElementById('compressimage-level').value;
-                    break;
+                case 'pdfa': options.conformance = document.getElementById('pdfa-conformance').value; break;
+                case 'compressimage': options.compression_level = document.getElementById('compressimage-level').value; break;
                 case 'resizeimage':
                     options.resize_mode = 'pixels';
                     const width = document.getElementById('resizeimage-width').value;
                     const height = document.getElementById('resizeimage-height').value;
-                    if (!width && !height) {
-                        throw new Error('Vui lòng nhập chiều rộng hoặc chiều cao để thay đổi kích thước.');
-                    }
+                    if (!width && !height) throw new Error('Vui lòng nhập chiều rộng hoặc chiều cao để thay đổi kích thước.');
                     if (width) options.pixels_width = parseInt(width);
                     if (height) options.pixels_height = parseInt(height);
                     options.maintain_ratio = document.getElementById('resizeimage-ratio').checked;
                     break;
-                case 'convertimage':
-                    options.to = document.getElementById('convertimage-to').value;
-                    break;
+                case 'convertimage': options.to = document.getElementById('convertimage-to').value; break;
             }
             return options;
         }
         
-        function handleFileSelection(files) {
+        async function handleFileSelection(files) {
              if (files.length > 0) {
                 selectedFiles = Array.from(files);
                 fileNameDisplay.textContent = files.length === 1 ? `Đã chọn: ${files[0].name}` : `${files.length} files đã được chọn.`;
                 fileNameDisplay.classList.add('text-green-600', 'font-semibold');
                 processButton.disabled = false;
+                updateProcessButtonText();
+                try {
+                    await saveFilesToDB(selectedFiles);
+                } catch (error) {
+                    console.error("Không thể lưu file vào bộ nhớ trình duyệt:", error);
+                }
             } else {
-                resetFileInput();
+                await resetFileInput();
             }
         }
 
@@ -391,24 +434,44 @@
             }[type]);
         }
         
-        function resetFileInput() {
+        async function resetFileInput() {
             fileInput.value = '';
             selectedFiles = [];
             fileNameDisplay.textContent = 'Chưa có file nào được chọn';
             fileNameDisplay.classList.remove('text-green-600', 'font-semibold');
             processButton.disabled = true;
+            try {
+                await clearFilesFromDB();
+            } catch (error) {
+                console.error("Không thể xóa file khỏi bộ nhớ trình duyệt:", error);
+            }
         }
 
-        function resetUI() {
-            resetFileInput();
+        async function resetUI() {
+            await resetFileInput();
             setLoadingState(false);
             setTimeout(() => {
                 statusArea.className = 'text-center p-4 rounded-md bg-gray-50 text-gray-700 hidden';
             }, 5000);
         }
 
-        // Khởi tạo giao diện lần đầu
-        updateUIForTool(toolSelect.value);
+        async function loadStateOnStart() {
+            try {
+                const files = await getFilesFromDB();
+                if (files && files.length > 0) {
+                    await handleFileSelection(files);
+                    updateStatus('Đã khôi phục lựa chọn file từ phiên trước.', 'info');
+                    setTimeout(() => {
+                        if(statusArea.textContent.includes('khôi phục')) {
+                           statusArea.className = 'text-center p-4 rounded-md bg-gray-50 text-gray-700 hidden';
+                        }
+                    }, 3000);
+                }
+            } catch (error) {
+                console.error("Không thể tải file từ bộ nhớ trình duyệt:", error);
+            }
+            updateUIForTool(toolSelect.value);
+        }
     </script>
 </body>
 </html>
