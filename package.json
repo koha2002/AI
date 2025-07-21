@@ -1,6 +1,7 @@
 {
   "name": "file-converter-project",
   "version": "1.0.0",
+  "type": "module",
   "description": "File converter with iLovePDF API",
   "main": "index.js",
   "scripts": {
