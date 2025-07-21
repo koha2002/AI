@@ -157,6 +157,10 @@
             background-color: #e0e7ff;
             color: #4f46e5;
         }
+        #export-modal input[type="radio"] {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
     </style>
 </head>
 <body class="dark:bg-gray-900 text-black">
@@ -361,30 +365,36 @@
 
     <!-- Export Modal -->
     <div id="export-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-xl dark:bg-gray-800 w-11/12 max-w-2xl">
-            <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Tùy chọn xuất tài liệu</h2>
-            <p class="mb-6 text-gray-700 dark:text-gray-300">Quiz: <strong id="export-quiz-title" class="text-purple-600 dark:text-purple-400"></strong></p>
+        <div class="bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-2xl text-black">
+            <h2 class="text-2xl font-bold mb-4">Tùy chọn xuất tài liệu</h2>
+            <p class="mb-6">Quiz: <strong id="export-quiz-title" class="text-purple-600"></strong></p>
             
             <div class="space-y-4 text-left">
-                <div>
-                    <input type="radio" id="export-marked" name="export-type" value="marked" class="mr-2" checked>
-                    <label for="export-marked" class="font-semibold">Xuất toàn bộ (đánh dấu đáp án)</label>
-                    <p class="text-sm text-gray-600 ml-6">Tất cả câu hỏi và lựa chọn. Đáp án đúng có dấu * và màu đỏ.</p>
+                <div class="flex items-center">
+                    <input type="radio" id="export-marked" name="export-type" value="marked" class="mr-3" checked>
+                    <div>
+                        <label for="export-marked" class="font-semibold">Xuất toàn bộ (đánh dấu đáp án)</label>
+                        <p class="text-sm text-gray-600">Tất cả câu hỏi và lựa chọn. Đáp án đúng có dấu * và màu đỏ.</p>
+                    </div>
                 </div>
-                <div>
-                    <input type="radio" id="export-unmarked" name="export-type" value="unmarked" class="mr-2">
-                    <label for="export-unmarked" class="font-semibold">Xuất toàn bộ (không đánh dấu đáp án)</label>
-                    <p class="text-sm text-gray-600 ml-6">Tất cả câu hỏi và lựa chọn, không có đáp án. Dùng để làm đề kiểm tra.</p>
+                <div class="flex items-center">
+                    <input type="radio" id="export-unmarked" name="export-type" value="unmarked" class="mr-3">
+                    <div>
+                        <label for="export-unmarked" class="font-semibold">Xuất toàn bộ (không đánh dấu đáp án)</label>
+                        <p class="text-sm text-gray-600">Tất cả câu hỏi và lựa chọn, không có đáp án. Dùng để làm đề kiểm tra.</p>
+                    </div>
                 </div>
-                <div>
-                    <input type="radio" id="export-qna" name="export-type" value="qna" class="mr-2">
-                    <label for="export-qna" class="font-semibold">Xuất câu hỏi và đáp án</label>
-                    <p class="text-sm text-gray-600 ml-6">Chỉ có câu hỏi và đáp án đúng. Dùng làm tài liệu ôn tập nhanh.</p>
+                <div class="flex items-center">
+                    <input type="radio" id="export-qna" name="export-type" value="qna" class="mr-3">
+                    <div>
+                        <label for="export-qna" class="font-semibold">Xuất câu hỏi và đáp án</label>
+                        <p class="text-sm text-gray-600">Chỉ có câu hỏi và đáp án đúng. Dùng làm tài liệu ôn tập nhanh.</p>
+                    </div>
                 </div>
-                <div>
-                    <input type="radio" id="export-random" name="export-type" value="random" class="mr-2">
-                    <label for="export-random" class="font-semibold">Xuất ngẫu nhiên</label>
-                    <div class="ml-6">
+                <div class="flex items-start">
+                    <input type="radio" id="export-random" name="export-type" value="random" class="mr-3 mt-1">
+                    <div>
+                        <label for="export-random" class="font-semibold">Xuất ngẫu nhiên</label>
                         <p class="text-sm text-gray-600">Chọn ngẫu nhiên một số câu hỏi từ bộ đề.</p>
                         <input type="number" id="random-question-count" class="mt-2 p-1 border rounded w-24" value="10" min="1">
                         <span class="text-sm text-gray-600">câu hỏi</span>
@@ -397,7 +407,7 @@
                 <button id="export-doc-btn" class="btn bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-file-word mr-2"></i>Xuất Word (.docx)</button>
                 <button id="export-json-btn" class="btn bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 hidden"><i class="fas fa-file-code mr-2"></i>Xuất JSON</button>
             </div>
-            <button id="cancel-export-btn" class="mt-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">Hủy</button>
+            <button id="cancel-export-btn" class="mt-6 text-gray-500 hover:text-gray-700">Hủy</button>
         </div>
     </div>
 
@@ -819,11 +829,15 @@
             function showExportOptions(index) {
                 quizToExportIndex = index;
                 exportQuizTitle.textContent = allQuizzes[index].title;
-                randomQuestionCountInput.max = allQuizzes[index].questions.length;
+                const maxQuestions = allQuizzes[index].questions.length;
+                randomQuestionCountInput.max = maxQuestions;
+                if (parseInt(randomQuestionCountInput.value) > maxQuestions) {
+                    randomQuestionCountInput.value = maxQuestions;
+                }
                 exportModal.classList.remove('hidden');
             }
 
-            function generateExportHtml(quiz, options = {}) {
+            async function generateExportHtml(quiz, options = {}) {
                 const { markAnswers = false, includeAllAnswers = false } = options;
                 let questions = JSON.parse(JSON.stringify(quiz.questions));
                 
@@ -834,7 +848,7 @@
                 });
 
                 let contentHtml = `<div style="font-family: Arial, sans-serif; line-height: 1.6;"><h1>${quiz.title}</h1>`;
-                questions.forEach(q => {
+                for (const q of questions) {
                     contentHtml += `<div style="margin-bottom: 20px; page-break-inside: avoid;">`;
                     contentHtml += `<div><b>${q.question}</b></div>`;
                     if (q.image) {
@@ -843,7 +857,7 @@
 
                     if (includeAllAnswers) {
                         contentHtml += '<ul>';
-                        q.answers.forEach(ans => {
+                        for (const ans of q.answers) {
                             const isCorrect = ans.correct;
                             const prefix = markAnswers && isCorrect ? '<span style="color: red;">* </span>' : '';
                             const style = markAnswers && isCorrect ? 'style="color: red;"' : '';
@@ -852,7 +866,7 @@
                                 contentHtml += `<br><img src="${ans.image}" style="max-width: 150px; margin-left: 20px; border-radius: 4px;">`;
                             }
                             contentHtml += '</li>';
-                        });
+                        }
                         contentHtml += '</ul>';
                     } else { // Q&A format
                         const correctAnswers = q.answers.filter(a => a.correct);
@@ -861,12 +875,27 @@
                     }
                     
                     contentHtml += `</div><hr style="border: none; border-top: 1px solid #eee;">`;
-                });
+                }
                 contentHtml += `</div>`;
                 return contentHtml;
             }
 
-            function exportAsDocument(format) {
+            function preloadImages(element) {
+                const images = element.getElementsByTagName('img');
+                const promises = [];
+                for (let i = 0; i < images.length; i++) {
+                    const img = images[i];
+                    if (img.src && !img.complete) {
+                        promises.push(new Promise((resolve) => {
+                            img.onload = resolve;
+                            img.onerror = resolve; 
+                        }));
+                    }
+                }
+                return Promise.all(promises);
+            }
+
+            async function exportAsDocument(format) {
                 const quiz = allQuizzes[quizToExportIndex];
                 const exportType = document.querySelector('input[name="export-type"]:checked').value;
                 let quizToExport = quiz;
@@ -885,11 +914,16 @@
                         fileName += " - Đáp án";
                         break;
                     case 'random':
-                        const count = parseInt(randomQuestionCountInput.value);
-                        if (isNaN(count) || count <= 0 || count > quiz.questions.length) {
-                            alert(`Vui lòng nhập số lượng câu hỏi hợp lệ (1-${quiz.questions.length}).`);
-                            return;
+                        let count = parseInt(randomQuestionCountInput.value);
+                        const maxCount = quiz.questions.length;
+                        if (isNaN(count) || count <= 0) {
+                           count = 1;
                         }
+                        if (count > maxCount) {
+                           count = maxCount;
+                        }
+                        randomQuestionCountInput.value = count;
+                        
                         const randomQuestions = [...quiz.questions].sort(() => 0.5 - Math.random()).slice(0, count);
                         quizToExport = { title: `${quiz.title} - ${count} câu ngẫu nhiên`, questions: randomQuestions };
                         options = { markAnswers: false, includeAllAnswers: true };
@@ -902,11 +936,16 @@
                         break;
                 }
 
-                const contentHtml = generateExportHtml(quizToExport, options);
+                const contentHtml = await generateExportHtml(quizToExport, options);
+                const element = document.createElement('div');
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.innerHTML = contentHtml;
+                document.body.appendChild(element);
+
+                await preloadImages(element);
 
                 if (format === 'pdf') {
-                    const element = document.createElement('div');
-                    element.innerHTML = contentHtml;
                     const pdfOptions = {
                         margin:       [0.5, 0.5, 0.5, 0.5],
                         filename:     `${fileName}.pdf`,
@@ -914,14 +953,16 @@
                         html2canvas:  { scale: 2, useCORS: true },
                         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                     };
-                    html2pdf().from(element).set(pdfOptions).save();
+                    html2pdf().from(element).set(pdfOptions).save().then(() => {
+                        document.body.removeChild(element);
+                    });
                 } else if (format === 'docx') {
                     const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
                         "xmlns:w='urn:schemas-microsoft-com:office:word' "+
                         "xmlns='http://www.w3.org/TR/REC-html40'>"+
                         "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
                     const footer = "</body></html>";
-                    const sourceHTML = header + contentHtml + footer;
+                    const sourceHTML = header + element.innerHTML + footer;
 
                     const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
                     const fileDownload = document.createElement("a");
@@ -930,6 +971,7 @@
                     fileDownload.download = `${fileName}.docx`;
                     fileDownload.click();
                     document.body.removeChild(fileDownload);
+                    document.body.removeChild(element);
                 }
             }
 
