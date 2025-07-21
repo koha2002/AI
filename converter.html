@@ -8,7 +8,7 @@
     <!-- Sử dụng Tailwind CSS để làm giao diện đẹp và nhanh chóng -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Thư viện chính của iLoveAPI cho JavaScript -->
+    <!-- FIX: Thêm lại thư viện iLovePDF đã bị thiếu -->
     <script src="https://cdn.jsdelivr.net/npm/@ilovepdf/ilovepdf-js-core/dist/ilovepdf.min.js"></script>
 
     <!-- Font chữ cho đẹp hơn -->
@@ -180,6 +180,8 @@
         </div>
     </div>
 
+    <!-- Thư viện iLovePDF được đặt ở cuối body để tải sau cùng -->
+    <script src="https://cdn.jsdelivr.net/npm/@ilovepdf/ilovepdf-js-core/dist/ilovepdf.min.js"></script>
     <script>
         // Function to initialize the application logic
         function initializeApp() {
