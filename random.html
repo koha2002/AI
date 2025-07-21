@@ -56,7 +56,8 @@
     <canvas id="confettiCanvas"></canvas>
 
     <div id="app-container">
-        <!-- HEADER PLACEHOLDER -->
+        <!-- Vị trí để tải Header -->
+        <div id="header-placeholder"></div>
         
         <main class="container mx-auto px-4 py-8">
             <h1 id="mainTitle" class="text-4xl md:text-5xl font-bold text-center text-blue-400 mb-2" style="text-shadow: 2px 2px 8px rgba(59, 130, 246, 0.4);">Vòng Quay May Mắn</h1>
@@ -141,7 +142,8 @@ Nam</textarea>
             </div>
         </div>
         
-        <!-- FOOTER PLACEHOLDER -->
+        <!-- Vị trí để tải Footer -->
+        <div id="footer-placeholder"></div>
     </div>
 
     <script>
@@ -335,6 +337,26 @@ Nam</textarea>
 
         // --- Init ---
         setupConfetti(); animateConfetti(); drawWheel(); startIdleAnimation();
+
+        // --- Load Header & Footer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadHTML = async (url, elementId) => {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.text();
+                    getEl(elementId).innerHTML = data;
+                } catch (error) {
+                    console.error(`Không thể tải ${url}:`, error);
+                    getEl(elementId).innerHTML = `<div class="text-center text-red-400 bg-red-900 bg-opacity-50 p-4 rounded-md mx-auto max-w-7xl">Lỗi: Không thể tải tệp <code>${url}</code>. Hãy chắc chắn tệp tồn tại cùng thư mục với tệp HTML này.</div>`;
+                }
+            };
+
+            loadHTML('mini-header.html', 'header-placeholder');
+            loadHTML('footer.html', 'footer-placeholder');
+        });
     </script>
 </body>
 </html>
