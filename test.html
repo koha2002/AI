@@ -395,9 +395,11 @@
                     <input type="radio" id="export-random" name="export-type" value="random" class="mr-3 mt-1">
                     <div>
                         <label for="export-random" class="font-semibold">Xuất ngẫu nhiên</label>
-                        <p class="text-sm text-gray-600">Chọn ngẫu nhiên một số câu hỏi từ bộ đề.</p>
-                        <input type="number" id="random-question-count" class="mt-2 p-1 border rounded w-24" value="10" min="1">
-                        <span class="text-sm text-gray-600">câu hỏi</span>
+                        <div id="random-options-container" class="hidden">
+                            <p class="text-sm text-gray-600">Chọn ngẫu nhiên một số câu hỏi từ bộ đề.</p>
+                            <input type="number" id="random-question-count" class="mt-2 p-1 border rounded w-24" value="10" min="1">
+                            <span class="text-sm text-gray-600">câu hỏi</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -477,6 +479,7 @@
             const exportJsonBtn = document.getElementById('export-json-btn');
             const cancelExportBtn = document.getElementById('cancel-export-btn');
             const randomQuestionCountInput = document.getElementById('random-question-count');
+            const randomOptionsContainer = document.getElementById('random-options-container');
 
             // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
@@ -834,6 +837,9 @@
                 if (parseInt(randomQuestionCountInput.value) > maxQuestions) {
                     randomQuestionCountInput.value = maxQuestions;
                 }
+                document.querySelector('input[name="export-type"][value="marked"]').checked = true;
+                randomOptionsContainer.classList.add('hidden');
+                exportJsonBtn.classList.add('hidden');
                 exportModal.classList.remove('hidden');
             }
 
@@ -937,15 +943,10 @@
                 }
 
                 const contentHtml = await generateExportHtml(quizToExport, options);
-                const element = document.createElement('div');
-                element.style.position = 'absolute';
-                element.style.left = '-9999px';
-                element.innerHTML = contentHtml;
-                document.body.appendChild(element);
-
-                await preloadImages(element);
-
+                
                 if (format === 'pdf') {
+                    const element = document.createElement('div');
+                    element.innerHTML = contentHtml;
                     const pdfOptions = {
                         margin:       [0.5, 0.5, 0.5, 0.5],
                         filename:     `${fileName}.pdf`,
@@ -953,25 +954,22 @@
                         html2canvas:  { scale: 2, useCORS: true },
                         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                     };
-                    html2pdf().from(element).set(pdfOptions).save().then(() => {
-                        document.body.removeChild(element);
-                    });
+                    html2pdf().from(element).set(pdfOptions).save();
                 } else if (format === 'docx') {
                     const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
                         "xmlns:w='urn:schemas-microsoft-com:office:word' "+
                         "xmlns='http://www.w3.org/TR/REC-html40'>"+
                         "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
                     const footer = "</body></html>";
-                    const sourceHTML = header + element.innerHTML + footer;
+                    const sourceHTML = header + contentHtml + footer;
 
                     const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
                     const fileDownload = document.createElement("a");
                     document.body.appendChild(fileDownload);
                     fileDownload.href = source;
-                    fileDownload.download = `${fileName}.docx`;
+                    fileDownload.download = `${fileName}.doc`; // Use .doc for better compatibility
                     fileDownload.click();
                     document.body.removeChild(fileDownload);
-                    document.body.removeChild(element);
                 }
             }
 
@@ -1348,8 +1346,17 @@
             
             document.querySelectorAll('input[name="export-type"]').forEach(radio => {
                 radio.addEventListener('change', e => {
-                    exportJsonBtn.classList.toggle('hidden', e.target.value !== 'random');
+                    const isRandom = e.target.value === 'random';
+                    randomOptionsContainer.classList.toggle('hidden', !isRandom);
+                    exportJsonBtn.classList.toggle('hidden', !isRandom);
                 });
+            });
+
+            randomQuestionCountInput.addEventListener('input', (e) => {
+                const max = parseInt(e.target.max);
+                if (parseInt(e.target.value) > max) {
+                    e.target.value = max;
+                }
             });
 
             addAnswerBtn.addEventListener('click', () => addAnswerEditor());
