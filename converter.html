@@ -181,9 +181,8 @@
     </div>
 
     <script>
-        // FIX: Wrap all script logic in window.onload event listener.
-        // This ensures all resources, including the iLovePDF library, are loaded before our script runs.
-        window.onload = () => {
+        // Function to initialize the application logic
+        function initializeApp() {
             const publicKey = 'project_public_b518756fab3a8e6942a9330c23a7859a_YUAga5611529e21b17310f7e19ec3547395e1';
             const ilovepdf = new Ilovepdf(publicKey);
 
@@ -475,7 +474,15 @@
 
             // Initial call
             loadStateOnStart();
-        };
+        }
+
+        // Robust way to wait for the library to be defined.
+        const checkLibraryInterval = setInterval(() => {
+            if (typeof Ilovepdf !== 'undefined') {
+                clearInterval(checkLibraryInterval);
+                initializeApp();
+            }
+        }, 100); // Check every 100ms
     </script>
 </body>
 </html>
