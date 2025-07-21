@@ -112,39 +112,17 @@
         let selectedFile = null;
 
         // Xử lý sự kiện kéo-thả
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
+            if (files.length > 0) { handleFile(files[0]); }
         });
-
-        // Xử lý khi click vào vùng chọn file
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        // Xử lý khi nhấn nút xóa file
-        removeFileBtn.addEventListener('click', () => {
-            resetFile();
-        });
+        dropZone.addEventListener('click', () => { fileInput.click(); });
+        fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) { handleFile(e.target.files[0]); } });
+        removeFileBtn.addEventListener('click', () => { resetFile(); });
 
         function handleFile(file) {
             selectedFile = file;
@@ -163,25 +141,17 @@
         }
         
         function showStatus(message, type = 'info') {
-            statusEl.innerHTML = message; // Use innerHTML to allow for links
-            statusEl.className = 'hidden mt-6 text-center p-4 rounded-md'; // Reset classes
-            
+            statusEl.innerHTML = message;
+            statusEl.className = 'hidden mt-6 text-center p-4 rounded-md';
             switch(type) {
-                case 'success':
-                    statusEl.classList.add('bg-green-100', 'text-green-800', 'dark:bg-green-900', 'dark:text-green-200');
-                    break;
-                case 'error':
-                    statusEl.classList.add('bg-red-100', 'text-red-800', 'dark:bg-red-900', 'dark:text-red-200');
-                    break;
-                default:
-                    statusEl.classList.add('bg-blue-100', 'text-blue-800', 'dark:bg-blue-900', 'dark:text-blue-200');
+                case 'success': statusEl.classList.add('bg-green-100', 'text-green-800', 'dark:bg-green-900', 'dark:text-green-200'); break;
+                case 'error': statusEl.classList.add('bg-red-100', 'text-red-800', 'dark:bg-red-900', 'dark:text-red-200'); break;
+                default: statusEl.classList.add('bg-blue-100', 'text-blue-800', 'dark:bg-blue-900', 'dark:text-blue-200');
             }
             statusEl.classList.remove('hidden');
         }
         
-        function hideStatus() {
-            statusEl.classList.add('hidden');
-        }
+        function hideStatus() { statusEl.classList.add('hidden'); }
 
         convertBtn.addEventListener('click', async () => {
             if (!selectedFile) return;
@@ -195,27 +165,36 @@
             formData.append('conversionType', conversionType);
 
             try {
-                // Gửi yêu cầu đến Serverless Function của bạn tại /api/convert
-                const response = await fetch('/api/convert', {
-                    method: 'POST',
-                    body: formData,
-                });
+                const response = await fetch('/api/convert', { method: 'POST', body: formData });
+
+                // *** PHẦN GỠ LỖI MỚI ***
+                console.log("Đã nhận phản hồi từ server. Status:", response.status);
+                console.log("Headers từ server:", Object.fromEntries(response.headers.entries()));
 
                 if (!response.ok) {
-                    const errorResult = await response.json();
-                    throw new Error(errorResult.message || 'Có lỗi xảy ra từ phía máy chủ.');
+                    const errorText = await response.text();
+                    console.error("Nội dung lỗi từ server:", errorText);
+                    let errorMessage = 'Lỗi không xác định từ máy chủ.';
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.message || errorMessage;
+                    } catch (e) {
+                        errorMessage = "Server đã trả về lỗi không phải định dạng JSON. Vui lòng kiểm tra Logs trên Vercel.";
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 const blob = await response.blob();
+                console.log("Đã tạo blob thành công. Loại blob:", blob.type, "Kích thước:", blob.size);
+
                 const outputFileNameHeader = response.headers.get('Content-Disposition');
-                let outputFileName = 'converted-file'; // Tên mặc định
+                let outputFileName = 'converted-file'; 
 
                 if (outputFileNameHeader) {
                     const parts = outputFileNameHeader.split('filename=');
-                    if (parts.length > 1) {
-                        outputFileName = parts[1].replace(/"/g, '');
-                    }
+                    if (parts.length > 1) { outputFileName = parts[1].replace(/"/g, ''); }
                 }
+                console.log("Tên file tải về sẽ là:", outputFileName);
                 
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -230,34 +209,20 @@
                 showStatus(`✅ Chuyển đổi thành công! Tệp <strong>${outputFileName}</strong> đã được tải xuống.`, 'success');
 
             } catch (error) {
-                console.error('Lỗi khi chuyển đổi:', error);
+                console.error('Lỗi ở phía client:', error);
                 showStatus(`❌ Lỗi: ${error.message}`, 'error');
             } finally {
                 convertBtn.disabled = false;
-                resetFile();
+                // Không reset file để người dùng có thể thử lại nếu cần
             }
         });
-
     </script>
     
     <!-- Script để tải Header và Footer -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Tải mini-header.html
-            fetch('mini-header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('mini-header-placeholder').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading header:', error));
-
-            // Tải footer.html
-            fetch('footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footer-placeholder').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading footer:', error));
+            fetch('mini-header.html').then(response => response.text()).then(data => { document.getElementById('mini-header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
+            fetch('footer.html').then(response => response.text()).then(data => { document.getElementById('footer-placeholder').innerHTML = data; }).catch(error => console.error('Error loading footer:', error));
         });
     </script>
 </body>
