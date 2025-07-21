@@ -284,11 +284,25 @@
         function getProcessOptions(tool, watermarkServerFilename) {
             const options = {};
             switch (tool) {
-                case 'compress': options.compression_level = document.getElementById('compress-level').value; break;
-                case 'split': options.ranges = document.getElementById('split-ranges').value; break;
-                case 'pdfjpg': options.pdfjpg_mode = document.getElementById('pdfjpg-mode').value; break;
-                case 'protect': options.password = document.getElementById('protect-password').value; break;
-                case 'rotate': options.rotate = document.getElementById('rotate-degrees').value; break; // Note: This should be per-file, simplified here.
+                case 'compress':
+                    options.compression_level = document.getElementById('compress-level').value;
+                    break;
+                case 'split':
+                    const ranges = document.getElementById('split-ranges').value;
+                    if (!ranges) throw new Error('Vui lòng nhập số trang hoặc khoảng trang cần tách.');
+                    options.ranges = ranges;
+                    break;
+                case 'pdfjpg':
+                    options.pdfjpg_mode = document.getElementById('pdfjpg-mode').value;
+                    break;
+                case 'protect':
+                    const password = document.getElementById('protect-password').value;
+                    if (!password) throw new Error('Vui lòng nhập mật khẩu để bảo vệ file.');
+                    options.password = password;
+                    break;
+                case 'rotate':
+                    options.rotate = document.getElementById('rotate-degrees').value;
+                    break;
                 case 'pagenumber':
                     options.pages = document.getElementById('pagenumber-pages').value;
                     options.starting_number = parseInt(document.getElementById('pagenumber-start').value);
@@ -305,8 +319,11 @@
                     options.layer = document.getElementById('watermark-layer').value;
                     options.transparency = parseInt(document.getElementById('watermark-transparency').value);
                     if (options.mode === 'text') {
-                        options.text = document.getElementById('watermark-text').value;
+                        const text = document.getElementById('watermark-text').value;
+                        if (!text) throw new Error('Vui lòng nhập nội dung chữ để đóng dấu.');
+                        options.text = text;
                     } else {
+                        if (!watermarkServerFilename) throw new Error('Lỗi: Không tìm thấy file ảnh đóng dấu đã tải lên.');
                         options.image = watermarkServerFilename;
                     }
                     break;
@@ -315,20 +332,28 @@
                     options.margin = parseInt(document.getElementById('imagepdf-margin').value);
                     options.pagesize = document.getElementById('imagepdf-pagesize').value;
                     break;
-                case 'pdfa': options.conformance = document.getElementById('pdfa-conformance').value; break;
-                case 'compressimage': options.compression_level = document.getElementById('compressimage-level').value; break;
+                case 'pdfa':
+                    options.conformance = document.getElementById('pdfa-conformance').value;
+                    break;
+                case 'compressimage':
+                    options.compression_level = document.getElementById('compressimage-level').value;
+                    break;
                 case 'resizeimage':
                     options.resize_mode = 'pixels';
-                    options.pixels_width = parseInt(document.getElementById('resizeimage-width').value);
-                    options.pixels_height = parseInt(document.getElementById('resizeimage-height').value);
+                    const width = document.getElementById('resizeimage-width').value;
+                    const height = document.getElementById('resizeimage-height').value;
+                    if (!width && !height) {
+                        throw new Error('Vui lòng nhập chiều rộng hoặc chiều cao để thay đổi kích thước.');
+                    }
+                    if (width) options.pixels_width = parseInt(width);
+                    if (height) options.pixels_height = parseInt(height);
                     options.maintain_ratio = document.getElementById('resizeimage-ratio').checked;
                     break;
-                case 'convertimage': options.to = document.getElementById('convertimage-to').value; break;
+                case 'convertimage':
+                    options.to = document.getElementById('convertimage-to').value;
+                    break;
             }
-            if (!Object.values(options).some(v => v === '' || v === null || Number.isNaN(v))) {
-                 return options;
-            }
-            throw new Error('Vui lòng điền đầy đủ các tùy chọn.');
+            return options;
         }
         
         function handleFileSelection(files) {
