@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay May Mắn - Giao diện mới</title>
+    <!-- Thêm logo trang web -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Be Vietnam Pro', sans-serif; 
+            background-color: #111827; 
+            color: #f3f4f6;
+            background-image: linear-gradient(to bottom right, #111827, #1f2937);
+        }
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        #app-container { position: relative; z-index: 10; }
+        #wheel-pointer { position: absolute; left: 50%; top: -20px; transform: translateX(-50%); z-index: 20; filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)); }
+        #wheel-container { 
+            cursor: pointer; 
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0px 10px 25px rgba(0, 0, 0, 0.5));
+        }
+        #wheel-container:hover {
+            transform: scale(1.02);
+        }
+        canvas#wheelCanvas { max-width: 100%; height: auto; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .tab-button.active { background-color: #3b82f6; color: white; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        
+        /* Cải tiến hiệu ứng cho Modal */
+        .modal {
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .modal.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        .modal-content {
+            transition: transform 0.25s ease;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <canvas id="confettiCanvas"></canvas>
+
+    <div id="app-container">
+        <!-- HEADER PLACEHOLDER -->
+        
+        <main class="container mx-auto px-4 py-8">
+            <h1 id="mainTitle" class="text-4xl md:text-5xl font-bold text-center text-blue-400 mb-2" style="text-shadow: 2px 2px 8px rgba(59, 130, 246, 0.4);">Vòng Quay May Mắn</h1>
+            <p class="text-center text-gray-400 mb-8">Nhấn vào vòng quay để bắt đầu!</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 flex flex-col items-center justify-center space-y-8">
+                    <div class="relative">
+                        <svg id="wheel-pointer" width="50" height="60" viewBox="0 0 100 120" fill="#f3f4f6" xmlns="http://www.w3.org/2000/svg"><path d="M50 120L0 40L100 40L50 120Z"/></svg>
+                        <div id="wheel-container" class="relative"><canvas id="wheelCanvas" width="500" height="500"></canvas></div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="customizeButton" class="bg-transparent border-2 border-gray-500 hover:bg-gray-700 hover:border-gray-700 text-gray-300 font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all transform hover:scale-105 active:scale-100">
+                            Tùy Chỉnh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 bg-opacity-80 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-gray-700 space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-2xl font-semibold text-blue-300">Nhập lựa chọn</h2>
+                            <button id="shuffleButton" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-md">Xáo trộn</button>
+                        </div>
+                        <textarea id="namesInput" class="w-full h-80 p-3 border-2 border-gray-600 rounded-md bg-gray-900 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Nhập tên 1&#10;Nhập tên 2&#10;Nhập tên 3">An
+Bình
+Cường
+Dũng
+Giang
+Hương
+Khánh
+Linh
+My
+Nam</textarea>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-semibold mb-3 border-b border-gray-600 pb-2 text-blue-300">Kết quả</h2>
+                        <div id="resultsList" class="w-full h-32 p-3 border-2 border-gray-600 rounded-md bg-gray-900 text-gray-400 overflow-y-auto"><p>Chưa có ai thắng cuộc...</p></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal Tùy Chỉnh -->
+        <div id="customizeModal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+            <div class="modal-content bg-gray-800 border border-blue-500 p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all space-y-4">
+                <h2 class="text-3xl font-bold text-blue-400 text-center mb-4">Tùy Chỉnh Vòng Quay</h2>
+                <div class="flex border-b border-gray-600 mb-4">
+                    <button data-tab="appearance" class="tab-button flex-1 py-2 px-4 font-semibold text-gray-300 transition active">Xuất Hiện</button>
+                    <button data-tab="during-spin" class="tab-button flex-1 py-2 px-4 font-semibold text-gray-300 transition">Trong Khi Quay</button>
+                    <button data-tab="after-spin" class="tab-button flex-1 py-2 px-4 font-semibold text-gray-300 transition">Sau Khi Quay</button>
+                </div>
+                <div class="space-y-6">
+                    <div id="tab-appearance" class="tab-pane active space-y-4">
+                        <div><label class="font-semibold text-lg text-gray-300">Chủ đề màu sắc</label><select id="colorThemeSelect" class="mt-2 block w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"><option value="default">Mặc định</option><option value="fire">Lửa & Nước</option><option value="forest">Rừng Xanh</option><option value="pastel">Pastel Dịu Nhẹ</option></select></div>
+                        <div><label class="font-semibold text-lg text-gray-300">Hình ảnh trung tâm</label><input id="centerImageInput" type="file" accept="image/*" class="mt-2 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"></div>
+                        <div class="flex items-center"><input id="showTitleCheckbox" type="checkbox" checked class="h-5 w-5 bg-gray-700 border-gray-500 text-blue-500 focus:ring-blue-500 rounded"><label for="showTitleCheckbox" class="ml-3 text-gray-300">Hiển thị tiêu đề chính</label></div>
+                    </div>
+                    <div id="tab-during-spin" class="tab-pane space-y-4">
+                        <div><label for="spinTimeRange" class="font-semibold text-lg text-gray-300">Thời gian quay: <span id="spinTimeValue">8</span> giây</label><input id="spinTimeRange" type="range" min="3" max="15" value="8" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer mt-2"></div>
+                        <div class="flex items-center"><input id="slowSpinCheckbox" type="checkbox" class="h-5 w-5 bg-gray-700 border-gray-500 text-blue-500 focus:ring-blue-500 rounded"><label for="slowSpinCheckbox" class="ml-3 text-gray-300">Quay chậm (tăng thêm 10 giây)</label></div>
+                        <div><label class="font-semibold text-lg text-gray-300 opacity-50">Giới hạn tên trong vòng quay (UI)</label><input type="range" min="4" max="1000" value="1000" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer mt-2 opacity-50" disabled></div>
+                    </div>
+                    <div id="tab-after-spin" class="tab-pane space-y-4">
+                         <div><h3 class="font-semibold text-lg text-gray-300">Thông báo người thắng</h3><p class="text-sm text-gray-400">Hộp thoại chúc mừng sẽ hiện lên với tùy chọn xóa người thắng.</p></div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4"><button id="closeCustomizeModalButton" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-lg">Đóng</button></div>
+            </div>
+        </div>
+
+        <!-- Winner Modal -->
+        <div id="winnerModal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+            <div class="modal-content bg-gray-800 border border-yellow-500 p-8 rounded-2xl shadow-2xl text-center max-w-sm mx-4 transform">
+                <h2 class="text-3xl font-bold text-yellow-400 mb-4">🎉 Chúc Mừng! 🎉</h2>
+                <p id="winnerName" class="text-4xl font-bold text-blue-400 mb-8 break-words"></p>
+                <div class="flex justify-center space-x-4">
+                    <button id="closeWinnerModalButton" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-lg">Đóng</button>
+                    <button id="removeWinnerButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">Xóa tên</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FOOTER PLACEHOLDER -->
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const getEl = (id) => document.getElementById(id);
+        const wheelCanvas = getEl('wheelCanvas'), ctx = wheelCanvas.getContext('2d');
+        const namesInput = getEl('namesInput'), resultsList = getEl('resultsList');
+        const winnerModal = getEl('winnerModal'), winnerName = getEl('winnerName'), closeWinnerModalButton = getEl('closeWinnerModalButton');
+        const confettiCanvas = getEl('confettiCanvas'), confettiCtx = confettiCanvas.getContext('2d');
+        const customizeButton = getEl('customizeButton'), customizeModal = getEl('customizeModal'), closeCustomizeModalButton = getEl('closeCustomizeModalButton');
+        const colorThemeSelect = getEl('colorThemeSelect'), spinTimeRange = getEl('spinTimeRange'), spinTimeValue = getEl('spinTimeValue');
+        const centerImageInput = getEl('centerImageInput'), shuffleButton = getEl('shuffleButton');
+        const slowSpinCheckbox = getEl('slowSpinCheckbox'), showTitleCheckbox = getEl('showTitleCheckbox');
+        const mainTitle = getEl('mainTitle');
+        const wheelContainer = getEl('wheel-container');
+        const removeWinnerButton = getEl('removeWinnerButton');
+
+        // --- State ---
+        let options = [], pastWinners = [];
+        let arc = 0, currentRotation = 0, spinTimeout = null, spinTime = 0, baseSpinTime = 8000, spinTimeTotal = 8000, spinArcStart = 10;
+        let isSpinning = false, idleAnimationId = null;
+        let centerImage = new Image(), centerImageLoaded = false;
+
+        // --- Settings ---
+        const colorPalettes = {
+            default: ["#F87171", "#60A5FA", "#34D399", "#FBBF24", "#A78BFA", "#EC4899", "#2DD4BF", "#F472B6", "#818CF8", "#FB923C"],
+            fire: ["#f97316", "#f59e0b", "#ef4444", "#dc2626", "#b91c1c", "#facc15", "#eab308", "#d97706", "#9a3412", "#78350f"],
+            forest: ["#16a34a", "#22c55e", "#84cc16", "#4d7c0f", "#166534", "#14532d", "#a3e635", "#65a30d", "#3f6212", "#1a2e05"],
+            pastel: ["#fecdd3", "#a5f3fc", "#d9f99d", "#fef08a", "#e9d5ff", "#fbcfe8", "#99f6e4", "#f5d0fe", "#c7d2fe", "#fed7aa"]
+        };
+        let currentColors = colorPalettes.default;
+
+        // --- Confetti Effect ---
+        let confettiParticles = [];
+        function setupConfetti() {
+            confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight;
+            if (confettiParticles.length > 0) return;
+            for (let i = 0; i < 100; i++) confettiParticles.push({ x: Math.random()*confettiCanvas.width, y: Math.random()*confettiCanvas.height-confettiCanvas.height, size: Math.random()*5+2, speed: Math.random()*3+1, color: currentColors[Math.floor(Math.random()*currentColors.length)], angle: Math.random()*360, spin: (Math.random()-0.5)*0.1 });
+        }
+        function animateConfetti() {
+            confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+            confettiParticles.forEach(p=>{ p.y+=p.speed; p.x+=Math.sin(p.angle); p.angle+=p.spin; if(p.y>confettiCanvas.height){p.y=-p.size; p.x=Math.random()*confettiCanvas.width;} confettiCtx.fillStyle=p.color; confettiCtx.fillRect(p.x,p.y,p.size,p.size); });
+            requestAnimationFrame(animateConfetti);
+        }
+        window.addEventListener('resize', setupConfetti);
+
+        // --- Wheel Drawing ---
+        function drawWheel() {
+            options = namesInput.value.split('\n').filter(name => name.trim() !== '');
+            arc = options.length > 0 ? Math.PI * 2 / options.length : 0;
+            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            ctx.save();
+            ctx.translate(250, 250); ctx.rotate(currentRotation); ctx.translate(-250, -250);
+            if (options.length === 0) {
+                ctx.beginPath(); ctx.arc(250, 250, 248, 0, Math.PI * 2); ctx.fillStyle = '#374151'; ctx.fill();
+                ctx.fillStyle = '#9ca3af'; ctx.font = 'bold 20px "Be Vietnam Pro"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Thêm lựa chọn', 250, 250);
+            } else {
+                for (let i = 0; i < options.length; i++) {
+                    const angle = 0 + i * arc;
+                    ctx.beginPath(); ctx.fillStyle = currentColors[i % currentColors.length]; ctx.moveTo(250, 250); ctx.arc(250, 250, 248, angle, angle + arc); ctx.lineTo(250, 250); ctx.fill();
+                    ctx.save(); ctx.fillStyle = "white"; ctx.font = `bold ${options.length > 15 ? 12 : 16}px "Be Vietnam Pro"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    const textAngle = angle + arc / 2;
+                    ctx.translate(250 + Math.cos(textAngle) * 160, 250 + Math.sin(textAngle) * 160); ctx.rotate(textAngle + Math.PI / 2);
+                    const name = options[i];
+                    ctx.fillText(name.length > 15 ? name.substring(0, 13) + '...' : name, 0, 0); ctx.restore();
+                }
+            }
+            if (centerImageLoaded) {
+                ctx.beginPath(); ctx.arc(250, 250, 60, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+                ctx.save(); ctx.beginPath(); ctx.arc(250, 250, 60, 0, Math.PI * 2); ctx.clip();
+                ctx.drawImage(centerImage, 250-60, 250-60, 120, 120); ctx.restore();
+            } else {
+                ctx.beginPath(); ctx.arc(250, 250, 40, 0, Math.PI * 2); ctx.fillStyle = '#f3f4f6'; ctx.fill();
+                ctx.strokeStyle = '#d1d5db'; ctx.lineWidth = 5; ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        // --- Wheel Spinning Logic ---
+        function easeOut(t, b, c, d) { const ts = (t /= d) * t; const tc = ts * t; return b + c * (tc + -3 * ts + 3 * t); }
+        function rotateWheel() {
+            spinTime += 30;
+            if (spinTime >= spinTimeTotal) { stopRotateWheel(); return; }
+            const spinAngle = spinArcStart - easeOut(spinTime, 0, spinArcStart, spinTimeTotal);
+            currentRotation += (spinAngle * Math.PI / 180);
+            drawWheel();
+            spinTimeout = requestAnimationFrame(rotateWheel);
+        }
+        function spin() {
+            if (isSpinning || options.length < 2) return;
+            isSpinning = true; stopIdleAnimation(); 
+            wheelContainer.style.pointerEvents = 'none';
+            spinTime = 0;
+            spinTimeTotal = baseSpinTime + (slowSpinCheckbox.checked ? 10000 : 0);
+            spinArcStart = Math.random() * 10 + 10; rotateWheel();
+        }
+        function stopRotateWheel() {
+            cancelAnimationFrame(spinTimeout);
+            const degrees = currentRotation * 180 / Math.PI % 360;
+            const arcd = arc * 180 / Math.PI;
+            const topAngle = 270;
+            const winningAngle = (360 - degrees % 360 + topAngle) % 360;
+            const index = Math.floor(winningAngle / arcd);
+            const winner = options[index];
+            winnerName.textContent = winner; 
+            winnerModal.classList.remove('hidden');
+            pastWinners.push(winner); updateResultsList();
+        }
+
+        // --- Idle Animation ---
+        function startIdleAnimation() {
+            if (idleAnimationId || isSpinning) return;
+            function idleRotate() { if(isSpinning) return; currentRotation += 0.001; drawWheel(); idleAnimationId = requestAnimationFrame(idleRotate); }
+            idleRotate();
+        }
+        function stopIdleAnimation() { cancelAnimationFrame(idleAnimationId); idleAnimationId = null; }
+        
+        // --- UI Updates & Events ---
+        function updateResultsList() {
+            resultsList.innerHTML = pastWinners.length === 0 ? '<p>Chưa có ai thắng cuộc...</p>' : pastWinners.map((w, i) => `<div class="p-1">${i + 1}. ${w}</div>`).join('');
+            resultsList.scrollTop = resultsList.scrollHeight;
+        }
+
+        function closeModalAndReset() {
+            winnerModal.classList.add('hidden');
+            isSpinning = false;
+            wheelContainer.style.pointerEvents = 'auto';
+            drawWheel();
+            startIdleAnimation();
+        }
+        
+        wheelContainer.addEventListener('click', spin);
+        shuffleButton.addEventListener('click', () => {
+            let entries = namesInput.value.split('\n').filter(n => n.trim() !== '');
+            for (let i = entries.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [entries[i], entries[j]] = [entries[j], entries[i]]; }
+            namesInput.value = entries.join('\n');
+            drawWheel();
+        });
+        namesInput.addEventListener('input', () => { if (isSpinning) return; currentRotation = 0; drawWheel(); });
+        
+        closeWinnerModalButton.addEventListener('click', closeModalAndReset);
+        
+        removeWinnerButton.addEventListener('click', () => {
+            const winnerToRemove = winnerName.textContent;
+            namesInput.value = options.filter(name => name !== winnerToRemove).join('\n');
+            closeModalAndReset();
+        });
+        
+        // --- Customization Modal Logic ---
+        function showModal(modal) {
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal(modal) {
+            modal.classList.add('hidden');
+        }
+
+        customizeButton.addEventListener('click', () => showModal(customizeModal));
+        closeCustomizeModalButton.addEventListener('click', () => hideModal(customizeModal));
+        
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                tabPanes.forEach(pane => {
+                    pane.classList.toggle('active', pane.id === `tab-${button.dataset.tab}`);
+                });
+            });
+        });
+
+        colorThemeSelect.addEventListener('change', (e) => { currentColors = colorPalettes[e.target.value]; drawWheel(); });
+        spinTimeRange.addEventListener('input', (e) => { baseSpinTime = e.target.value * 1000; spinTimeValue.textContent = e.target.value; });
+        showTitleCheckbox.addEventListener('change', (e) => { mainTitle.style.display = e.target.checked ? 'block' : 'none'; });
+        
+        centerImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    centerImage.src = event.target.result;
+                    centerImage.onload = () => { centerImageLoaded = true; drawWheel(); };
+                };
+                reader.readAsDataURL(file);
+            } else {
+                centerImageLoaded = false;
+                drawWheel();
+            }
+        });
+
+        // --- Init ---
+        setupConfetti(); animateConfetti(); drawWheel(); startIdleAnimation();
+    </script>
+</body>
+</html>
