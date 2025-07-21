@@ -46,11 +46,11 @@
                     <!-- Bước 1: Chọn loại chuyển đổi -->
                     <div class="mb-6">
                         <label for="conversionType" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Chọn loại chuyển đổi:</label>
+                        <!-- *** SỬA LỖI: Cập nhật các giá trị (value) để khớp với API của iLovePDF *** -->
                         <select id="conversionType" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                             <optgroup label="Chuyển sang PDF">
                                 <option value="officetopdf">Word/PowerPoint/Excel sang PDF</option>
-                                <option value="jpgtopdf">JPG sang PDF</option>
-                                <option value="pngtopdf">PNG sang PDF</option>
+                                <option value="imagetopdf">Ảnh (JPG, PNG) sang PDF</option>
                             </optgroup>
                             <optgroup label="Chuyển từ PDF">
                                 <option value="pdftoword">PDF sang Word</option>
@@ -112,34 +112,28 @@
         
         let selectedFile = null;
 
-        // *** MỚI: Định nghĩa các loại file được hỗ trợ cho mỗi loại chuyển đổi ***
         const supportedExtensions = {
             'officetopdf': { exts: ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], text: 'Hỗ trợ: DOCX, PPTX, XLSX...' },
-            'jpgtopdf':    { exts: ['jpg', 'jpeg'], text: 'Hỗ trợ: JPG, JPEG' },
-            'pngtopdf':    { exts: ['png'], text: 'Hỗ trợ: PNG' },
+            'imagetopdf':  { exts: ['jpg', 'jpeg', 'png'], text: 'Hỗ trợ: JPG, PNG' },
             'pdftoword':   { exts: ['pdf'], text: 'Hỗ trợ: PDF' },
             'pdftojpg':    { exts: ['pdf'], text: 'Hỗ trợ: PDF' },
         };
 
-        // Hàm cập nhật văn bản gợi ý
         function updateSupportedFilesText() {
             const conversionType = conversionTypeSelect.value;
             supportedFilesText.textContent = supportedExtensions[conversionType]?.text || 'Vui lòng chọn loại chuyển đổi';
-            resetFile(); // Reset file khi thay đổi loại chuyển đổi
+            resetFile(); 
         }
 
-        // Hàm kiểm tra file có hợp lệ không
         function validateFile(file, conversionType) {
             if (!file) return false;
             const fileName = file.name.toLowerCase();
             const validExts = supportedExtensions[conversionType]?.exts;
-            if (!validExts) return false; // Không có loại chuyển đổi hợp lệ
+            if (!validExts) return false;
 
             return validExts.some(ext => fileName.endsWith(`.${ext}`));
         }
 
-
-        // Xử lý sự kiện kéo-thả
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
         dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
         dropZone.addEventListener('drop', (e) => {
@@ -153,11 +147,9 @@
         removeFileBtn.addEventListener('click', () => { resetFile(); });
         conversionTypeSelect.addEventListener('change', updateSupportedFilesText);
 
-
         function handleFile(file) {
             const conversionType = conversionTypeSelect.value;
             
-            // *** MỚI: Kiểm tra file trước khi xử lý ***
             if (!validateFile(file, conversionType)) {
                 showStatus(`Lỗi: Tệp tin không hợp lệ. Vui lòng chọn một tệp ${supportedExtensions[conversionType]?.text.replace('Hỗ trợ: ', '')}.`, 'error');
                 resetFile();
@@ -244,11 +236,10 @@
                 showStatus(`❌ Lỗi: ${error.message}`, 'error');
             } finally {
                 convertBtn.disabled = false;
-                resetFile(); // Reset file sau khi hoàn tất
+                resetFile();
             }
         });
 
-        // Khởi tạo văn bản gợi ý khi tải trang
         document.addEventListener("DOMContentLoaded", function() {
             updateSupportedFilesText();
             fetch('mini-header.html').then(response => response.text()).then(data => { document.getElementById('mini-header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
