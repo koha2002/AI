@@ -68,6 +68,11 @@
             color: white !important; 
             border-color: #dc3545 !important;
         }
+        .answer-btn.selected {
+            background-color: #667eea !important;
+            color: white !important;
+            border-color: #5a67d8 !important;
+        }
         .timer-bar-inner {
             height: 100%;
             background: linear-gradient(90deg, #4ade80, #facc15, #f87171);
@@ -85,8 +90,12 @@
             cursor: pointer;
             flex-shrink: 0;
         }
-        .custom-radio span { border-radius: 50%; }
-        .custom-checkbox span { border-radius: 4px; }
+        .custom-radio span, .custom-checkbox span {
+            border-radius: 50%;
+        }
+        .custom-checkbox span {
+            border-radius: 4px;
+        }
         .custom-control input:checked + span { border-color: #28a745; background-color: #28a745; }
         .custom-control input:checked + span::after {
             content: ''; position: absolute;
@@ -101,8 +110,12 @@
             transform: translate(-50%, -50%);
         }
         .custom-checkbox input:checked + span::after {
-            left: 6px; top: 2px; width: 5px; height: 10px;
-            border: solid white; border-width: 0 3px 3px 0;
+            left: 9px;
+            top: 4px;
+            width: 8px;
+            height: 15px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
             transform: rotate(45deg);
         }
         .question-preview-item.dragging {
@@ -111,6 +124,27 @@
         }
         .question-preview-item.drag-over {
             border-top: 2px dashed #3498db;
+        }
+        .rich-text-editor {
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            min-height: 100px;
+            background-color: white;
+            color: black;
+        }
+        .rich-text-editor:focus-within {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        }
+        .rich-text-toolbar button {
+            width: 32px;
+            height: 32px;
+            border-radius: 0.25rem;
+        }
+        .rich-text-toolbar button.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
         }
     </style>
 </head>
@@ -124,7 +158,7 @@
             <div id="home-screen" class="card p-8 rounded-2xl shadow-2xl text-black">
                 <div class="text-center flex-shrink-0">
                     <i class="fas fa-rocket text-5xl text-purple-500 mb-4"></i>
-                    <h1 class="text-4xl font-bold mb-2">Chào mừng đến với ôn luyện cùng Quiz </h1>
+                    <h1 class="text-4xl font-bold mb-2">Chào mừng đến Quiz Vui!</h1>
                     <p class="text-lg text-black mb-6">Chọn một quiz để bắt đầu hoặc tạo quiz của riêng bạn.</p>
                 </div>
                 <div class="my-8 flex-grow flex flex-col min-h-0">
@@ -148,7 +182,7 @@
                  <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
                  
                  <div class="w-full max-w-md mx-auto space-y-6">
-                      <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                      <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
                       
                       <div class="text-left">
                            <h3 class="font-bold text-lg mb-2">Chế độ chơi</h3>
@@ -197,7 +231,7 @@
                         <div class="text-lg font-bold">Câu hỏi: <span id="question-progress">1/10</span></div>
                         <div class="text-lg font-bold text-green-500">Đúng: <span id="score-percent">0%</span></div>
                     </div>
-                    <div id="timer-container" class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-4 mb-6 shadow-inner">
+                    <div id="timer-container" class="w-full bg-gray-300 rounded-full h-4 mb-6 shadow-inner">
                         <div id="timer-bar" class="timer-bar-inner"></div>
                     </div>
                 </div>
@@ -206,10 +240,11 @@
                         <img id="quiz-question-image" src="" alt="Ảnh câu hỏi" class="max-h-60 mx-auto rounded-lg shadow-md hidden">
                     </div>
 
-                    <div class="min-h-[100px] flex items-center justify-center">
-                         <h2 id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></h2>
-                    </div>
+                    <div id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></div>
                     <div id="answer-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
+                    <div id="submit-multiple-choice-container" class="mt-6 text-center hidden">
+                        <button id="submit-multiple-choice-btn" class="btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">Nộp bài</button>
+                    </div>
                 </div>
             </div>
 
@@ -225,7 +260,7 @@
                     </p>
                 </div>
 
-                <div id="wrong-answers-container" class="hidden mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700 flex-grow flex flex-col min-h-0">
+                <div id="wrong-answers-container" class="hidden mt-4 pt-4 border-t-2 border-gray-200 flex-grow flex flex-col min-h-0">
                     <h3 class="text-xl font-bold mb-2 text-center flex-shrink-0">Xem lại các câu sai từ lần đầu</h3>
                     <div id="wrong-answers-list" class="space-y-2 overflow-y-auto pr-2">
                     </div>
@@ -248,28 +283,44 @@
 
                 <div class="flex-grow min-h-0 overflow-y-auto -mr-6 pr-6">
                     <div class="mb-6">
-                        <label for="quiz-title" class="block text-lg font-medium mb-2 text-black">Tên bộ câu hỏi:</label>
-                        <input type="text" id="quiz-title" placeholder="Ví dụ: Lịch sử Việt Nam" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <label for="quiz-title" class="block text-lg font-medium mb-2">Tên bộ câu hỏi:</label>
+                        <input type="text" id="quiz-title" placeholder="Ví dụ: Lịch sử Việt Nam" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
 
-                    <div class="border-t border-gray-300 dark:border-gray-600 pt-6">
+                    <div class="border-t border-gray-300 pt-6">
                         <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
                         <div class="space-y-4">
                             <div>
-                                <label for="new-question" class="block font-medium mb-1 text-black">Nội dung câu hỏi:</label>
-                                <input type="text" id="new-question" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <label class="block font-medium mb-1">Nội dung câu hỏi:</label>
+                                <div class="rich-text-toolbar flex items-center gap-2 p-2 bg-gray-100 rounded-t-lg border-b-2 border-gray-300">
+                                    <button data-command="bold" class="font-bold">B</button>
+                                    <button data-command="italic" class="italic">I</button>
+                                    <button data-command="underline" class="underline">U</button>
+                                </div>
+                                <div id="new-question" contenteditable="true" class="rich-text-editor rounded-b-lg p-2 focus:outline-none"></div>
                             </div>
                             
                             <div class="mt-4">
-                                <label for="new-question-image-input" class="block font-medium mb-1 text-black">Ảnh minh họa câu hỏi (tùy chọn):</label>
+                                <label class="block font-medium mb-1">Ảnh minh họa câu hỏi (tùy chọn):</label>
                                 <input type="file" id="new-question-image-input" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 <img id="question-image-preview" src="" alt="Xem trước ảnh" class="mt-2 rounded max-h-40 hidden">
                                 <button id="remove-image-btn" class="hidden mt-2 text-xs text-red-500 hover:text-red-700">Xóa ảnh</button>
                             </div>
                             
-                            <div id="answer-editor-container" class="space-y-3">
-                                <label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>
+                            <div class="flex items-center justify-between">
+                                <label class="block font-medium">Các lựa chọn:</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 text-sm"><input type="radio" name="answer-type" value="single" checked> Một đáp án</label>
+                                    <label class="flex items-center gap-2 text-sm"><input type="radio" name="answer-type" value="multiple"> Nhiều đáp án</label>
+                                </div>
                             </div>
+
+                            <div class="flex items-start gap-4">
+                                <div id="answer-editor-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
+                                </div>
+                                <button id="add-answer-btn" type="button" class="btn bg-gray-200 text-black rounded-lg h-12 w-12 flex items-center justify-center text-2xl flex-shrink-0 mt-1"><i class="fas fa-plus"></i></button>
+                            </div>
+                            
                             <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
                         </div>
                     </div>
@@ -282,7 +333,7 @@
                             </button>
                             <input type="file" id="import-questions-input" class="hidden" accept=".json">
                         </div>
-                        <div id="questions-preview" class="space-y-2 p-2 bg-gray-100 dark:bg-gray-800 rounded min-h-[120px]">
+                        <div id="questions-preview" class="space-y-2 p-2 bg-gray-100 rounded min-h-[120px]">
                         </div>
                     </div>
                 </div>
@@ -299,14 +350,14 @@
 
     <!-- Export Modal -->
     <div id="export-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-xl text-center dark:bg-gray-800">
-            <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Chọn định dạng xuất</h2>
-            <p class="mb-6 text-gray-700 dark:text-gray-300">Xuất tài liệu cho quiz: <strong id="export-quiz-title" class="text-purple-600 dark:text-purple-400"></strong></p>
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+            <h2 class="text-2xl font-bold mb-4">Chọn định dạng xuất</h2>
+            <p class="mb-6">Xuất tài liệu cho quiz: <strong id="export-quiz-title" class="text-purple-600"></strong></p>
             <div class="flex gap-4 justify-center">
                 <button id="export-pdf-btn" class="btn bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button>
                 <button id="export-doc-btn" class="btn bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-file-word mr-2"></i>Xuất Word (.docx)</button>
             </div>
-            <button id="cancel-export-btn" class="mt-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">Hủy</button>
+            <button id="cancel-export-btn" class="mt-6 text-gray-500 hover:text-gray-700">Hủy</button>
         </div>
     </div>
 
@@ -356,6 +407,8 @@
             const quizQuestionImage = document.getElementById('quiz-question-image');
             const answerButtonsContainer = document.getElementById('answer-buttons');
             const practiceRoundNotification = document.getElementById('practice-round-notification');
+            const submitMultipleChoiceContainer = document.getElementById('submit-multiple-choice-container');
+            const submitMultipleChoiceBtn = document.getElementById('submit-multiple-choice-btn');
             const endTitle = document.getElementById('end-title');
             const endMessage = document.getElementById('end-message');
             const playerNameFinal = document.getElementById('player-name-final');
@@ -380,11 +433,12 @@
             const creatorTitle = document.getElementById('creator-title');
             const quizTitleInput = document.getElementById('quiz-title');
             const questionEditorTitle = document.getElementById('question-editor-title');
-            const newQuestionInput = document.getElementById('new-question');
+            const newQuestionDiv = document.getElementById('new-question');
             const newQuestionImageInput = document.getElementById('new-question-image-input');
             const questionImagePreview = document.getElementById('question-image-preview');
             const removeImageBtn = document.getElementById('remove-image-btn');
             const answerEditorContainer = document.getElementById('answer-editor-container');
+            const addAnswerBtn = document.getElementById('add-answer-btn');
             const addQuestionBtn = document.getElementById('add-question-btn');
             const questionsPreview = document.getElementById('questions-preview');
             const questionCount = document.getElementById('question-count');
@@ -392,9 +446,10 @@
             const cancelCreationBtn = document.getElementById('cancel-creation-btn');
             const importQuestionsBtn = document.getElementById('import-questions-btn');
             const importQuestionsInput = document.getElementById('import-questions-input');
+            const richTextToolbar = document.querySelector('.rich-text-toolbar');
 
             // --- QUIZ DATA & STATE ---
-            const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
+            const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", multiple: false, answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", multiple: false, answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
             let allQuizzes = [];
             let currentQuizData = [];
             let newQuizQuestions = [];
@@ -406,7 +461,6 @@
             let gameMode, isTimerEnabled, timePerQuestion, isShuffleQuestionsEnabled, isShuffleAnswersEnabled;
             let editingQuizIndex = null, editingQuestionIndex = null;
             let currentQuestionImageBase64 = null;
-            let currentAnswerImages = [null, null, null, null];
             let draggedItemIndex = null;
             let quizToExportIndex = null;
 
@@ -515,7 +569,7 @@
                 
                 const percent = originalTotalQuestions > 0 ? Math.round((correctAnswersCount / originalTotalQuestions) * 100) : 0;
                 scorePercentDisplay.textContent = `${percent}%`;
-                questionText.textContent = questionData.question;
+                questionText.innerHTML = questionData.question; // Use innerHTML for rich text
                 
                 if (questionData.image) {
                     quizQuestionImage.src = questionData.image;
@@ -530,23 +584,33 @@
                     answersToDisplay.sort(() => Math.random() - 0.5);
                 }
 
-                answersToDisplay.forEach((answer) => {
+                answersToDisplay.forEach((answer, index) => {
                     const button = document.createElement('button');
                     button.className = `answer-btn w-full font-bold py-3 px-4 rounded-lg text-left flex flex-col items-center justify-center text-lg btn`;
+                    button.dataset.originalIndex = questionData.answers.indexOf(answer);
                     
                     let content = '';
                     if (answer.image) {
-                        content += `<img src="${answer.image}" class="max-h-24 rounded-md mb-2 object-contain">`;
+                        content += `<img src="${answer.image}" class="max-h-24 rounded-md mb-2 object-contain pointer-events-none">`;
                     }
                     if (answer.text) {
-                        content += `<span>${answer.text}</span>`;
+                        content += `<span class="pointer-events-none">${answer.text}</span>`;
                     }
                     button.innerHTML = content;
                     
-                    if (answer.correct) button.dataset.correct = true;
-                    button.addEventListener('click', () => selectAnswer(button, answer.correct));
+                    if (questionData.multiple) {
+                        button.addEventListener('click', () => toggleMultipleChoiceAnswer(button));
+                    } else {
+                        button.addEventListener('click', () => selectSingleAnswer(button, answer.correct));
+                    }
                     answerButtonsContainer.appendChild(button);
                 });
+
+                if (questionData.multiple) {
+                    submitMultipleChoiceContainer.classList.remove('hidden');
+                } else {
+                    submitMultipleChoiceContainer.classList.add('hidden');
+                }
 
                 if (gameMode === 'test' && isTimerEnabled) {
                     timerContainer.classList.remove('hidden');
@@ -561,31 +625,68 @@
                 answerButtonsContainer.innerHTML = '';
                 quizQuestionImage.classList.add('hidden');
                 quizQuestionImage.src = '';
+                submitMultipleChoiceContainer.classList.add('hidden');
             }
 
-            function selectAnswer(selectedBtn, isCorrect) {
+            function toggleMultipleChoiceAnswer(selectedBtn) {
+                selectedBtn.classList.toggle('selected');
+            }
+
+            function selectSingleAnswer(selectedBtn, isCorrect) {
+                checkAnswers([{ btn: selectedBtn, correct: isCorrect }]);
+            }
+
+            function submitMultipleAnswers() {
+                const selectedButtons = answerButtonsContainer.querySelectorAll('.answer-btn.selected');
+                const answers = Array.from(selectedButtons).map(btn => {
+                    const originalIndex = parseInt(btn.dataset.originalIndex);
+                    const originalAnswer = currentQuizData[currentQuestionIndex].answers[originalIndex];
+                    return { btn, correct: originalAnswer.correct };
+                });
+                checkAnswers(answers, true);
+            }
+
+            function checkAnswers(selectedAnswers, isMultiple = false) {
                 clearInterval(timerInterval);
-                
-                if (isCorrect) {
+                let allCorrect = true;
+                const questionData = currentQuizData[currentQuestionIndex];
+                const correctAnswers = questionData.answers.filter(a => a.correct);
+
+                if (isMultiple) {
+                    if (selectedAnswers.length !== correctAnswers.length) {
+                        allCorrect = false;
+                    } else {
+                        allCorrect = selectedAnswers.every(ans => ans.correct);
+                    }
+                } else {
+                    allCorrect = selectedAnswers.length === 1 && selectedAnswers[0].correct;
+                }
+
+                if (allCorrect) {
                     correctAnswersCount++;
                 } else {
                     if (isInitialRound) {
-                        initialWrongAnswers.push(currentQuizData[currentQuestionIndex]);
+                        initialWrongAnswers.push(questionData);
                     }
                     if (gameMode === 'practice') {
-                        wronglyAnsweredQuestions.push(currentQuizData[currentQuestionIndex]);
+                        wronglyAnsweredQuestions.push(questionData);
                     }
                 }
                 
                 Array.from(answerButtonsContainer.children).forEach(button => {
-                    if (button.dataset.correct) {
+                    const originalIndex = parseInt(button.dataset.originalIndex);
+                    const originalAnswer = questionData.answers[originalIndex];
+                    if (originalAnswer.correct) {
                         button.classList.add('correct');
                     }
                     button.disabled = true;
                 });
-                if (!isCorrect) {
-                    selectedBtn.classList.add('wrong');
-                }
+
+                selectedAnswers.forEach(({ btn, correct }) => {
+                    if (!correct) {
+                        btn.classList.add('wrong');
+                    }
+                });
 
                 setTimeout(() => {
                     currentQuestionIndex++;
@@ -602,11 +703,11 @@
                     timerBar.style.width = `${widthPercentage}%`; timerBar.style.backgroundPosition = `${100 - widthPercentage}%`;
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        Array.from(answerButtonsContainer.children).forEach(button => { 
-                            if (button.dataset.correct) button.classList.add('correct'); 
-                            button.disabled = true; 
-                        });
-                        setTimeout(() => { currentQuestionIndex++; setNextQuestion(); }, 1500);
+                        if (currentQuizData[currentQuestionIndex].multiple) {
+                            submitMultipleAnswers();
+                        } else {
+                            checkAnswers([]);
+                        }
                     }
                 }, 1000);
             }
@@ -634,19 +735,24 @@
                     wrongAnswersContainer.classList.remove('hidden');
                     exportWrongBtn.classList.remove('hidden');
                     initialWrongAnswers.forEach(q => {
-                        const correctAnswer = q.answers.find(a => a.correct);
+                        const correctAnswers = q.answers.filter(a => a.correct);
                         const attempts = questionAttemptCounts[q.question] || 1;
                         const item = document.createElement('div');
                         item.className = 'text-left p-3 bg-red-100 dark:bg-red-900/50 rounded-lg shadow-sm';
+                        let answersHtml = correctAnswers.map(ans => `
+                            <div class="flex items-center gap-2">
+                                ${ans.image ? `<img src="${ans.image}" class="max-h-16 rounded-md my-1">` : ''}
+                                ${ans.text ? `<span>${ans.text}</span>` : ''}
+                            </div>
+                        `).join('');
+
                         item.innerHTML = `
                             <div class="flex justify-between items-start">
-                                <p class="font-bold text-gray-800 dark:text-gray-200 flex-1 pr-2">${q.question}</p>
+                                <div class="font-bold text-gray-800 dark:text-gray-200 flex-1 pr-2">${q.question}</div>
                                 ${attempts > 1 ? `<span class="text-xs font-semibold text-white bg-red-500 rounded-full px-2 py-1 flex-shrink-0" title="Số lần làm lại">${attempts} lần</span>` : ''}
                             </div>
                             <div class="text-sm text-green-700 dark:text-green-400 font-semibold mt-1">
-                                <span>Đáp án đúng: </span>
-                                ${correctAnswer.image ? `<img src="${correctAnswer.image}" class="max-h-16 rounded-md my-1 inline-block">` : ''}
-                                ${correctAnswer.text ? `<span>${correctAnswer.text}</span>` : ''}
+                                <b>Đáp án đúng:</b> ${answersHtml}
                             </div>
                         `;
                         wrongAnswersList.appendChild(item);
@@ -678,20 +784,23 @@
                 const quiz = allQuizzes[quizIndex];
                 const questions = JSON.parse(JSON.stringify(quiz.questions));
                 
-                questions.sort((a, b) => a.question.localeCompare(b.question, 'vi'));
+                questions.sort((a, b) => {
+                    const textA = new DOMParser().parseFromString(a.question, "text/html").body.textContent || "";
+                    const textB = new DOMParser().parseFromString(b.question, "text/html").body.textContent || "";
+                    return textA.localeCompare(textB, 'vi');
+                });
 
                 let contentHtml = `<div style="font-family: Arial, sans-serif; line-height: 1.6;"><h1>${quiz.title}</h1>`;
                 questions.forEach(q => {
-                    const correctAnswer = q.answers.find(a => a.correct);
+                    const correctAnswers = q.answers.filter(a => a.correct);
+                    let answersText = correctAnswers.map(ans => (ans.text || '') + (ans.image ? ` <img src="${ans.image}" style="max-width: 150px; vertical-align: middle; border-radius: 4px;">` : '')).join(', ');
+                    
                     contentHtml += `<div style="margin-bottom: 20px; page-break-inside: avoid;">`;
-                    contentHtml += `<p><b>${q.question}</b></p>`;
+                    contentHtml += `<div><b>${q.question}</b></div>`;
                     if (q.image) {
                         contentHtml += `<img src="${q.image}" style="max-width: 300px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;">`;
                     }
-                    contentHtml += `<p style="color: #28a745;"><b>&rArr;</b> ${correctAnswer.text || ''}</p>`;
-                    if (correctAnswer.image) {
-                        contentHtml += `<img src="${correctAnswer.image}" style="max-width: 200px; margin-top: 5px; border-radius: 8px;">`;
-                    }
+                    contentHtml += `<div style="color: #28a745;"><b>&rArr;</b> ${answersText}</div>`;
                     contentHtml += `</div><hr style="border: none; border-top: 1px solid #eee;">`;
                 });
                 contentHtml += `</div>`;
@@ -727,68 +836,70 @@
 
             // --- QUIZ CREATOR LOGIC ---
             function setupAnswerEditors() {
-                answerEditorContainer.innerHTML = '<label class="block font-medium text-black">Các lựa chọn (chọn câu trả lời đúng):</label>';
-                for (let i = 0; i < 4; i++) {
-                    const editorDiv = document.createElement('div');
-                    editorDiv.className = 'p-2 border rounded-lg space-y-2';
-                    editorDiv.innerHTML = `
-                        <div class="flex items-center space-x-2">
-                            <input type="text" name="answer-text" placeholder="Lựa chọn ${i + 1}" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <label class="custom-control custom-radio flex items-center p-1 cursor-pointer">
-                                <input type="radio" name="correct-answer" value="${i}">
-                                <span></span>
-                            </label>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button type="button" class="btn text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded" data-answer-index="${i}">Chọn ảnh</button>
-                            <input type="file" class="hidden" name="answer-image-input" accept="image/*" data-answer-index="${i}">
-                            <img src="" class="hidden h-10 rounded" name="answer-image-preview" data-answer-index="${i}">
-                            <button type="button" class="hidden btn text-xs bg-red-100 text-red-700 px-2 py-1 rounded" name="remove-answer-image-btn" data-answer-index="${i}">Xóa</button>
-                        </div>
-                    `;
-                    answerEditorContainer.appendChild(editorDiv);
+                answerEditorContainer.innerHTML = '';
+                for (let i=0; i<4; i++) {
+                    addAnswerEditor();
                 }
-
-                answerEditorContainer.querySelectorAll('button[data-answer-index]').forEach(btn => {
-                    const index = btn.dataset.answerIndex;
-                    if (btn.textContent === 'Chọn ảnh') {
-                        btn.addEventListener('click', () => {
-                            answerEditorContainer.querySelector(`input[name="answer-image-input"][data-answer-index="${index}"]`).click();
-                        });
-                    }
-                });
-
-                answerEditorContainer.querySelectorAll('input[name="answer-image-input"]').forEach(input => {
-                    input.addEventListener('change', (e) => handleAnswerImageUpload(e, input.dataset.answerIndex));
-                });
-
-                answerEditorContainer.querySelectorAll('button[name="remove-answer-image-btn"]').forEach(btn => {
-                    btn.addEventListener('click', () => removeAnswerImage(btn.dataset.answerIndex));
-                });
             }
 
-            function handleAnswerImageUpload(event, index) {
+            function addAnswerEditor(answer = { text: '', image: null, correct: false }) {
+                const index = answerEditorContainer.querySelectorAll('.answer-editor-item').length;
+                const editorDiv = document.createElement('div');
+                editorDiv.className = 'p-3 border rounded-lg space-y-2 answer-editor-item bg-white flex flex-col';
+                const answerType = document.querySelector('input[name="answer-type"]:checked').value === 'single' ? 'radio' : 'checkbox';
+                
+                editorDiv.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <textarea name="answer-text" placeholder="Lựa chọn ${index + 1}" class="w-full px-3 py-2 rounded-lg border-2 border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-500" rows="3">${answer.text}</textarea>
+                        <div class="flex flex-col gap-2 items-center">
+                            <label class="custom-control ${answerType === 'radio' ? 'custom-radio' : 'custom-checkbox'} flex items-center p-1 cursor-pointer">
+                                <input type="${answerType}" name="correct-answer" value="${index}" ${answer.correct ? 'checked' : ''}>
+                                <span></span>
+                            </label>
+                            <button type="button" class="btn text-red-500 remove-answer-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-auto pt-2">
+                        <button type="button" class="btn text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded" data-answer-index="${index}"><i class="fas fa-image"></i></button>
+                        <input type="file" class="hidden" name="answer-image-input" accept="image/*" data-answer-index="${index}">
+                        <img src="${answer.image || ''}" class="${answer.image ? '' : 'hidden'} h-10 rounded" name="answer-image-preview">
+                        <button type="button" class="${answer.image ? '' : 'hidden'} btn text-xs bg-red-100 text-red-700 px-2 py-1 rounded" name="remove-answer-image-btn">Xóa</button>
+                    </div>
+                `;
+                answerEditorContainer.appendChild(editorDiv);
+
+                // Re-attach listeners for the new element
+                const newEditor = answerEditorContainer.lastElementChild;
+                newEditor.querySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove());
+                newEditor.querySelector('button[data-answer-index]').addEventListener('click', (e) => {
+                    newEditor.querySelector('input[name="answer-image-input"]').click();
+                });
+                newEditor.querySelector('input[name="answer-image-input"]').addEventListener('change', (e) => handleAnswerImageUpload(e, newEditor));
+                newEditor.querySelector('button[name="remove-answer-image-btn"]').addEventListener('click', () => removeAnswerImage(newEditor));
+            }
+
+            function handleAnswerImageUpload(event, editorDiv) {
                 const file = event.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    currentAnswerImages[index] = e.target.result;
-                    const preview = answerEditorContainer.querySelector(`img[name="answer-image-preview"][data-answer-index="${index}"]`);
-                    const removeBtn = answerEditorContainer.querySelector(`button[name="remove-answer-image-btn"][data-answer-index="${index}"]`);
+                    const preview = editorDiv.querySelector(`img[name="answer-image-preview"]`);
+                    const removeBtn = editorDiv.querySelector(`button[name="remove-answer-image-btn"]`);
                     preview.src = e.target.result;
+                    preview.dataset.base64 = e.target.result;
                     preview.classList.remove('hidden');
                     removeBtn.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             }
 
-            function removeAnswerImage(index) {
-                currentAnswerImages[index] = null;
-                const input = answerEditorContainer.querySelector(`input[name="answer-image-input"][data-answer-index="${index}"]`);
-                const preview = answerEditorContainer.querySelector(`img[name="answer-image-preview"][data-answer-index="${index}"]`);
-                const removeBtn = answerEditorContainer.querySelector(`button[name="remove-answer-image-btn"][data-answer-index="${index}"]`);
+            function removeAnswerImage(editorDiv) {
+                const input = editorDiv.querySelector(`input[name="answer-image-input"]`);
+                const preview = editorDiv.querySelector(`img[name="answer-image-preview"]`);
+                const removeBtn = editorDiv.querySelector(`button[name="remove-answer-image-btn"]`);
                 input.value = '';
                 preview.src = '';
+                preview.dataset.base64 = '';
                 preview.classList.add('hidden');
                 removeBtn.classList.add('hidden');
             }
@@ -809,7 +920,7 @@
                 addQuestionBtn.textContent = 'Thêm câu hỏi này';
                 addQuestionBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
                 addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-                newQuestionInput.value = '';
+                newQuestionDiv.innerHTML = '';
                 
                 newQuestionImageInput.value = '';
                 questionImagePreview.classList.add('hidden');
@@ -817,11 +928,9 @@
                 removeImageBtn.classList.add('hidden');
                 currentQuestionImageBase64 = null;
                 
-                answerEditorContainer.querySelectorAll('input[name="answer-text"]').forEach(input => input.value = '');
-                answerEditorContainer.querySelectorAll('input[name="correct-answer"]').forEach(radio => radio.checked = false);
-                for (let i = 0; i < 4; i++) {
-                    removeAnswerImage(i);
-                }
+                answerEditorContainer.innerHTML = '';
+                for(let i=0; i<4; i++) addAnswerEditor();
+                document.querySelector('input[name="answer-type"][value="single"]').checked = true;
             }
             
             function updateQuestionPreview() {
@@ -829,14 +938,15 @@
                 questionCount.textContent = newQuizQuestions.length;
                 newQuizQuestions.forEach((q, index) => {
                     const item = document.createElement('div');
-                    item.className = 'question-preview-item flex items-center justify-between p-2 bg-gray-200 dark:bg-gray-700 rounded text-sm cursor-move';
+                    item.className = 'question-preview-item flex items-center justify-between p-2 bg-gray-200 rounded text-sm cursor-move';
                     item.draggable = true;
                     item.dataset.index = index;
+                    let questionTextContent = new DOMParser().parseFromString(q.question, "text/html").body.textContent || "";
                     let previewText = `<span class="flex-1 mr-2 truncate"><i class="fas fa-grip-vertical mr-2 text-gray-400"></i>${index + 1}. `;
                     if (q.image) {
                         previewText += `<i class="fas fa-image text-blue-400 mr-1"></i>`;
                     }
-                    previewText += `${q.question}</span>`;
+                    previewText += `${questionTextContent}</span>`;
                     item.innerHTML = `${previewText}<div class="flex gap-2 flex-shrink-0"><button data-edit-question="${index}" class="text-blue-500 hover:text-blue-700"><i class="fas fa-pencil-alt fa-xs"></i></button><button data-delete-question="${index}" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt fa-xs"></i></button></div>`;
                     questionsPreview.appendChild(item);
                 });
@@ -856,7 +966,7 @@
                 addQuestionBtn.textContent = 'Cập nhật câu hỏi';
                 addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
                 addQuestionBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-                newQuestionInput.value = questionData.question;
+                newQuestionDiv.innerHTML = questionData.question;
                 
                 if (questionData.image) {
                     questionImagePreview.src = questionData.image;
@@ -865,22 +975,9 @@
                     currentQuestionImageBase64 = questionData.image;
                 }
 
-                const answerTextInputs = answerEditorContainer.querySelectorAll('input[name="answer-text"]');
-                const correctRadios = answerEditorContainer.querySelectorAll('input[name="correct-answer"]');
-                questionData.answers.forEach((ans, i) => {
-                    answerTextInputs[i].value = ans.text;
-                    if (ans.correct) {
-                        correctRadios[i].checked = true;
-                    }
-                    if (ans.image) {
-                        currentAnswerImages[i] = ans.image;
-                        const preview = answerEditorContainer.querySelector(`img[name="answer-image-preview"][data-answer-index="${i}"]`);
-                        const removeBtn = answerEditorContainer.querySelector(`button[name="remove-answer-image-btn"][data-answer-index="${i}"]`);
-                        preview.src = ans.image;
-                        preview.classList.remove('hidden');
-                        removeBtn.classList.remove('hidden');
-                    }
-                });
+                document.querySelector(`input[name="answer-type"][value="${questionData.multiple ? 'multiple' : 'single'}"]`).checked = true;
+                answerEditorContainer.innerHTML = '';
+                questionData.answers.forEach(ans => addAnswerEditor(ans));
             }
             
             function deleteQuestion(index) { newQuizQuestions.splice(index, 1); updateQuestionPreview(); if(editingQuestionIndex === index) { resetQuestionForm(); } }
@@ -898,30 +995,39 @@
             }
 
             addQuestionBtn.addEventListener('click', () => {
-                const question = newQuestionInput.value.trim();
-                const answerTextInputs = answerEditorContainer.querySelectorAll('input[name="answer-text"]');
-                const answerTexts = Array.from(answerTextInputs).map(input => input.value.trim());
-                const correctRadio = answerEditorContainer.querySelector('input[name="correct-answer"]:checked');
+                const question = newQuestionDiv.innerHTML.trim();
+                const isMultiple = document.querySelector('input[name="answer-type"]:checked').value === 'multiple';
+                const answerItems = answerEditorContainer.querySelectorAll('.answer-editor-item');
+                
+                const answers = Array.from(answerItems).map(item => {
+                    const text = item.querySelector('textarea[name="answer-text"]').value.trim();
+                    const image = item.querySelector('img[name="answer-image-preview"]').dataset.base64 || null;
+                    const correct = item.querySelector('input[name="correct-answer"]').checked;
+                    return { text, image, correct };
+                });
 
-                if (!correctRadio) {
-                    alert('Vui lòng chọn một đáp án đúng.');
+                if (!question || question === '<br>') {
+                    alert('Vui lòng nhập nội dung câu hỏi.');
                     return;
                 }
-                const correctIndex = correctRadio.value;
-
-                if (!question || answerTexts.some((a, i) => a === '' && !currentAnswerImages[i])) {
-                    alert('Vui lòng điền nội dung câu hỏi và ít nhất là văn bản hoặc hình ảnh cho mỗi lựa chọn.');
+                if (answers.length < 2) {
+                    alert('Vui lòng nhập ít nhất 2 lựa chọn trả lời.');
+                    return;
+                }
+                if (answers.some(a => !a.text && !a.image)) {
+                    alert('Mỗi lựa chọn phải có ít nhất văn bản hoặc hình ảnh.');
+                    return;
+                }
+                if (!answers.some(a => a.correct)) {
+                    alert('Vui lòng chọn ít nhất một đáp án đúng.');
                     return;
                 }
                 
                 const questionData = {
                     question: question,
                     image: currentQuestionImageBase64,
-                    answers: answerTexts.map((text, index) => ({
-                        text: text,
-                        image: currentAnswerImages[index],
-                        correct: index == correctIndex
-                    }))
+                    multiple: isMultiple,
+                    answers: answers
                 };
                 
                 if (editingQuestionIndex !== null) {
@@ -931,7 +1037,7 @@
                 }
                 updateQuestionPreview();
                 resetQuestionForm();
-                newQuestionInput.focus();
+                newQuestionDiv.focus();
             });
 
             saveQuizBtn.addEventListener('click', () => {
@@ -1094,6 +1200,43 @@
                 exportAsDocument(quizToExportIndex, 'docx');
                 exportModal.classList.add('hidden');
             });
+            
+            addAnswerBtn.addEventListener('click', () => addAnswerEditor());
+            document.querySelectorAll('input[name="answer-type"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const newType = e.target.value === 'single' ? 'radio' : 'checkbox';
+                    answerEditorContainer.querySelectorAll('input[name="correct-answer"]').forEach(input => {
+                        input.type = newType;
+                        if (newType === 'radio') {
+                            const firstChecked = answerEditorContainer.querySelector('input[name="correct-answer"]:checked');
+                            if (firstChecked) {
+                                answerEditorContainer.querySelectorAll('input[name="correct-answer"]').forEach(r => r.checked = false);
+                                firstChecked.checked = true;
+                            }
+                        }
+                    });
+                });
+            });
+
+            richTextToolbar.addEventListener('click', (e) => {
+                const command = e.target.dataset.command;
+                if (command) {
+                    e.preventDefault();
+                    document.execCommand(command, false, null);
+                    newQuestionDiv.focus();
+                    richTextToolbar.querySelectorAll('button').forEach(btn => {
+                        btn.classList.toggle('active', document.queryCommandState(btn.dataset.command));
+                    });
+                }
+            });
+            
+            newQuestionDiv.addEventListener('keyup', () => {
+                richTextToolbar.querySelectorAll('button').forEach(btn => {
+                    btn.classList.toggle('active', document.queryCommandState(btn.dataset.command));
+                });
+            });
+
+            submitMultipleChoiceBtn.addEventListener('click', submitMultipleAnswers);
 
             // --- INITIALIZATION ---
             loadComponents();
