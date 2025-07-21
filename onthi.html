@@ -24,7 +24,7 @@
         .app-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             flex-grow: 1;
-            padding: 1.5rem;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -34,10 +34,21 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            height: calc(100vh - 3rem - 2rem);
-            max-height: 850px;
+            height: 100%;
+            max-height: 100vh;
             display: flex;
             flex-direction: column;
+            border-radius: 0;
+        }
+        @media (min-width: 640px) {
+            .app-container {
+                padding: 1.5rem;
+            }
+            .card {
+                border-radius: 1rem;
+                height: calc(100vh - 3rem);
+                max-height: 850px;
+            }
         }
         .dark .card {
             background-color: rgba(26, 26, 46, 0.85);
@@ -146,6 +157,10 @@
             background-color: #e0e7ff;
             color: #4f46e5;
         }
+        #export-modal input[type="radio"] {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
     </style>
 </head>
 <body class="dark:bg-gray-900 text-black">
@@ -163,7 +178,7 @@
                 </div>
                 <div class="my-8 flex-grow flex flex-col min-h-0">
                     <h2 class="text-2xl font-bold mb-4 text-center flex-shrink-0">Danh sách Quiz có sẵn</h2>
-                    <div id="quiz-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-grow overflow-y-auto p-2">
+                    <div id="quiz-list" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-grow overflow-y-auto p-2">
                     </div>
                 </div>
                 <div class="text-center mt-auto flex-shrink-0 pt-4">
@@ -350,12 +365,49 @@
 
     <!-- Export Modal -->
     <div id="export-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
-            <h2 class="text-2xl font-bold mb-4">Chọn định dạng xuất</h2>
-            <p class="mb-6">Xuất tài liệu cho quiz: <strong id="export-quiz-title" class="text-purple-600"></strong></p>
-            <div class="flex gap-4 justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-2xl text-black">
+            <h2 class="text-2xl font-bold mb-4">Tùy chọn xuất tài liệu</h2>
+            <p class="mb-6">Quiz: <strong id="export-quiz-title" class="text-purple-600"></strong></p>
+            
+            <div class="space-y-4 text-left">
+                <div class="flex items-center">
+                    <input type="radio" id="export-marked" name="export-type" value="marked" class="mr-3" checked>
+                    <div>
+                        <label for="export-marked" class="font-semibold">Xuất toàn bộ (đánh dấu đáp án)</label>
+                        <p class="text-sm text-gray-600">Tất cả câu hỏi và lựa chọn. Đáp án đúng có dấu * và màu đỏ.</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="radio" id="export-unmarked" name="export-type" value="unmarked" class="mr-3">
+                    <div>
+                        <label for="export-unmarked" class="font-semibold">Xuất toàn bộ (không đánh dấu đáp án)</label>
+                        <p class="text-sm text-gray-600">Tất cả câu hỏi và lựa chọn, không có đáp án. Dùng để làm đề kiểm tra.</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="radio" id="export-qna" name="export-type" value="qna" class="mr-3">
+                    <div>
+                        <label for="export-qna" class="font-semibold">Xuất câu hỏi và đáp án</label>
+                        <p class="text-sm text-gray-600">Chỉ có câu hỏi và đáp án đúng. Dùng làm tài liệu ôn tập nhanh.</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <input type="radio" id="export-random" name="export-type" value="random" class="mr-3 mt-1">
+                    <div>
+                        <label for="export-random" class="font-semibold">Xuất ngẫu nhiên</label>
+                        <div id="random-options-container" class="hidden">
+                            <p class="text-sm text-gray-600">Chọn ngẫu nhiên một số câu hỏi từ bộ đề.</p>
+                            <input type="number" id="random-question-count" class="mt-2 p-1 border rounded w-24" value="10" min="1">
+                            <span class="text-sm text-gray-600">câu hỏi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t flex flex-wrap gap-4 justify-center">
                 <button id="export-pdf-btn" class="btn bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button>
                 <button id="export-doc-btn" class="btn bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-file-word mr-2"></i>Xuất Word (.docx)</button>
+                <button id="export-json-btn" class="btn bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 hidden"><i class="fas fa-file-code mr-2"></i>Xuất JSON</button>
             </div>
             <button id="cancel-export-btn" class="mt-6 text-gray-500 hover:text-gray-700">Hủy</button>
         </div>
@@ -424,7 +476,10 @@
             const exportQuizTitle = document.getElementById('export-quiz-title');
             const exportPdfBtn = document.getElementById('export-pdf-btn');
             const exportDocBtn = document.getElementById('export-doc-btn');
+            const exportJsonBtn = document.getElementById('export-json-btn');
             const cancelExportBtn = document.getElementById('cancel-export-btn');
+            const randomQuestionCountInput = document.getElementById('random-question-count');
+            const randomOptionsContainer = document.getElementById('random-options-container');
 
             // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
@@ -777,12 +832,20 @@
             function showExportOptions(index) {
                 quizToExportIndex = index;
                 exportQuizTitle.textContent = allQuizzes[index].title;
+                const maxQuestions = allQuizzes[index].questions.length;
+                randomQuestionCountInput.max = maxQuestions;
+                if (parseInt(randomQuestionCountInput.value) > maxQuestions) {
+                    randomQuestionCountInput.value = maxQuestions;
+                }
+                document.querySelector('input[name="export-type"][value="marked"]').checked = true;
+                randomOptionsContainer.classList.add('hidden');
+                exportJsonBtn.classList.add('hidden');
                 exportModal.classList.remove('hidden');
             }
 
-            function exportAsDocument(quizIndex, format) {
-                const quiz = allQuizzes[quizIndex];
-                const questions = JSON.parse(JSON.stringify(quiz.questions));
+            async function generateExportHtml(quiz, options = {}) {
+                const { markAnswers = false, includeAllAnswers = false } = options;
+                let questions = JSON.parse(JSON.stringify(quiz.questions));
                 
                 questions.sort((a, b) => {
                     const textA = new DOMParser().parseFromString(a.question, "text/html").body.textContent || "";
@@ -791,31 +854,107 @@
                 });
 
                 let contentHtml = `<div style="font-family: Arial, sans-serif; line-height: 1.6;"><h1>${quiz.title}</h1>`;
-                questions.forEach(q => {
-                    const correctAnswers = q.answers.filter(a => a.correct);
-                    let answersText = correctAnswers.map(ans => (ans.text || '') + (ans.image ? ` <img src="${ans.image}" style="max-width: 150px; vertical-align: middle; border-radius: 4px;">` : '')).join(', ');
-                    
+                for (const q of questions) {
                     contentHtml += `<div style="margin-bottom: 20px; page-break-inside: avoid;">`;
                     contentHtml += `<div><b>${q.question}</b></div>`;
                     if (q.image) {
                         contentHtml += `<img src="${q.image}" style="max-width: 300px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;">`;
                     }
-                    contentHtml += `<div style="color: #28a745;"><b>&rArr;</b> ${answersText}</div>`;
-                    contentHtml += `</div><hr style="border: none; border-top: 1px solid #eee;">`;
-                });
-                contentHtml += `</div>`;
 
+                    if (includeAllAnswers) {
+                        contentHtml += '<ul>';
+                        for (const ans of q.answers) {
+                            const isCorrect = ans.correct;
+                            const prefix = markAnswers && isCorrect ? '<span style="color: red;">* </span>' : '';
+                            const style = markAnswers && isCorrect ? 'style="color: red;"' : '';
+                            contentHtml += `<li ${style}>${prefix}${ans.text || ''}`;
+                            if (ans.image) {
+                                contentHtml += `<br><img src="${ans.image}" style="max-width: 150px; margin-left: 20px; border-radius: 4px;">`;
+                            }
+                            contentHtml += '</li>';
+                        }
+                        contentHtml += '</ul>';
+                    } else { // Q&A format
+                        const correctAnswers = q.answers.filter(a => a.correct);
+                        let answersText = correctAnswers.map(ans => (ans.text || '') + (ans.image ? ` <img src="${ans.image}" style="max-width: 150px; vertical-align: middle; border-radius: 4px;">` : '')).join(', ');
+                        contentHtml += `<div style="color: #28a745;"><b>&rArr;</b> ${answersText}</div>`;
+                    }
+                    
+                    contentHtml += `</div><hr style="border: none; border-top: 1px solid #eee;">`;
+                }
+                contentHtml += `</div>`;
+                return contentHtml;
+            }
+
+            function preloadImages(element) {
+                const images = element.getElementsByTagName('img');
+                const promises = [];
+                for (let i = 0; i < images.length; i++) {
+                    const img = images[i];
+                    if (img.src && !img.complete) {
+                        promises.push(new Promise((resolve) => {
+                            img.onload = resolve;
+                            img.onerror = resolve; 
+                        }));
+                    }
+                }
+                return Promise.all(promises);
+            }
+
+            async function exportAsDocument(format) {
+                const quiz = allQuizzes[quizToExportIndex];
+                const exportType = document.querySelector('input[name="export-type"]:checked').value;
+                let quizToExport = quiz;
+                let options = {};
+                let fileName = quiz.title;
+
+                switch(exportType) {
+                    case 'marked':
+                        options = { markAnswers: true, includeAllAnswers: true };
+                        break;
+                    case 'unmarked':
+                        options = { markAnswers: false, includeAllAnswers: true };
+                        break;
+                    case 'qna':
+                        options = { markAnswers: false, includeAllAnswers: false };
+                        fileName += " - Đáp án";
+                        break;
+                    case 'random':
+                        let count = parseInt(randomQuestionCountInput.value);
+                        const maxCount = quiz.questions.length;
+                        if (isNaN(count) || count <= 0) {
+                           count = 1;
+                        }
+                        if (count > maxCount) {
+                           count = maxCount;
+                        }
+                        randomQuestionCountInput.value = count;
+                        
+                        const randomQuestions = [...quiz.questions].sort(() => 0.5 - Math.random()).slice(0, count);
+                        quizToExport = { title: `${quiz.title} - ${count} câu ngẫu nhiên`, questions: randomQuestions };
+                        options = { markAnswers: false, includeAllAnswers: true };
+                        fileName = quizToExport.title;
+                        
+                        if (format === 'json') {
+                            exportQuizToJson(quizToExport);
+                            return;
+                        }
+                        break;
+                }
+
+                const contentHtml = await generateExportHtml(quizToExport, options);
+                
                 if (format === 'pdf') {
                     const element = document.createElement('div');
                     element.innerHTML = contentHtml;
-                    const opt = {
+                    const pdfOptions = {
                         margin:       [0.5, 0.5, 0.5, 0.5],
-                        filename:     `${quiz.title}.pdf`,
+                        filename:     `${fileName}.pdf`,
                         image:        { type: 'jpeg', quality: 0.98 },
                         html2canvas:  { scale: 2, useCORS: true },
                         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                     };
-                    html2pdf().from(element).set(opt).save();
+                    html2pdf().from(element).set(pdfOptions).save();
                 } else if (format === 'docx') {
                     const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
                         "xmlns:w='urn:schemas-microsoft-com:office:word' "+
@@ -828,7 +967,7 @@
                     const fileDownload = document.createElement("a");
                     document.body.appendChild(fileDownload);
                     fileDownload.href = source;
-                    fileDownload.download = `${quiz.title}.docx`;
+                    fileDownload.download = `${fileName}.doc`; // Use .doc for better compatibility
                     fileDownload.click();
                     document.body.removeChild(fileDownload);
                 }
@@ -1193,14 +1332,33 @@
             
             cancelExportBtn.addEventListener('click', () => exportModal.classList.add('hidden'));
             exportPdfBtn.addEventListener('click', () => {
-                exportAsDocument(quizToExportIndex, 'pdf');
+                exportAsDocument('pdf');
                 exportModal.classList.add('hidden');
             });
             exportDocBtn.addEventListener('click', () => {
-                exportAsDocument(quizToExportIndex, 'docx');
+                exportAsDocument('docx');
+                exportModal.classList.add('hidden');
+            });
+            exportJsonBtn.addEventListener('click', () => {
+                exportAsDocument('json');
                 exportModal.classList.add('hidden');
             });
             
+            document.querySelectorAll('input[name="export-type"]').forEach(radio => {
+                radio.addEventListener('change', e => {
+                    const isRandom = e.target.value === 'random';
+                    randomOptionsContainer.classList.toggle('hidden', !isRandom);
+                    exportJsonBtn.classList.toggle('hidden', !isRandom);
+                });
+            });
+
+            randomQuestionCountInput.addEventListener('input', (e) => {
+                const max = parseInt(e.target.max);
+                if (parseInt(e.target.value) > max) {
+                    e.target.value = max;
+                }
+            });
+
             addAnswerBtn.addEventListener('click', () => addAnswerEditor());
             document.querySelectorAll('input[name="answer-type"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
