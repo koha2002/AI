@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công cụ xử lý PDF & Ảnh - iLovePDF API</title>
-    <link rel="icon" type="image/png" href="https://placehold.co/32x32/7c3aed/ffffff?text=L&font=inter">
+    <link rel="icon" type="image/png" href="logo.png">
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Sử dụng font Inter -->
@@ -12,10 +12,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        html, body {
-            height: 100%;
-            overflow: hidden; /* Prevent body scroll */
-        }
         body { 
             font-family: 'Inter', sans-serif; 
         }
@@ -26,11 +22,15 @@
         .file-item:active { cursor: grabbing; }
         .dragging { opacity: 0.5; }
         /* Styles for Image Preview */
-        .preview-container { position: relative; display: inline-block; max-width: 100%; height: 100%; width: 100%; }
+        .preview-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
         .preview-image { max-width: 100%; max-height: 100%; display: block; object-fit: contain; }
         #watermarkOverlay, #cropOverlay { position: absolute; pointer-events: none; }
-        /* FIX: Change crop overlay shadow to be dark and less intrusive */
         #cropOverlay { border: 2px dashed rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); }
+        /* FIX: Black borders for form elements */
+        .form-input, .form-select, .form-color {
+            border-width: 2px;
+            border-color: #000000 !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -38,17 +38,17 @@
     <!-- Header Placeholder -->
     <header id="page-header"></header>
 
-    <main class="h-full">
-        <div class="w-full bg-white p-6 md:p-8 space-y-6 h-full flex flex-col">
+    <main class="min-h-screen w-full flex items-center justify-center p-4">
+        <div class="w-full max-w-7xl bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-6 flex flex-col" style="height: calc(100vh - 4rem);">
             <!-- Title -->
             <div class="text-center flex-shrink-0">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-4">Công cụ xử lý PDF & Ảnh</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Công cụ xử lý PDF & Ảnh</h1>
                 <p class="text-gray-500 mt-2">Tích hợp iLovePDF API</p>
             </div>
 
             <div class="flex-grow flex flex-col md:flex-row gap-8 overflow-hidden">
                 <!-- Left Column: Options -->
-                <div class="w-full md:w-1/3 space-y-6 flex-shrink-0 overflow-y-auto pr-4">
+                <div class="w-full md:w-5/5 lg:w-1/3 space-y-6 flex-shrink-0 overflow-y-auto pr-4">
                     <!-- Upload Area -->
                     <div id="uploadBox" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center space-y-4">
                          <div class="flex justify-center"><svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" /></svg></div>
@@ -61,7 +61,7 @@
                     <div class="space-y-4">
                          <div>
                             <label for="apiTool" class="block text-sm font-medium text-gray-700">Chọn công cụ</label>
-                            <select id="apiTool" class="mt-1 block w-full rounded-md border-2 border-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <select id="apiTool" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 form-select">
                                 <optgroup label="Công cụ PDF">
                                     <option value="compress">Nén PDF</option>
                                     <option value="merge">Gộp PDF</option>
@@ -99,7 +99,7 @@
                 </div>
 
                 <!-- Right Column: Preview & File List -->
-                <div class="w-full md:w-2/3 flex flex-col overflow-hidden">
+                <div class="w-full md:w-3/5 lg:w-2/3 flex flex-col overflow-hidden">
                     <!-- File List for multi-file tools -->
                     <div id="fileListContainer" class="hidden mb-4 space-y-2 flex-shrink-0">
                         <h3 class="text-lg font-semibold text-gray-800">Các tệp đã chọn (kéo để sắp xếp):</h3>
@@ -107,7 +107,7 @@
                     </div>
                     <!-- Image Preview Area -->
                     <div id="previewArea" class="hidden flex-grow flex items-center justify-center bg-gray-200 rounded-lg p-4 min-h-0">
-                         <div class="preview-container mx-auto border-2 border-black rounded h-full w-full flex items-center justify-center">
+                         <div class="preview-container">
                             <img id="previewImage" class="preview-image rounded" />
                             <div id="watermarkOverlay" class="flex items-center justify-center" style="white-space: normal; text-align: center; line-height: 1;"></div>
                             <div id="cropOverlay"></div>
@@ -118,9 +118,9 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-gray-200 pt-6 flex-shrink-0">
-                <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all col-span-1 sm:col-span-2 lg:col-span-1">Xóa tất cả</button>
-                <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-2 lg:col-span-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-200 pt-6 flex-shrink-0">
+                <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all">Xóa tất cả</button>
+                <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-2">
                     <span id="processButtonText">Xử lý</span><div id="loader" class="loader hidden"></div>
                 </button>
             </div>
