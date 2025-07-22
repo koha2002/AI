@@ -3,488 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bộ công cụ PDF & Hình ảnh Toàn năng với iLoveAPI</title>
-    
-    <!-- Sử dụng Tailwind CSS để làm giao diện đẹp và nhanh chóng -->
+    <title>Tải Tệp Lên và Lưu Tạm Thời</title>
+    <!-- Tải Tailwind CSS để giao diện đẹp hơn -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FIX: Thêm lại thư viện iLovePDF đã bị thiếu -->
-    <script src="https://cdn.jsdelivr.net/npm/@ilovepdf/ilovepdf-js-core/dist/ilovepdf.min.js"></script>
-
-    <!-- Font chữ cho đẹp hơn -->
+    <!-- Sử dụng font Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 4px solid #ef4444; /* red-500 */
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+        /* Áp dụng font Inter cho toàn bộ trang */
+        body {
+            font-family: 'Inter', sans-serif;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Style cho hiệu ứng chuyển động */
+        .transition-all {
+            transition: all 0.3s ease-in-out;
         }
-        .tool-option { display: none; }
-        .grid-cols-auto { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-8 space-y-6">
+    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
         <!-- Tiêu đề -->
         <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-800">Bộ công cụ PDF & Hình ảnh Toàn năng</h1>
-            <p class="text-gray-500 mt-2">Sử dụng API từ <a href="https://www.iloveapi.com/" target="_blank" class="text-red-500 hover:underline">iLoveAPI.com</a></p>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Tải Tệp Lên & Lưu Tạm Thời</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Tệp của bạn sẽ được lưu trong bộ nhớ của trình duyệt (localStorage).</p>
         </div>
 
-        <!-- 1. Chọn công cụ -->
-        <div>
-            <label for="tool-select" class="block text-sm font-medium text-gray-700">1. Chọn công cụ bạn muốn dùng:</label>
-            <select id="tool-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
-                <optgroup label="Công cụ PDF">
-                    <option value="compress">Nén PDF</option>
-                    <option value="merge">Gộp PDF</option>
-                    <option value="split">Tách PDF</option>
-                    <option value="pdfjpg">PDF sang JPG</option>
-                    <option value="protect">Bảo vệ PDF (Đặt mật khẩu)</option>
-                    <option value="unlock">Mở khóa PDF</option>
-                    <option value="pagenumber">Đánh số trang</option>
-                    <option value="watermark">Đóng dấu PDF</option>
-                    <option value="rotate">Xoay PDF</option>
-                    <option value="repair">Sửa chữa PDF</option>
-                    <option value="officepdf">Office sang PDF</option>
-                    <option value="imagepdf">Ảnh sang PDF</option>
-                    <option value="pdfa">Chuyển sang PDF/A</option>
-                    <option value="extract">Trích xuất văn bản từ PDF</option>
-                </optgroup>
-                <optgroup label="Công cụ Hình ảnh">
-                    <option value="compressimage">Nén Ảnh</option>
-                    <option value="resizeimage">Thay đổi kích thước Ảnh</option>
-                    <option value="convertimage">Chuyển đổi định dạng Ảnh</option>
-                    <option value="removebackgroundimage">Xóa nền Ảnh</option>
-                    <option value="watermarkimage">Đóng dấu Ảnh</option>
-                </optgroup>
-            </select>
+        <!-- Vùng tải tệp lên -->
+        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center space-y-4">
+            <!-- Icon -->
+            <div class="flex justify-center">
+                <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" />
+                </svg>
+            </div>
+            <!-- Input để chọn tệp -->
+            <input type="file" id="fileInput" class="hidden">
+            <label for="fileInput" class="cursor-pointer font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
+                Chọn một tệp
+            </label>
+            <p id="fileName" class="text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được chọn</p>
+        </div>
+        
+        <!-- Các nút hành động -->
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button id="saveButton" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:bg-gray-400 dark:disabled:bg-gray-500 disabled:cursor-not-allowed">
+                Lưu vào Trình duyệt
+            </button>
+            <button id="clearButton" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:bg-gray-400 dark:disabled:bg-gray-500 disabled:cursor-not-allowed">
+                Xóa khỏi Trình duyệt
+            </button>
         </div>
 
-        <!-- 2. Vùng chọn file -->
-        <div>
-            <label for="file-input" id="file-input-label" class="block text-sm font-medium text-gray-700 mb-2">2. Chọn file của bạn:</label>
-            <div id="dropzone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                <div class="space-y-1 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                    <div class="flex text-sm text-gray-600">
-                        <label for="file-input" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500"><span>Tải file lên</span><input id="file-input" type="file" class="sr-only"></label>
-                        <p class="pl-1">hoặc kéo và thả vào đây</p>
-                    </div>
-                    <p class="text-xs text-gray-500" id="file-name-display">Chưa có file nào được chọn</p>
-                </div>
+        <!-- Thông báo trạng thái -->
+        <div id="statusMessage" class="text-center text-green-600 dark:text-green-400 font-medium h-6"></div>
+
+        <!-- Vùng xem trước -->
+        <div id="previewContainer" class="mt-6 hidden">
+            <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">Xem trước tệp:</h2>
+            <div id="preview" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 max-h-96 overflow-auto">
+                <!-- Nội dung xem trước sẽ được chèn vào đây -->
             </div>
-        </div>
-
-        <!-- 3. Các tùy chọn cho từng công cụ -->
-        <div id="tool-options-area">
-            <h3 class="block text-sm font-medium text-gray-700 mb-2">3. Tùy chỉnh:</h3>
-            
-            <!-- Tùy chọn cho Nén PDF -->
-            <div id="options-compress" class="tool-option"><select id="compress-level" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 rounded-md"><option value="low">Nén Thấp (Chất lượng cao nhất)</option><option value="recommended" selected>Khuyến Nghị</option><option value="extreme">Nén Cực Mạnh</option></select></div>
-            
-            <!-- Tùy chọn cho Tách PDF -->
-            <div id="options-split" class="tool-option space-y-2"><input type="text" id="split-ranges" placeholder="Ví dụ: 1-3,5,8-10" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"><p class="text-xs text-gray-500">Nhập số trang hoặc khoảng trang bạn muốn tách.</p></div>
-            
-            <!-- Tùy chọn cho PDF sang JPG -->
-            <div id="options-pdfjpg" class="tool-option"><select id="pdfjpg-mode" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 rounded-md"><option value="pages" selected>Chuyển đổi tất cả các trang</option><option value="extract">Chỉ trích xuất hình ảnh</option></select></div>
-            
-            <!-- Tùy chọn cho Bảo vệ PDF -->
-            <div id="options-protect" class="tool-option"><input type="password" id="protect-password" placeholder="Nhập mật khẩu bạn muốn đặt" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
-            
-            <!-- Tùy chọn cho Xoay PDF -->
-            <div id="options-rotate" class="tool-option"><select id="rotate-degrees" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 rounded-md"><option value="90">90 độ</option><option value="180">180 độ</option><option value="270">270 độ</option></select></div>
-
-            <!-- Tùy chọn cho Đánh số trang -->
-            <div id="options-pagenumber" class="tool-option space-y-4">
-                <div class="grid grid-cols-auto gap-4">
-                    <div><label class="text-xs">Trang cần đánh số</label><input type="text" id="pagenumber-pages" value="all" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
-                    <div><label class="text-xs">Bắt đầu từ số</label><input type="number" id="pagenumber-start" value="1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
-                    <div><label class="text-xs">Vị trí dọc</label><select id="pagenumber-vpos" class="mt-1 block w-full rounded-md"><option value="bottom" selected>Dưới</option><option value="top">Trên</option></select></div>
-                    <div><label class="text-xs">Vị trí ngang</label><select id="pagenumber-hpos" class="mt-1 block w-full rounded-md"><option value="center" selected>Giữa</option><option value="left">Trái</option><option value="right">Phải</option></select></div>
-                    <div><label class="text-xs">Font chữ</label><select id="pagenumber-font" class="mt-1 block w-full rounded-md"><option selected>Arial Unicode MS</option><option>Arial</option><option>Verdana</option><option>Times New Roman</option></select></div>
-                    <div><label class="text-xs">Cỡ chữ</label><input type="number" id="pagenumber-fontsize" value="14" class="mt-1 block w-full rounded-md"></div>
-                    <div><label class="text-xs">Màu chữ</label><input type="color" id="pagenumber-fontcolor" value="#000000" class="mt-1 block w-full h-10 rounded-md"></div>
-                </div>
-                <div><label class="text-xs">Định dạng text ({n} = số trang, {p} = tổng số trang)</label><input type="text" id="pagenumber-text" value="{n}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
-            </div>
-
-            <!-- Tùy chọn cho Đóng dấu PDF -->
-            <div id="options-watermark" class="tool-option space-y-4">
-                <select id="watermark-mode" class="w-full rounded-md"><option value="text" selected>Đóng dấu bằng Chữ</option><option value="image">Đóng dấu bằng Ảnh</option></select>
-                <div id="watermark-text-options">
-                    <input type="text" id="watermark-text" value="iLovePDF" class="mt-1 block w-full rounded-md">
-                </div>
-                <div id="watermark-image-options" class="hidden">
-                    <label class="text-xs">Chọn file ảnh để đóng dấu (PNG/JPG)</label>
-                    <input type="file" id="watermark-image-input" accept="image/png, image/jpeg" class="mt-1 block w-full text-sm">
-                </div>
-                 <div class="grid grid-cols-auto gap-4">
-                    <div><label class="text-xs">Trang cần đóng dấu</label><input type="text" id="watermark-pages" value="all" class="mt-1 block w-full rounded-md"></div>
-                    <div><label class="text-xs">Lớp</label><select id="watermark-layer" class="mt-1 block w-full rounded-md"><option value="above" selected>Trên nội dung</option><option value="below">Dưới nội dung</option></select></div>
-                    <div><label class="text-xs">Độ trong suốt</label><input type="range" id="watermark-transparency" min="1" max="100" value="100" class="w-full"></div>
-                 </div>
-            </div>
-            
-            <!-- Tùy chọn cho Ảnh sang PDF -->
-            <div id="options-imagepdf" class="tool-option grid grid-cols-auto gap-4">
-                <div><label class="text-xs">Hướng giấy</label><select id="imagepdf-orientation" class="mt-1 block w-full rounded-md"><option value="portrait" selected>Dọc</option><option value="landscape">Ngang</option></select></div>
-                <div><label class="text-xs">Kích thước trang</label><select id="imagepdf-pagesize" class="mt-1 block w-full rounded-md"><option value="fit" selected>Vừa với ảnh</option><option value="A4">A4</option><option value="letter">Letter</option></select></div>
-                <div><label class="text-xs">Lề (px)</label><input type="number" id="imagepdf-margin" value="0" class="mt-1 block w-full rounded-md"></div>
-            </div>
-            
-            <!-- Tùy chọn cho PDF/A -->
-            <div id="options-pdfa" class="tool-option"><label class="text-xs">Mức độ tương thích</label><select id="pdfa-conformance" class="mt-1 block w-full rounded-md"><option value="pdfa-2b" selected>pdfa-2b</option><option value="pdfa-1b">pdfa-1b</option><option>pdfa-1a</option><option>pdfa-2u</option><option>pdfa-2a</option></select></div>
-
-            <!-- Tùy chọn Nén Ảnh -->
-            <div id="options-compressimage" class="tool-option"><select id="compressimage-level" class="mt-1 block w-full rounded-md"><option value="low">Nén Thấp</option><option value="recommended" selected>Khuyến Nghị</option><option value="extreme">Nén Cực Mạnh</option></select></div>
-
-            <!-- Tùy chọn Thay đổi kích thước Ảnh -->
-            <div id="options-resizeimage" class="tool-option grid grid-cols-2 gap-4">
-                <div><label class="text-xs">Chiều rộng (px)</label><input type="number" id="resizeimage-width" placeholder="500" class="mt-1 block w-full rounded-md"></div>
-                <div><label class="text-xs">Chiều cao (px)</label><input type="number" id="resizeimage-height" placeholder="500" class="mt-1 block w-full rounded-md"></div>
-                <div class="col-span-2"><label class="flex items-center"><input type="checkbox" id="resizeimage-ratio" checked class="h-4 w-4 rounded"> <span class="ml-2 text-sm">Giữ tỷ lệ</span></label></div>
-            </div>
-
-            <!-- Tùy chọn Chuyển đổi Ảnh -->
-            <div id="options-convertimage" class="tool-option"><label class="text-xs">Chuyển thành định dạng</label><select id="convertimage-to" class="mt-1 block w-full rounded-md"><option value="jpg" selected>JPG</option><option value="png">PNG</option><option value="gif">GIF</option><option value="heic">HEIC</option></select></div>
-            
-            <!-- Tùy chọn Đóng dấu ảnh -->
-            <div id="options-watermarkimage" class="tool-option"><p class="text-sm text-gray-500">Chức năng này phức tạp và sẽ được cập nhật sau.</p></div>
-
-            <!-- Các tùy chọn không cần input -->
-            <div id="options-merge" class="tool-option"><p class="text-sm text-gray-500">Chọn nhiều file để gộp.</p></div>
-            <div id="options-unlock" class="tool-option"><p class="text-sm text-gray-500">Chọn file PDF đã bị khóa.</p></div>
-            <div id="options-repair" class="tool-option"><p class="text-sm text-gray-500">Công cụ sẽ cố gắng sửa chữa file PDF bị lỗi.</p></div>
-            <div id="options-officepdf" class="tool-option"><p class="text-sm text-gray-500">Chọn các file Word, Excel, PowerPoint để chuyển đổi.</p></div>
-            <div id="options-extract" class="tool-option"><p class="text-sm text-gray-500">Công cụ sẽ trích xuất toàn bộ văn bản từ file PDF.</p></div>
-            <div id="options-removebackgroundimage" class="tool-option"><p class="text-sm text-gray-500">Công cụ sẽ tự động xóa nền khỏi ảnh.</p></div>
-        </div>
-
-        <!-- Nút hành động và trạng thái -->
-        <div class="space-y-4 pt-4">
-            <button id="process-button" disabled class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed">Bắt đầu</button>
-            <div id="status-area" class="text-center p-4 rounded-md bg-gray-50 text-gray-700 hidden"></div>
         </div>
     </div>
 
-    <!-- Thư viện iLovePDF được đặt ở cuối body để tải sau cùng -->
-    <script src="https://cdn.jsdelivr.net/npm/@ilovepdf/ilovepdf-js-core/dist/ilovepdf.min.js"></script>
     <script>
-        // Function to initialize the application logic
-        function initializeApp() {
-            const publicKey = 'project_public_b518756fab3a8e6942a9330c23a7859a_YUAga5611529e21b17310f7e19ec3547395e1';
-            const ilovepdf = new Ilovepdf(publicKey);
+        // Lấy các phần tử DOM
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const saveButton = document.getElementById('saveButton');
+        const clearButton = document.getElementById('clearButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const previewContainer = document.getElementById('previewContainer');
+        const preview = document.getElementById('preview');
 
-            const toolSelect = document.getElementById('tool-select');
-            const fileInput = document.getElementById('file-input');
-            const fileInputLabel = document.getElementById('file-input-label');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            const processButton = document.getElementById('process-button');
-            const statusArea = document.getElementById('status-area');
-            const watermarkModeSelect = document.getElementById('watermark-mode');
+        // Biến để lưu trữ dữ liệu tệp tạm thời
+        let selectedFile = null;
+        let fileDataUrl = null;
 
-            let selectedFiles = [];
-            let watermarkImageFile = null;
+        // Hàm cập nhật trạng thái của các nút
+        const updateButtonStates = () => {
+            const hasFileInStorage = !!localStorage.getItem('tempFile');
+            saveButton.disabled = !selectedFile;
+            clearButton.disabled = !hasFileInStorage;
+        };
 
-            // --- IndexedDB Helper Functions for Temporary Storage ---
-            const DB_NAME = 'iLoveApiFileStore';
-            const STORE_NAME = 'tempFiles';
-            const FILES_KEY = 'lastSelection';
+        // Xử lý sự kiện khi người dùng chọn tệp
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                fileNameDisplay.textContent = file.name;
 
-            function openDB() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(DB_NAME, 1);
-                    request.onerror = () => reject("Lỗi khi mở IndexedDB");
-                    request.onsuccess = () => resolve(request.result);
-                    request.onupgradeneeded = (event) => {
-                        const db = event.target.result;
-                        if (!db.objectStoreNames.contains(STORE_NAME)) {
-                            db.createObjectStore(STORE_NAME);
-                        }
-                    };
-                });
-            }
-
-            async function saveFilesToDB(files) {
-                const db = await openDB();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
-                    const store = transaction.objectStore(STORE_NAME);
-                    const request = store.put(files, FILES_KEY);
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject("Lỗi khi lưu file vào DB");
-                });
-            }
-
-            async function getFilesFromDB() {
-                const db = await openDB();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_NAME], 'readonly');
-                    const store = transaction.objectStore(STORE_NAME);
-                    const request = store.get(FILES_KEY);
-                    request.onsuccess = () => resolve(request.result || []);
-                    request.onerror = () => reject("Lỗi khi lấy file từ DB");
-                });
-            }
-
-            async function clearFilesFromDB() {
-                const db = await openDB();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
-                    const store = transaction.objectStore(STORE_NAME);
-                    const request = store.delete(FILES_KEY);
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject("Lỗi khi xóa file khỏi DB");
-                });
-            }
-
-
-            // --- EVENT LISTENERS ---
-            toolSelect.addEventListener('change', (e) => updateUIForTool(e.target.value));
-            fileInput.addEventListener('change', (e) => handleFileSelection(e.target.files));
-            watermarkModeSelect.addEventListener('change', (e) => {
-                document.getElementById('watermark-text-options').classList.toggle('hidden', e.target.value !== 'text');
-                document.getElementById('watermark-image-options').classList.toggle('hidden', e.target.value !== 'image');
-            });
-            document.getElementById('watermark-image-input').addEventListener('change', (e) => {
-                if (e.target.files.length > 0) watermarkImageFile = e.target.files[0];
-            });
-            processButton.addEventListener('click', executeTask);
-            
-            // --- MAIN LOGIC ---
-            async function executeTask() {
-                if (selectedFiles.length === 0) {
-                    updateStatus('Vui lòng chọn ít nhất một file.', 'error');
+                // Giới hạn kích thước tệp để tránh làm đầy localStorage (ví dụ: 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    statusMessage.textContent = 'Lỗi: Tệp quá lớn (tối đa 5MB).';
+                    statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
+                    selectedFile = null;
+                    fileDataUrl = null;
+                    updateButtonStates();
                     return;
                 }
 
-                const selectedTool = toolSelect.value;
-                setLoadingState(true);
-                updateStatus('Đang khởi tạo tác vụ...', 'info');
-
-                try {
-                    const task = ilovepdf.newTask(selectedTool);
-                    updateStatus('Đã tạo tác vụ. Bắt đầu tải file lên...', 'info');
-                    
-                    let watermarkServerFilename = null;
-                    if (selectedTool === 'watermark' && watermarkModeSelect.value === 'image') {
-                        if (!watermarkImageFile) throw new Error('Vui lòng chọn file ảnh để đóng dấu.');
-                        updateStatus('Đang tải ảnh đóng dấu...', 'info');
-                        const addedFile = await task.addFile(watermarkImageFile);
-                        watermarkServerFilename = addedFile.server_filename;
-                    }
-
-                    for (const file of selectedFiles) {
-                        await task.addFile(file);
-                    }
-                    updateStatus('Tải file lên thành công. Đang xử lý...', 'info');
-
-                    const processOptions = getProcessOptions(selectedTool, watermarkServerFilename);
-                    await task.process(processOptions);
-                    updateStatus('Xử lý thành công! Đang chuẩn bị tải xuống...', 'success');
-
-                    await task.download();
-                    await resetUI();
-                    updateStatus('Tải xuống hoàn tất!', 'success');
-
-                } catch (error) {
-                    console.error(error);
-                    updateStatus(`Đã xảy ra lỗi: ${error.message || 'Vui lòng thử lại.'}`, 'error');
-                    setLoadingState(false);
-                }
-            }
-
-            // --- UI & HELPER FUNCTIONS ---
-            function updateUIForTool(tool) {
-                document.querySelectorAll('.tool-option').forEach(opt => opt.style.display = 'none');
-                const currentOption = document.getElementById(`options-${tool}`);
-                if (currentOption) currentOption.style.display = 'block';
-
-                const toolConfig = {
-                    pdf: { accept: '.pdf', multiple: false, label: 'Chọn file PDF' },
-                    image: { accept: 'image/*', multiple: true, label: 'Chọn file ảnh' },
-                    office: { accept: '.doc,.docx,.xls,.xlsx,.ppt,.pptx', multiple: true, label: 'Chọn file Office' }
+                // Đọc tệp dưới dạng Data URL (base64)
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fileDataUrl = e.target.result;
+                    displayPreview(file.type, fileDataUrl, file.name);
                 };
+                reader.onerror = () => {
+                     statusMessage.textContent = 'Lỗi khi đọc tệp.';
+                     statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
+                }
+                reader.readAsDataURL(file);
+                statusMessage.textContent = '';
+            } else {
+                fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
+                selectedFile = null;
+                fileDataUrl = null;
+            }
+            updateButtonStates();
+        });
+
+        // Hàm hiển thị xem trước tệp
+        const displayPreview = (fileType, dataUrl, name) => {
+            preview.innerHTML = ''; // Xóa nội dung xem trước cũ
+            previewContainer.classList.remove('hidden');
+
+            if (fileType.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.alt = `Xem trước ${name}`;
+                img.className = 'max-w-full h-auto rounded-md mx-auto';
+                preview.appendChild(img);
+            } else if (fileType.startsWith('text/')) {
+                // Chuyển đổi base64 sang text
+                const textContent = atob(dataUrl.split(',')[1]);
+                const pre = document.createElement('pre');
+                pre.textContent = textContent;
+                pre.className = 'whitespace-pre-wrap break-words';
+                preview.appendChild(pre);
+            } else {
+                const p = document.createElement('p');
+                p.textContent = `Không thể xem trước loại tệp này (${fileType}).`;
+                preview.appendChild(p);
+            }
+        };
+
+        // Xử lý sự kiện khi nhấn nút "Lưu"
+        saveButton.addEventListener('click', () => {
+            if (!selectedFile || !fileDataUrl) {
+                statusMessage.textContent = 'Vui lòng chọn một tệp trước.';
+                statusMessage.className = 'text-center text-yellow-600 dark:text-yellow-400 font-medium h-6';
+                return;
+            }
+
+            try {
+                const fileObject = {
+                    name: selectedFile.name,
+                    type: selectedFile.type,
+                    dataUrl: fileDataUrl,
+                };
+                // Lưu đối tượng tệp vào localStorage dưới dạng chuỗi JSON
+                localStorage.setItem('tempFile', JSON.stringify(fileObject));
                 
-                let config = toolConfig.pdf;
-                if (['compressimage', 'resizeimage', 'convertimage', 'removebackgroundimage', 'watermarkimage', 'imagepdf'].includes(tool)) {
-                    config = toolConfig.image;
-                } else if (tool === 'officepdf') {
-                    config = toolConfig.office;
-                }
-
-                fileInput.accept = config.accept;
-                fileInput.multiple = ['merge', 'officepdf', 'imagepdf'].includes(tool);
-                fileInputLabel.textContent = `2. ${config.label}${fileInput.multiple ? ' (có thể chọn nhiều file)' : ''}:`;
-                
-                updateProcessButtonText();
-            }
-
-            function getProcessOptions(tool, watermarkServerFilename) {
-                const options = {};
-                switch (tool) {
-                    case 'compress': options.compression_level = document.getElementById('compress-level').value; break;
-                    case 'split':
-                        const ranges = document.getElementById('split-ranges').value;
-                        if (!ranges) throw new Error('Vui lòng nhập số trang hoặc khoảng trang cần tách.');
-                        options.ranges = ranges;
-                        break;
-                    case 'pdfjpg': options.pdfjpg_mode = document.getElementById('pdfjpg-mode').value; break;
-                    case 'protect':
-                        const password = document.getElementById('protect-password').value;
-                        if (!password) throw new Error('Vui lòng nhập mật khẩu để bảo vệ file.');
-                        options.password = password;
-                        break;
-                    case 'rotate': options.rotate = document.getElementById('rotate-degrees').value; break;
-                    case 'pagenumber':
-                        options.pages = document.getElementById('pagenumber-pages').value;
-                        options.starting_number = parseInt(document.getElementById('pagenumber-start').value);
-                        options.vertical_position = document.getElementById('pagenumber-vpos').value;
-                        options.horizontal_position = document.getElementById('pagenumber-hpos').value;
-                        options.font_family = document.getElementById('pagenumber-font').value;
-                        options.font_size = parseInt(document.getElementById('pagenumber-fontsize').value);
-                        options.font_color = document.getElementById('pagenumber-fontcolor').value;
-                        options.text = document.getElementById('pagenumber-text').value;
-                        break;
-                    case 'watermark':
-                        options.mode = document.getElementById('watermark-mode').value;
-                        options.pages = document.getElementById('watermark-pages').value;
-                        options.layer = document.getElementById('watermark-layer').value;
-                        options.transparency = parseInt(document.getElementById('watermark-transparency').value);
-                        if (options.mode === 'text') {
-                            const text = document.getElementById('watermark-text').value;
-                            if (!text) throw new Error('Vui lòng nhập nội dung chữ để đóng dấu.');
-                            options.text = text;
-                        } else {
-                            if (!watermarkServerFilename) throw new Error('Lỗi: Không tìm thấy file ảnh đóng dấu đã tải lên.');
-                            options.image = watermarkServerFilename;
-                        }
-                        break;
-                    case 'imagepdf':
-                        options.orientation = document.getElementById('imagepdf-orientation').value;
-                        options.margin = parseInt(document.getElementById('imagepdf-margin').value);
-                        options.pagesize = document.getElementById('imagepdf-pagesize').value;
-                        break;
-                    case 'pdfa': options.conformance = document.getElementById('pdfa-conformance').value; break;
-                    case 'compressimage': options.compression_level = document.getElementById('compressimage-level').value; break;
-                    case 'resizeimage':
-                        options.resize_mode = 'pixels';
-                        const width = document.getElementById('resizeimage-width').value;
-                        const height = document.getElementById('resizeimage-height').value;
-                        if (!width && !height) throw new Error('Vui lòng nhập chiều rộng hoặc chiều cao để thay đổi kích thước.');
-                        if (width) options.pixels_width = parseInt(width);
-                        if (height) options.pixels_height = parseInt(height);
-                        options.maintain_ratio = document.getElementById('resizeimage-ratio').checked;
-                        break;
-                    case 'convertimage': options.to = document.getElementById('convertimage-to').value; break;
-                }
-                return options;
-            }
-            
-            async function handleFileSelection(files) {
-                 if (files.length > 0) {
-                    selectedFiles = Array.from(files);
-                    fileNameDisplay.textContent = files.length === 1 ? `Đã chọn: ${files[0].name}` : `${files.length} files đã được chọn.`;
-                    fileNameDisplay.classList.add('text-green-600', 'font-semibold');
-                    processButton.disabled = false;
-                    updateProcessButtonText();
-                    try {
-                        await saveFilesToDB(selectedFiles);
-                    } catch (error) {
-                        console.error("Không thể lưu file vào bộ nhớ trình duyệt:", error);
-                    }
+                statusMessage.textContent = 'Đã lưu tệp thành công!';
+                statusMessage.className = 'text-center text-green-600 dark:text-green-400 font-medium h-6';
+                updateButtonStates();
+            } catch (e) {
+                // Xử lý lỗi nếu localStorage đầy
+                if (e.name === 'QuotaExceededError') {
+                    statusMessage.textContent = 'Lỗi: Bộ nhớ trình duyệt đã đầy.';
                 } else {
-                    await resetFileInput();
+                    statusMessage.textContent = 'Đã xảy ra lỗi khi lưu tệp.';
                 }
+                statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
             }
+        });
 
-            function setLoadingState(isLoading) {
-                processButton.disabled = isLoading;
-                if (isLoading) {
-                    processButton.innerHTML = '<div class="loader"></div><span class="ml-2">Đang xử lý...</span>';
-                } else {
-                    updateProcessButtonText();
-                }
-            }
-            
-            function updateProcessButtonText() {
-                const toolName = toolSelect.options[toolSelect.selectedIndex].text;
-                processButton.textContent = `Thực hiện: ${toolName}`;
-            }
+        // Xử lý sự kiện khi nhấn nút "Xóa"
+        clearButton.addEventListener('click', () => {
+            localStorage.removeItem('tempFile');
+            previewContainer.classList.add('hidden');
+            preview.innerHTML = '';
+            fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
+            fileInput.value = ''; // Reset input
+            selectedFile = null;
+            fileDataUrl = null;
+            statusMessage.textContent = 'Đã xóa tệp khỏi bộ nhớ.';
+            statusMessage.className = 'text-center text-gray-500 dark:text-gray-400 font-medium h-6';
+            updateButtonStates();
+        });
 
-            function updateStatus(message, type) {
-                statusArea.textContent = message;
-                statusArea.className = 'text-center p-4 rounded-md text-sm'; // Reset
-                statusArea.classList.add({
-                    info: 'bg-blue-100 text-blue-800',
-                    success: 'bg-green-100 text-green-800',
-                    error: 'bg-red-100 text-red-800'
-                }[type]);
-            }
-            
-            async function resetFileInput() {
-                fileInput.value = '';
-                selectedFiles = [];
-                fileNameDisplay.textContent = 'Chưa có file nào được chọn';
-                fileNameDisplay.classList.remove('text-green-600', 'font-semibold');
-                processButton.disabled = true;
+        // Hàm chạy khi tải trang để kiểm tra xem có tệp nào đã lưu không
+        const loadFileFromStorage = () => {
+            const storedFile = localStorage.getItem('tempFile');
+            if (storedFile) {
                 try {
-                    await clearFilesFromDB();
-                } catch (error) {
-                    console.error("Không thể xóa file khỏi bộ nhớ trình duyệt:", error);
+                    const fileObject = JSON.parse(storedFile);
+                    fileNameDisplay.textContent = `Tệp đã lưu: ${fileObject.name}`;
+                    displayPreview(fileObject.type, fileObject.dataUrl, fileObject.name);
+                    statusMessage.textContent = 'Đã tải tệp từ bộ nhớ trình duyệt.';
+                    statusMessage.className = 'text-center text-blue-600 dark:text-blue-400 font-medium h-6';
+                } catch (e) {
+                    statusMessage.textContent = 'Lỗi khi đọc tệp đã lưu.';
+                    statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
+                    localStorage.removeItem('tempFile'); // Xóa dữ liệu hỏng
                 }
             }
+            updateButtonStates();
+        };
 
-            async function resetUI() {
-                await resetFileInput();
-                setLoadingState(false);
-                setTimeout(() => {
-                    statusArea.className = 'text-center p-4 rounded-md bg-gray-50 text-gray-700 hidden';
-                }, 5000);
-            }
-
-            async function loadStateOnStart() {
-                try {
-                    const files = await getFilesFromDB();
-                    if (files && files.length > 0) {
-                        await handleFileSelection(files);
-                        updateStatus('Đã khôi phục lựa chọn file từ phiên trước.', 'info');
-                        setTimeout(() => {
-                            if(statusArea.textContent.includes('khôi phục')) {
-                               statusArea.className = 'text-center p-4 rounded-md bg-gray-50 text-gray-700 hidden';
-                            }
-                        }, 3000);
-                    }
-                } catch (error) {
-                    console.error("Không thể tải file từ bộ nhớ trình duyệt:", error);
-                }
-                updateUIForTool(toolSelect.value);
-            }
-
-            // Initial call
-            loadStateOnStart();
-        }
-
-        // Robust way to wait for the library to be defined.
-        const checkLibraryInterval = setInterval(() => {
-            if (typeof Ilovepdf !== 'undefined') {
-                clearInterval(checkLibraryInterval);
-                initializeApp();
-            }
-        }, 100); // Check every 100ms
+        // Tải tệp từ bộ nhớ khi trang được mở
+        window.addEventListener('load', loadFileFromStorage);
     </script>
 </body>
 </html>
