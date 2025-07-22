@@ -62,14 +62,44 @@
         </div>
 
         <!-- Công cụ API -->
-        <div class="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-6">
-             <label for="apiTool" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chọn công cụ</label>
-             <select id="apiTool" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                 <option value="compress">Nén PDF (Compress)</option>
-                 <option value="pdfjpg">PDF sang JPG (PDF to JPG)</option>
-                 <option value="unlock">Mở khóa PDF (Unlock)</option>
-                 <option value="protect">Bảo vệ PDF (Protect)</option>
-             </select>
+        <div class="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+             <div>
+                <label for="apiTool" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chọn công cụ</label>
+                <select id="apiTool" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <optgroup label="Công cụ PDF">
+                        <option value="compress">Nén PDF (Compress)</option>
+                        <option value="pdfjpg">PDF sang JPG</option>
+                        <option value="unlock">Mở khóa PDF (Unlock)</option>
+                        <option value="protect">Bảo vệ PDF (Protect)</option>
+                        <option value="merge">Gộp PDF (Merge)</option>
+                        <option value="split">Tách PDF (Split)</option>
+                        <option value="rotate">Xoay PDF (Rotate)</option>
+                        <option value="watermark">Đóng dấu PDF (Watermark)</option>
+                        <option value="pdfa">PDF sang PDF/A</option>
+                        <option value="officepdf">Office sang PDF</option>
+                        <option value="htmlpdf">HTML sang PDF</option>
+                        <option value="imagepdf">Ảnh sang PDF</option>
+                        <option value="pagenumber">Đánh số trang</option>
+                        <option value="pdfocr">PDF OCR</option>
+                        <option value="extract">Trích xuất dữ liệu</option>
+                        <option value="repair">Sửa chữa PDF</option>
+                    </optgroup>
+                    <optgroup label="Công cụ Hình ảnh">
+                        <option value="compressimage">Nén ảnh</option>
+                        <option value="cropimage">Cắt ảnh</option>
+                        <option value="convertimage">Chuyển đổi định dạng ảnh</option>
+                        <option value="removebackgroundimage">Xóa nền ảnh</option>
+                        <option value="resizeimage">Thay đổi kích thước ảnh</option>
+                        <option value="rotateimage">Xoay ảnh</option>
+                        <option value="watermarkimage">Đóng dấu ảnh</option>
+                    </optgroup>
+                </select>
+             </div>
+             <!-- Ô nhập mật khẩu, ẩn mặc định -->
+             <div id="passwordContainer" class="hidden">
+                <label for="passwordInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu</label>
+                <input type="password" id="passwordInput" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Nhập mật khẩu...">
+             </div>
         </div>
 
 
@@ -93,7 +123,6 @@
         <!-- Vùng kết quả API -->
         <div id="resultContainer" class="hidden mt-4 text-center">
             <h3 class="text-lg font-semibold">Xử lý thành công!</h3>
-            <!-- FIX: Thay đổi cách hoạt động của nút tải về -->
             <a id="downloadLink" href="#" class="mt-2 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 cursor-pointer">Tải tệp kết quả</a>
         </div>
 
@@ -114,13 +143,14 @@
         var loader = document.getElementById('loader');
 
         var apiToolSelect = document.getElementById('apiTool');
+        var passwordContainer = document.getElementById('passwordContainer');
+        var passwordInput = document.getElementById('passwordInput');
         
         var resultContainer = document.getElementById('resultContainer');
         var downloadLink = document.getElementById('downloadLink');
 
         // --- Biến trạng thái ---
         var selectedFile = null;
-        // Biến lưu thông tin để tải về
         var downloadAuthHeader = null;
         var finalDownloadUrl = null;
         var finalDownloadFilename = null;
@@ -237,7 +267,6 @@
             if (storedFile) {
                 var fileObject = JSON.parse(storedFile);
                 fileNameDisplay.textContent = 'Tệp đã lưu: ' + fileObject.name;
-                // Chuyển đổi dataUrl trở lại thành File object để có thể xử lý
                 fetch(fileObject.dataUrl).then(function(res) {
                     return res.blob();
                 }).then(function(blob) {
@@ -251,7 +280,6 @@
 
         // --- Xử lý iLovePDF API ---
 
-        // Sử dụng phương pháp lấy token từ server - cách làm đúng chuẩn cho client-side.
         async function getApiToken(publicKey) {
             var API_URL = 'https://api.ilovepdf.com/v1';
             var authFormData = new FormData();
@@ -327,9 +355,13 @@
                     tool: tool,
                     files: [{ server_filename: uploadData.server_filename, filename: selectedFile.name }]
                 };
-                 // Thêm mật khẩu nếu là tác vụ protect
-                if (tool === 'protect') {
-                    processBody.password = '1234'; // Mật khẩu ví dụ
+                 
+                // Thêm mật khẩu nếu là tác vụ protect hoặc unlock
+                if (tool === 'protect' || tool === 'unlock') {
+                    if (!passwordInput.value) {
+                        throw new Error('Vui lòng nhập mật khẩu cho tác vụ này.');
+                    }
+                    processBody.password = passwordInput.value;
                 }
 
                 var processResponse = await fetch('https://' + taskData.server + '/v1/process', {
@@ -348,12 +380,10 @@
                 // 5. Hoàn thành và hiển thị link tải
                 if (processData.status === 'TaskSuccess') {
                     setStatus('Xử lý thành công! Sẵn sàng để tải về.', 'success');
-                    // Lưu thông tin cần thiết để tải về
                     finalDownloadUrl = 'https://' + taskData.server + '/v1/download/' + taskData.task;
                     finalDownloadFilename = processData.download_filename;
-                    downloadAuthHeader = authHeader; // Lưu lại header xác thực
+                    downloadAuthHeader = authHeader; 
 
-                    // Hiển thị nút tải
                     downloadLink.textContent = 'Tải: ' + finalDownloadFilename;
                     resultContainer.classList.remove('hidden');
                 } else {
@@ -368,9 +398,8 @@
             }
         });
 
-        // FIX: Thêm sự kiện click để xử lý việc tải về đúng cách
         downloadLink.addEventListener('click', async function(event) {
-            event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a>
+            event.preventDefault(); 
 
             if (!finalDownloadUrl || !downloadAuthHeader) {
                 setStatus('Không có thông tin để tải về. Vui lòng xử lý lại.', 'error');
@@ -378,9 +407,7 @@
             }
 
             setStatus('Đang tải tệp về...', 'info');
-            // Bạn có thể bật lại loader ở đây nếu muốn
-            // showLoader(true);
-
+            
             try {
                 var response = await fetch(finalDownloadUrl, {
                     headers: { 'Authorization': downloadAuthHeader }
@@ -405,8 +432,16 @@
             } catch (error) {
                 console.error('Download Error:', error);
                 setStatus('Lỗi khi tải về: ' + error.message, 'error');
-            } finally {
-                // showLoader(false);
+            }
+        });
+
+        // Hiển thị/ẩn ô mật khẩu dựa trên công cụ được chọn
+        apiToolSelect.addEventListener('change', function() {
+            var selectedTool = this.value;
+            if (selectedTool === 'protect' || selectedTool === 'unlock') {
+                passwordContainer.classList.remove('hidden');
+            } else {
+                passwordContainer.classList.add('hidden');
             }
         });
 
