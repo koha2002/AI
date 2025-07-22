@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tải Tệp và Xử lý với iLovePDF</title>
+    <title>Công cụ xử lý PDF & Ảnh - iLovePDF API</title>
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Sử dụng font Inter -->
@@ -11,109 +11,204 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .transition-all {
-            transition: all 0.3s ease-in-out;
-        }
-        /* Style cho spinner loading */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 4px solid #3498db;
-            width: 24px;
-            height: 24px;
-            animation: spin 2s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .transition-all { transition: all 0.3s ease-in-out; }
+        .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #3498db; width: 24px; height: 24px; animation: spin 2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .file-item { cursor: grab; }
+        .file-item:active { cursor: grabbing; }
+        .dragging { opacity: 0.5; }
+        #watermarkPreview { position: relative; display: inline-block; }
+        #watermarkOverlay { position: absolute; pointer-events: none; white-space: nowrap; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+    <div class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
         <!-- Tiêu đề -->
         <div class="text-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Tải Tệp & Tích hợp iLovePDF API</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">Chọn một tệp, sau đó có thể lưu tạm thời hoặc xử lý bằng API.</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Công cụ xử lý PDF & Ảnh</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Tích hợp iLovePDF API</p>
         </div>
 
         <!-- Vùng tải tệp lên -->
-        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center space-y-4">
-            <div class="flex justify-center">
-                <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" />
-                </svg>
-            </div>
-            <input type="file" id="fileInput" class="hidden">
-            <label for="fileInput" class="cursor-pointer font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
-                Chọn một tệp
-            </label>
+        <div id="uploadBox" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center space-y-4">
+             <div class="flex justify-center"><svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" /></svg></div>
+            <input type="file" id="fileInput" class="hidden" multiple>
+            <label for="fileInput" class="cursor-pointer font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">Chọn tệp</label>
             <p id="fileName" class="text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được chọn</p>
         </div>
         
-        <!-- Vùng xem trước -->
-        <div id="previewContainer" class="mt-6 hidden">
-            <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">Xem trước tệp:</h2>
-            <div id="preview" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 max-h-96 overflow-auto"></div>
+        <!-- Danh sách tệp đã chọn -->
+        <div id="fileListContainer" class="hidden mt-4 space-y-2">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Các tệp đã chọn (kéo để sắp xếp):</h3>
+            <div id="fileList" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600 max-h-60 overflow-auto"></div>
         </div>
 
-        <!-- Công cụ API -->
+        <!-- Công cụ API và Tùy chọn -->
         <div class="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
              <div>
                 <label for="apiTool" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chọn công cụ</label>
                 <select id="apiTool" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                     <optgroup label="Công cụ PDF">
-                        <option value="compress">Nén PDF (Compress)</option>
-                        <option value="pdfjpg">PDF sang JPG</option>
-                        <option value="unlock">Mở khóa PDF (Unlock)</option>
-                        <option value="protect">Bảo vệ PDF (Protect)</option>
-                        <option value="merge">Gộp PDF (Merge)</option>
-                        <option value="split">Tách PDF (Split)</option>
-                        <option value="rotate">Xoay PDF (Rotate)</option>
-                        <option value="watermark">Đóng dấu PDF (Watermark)</option>
+                        <option value="compress">Nén PDF</option>
+                        <option value="merge">Gộp PDF</option>
+                        <option value="split">Tách PDF</option>
+                        <option value="unlock">Mở khóa PDF</option>
+                        <option value="protect">Bảo vệ PDF</option>
+                        <option value="rotate">Xoay PDF</option>
+                        <option value="watermark">Đóng dấu PDF</option>
                         <option value="pdfa">PDF sang PDF/A</option>
-                        <option value="officepdf">Office sang PDF</option>
-                        <option value="htmlpdf">HTML sang PDF</option>
+                        <option value="wordpdf">Word sang PDF</option>
+                        <option value="powerpointpdf">PowerPoint sang PDF</option>
+                        <option value="excelpdf">Excel sang PDF</option>
+                        <option value="pdfjpg">PDF sang JPG</option>
                         <option value="imagepdf">Ảnh sang PDF</option>
                         <option value="pagenumber">Đánh số trang</option>
-                        <option value="pdfocr">PDF OCR</option>
                         <option value="extract">Trích xuất dữ liệu</option>
                         <option value="repair">Sửa chữa PDF</option>
                     </optgroup>
                     <optgroup label="Công cụ Hình ảnh">
                         <option value="compressimage">Nén ảnh</option>
-                        <option value="cropimage">Cắt ảnh</option>
-                        <option value="convertimage">Chuyển đổi định dạng ảnh</option>
-                        <option value="removebackgroundimage">Xóa nền ảnh</option>
                         <option value="resizeimage">Thay đổi kích thước ảnh</option>
+                        <option value="cropimage">Cắt ảnh</option>
                         <option value="rotateimage">Xoay ảnh</option>
+                        <option value="convertimage">Chuyển đổi định dạng ảnh</option>
                         <option value="watermarkimage">Đóng dấu ảnh</option>
+                        <option value="removebackgroundimage">Xóa nền ảnh</option>
                     </optgroup>
                 </select>
              </div>
-             <!-- Ô nhập mật khẩu, ẩn mặc định -->
-             <div id="passwordContainer" class="hidden">
-                <label for="passwordInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu</label>
-                <input type="password" id="passwordInput" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Nhập mật khẩu...">
+             
+             <!-- Vùng tùy chọn cho từng công cụ -->
+             <div id="toolOptions" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hidden">
+                <!-- Tùy chọn Nén -->
+                <div id="compressOptions" class="hidden space-y-2">
+                    <label class="block text-sm font-medium">Mức độ nén</label>
+                    <select id="compressionLevel" class="block w-full rounded-md sm:text-sm">
+                        <option value="low">Nén thấp (chất lượng cao)</option>
+                        <option value="recommended" selected>Khuyến nghị</option>
+                        <option value="extreme">Nén cao (kích thước nhỏ)</option>
+                    </select>
+                </div>
+                <!-- Tùy chọn Tách PDF -->
+                <div id="splitOptions" class="hidden space-y-2">
+                    <label class="block text-sm font-medium">Tách theo trang</label>
+                    <input type="text" id="splitRange" placeholder="VD: 1-3,5,8-10" class="block w-full rounded-md sm:text-sm" />
+                    <p class="text-xs text-gray-500">Nhập trang hoặc khoảng trang cần tách.</p>
+                </div>
+                <!-- Tùy chọn Xoay -->
+                <div id="rotateOptions" class="hidden space-y-2">
+                    <label class="block text-sm font-medium">Góc xoay</label>
+                    <select id="rotateAngle" class="block w-full rounded-md sm:text-sm">
+                        <option value="90">90 độ (phải)</option>
+                        <option value="180">180 độ</option>
+                        <option value="270">270 độ (trái)</option>
+                    </select>
+                </div>
+                <!-- Tùy chọn Đóng dấu -->
+                <div id="watermarkOptions" class="hidden space-y-4">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium">Loại dấu</label>
+                            <select id="watermarkMode" class="block w-full rounded-md sm:text-sm">
+                                <option value="text">Văn bản</option>
+                                <option value="image">Hình ảnh</option>
+                            </select>
+                        </div>
+                        <div id="watermarkTextInputContainer">
+                            <label class="block text-sm font-medium">Nội dung</label>
+                            <input type="text" id="watermarkText" value="iLovePDF" class="block w-full rounded-md sm:text-sm" />
+                        </div>
+                        <div id="watermarkImageInputContainer" class="hidden">
+                            <label class="block text-sm font-medium">Tệp ảnh dấu</label>
+                            <input type="file" id="watermarkImageInput" class="block w-full text-sm" accept="image/*" />
+                        </div>
+                     </div>
+                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium">Vị trí</label>
+                            <select id="watermarkPosition" class="block w-full rounded-md sm:text-sm">
+                                <option value="middle-center">Giữa</option>
+                                <option value="top-left">Trên-Trái</option>
+                                <option value="top-center">Trên-Giữa</option>
+                                <option value="top-right">Trên-Phải</option>
+                                <option value="middle-left">Giữa-Trái</option>
+                                <option value="middle-right">Giữa-Phải</option>
+                                <option value="bottom-left">Dưới-Trái</option>
+                                <option value="bottom-center">Dưới-Giữa</option>
+                                <option value="bottom-right">Dưới-Phải</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Độ trong suốt</label>
+                            <select id="watermarkTransparency" class="block w-full rounded-md sm:text-sm">
+                                <option value="100">100% (Rõ nét)</option>
+                                <option value="75">75%</option>
+                                <option value="50" selected>50%</option>
+                                <option value="25">25%</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Góc xoay</label>
+                            <input type="number" id="watermarkRotation" value="0" class="block w-full rounded-md sm:text-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Kích thước chữ</label>
+                            <input type="number" id="watermarkFontSize" value="48" class="block w-full rounded-md sm:text-sm" />
+                        </div>
+                     </div>
+                     <div id="watermarkPreviewContainer" class="hidden">
+                         <label class="block text-sm font-medium">Xem trước dấu trên ảnh đầu tiên</label>
+                         <div id="watermarkPreview" class="mt-2 bg-gray-200 dark:bg-gray-600 max-w-xs mx-auto rounded">
+                            <img id="watermarkPreviewImage" class="max-w-full max-h-48 rounded opacity-70" />
+                            <div id="watermarkOverlay"></div>
+                         </div>
+                     </div>
+                </div>
+                <!-- Tùy chọn Mật khẩu -->
+                <div id="passwordOptions" class="hidden space-y-2">
+                    <label for="passwordInput" class="block text-sm font-medium">Mật khẩu</label>
+                    <input type="password" id="passwordInput" class="block w-full rounded-md sm:text-sm" placeholder="Nhập mật khẩu..."/>
+                </div>
+                <!-- Tùy chọn Cắt ảnh -->
+                <div id="cropImageOptions" class="hidden space-y-2">
+                    <label class="block text-sm font-medium">Tọa độ cắt (px)</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <input type="number" id="cropX" placeholder="x" class="block w-full rounded-md sm:text-sm" />
+                        <input type="number" id="cropY" placeholder="y" class="block w-full rounded-md sm:text-sm" />
+                        <input type="number" id="cropWidth" placeholder="rộng" class="block w-full rounded-md sm:text-sm" />
+                        <input type="number" id="cropHeight" placeholder="cao" class="block w-full rounded-md sm:text-sm" />
+                    </div>
+                </div>
+                 <!-- Tùy chọn Chuyển đổi ảnh -->
+                <div id="convertImageOptions" class="hidden space-y-2">
+                    <label class="block text-sm font-medium">Chuyển sang định dạng</label>
+                    <select id="convertTo" class="block w-full rounded-md sm:text-sm">
+                        <option value="jpg">JPG</option><option value="png">PNG</option><option value="gif">GIF</option>
+                    </select>
+                </div>
+                <!-- Tùy chọn Thay đổi kích thước ảnh -->
+                <div id="resizeImageOptions" class="hidden space-y-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="resizeWidth" placeholder="Chiều rộng (px)" class="block w-full rounded-md sm:text-sm" />
+                        <input type="number" id="resizeHeight" placeholder="Chiều cao (px)" class="block w-full rounded-md sm:text-sm" />
+                    </div>
+                    <div class="flex items-center">
+                        <input id="maintainAspectRatio" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <label for="maintainAspectRatio" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Giữ nguyên tỷ lệ</label>
+                    </div>
+                </div>
+                <!-- Mô tả cho các công cụ đơn giản -->
+                <p id="toolDescription" class="text-sm text-gray-600 dark:text-gray-300 hidden"></p>
              </div>
         </div>
 
-
         <!-- Các nút hành động -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
-            <button id="saveButton" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                Lưu vào Trình duyệt
-            </button>
-            <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                Xóa khỏi Trình duyệt
-            </button>
-            <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-2 lg:col-span-1">
-                <span id="processButtonText">Xử lý với API</span>
-                <div id="loader" class="loader hidden"></div>
+            <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all col-span-1 sm:col-span-2 lg:col-span-1">Xóa tất cả</button>
+            <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-2 lg:col-span-2">
+                <span id="processButtonText">Xử lý</span><div id="loader" class="loader hidden"></div>
             </button>
         </div>
 
@@ -125,38 +220,84 @@
             <h3 class="text-lg font-semibold">Xử lý thành công!</h3>
             <a id="downloadLink" href="#" class="mt-2 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 cursor-pointer">Tải tệp kết quả</a>
         </div>
-
     </div>
 
     <script>
-        // --- Lấy các phần tử DOM ---
+        // --- DOM Elements ---
         var fileInput = document.getElementById('fileInput');
         var fileNameDisplay = document.getElementById('fileName');
-        var previewContainer = document.getElementById('previewContainer');
-        var preview = document.getElementById('preview');
-        var statusMessage = document.getElementById('statusMessage');
-        
-        var saveButton = document.getElementById('saveButton');
-        var clearButton = document.getElementById('clearButton');
         var processButton = document.getElementById('processButton');
-        var processButtonText = document.getElementById('processButtonText');
-        var loader = document.getElementById('loader');
-
+        var clearButton = document.getElementById('clearButton');
         var apiToolSelect = document.getElementById('apiTool');
-        var passwordContainer = document.getElementById('passwordContainer');
-        var passwordInput = document.getElementById('passwordInput');
-        
+        var toolOptions = document.getElementById('toolOptions');
+        var fileListContainer = document.getElementById('fileListContainer');
+        var fileList = document.getElementById('fileList');
+        var statusMessage = document.getElementById('statusMessage');
+        var loader = document.getElementById('loader');
+        var processButtonText = document.getElementById('processButtonText');
         var resultContainer = document.getElementById('resultContainer');
         var downloadLink = document.getElementById('downloadLink');
 
-        // --- Biến trạng thái ---
-        var selectedFile = null;
+        // --- State Variables ---
+        var selectedFiles = [];
+        var watermarkFile = null;
         var downloadAuthHeader = null;
         var finalDownloadUrl = null;
         var finalDownloadFilename = null;
 
+        // --- Tool Options Elements & Config ---
+        var optionDivs = {
+            compress: document.getElementById('compressOptions'),
+            compressimage: document.getElementById('compressOptions'),
+            split: document.getElementById('splitOptions'),
+            rotate: document.getElementById('rotateOptions'),
+            rotateimage: document.getElementById('rotateOptions'),
+            watermark: document.getElementById('watermarkOptions'),
+            watermarkimage: document.getElementById('watermarkOptions'),
+            protect: document.getElementById('passwordOptions'),
+            unlock: document.getElementById('passwordOptions'),
+            cropimage: document.getElementById('cropImageOptions'),
+            convertimage: document.getElementById('convertImageOptions'),
+            resizeimage: document.getElementById('resizeImageOptions'),
+            description: document.getElementById('toolDescription')
+        };
+        var toolDescriptions = {
+            extract: 'Trích xuất toàn bộ văn bản và hình ảnh từ tệp PDF của bạn vào một tệp ZIP.',
+            repair: 'Cố gắng sửa chữa và khôi phục dữ liệu từ các tệp PDF bị hỏng.',
+            removebackgroundimage: 'Tự động xóa nền khỏi hình ảnh. Hoạt động tốt nhất với các đối tượng rõ ràng.',
+            pdfa: 'Chuyển đổi PDF sang định dạng PDF/A để lưu trữ lâu dài.',
+            pagenumber: 'Tự động thêm số trang vào tệp PDF của bạn.'
+        };
+        var fileAcceptMap = {
+            'default': '*/*',
+            'pdf': 'application/pdf',
+            'image': 'image/*',
+            'wordpdf': '.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'powerpointpdf': '.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'excelpdf': '.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        };
+        var multiFileTools = ['merge', 'imagepdf', 'watermark', 'watermarkimage'];
+        var pdfTools = ['compress', 'merge', 'split', 'unlock', 'protect', 'rotate', 'watermark', 'pdfa', 'pdfjpg', 'pagenumber', 'extract', 'repair'];
+        var imageTools = ['compressimage', 'resizeimage', 'cropimage', 'rotateimage', 'convertimage', 'watermarkimage', 'removebackgroundimage'];
+        
+        // --- Event Listeners ---
+        fileInput.addEventListener('change', handleFileSelect);
+        apiToolSelect.addEventListener('change', updateUiForTool);
+        processButton.addEventListener('click', processFiles);
+        downloadLink.addEventListener('click', downloadResult);
+        clearButton.addEventListener('click', resetAll);
+        
+        // Watermark Preview Listeners
+        document.getElementById('watermarkMode').addEventListener('change', updateWatermarkPreview);
+        document.getElementById('watermarkText').addEventListener('input', updateWatermarkPreview);
+        document.getElementById('watermarkImageInput').addEventListener('change', handleWatermarkFileSelect);
+        document.getElementById('watermarkPosition').addEventListener('change', updateWatermarkPreview);
+        document.getElementById('watermarkTransparency').addEventListener('change', updateWatermarkPreview);
+        document.getElementById('watermarkRotation').addEventListener('change', updateWatermarkPreview);
+        document.getElementById('watermarkFontSize').addEventListener('change', updateWatermarkPreview);
 
-        // --- Hàm tiện ích ---
+        // FIX: Add missing function definitions here
+        // --- UI Functions ---
         function setStatus(message, type) {
             if (type === undefined) {
                 type = 'info';
@@ -171,15 +312,6 @@
             };
             statusMessage.className = 'text-center font-medium h-12 flex items-center justify-center p-2 rounded-lg transition-all ' + (colors[type] || colors.neutral);
         };
-
-        function updateButtonStates() {
-            var hasFileInStorage = !!localStorage.getItem('tempFile');
-            var hasSelectedFile = !!selectedFile;
-
-            saveButton.disabled = !hasSelectedFile;
-            clearButton.disabled = !hasFileInStorage;
-            processButton.disabled = !hasSelectedFile;
-        };
         
         function showLoader(show) {
             if (show) {
@@ -189,269 +321,339 @@
             } else {
                 loader.classList.add('hidden');
                 processButtonText.classList.remove('hidden');
-                updateButtonStates();
+                processButton.disabled = false;
             }
         };
 
-        // --- Xử lý tệp cục bộ ---
-        fileInput.addEventListener('change', function(event) {
-            var file = event.target.files[0];
-            if (file) {
-                selectedFile = file;
-                fileNameDisplay.textContent = file.name;
-                displayPreview(file);
-                setStatus('Đã chọn tệp. Sẵn sàng để xử lý hoặc lưu.', 'info');
+        function updateUiForTool() {
+            var tool = apiToolSelect.value;
+            Object.values(optionDivs).forEach(function(div) { div.classList.add('hidden'); });
+            toolOptions.classList.add('hidden');
+            fileListContainer.classList.add('hidden');
+            
+            // Cập nhật bộ lọc tệp
+            var acceptType = 'default';
+            if (pdfTools.includes(tool)) acceptType = 'pdf';
+            if (imageTools.includes(tool) || tool === 'imagepdf') acceptType = 'image';
+            if (fileAcceptMap[tool]) acceptType = tool;
+            fileInput.accept = fileAcceptMap[acceptType] || fileAcceptMap['default'];
+
+            fileInput.multiple = multiFileTools.includes(tool);
+            if (fileInput.multiple && selectedFiles.length > 0) {
+                fileListContainer.classList.remove('hidden');
+            }
+            
+            if (optionDivs[tool]) {
+                optionDivs[tool].classList.remove('hidden');
+                toolOptions.classList.remove('hidden');
+            } else if (toolDescriptions[tool]) {
+                optionDivs.description.textContent = toolDescriptions[tool];
+                optionDivs.description.classList.remove('hidden');
+                toolOptions.classList.remove('hidden');
+            }
+            updateWatermarkPreview(); // Cập nhật preview khi đổi tool
+        }
+
+        function handleFileSelect(event) {
+            var newFiles = Array.from(event.target.files);
+            if(fileInput.multiple) {
+                selectedFiles = selectedFiles.concat(newFiles);
             } else {
-                selectedFile = null;
+                selectedFiles = newFiles.length > 0 ? [newFiles[0]] : [];
+            }
+            
+            if (selectedFiles.length === 0) {
                 fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
-            }
-            resultContainer.classList.add('hidden');
-            updateButtonStates();
-        });
-
-        function displayPreview(file) {
-            preview.innerHTML = '';
-            previewContainer.classList.remove('hidden');
-            var fileType = file.type;
-
-            if (fileType.startsWith('image/')) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'max-w-full h-auto rounded-md mx-auto';
-                    preview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            } else if (file.type === 'application/pdf') {
-                 var p = document.createElement('p');
-                 p.textContent = 'Xem trước PDF không được hỗ trợ trực tiếp. Tên tệp: ' + file.name;
-                 preview.appendChild(p);
+                fileListContainer.classList.add('hidden');
+            } else if (fileInput.multiple) {
+                fileNameDisplay.textContent = selectedFiles.length + ' tệp đã được chọn';
+                renderFileList();
+                fileListContainer.classList.remove('hidden');
             } else {
-                var p = document.createElement('p');
-                p.textContent = 'Không thể xem trước loại tệp này (' + fileType + ').';
-                preview.appendChild(p);
+                fileNameDisplay.textContent = selectedFiles[0].name;
+                fileListContainer.classList.add('hidden');
             }
-        };
+            updateWatermarkPreview();
+            setStatus('Đã chọn tệp. Sẵn sàng để xử lý.', 'info');
+        }
+        
+        function handleWatermarkFileSelect(event) {
+            watermarkFile = event.target.files[0];
+            updateWatermarkPreview();
+        }
 
-        // --- Xử lý localStorage ---
-        saveButton.addEventListener('click', function() {
-            if (!selectedFile) return;
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    var fileObject = { name: selectedFile.name, type: selectedFile.type, dataUrl: e.target.result };
-                    localStorage.setItem('tempFile', JSON.stringify(fileObject));
-                    setStatus('Đã lưu tệp vào bộ nhớ trình duyệt!', 'success');
-                    updateButtonStates();
-                } catch (err) {
-                    setStatus('Lỗi: Bộ nhớ trình duyệt đã đầy.', 'error');
-                }
-            };
-            reader.readAsDataURL(selectedFile);
-        });
-
-        clearButton.addEventListener('click', function() {
-            localStorage.removeItem('tempFile');
-            previewContainer.classList.add('hidden');
-            preview.innerHTML = '';
-            if (!selectedFile) {
-                 fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
-            }
-            setStatus('Đã xóa tệp khỏi bộ nhớ.', 'neutral');
-            updateButtonStates();
-        });
-
-        function loadFileFromStorage() {
-            var storedFile = localStorage.getItem('tempFile');
-            if (storedFile) {
-                var fileObject = JSON.parse(storedFile);
-                fileNameDisplay.textContent = 'Tệp đã lưu: ' + fileObject.name;
-                fetch(fileObject.dataUrl).then(function(res) {
-                    return res.blob();
-                }).then(function(blob) {
-                    selectedFile = new File([blob], fileObject.name, { type: fileObject.type });
-                    displayPreview(selectedFile);
-                    setStatus('Đã tải tệp từ bộ nhớ trình duyệt.', 'info');
-                    updateButtonStates();
+        function renderFileList() {
+            // Logic kéo thả để sắp xếp
+            let draggedItem = null;
+            fileList.innerHTML = '';
+            selectedFiles.forEach(function(file, index) {
+                var item = document.createElement('div');
+                item.className = 'file-item bg-white dark:bg-gray-800 p-2 rounded border flex justify-between items-center';
+                item.textContent = file.name;
+                item.draggable = true;
+                item.dataset.index = index;
+                
+                item.addEventListener('dragstart', function(e) {
+                    draggedItem = item;
+                    setTimeout(function() { item.classList.add('dragging'); }, 0);
                 });
-            }
-        };
+                item.addEventListener('dragend', function() {
+                    setTimeout(function() {
+                        if (draggedItem) {
+                            draggedItem.classList.remove('dragging');
+                        }
+                        draggedItem = null;
+                    }, 0);
+                });
+                fileList.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    var afterElement = getDragAfterElement(fileList, e.clientY);
+                    if (afterElement == null) {
+                        fileList.appendChild(draggedItem);
+                    } else {
+                        fileList.insertBefore(draggedItem, afterElement);
+                    }
+                });
+                fileList.addEventListener('drop', function() {
+                    var newOrder = Array.from(fileList.children).map(function(child) {
+                        return selectedFiles[parseInt(child.dataset.index)];
+                    });
+                    selectedFiles = newOrder;
+                    renderFileList(); // Re-render để cập nhật index
+                });
 
-        // --- Xử lý iLovePDF API ---
-
-        async function getApiToken(publicKey) {
-            var API_URL = 'https://api.ilovepdf.com/v1';
-            var authFormData = new FormData();
-            authFormData.append('public_key', publicKey);
-
-            var response = await fetch(API_URL + '/auth', {
-                method: 'POST',
-                body: authFormData
+                var removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Xóa';
+                removeBtn.className = 'text-red-500 text-xs ml-4 flex-shrink-0';
+                removeBtn.onclick = function() {
+                    selectedFiles.splice(index, 1);
+                    renderFileList();
+                    fileNameDisplay.textContent = selectedFiles.length + ' tệp đã được chọn';
+                };
+                item.appendChild(removeBtn);
+                fileList.appendChild(item);
             });
+        }
+        
+        function getDragAfterElement(container, y) {
+            var draggableElements = [...container.querySelectorAll('.file-item:not(.dragging)')];
+            return draggableElements.reduce(function(closest, child) {
+                var box = child.getBoundingClientRect();
+                var offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
 
-            if (!response.ok) {
-                var errorText = await response.text();
-                console.error("Lỗi xác thực:", errorText);
-                throw new Error('Lỗi lấy token. Vui lòng kiểm tra lại Public Key hoặc cài đặt bộ lọc trong tài khoản iLovePDF của bạn.');
+        function resetAll() {
+            selectedFiles = [];
+            watermarkFile = null;
+            fileInput.value = '';
+            document.getElementById('watermarkImageInput').value = '';
+            fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
+            fileListContainer.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            setStatus('');
+        }
+
+        function updateWatermarkPreview() {
+            var container = document.getElementById('watermarkPreviewContainer');
+            var tool = apiToolSelect.value;
+            if ((tool !== 'watermark' && tool !== 'watermarkimage') || selectedFiles.length === 0 || !selectedFiles[0].type.startsWith('image/')) {
+                container.classList.add('hidden');
+                return;
             }
+            container.classList.remove('hidden');
 
+            var previewImg = document.getElementById('watermarkPreviewImage');
+            var overlay = document.getElementById('watermarkOverlay');
+            var mode = document.getElementById('watermarkMode').value;
+            
+            // Hiển thị ảnh đầu tiên làm nền
+            var reader = new FileReader();
+            reader.onload = function(e) { previewImg.src = e.target.result; };
+            reader.readAsDataURL(selectedFiles[0]);
+
+            // Cập nhật overlay
+            overlay.style.backgroundImage = '';
+            overlay.textContent = '';
+            
+            if (mode === 'text') {
+                document.getElementById('watermarkTextInputContainer').classList.remove('hidden');
+                document.getElementById('watermarkImageInputContainer').classList.add('hidden');
+                overlay.textContent = document.getElementById('watermarkText').value;
+                overlay.style.fontSize = document.getElementById('watermarkFontSize').value + 'px';
+                overlay.style.color = 'rgba(0,0,0,0.7)'; // Demo color
+            } else { // image mode
+                document.getElementById('watermarkTextInputContainer').classList.add('hidden');
+                document.getElementById('watermarkImageInputContainer').classList.remove('hidden');
+                if (watermarkFile) {
+                    var wmReader = new FileReader();
+                    wmReader.onload = function(e) {
+                        overlay.style.backgroundImage = 'url(' + e.target.result + ')';
+                        overlay.style.backgroundSize = 'contain';
+                        overlay.style.backgroundRepeat = 'no-repeat';
+                        overlay.style.width = '50%'; // Demo size
+                        overlay.style.height = '50%'; // Demo size
+                    };
+                    wmReader.readAsDataURL(watermarkFile);
+                }
+            }
+            
+            // Cập nhật thuộc tính chung
+            var position = document.getElementById('watermarkPosition').value.split('-');
+            overlay.style.top = position[0] === 'top' ? '5%' : position[0] === 'bottom' ? 'auto' : '50%';
+            overlay.style.bottom = position[0] === 'bottom' ? '5%' : 'auto';
+            overlay.style.left = position[1] === 'left' ? '5%' : position[1] === 'right' ? 'auto' : '50%';
+            overlay.style.right = position[1] === 'right' ? '5%' : 'auto';
+            overlay.style.transform = `translate(${position[1] === 'center' ? '-50%' : '0'}, ${position[0] === 'middle' ? '-50%' : '0'}) rotate(${document.getElementById('watermarkRotation').value}deg)`;
+            overlay.style.opacity = document.getElementById('watermarkTransparency').value / 100;
+        }
+
+        // --- API Logic ---
+        async function getApiToken(publicKey) {
+            var response = await fetch('https://api.ilovepdf.com/v1/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ public_key: publicKey })
+            });
+            if (!response.ok) throw new Error('Lỗi lấy token xác thực.');
             var data = await response.json();
             return data.token;
         }
-
-        processButton.addEventListener('click', async function() {
-            if (!selectedFile) {
-                setStatus('Vui lòng chọn một tệp.', 'warning');
-                return;
-            }
-
+        
+        async function processFiles() {
+            if (selectedFiles.length === 0) { setStatus('Vui lòng chọn ít nhất một tệp.', 'error'); return; }
             showLoader(true);
             resultContainer.classList.add('hidden');
-            
             var publicKey = 'project_public_b518756fab3a8e6942a9330c23a7859a_YUAga5611529e21b17310f7e19ec3547395e1';
             var tool = apiToolSelect.value;
-            var API_URL = 'https://api.ilovepdf.com/v1';
-            var taskData = null;
+            // Map UI tool to API tool
+            if (tool === 'wordpdf' || tool === 'powerpointpdf' || tool === 'excelpdf') {
+                tool = 'officepdf';
+            }
 
             try {
-                // 1. Lấy token từ server iLovePDF
-                setStatus('Đang lấy token xác thực...', 'info');
+                setStatus('Đang lấy token...', 'info');
                 var token = await getApiToken(publicKey);
                 var authHeader = 'Bearer ' + token;
 
-                // 2. Bắt đầu tác vụ
                 setStatus('Đang khởi tạo tác vụ...', 'info');
-                var startResponse = await fetch(API_URL + '/start/' + tool, {
-                    headers: { 'Authorization': authHeader }
-                });
-                
-                if (!startResponse.ok) {
-                    throw new Error('Lỗi khởi tạo: ' + await startResponse.text());
-                }
-                
-                taskData = await startResponse.json();
-                
-                // 3. Tải tệp lên
-                setStatus('Đang tải tệp lên...', 'info');
-                var formData = new FormData();
-                formData.append('task', taskData.task);
-                formData.append('file', selectedFile);
+                var startResponse = await fetch('https://api.ilovepdf.com/v1/start/' + tool, { headers: { 'Authorization': authHeader } });
+                if (!startResponse.ok) throw new Error('Lỗi khởi tạo: ' + await startResponse.text());
+                var taskData = await startResponse.json();
 
-                var uploadResponse = await fetch('https://' + taskData.server + '/v1/upload', {
-                    method: 'POST',
-                    headers: { 'Authorization': authHeader },
-                    body: formData
-                });
-                if (!uploadResponse.ok) {
-                    throw new Error('Lỗi tải lên: ' + await uploadResponse.text());
+                // Upload watermark image first if needed
+                var watermarkServerFilename = null;
+                if ((tool === 'watermark' || tool === 'watermarkimage') && document.getElementById('watermarkMode').value === 'image' && watermarkFile) {
+                    setStatus('Đang tải lên ảnh dấu...', 'info');
+                    var wmFormData = new FormData();
+                    wmFormData.append('task', taskData.task);
+                    wmFormData.append('file', watermarkFile);
+                    var wmUploadResponse = await fetch('https://' + taskData.server + '/v1/upload', { method: 'POST', headers: { 'Authorization': authHeader }, body: wmFormData });
+                    if (!wmUploadResponse.ok) throw new Error('Lỗi tải ảnh dấu: ' + await wmUploadResponse.text());
+                    var wmUploadData = await wmUploadResponse.json();
+                    watermarkServerFilename = wmUploadData.server_filename;
                 }
-                var uploadData = await uploadResponse.json();
 
-                // 4. Xử lý tệp
+                var serverFilenames = [];
+                for (var i = 0; i < selectedFiles.length; i++) {
+                    setStatus('Đang tải lên tệp ' + (i + 1) + '/' + selectedFiles.length, 'info');
+                    var formData = new FormData();
+                    formData.append('task', taskData.task);
+                    formData.append('file', selectedFiles[i]);
+                    var uploadResponse = await fetch('https://' + taskData.server + '/v1/upload', { method: 'POST', headers: { 'Authorization': authHeader }, body: formData });
+                    if (!uploadResponse.ok) throw new Error('Lỗi tải tệp lên: ' + await uploadResponse.text());
+                    var uploadData = await uploadResponse.json();
+                    serverFilenames.push({ server_filename: uploadData.server_filename, filename: selectedFiles[i].name });
+                }
+
                 setStatus('Đang xử lý tệp...', 'info');
-                var processBody = {
-                    task: taskData.task,
-                    tool: tool,
-                    files: [{ server_filename: uploadData.server_filename, filename: selectedFile.name }]
-                };
-                 
-                // Thêm mật khẩu nếu là tác vụ protect hoặc unlock
-                if (tool === 'protect' || tool === 'unlock') {
-                    if (!passwordInput.value) {
-                        throw new Error('Vui lòng nhập mật khẩu cho tác vụ này.');
-                    }
-                    processBody.password = passwordInput.value;
-                }
+                var processBody = { task: taskData.task, tool: tool, files: serverFilenames };
 
-                var processResponse = await fetch('https://' + taskData.server + '/v1/process', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(processBody)
-                });
-                if (!processResponse.ok) {
-                    throw new Error('Lỗi xử lý: ' + await processResponse.text());
+                // Add tool-specific options
+                var uiTool = apiToolSelect.value;
+                switch(uiTool) {
+                    case 'protect': case 'unlock': processBody.password = document.getElementById('passwordInput').value; break;
+                    case 'split': processBody.ranges = document.getElementById('splitRange').value; break;
+                    case 'rotate': case 'rotateimage': processBody.rotate = document.getElementById('rotateAngle').value; break;
+                    case 'compress': case 'compressimage': processBody.compression_level = document.getElementById('compressionLevel').value; break;
+                    case 'convertimage': processBody.output_format = document.getElementById('convertTo').value; break;
+                    case 'resizeimage':
+                        processBody.resize_mode = "pixels";
+                        processBody.pixels_width = document.getElementById('resizeWidth').value;
+                        processBody.pixels_height = document.getElementById('resizeHeight').value;
+                        processBody.maintain_aspect_ratio = document.getElementById('maintainAspectRatio').checked;
+                        break;
+                    case 'cropimage':
+                        processBody.coordinates = `${document.getElementById('cropX').value},${document.getElementById('cropY').value},${document.getElementById('cropWidth').value},${document.getElementById('cropHeight').value}`;
+                        break;
+                    case 'watermark': case 'watermarkimage':
+                        processBody.mode = document.getElementById('watermarkMode').value;
+                        if (processBody.mode === 'text') {
+                            processBody.text = document.getElementById('watermarkText').value;
+                            processBody.font_size = document.getElementById('watermarkFontSize').value;
+                        } else if (watermarkServerFilename) {
+                            processBody.image = watermarkServerFilename;
+                        }
+                        processBody.vertical_position = document.getElementById('watermarkPosition').value.split('-')[0];
+                        processBody.horizontal_position = document.getElementById('watermarkPosition').value.split('-')[1];
+                        processBody.transparency = document.getElementById('watermarkTransparency').value;
+                        processBody.rotation = document.getElementById('watermarkRotation').value;
+                        break;
                 }
+                
+                var processResponse = await fetch('https://' + taskData.server + '/v1/process', { method: 'POST', headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' }, body: JSON.stringify(processBody) });
+                if (!processResponse.ok) throw new Error('Lỗi xử lý tệp: ' + await processResponse.text());
                 var processData = await processResponse.json();
 
-                // 5. Hoàn thành và hiển thị link tải
                 if (processData.status === 'TaskSuccess') {
-                    setStatus('Xử lý thành công! Sẵn sàng để tải về.', 'success');
+                    setStatus('Xử lý thành công!', 'success');
                     finalDownloadUrl = 'https://' + taskData.server + '/v1/download/' + taskData.task;
                     finalDownloadFilename = processData.download_filename;
-                    downloadAuthHeader = authHeader; 
-
+                    downloadAuthHeader = authHeader;
                     downloadLink.textContent = 'Tải: ' + finalDownloadFilename;
                     resultContainer.classList.remove('hidden');
                 } else {
                     throw new Error('Tác vụ thất bại: ' + (processData.status_text || 'Lỗi không xác định'));
                 }
-
             } catch (error) {
                 console.error('API Error:', error);
                 setStatus('Lỗi: ' + error.message, 'error');
             } finally {
                 showLoader(false);
             }
-        });
+        }
 
-        downloadLink.addEventListener('click', async function(event) {
-            event.preventDefault(); 
-
-            if (!finalDownloadUrl || !downloadAuthHeader) {
-                setStatus('Không có thông tin để tải về. Vui lòng xử lý lại.', 'error');
-                return;
-            }
-
+        async function downloadResult(event) {
+            event.preventDefault();
+            if (!finalDownloadUrl) return;
             setStatus('Đang tải tệp về...', 'info');
-            
             try {
-                var response = await fetch(finalDownloadUrl, {
-                    headers: { 'Authorization': downloadAuthHeader }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Lỗi khi tải tệp: ' + response.statusText);
-                }
-
+                var response = await fetch(finalDownloadUrl, { headers: { 'Authorization': downloadAuthHeader } });
+                if (!response.ok) throw new Error('Lỗi khi tải tệp.');
                 var blob = await response.blob();
                 var url = window.URL.createObjectURL(blob);
                 var a = document.createElement('a');
-                a.style.display = 'none';
                 a.href = url;
                 a.download = finalDownloadFilename;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                a.remove();
                 setStatus('Tải tệp thành công!', 'success');
-
             } catch (error) {
-                console.error('Download Error:', error);
                 setStatus('Lỗi khi tải về: ' + error.message, 'error');
             }
-        });
-
-        // Hiển thị/ẩn ô mật khẩu dựa trên công cụ được chọn
-        apiToolSelect.addEventListener('change', function() {
-            var selectedTool = this.value;
-            if (selectedTool === 'protect' || selectedTool === 'unlock') {
-                passwordContainer.classList.remove('hidden');
-            } else {
-                passwordContainer.classList.add('hidden');
-            }
-        });
-
-
-        // --- Khởi tạo ---
+        }
+        
+        // --- Init ---
         window.addEventListener('load', function() {
-            loadFileFromStorage();
-            updateButtonStates();
+            updateUiForTool();
         });
-
     </script>
 </body>
 </html>
