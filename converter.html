@@ -3,42 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tải Tệp Lên và Lưu Tạm Thời</title>
-    <!-- Tải Tailwind CSS để giao diện đẹp hơn -->
+    <title>Tải Tệp và Xử lý với iLovePDF</title>
+    <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Sử dụng font Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Áp dụng font Inter cho toàn bộ trang */
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Style cho hiệu ứng chuyển động */
         .transition-all {
             transition: all 0.3s ease-in-out;
+        }
+        /* Style cho spinner loading */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 24px;
+            height: 24px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+    <div class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
         <!-- Tiêu đề -->
         <div class="text-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Tải Tệp Lên & Lưu Tạm Thời</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">Tệp của bạn sẽ được lưu trong bộ nhớ của trình duyệt (localStorage).</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Tải Tệp & Tích hợp iLovePDF API</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Chọn một tệp, sau đó có thể lưu tạm thời hoặc xử lý bằng API.</p>
         </div>
 
         <!-- Vùng tải tệp lên -->
         <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center space-y-4">
-            <!-- Icon -->
             <div class="flex justify-center">
                 <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" />
                 </svg>
             </div>
-            <!-- Input để chọn tệp -->
             <input type="file" id="fileInput" class="hidden">
             <label for="fileInput" class="cursor-pointer font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
                 Chọn một tệp
@@ -46,177 +55,368 @@
             <p id="fileName" class="text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được chọn</p>
         </div>
         
+        <!-- Vùng xem trước -->
+        <div id="previewContainer" class="mt-6 hidden">
+            <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">Xem trước tệp:</h2>
+            <div id="preview" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 max-h-96 overflow-auto"></div>
+        </div>
+
+        <!-- Công cụ API -->
+        <div class="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-6">
+             <label for="apiTool" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chọn công cụ</label>
+             <select id="apiTool" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                 <option value="compress">Nén PDF (Compress)</option>
+                 <option value="pdfjpg">PDF sang JPG (PDF to JPG)</option>
+                 <option value="unlock">Mở khóa PDF (Unlock)</option>
+                 <option value="protect">Bảo vệ PDF (Protect)</option>
+             </select>
+        </div>
+
+
         <!-- Các nút hành động -->
-        <div class="flex flex-col sm:flex-row gap-4">
-            <button id="saveButton" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:bg-gray-400 dark:disabled:bg-gray-500 disabled:cursor-not-allowed">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+            <button id="saveButton" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 Lưu vào Trình duyệt
             </button>
-            <button id="clearButton" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:bg-gray-400 dark:disabled:bg-gray-500 disabled:cursor-not-allowed">
+            <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 Xóa khỏi Trình duyệt
+            </button>
+            <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-2 lg:col-span-1">
+                <span id="processButtonText">Xử lý với API</span>
+                <div id="loader" class="loader hidden"></div>
             </button>
         </div>
 
         <!-- Thông báo trạng thái -->
-        <div id="statusMessage" class="text-center text-green-600 dark:text-green-400 font-medium h-6"></div>
-
-        <!-- Vùng xem trước -->
-        <div id="previewContainer" class="mt-6 hidden">
-            <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">Xem trước tệp:</h2>
-            <div id="preview" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 max-h-96 overflow-auto">
-                <!-- Nội dung xem trước sẽ được chèn vào đây -->
-            </div>
+        <div id="statusMessage" class="text-center font-medium h-12 flex items-center justify-center p-2 rounded-lg"></div>
+        
+        <!-- Vùng kết quả API -->
+        <div id="resultContainer" class="hidden mt-4 text-center">
+            <h3 class="text-lg font-semibold">Xử lý thành công!</h3>
+            <!-- FIX: Thay đổi cách hoạt động của nút tải về -->
+            <a id="downloadLink" href="#" class="mt-2 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 cursor-pointer">Tải tệp kết quả</a>
         </div>
+
     </div>
 
     <script>
-        // Lấy các phần tử DOM
-        const fileInput = document.getElementById('fileInput');
-        const fileNameDisplay = document.getElementById('fileName');
-        const saveButton = document.getElementById('saveButton');
-        const clearButton = document.getElementById('clearButton');
-        const statusMessage = document.getElementById('statusMessage');
-        const previewContainer = document.getElementById('previewContainer');
-        const preview = document.getElementById('preview');
+        // --- Lấy các phần tử DOM ---
+        var fileInput = document.getElementById('fileInput');
+        var fileNameDisplay = document.getElementById('fileName');
+        var previewContainer = document.getElementById('previewContainer');
+        var preview = document.getElementById('preview');
+        var statusMessage = document.getElementById('statusMessage');
+        
+        var saveButton = document.getElementById('saveButton');
+        var clearButton = document.getElementById('clearButton');
+        var processButton = document.getElementById('processButton');
+        var processButtonText = document.getElementById('processButtonText');
+        var loader = document.getElementById('loader');
 
-        // Biến để lưu trữ dữ liệu tệp tạm thời
-        let selectedFile = null;
-        let fileDataUrl = null;
+        var apiToolSelect = document.getElementById('apiTool');
+        
+        var resultContainer = document.getElementById('resultContainer');
+        var downloadLink = document.getElementById('downloadLink');
 
-        // Hàm cập nhật trạng thái của các nút
-        const updateButtonStates = () => {
-            const hasFileInStorage = !!localStorage.getItem('tempFile');
-            saveButton.disabled = !selectedFile;
-            clearButton.disabled = !hasFileInStorage;
+        // --- Biến trạng thái ---
+        var selectedFile = null;
+        // Biến lưu thông tin để tải về
+        var downloadAuthHeader = null;
+        var finalDownloadUrl = null;
+        var finalDownloadFilename = null;
+
+
+        // --- Hàm tiện ích ---
+        function setStatus(message, type) {
+            if (type === undefined) {
+                type = 'info';
+            }
+            statusMessage.textContent = message;
+            var colors = {
+                info: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900',
+                success: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900',
+                warning: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900',
+                error: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900',
+                neutral: 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700'
+            };
+            statusMessage.className = 'text-center font-medium h-12 flex items-center justify-center p-2 rounded-lg transition-all ' + (colors[type] || colors.neutral);
         };
 
-        // Xử lý sự kiện khi người dùng chọn tệp
-        fileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
+        function updateButtonStates() {
+            var hasFileInStorage = !!localStorage.getItem('tempFile');
+            var hasSelectedFile = !!selectedFile;
+
+            saveButton.disabled = !hasSelectedFile;
+            clearButton.disabled = !hasFileInStorage;
+            processButton.disabled = !hasSelectedFile;
+        };
+        
+        function showLoader(show) {
+            if (show) {
+                loader.classList.remove('hidden');
+                processButtonText.classList.add('hidden');
+                processButton.disabled = true;
+            } else {
+                loader.classList.add('hidden');
+                processButtonText.classList.remove('hidden');
+                updateButtonStates();
+            }
+        };
+
+        // --- Xử lý tệp cục bộ ---
+        fileInput.addEventListener('change', function(event) {
+            var file = event.target.files[0];
             if (file) {
                 selectedFile = file;
                 fileNameDisplay.textContent = file.name;
-
-                // Giới hạn kích thước tệp để tránh làm đầy localStorage (ví dụ: 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    statusMessage.textContent = 'Lỗi: Tệp quá lớn (tối đa 5MB).';
-                    statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
-                    selectedFile = null;
-                    fileDataUrl = null;
-                    updateButtonStates();
-                    return;
-                }
-
-                // Đọc tệp dưới dạng Data URL (base64)
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    fileDataUrl = e.target.result;
-                    displayPreview(file.type, fileDataUrl, file.name);
-                };
-                reader.onerror = () => {
-                     statusMessage.textContent = 'Lỗi khi đọc tệp.';
-                     statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
-                }
-                reader.readAsDataURL(file);
-                statusMessage.textContent = '';
+                displayPreview(file);
+                setStatus('Đã chọn tệp. Sẵn sàng để xử lý hoặc lưu.', 'info');
             } else {
-                fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
                 selectedFile = null;
-                fileDataUrl = null;
+                fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
             }
+            resultContainer.classList.add('hidden');
             updateButtonStates();
         });
 
-        // Hàm hiển thị xem trước tệp
-        const displayPreview = (fileType, dataUrl, name) => {
-            preview.innerHTML = ''; // Xóa nội dung xem trước cũ
+        function displayPreview(file) {
+            preview.innerHTML = '';
             previewContainer.classList.remove('hidden');
+            var fileType = file.type;
 
             if (fileType.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = dataUrl;
-                img.alt = `Xem trước ${name}`;
-                img.className = 'max-w-full h-auto rounded-md mx-auto';
-                preview.appendChild(img);
-            } else if (fileType.startsWith('text/')) {
-                // Chuyển đổi base64 sang text
-                const textContent = atob(dataUrl.split(',')[1]);
-                const pre = document.createElement('pre');
-                pre.textContent = textContent;
-                pre.className = 'whitespace-pre-wrap break-words';
-                preview.appendChild(pre);
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'max-w-full h-auto rounded-md mx-auto';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                 var p = document.createElement('p');
+                 p.textContent = 'Xem trước PDF không được hỗ trợ trực tiếp. Tên tệp: ' + file.name;
+                 preview.appendChild(p);
             } else {
-                const p = document.createElement('p');
-                p.textContent = `Không thể xem trước loại tệp này (${fileType}).`;
+                var p = document.createElement('p');
+                p.textContent = 'Không thể xem trước loại tệp này (' + fileType + ').';
                 preview.appendChild(p);
             }
         };
 
-        // Xử lý sự kiện khi nhấn nút "Lưu"
-        saveButton.addEventListener('click', () => {
-            if (!selectedFile || !fileDataUrl) {
-                statusMessage.textContent = 'Vui lòng chọn một tệp trước.';
-                statusMessage.className = 'text-center text-yellow-600 dark:text-yellow-400 font-medium h-6';
-                return;
-            }
-
-            try {
-                const fileObject = {
-                    name: selectedFile.name,
-                    type: selectedFile.type,
-                    dataUrl: fileDataUrl,
-                };
-                // Lưu đối tượng tệp vào localStorage dưới dạng chuỗi JSON
-                localStorage.setItem('tempFile', JSON.stringify(fileObject));
-                
-                statusMessage.textContent = 'Đã lưu tệp thành công!';
-                statusMessage.className = 'text-center text-green-600 dark:text-green-400 font-medium h-6';
-                updateButtonStates();
-            } catch (e) {
-                // Xử lý lỗi nếu localStorage đầy
-                if (e.name === 'QuotaExceededError') {
-                    statusMessage.textContent = 'Lỗi: Bộ nhớ trình duyệt đã đầy.';
-                } else {
-                    statusMessage.textContent = 'Đã xảy ra lỗi khi lưu tệp.';
+        // --- Xử lý localStorage ---
+        saveButton.addEventListener('click', function() {
+            if (!selectedFile) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var fileObject = { name: selectedFile.name, type: selectedFile.type, dataUrl: e.target.result };
+                    localStorage.setItem('tempFile', JSON.stringify(fileObject));
+                    setStatus('Đã lưu tệp vào bộ nhớ trình duyệt!', 'success');
+                    updateButtonStates();
+                } catch (err) {
+                    setStatus('Lỗi: Bộ nhớ trình duyệt đã đầy.', 'error');
                 }
-                statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
-            }
+            };
+            reader.readAsDataURL(selectedFile);
         });
 
-        // Xử lý sự kiện khi nhấn nút "Xóa"
-        clearButton.addEventListener('click', () => {
+        clearButton.addEventListener('click', function() {
             localStorage.removeItem('tempFile');
             previewContainer.classList.add('hidden');
             preview.innerHTML = '';
-            fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
-            fileInput.value = ''; // Reset input
-            selectedFile = null;
-            fileDataUrl = null;
-            statusMessage.textContent = 'Đã xóa tệp khỏi bộ nhớ.';
-            statusMessage.className = 'text-center text-gray-500 dark:text-gray-400 font-medium h-6';
+            if (!selectedFile) {
+                 fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
+            }
+            setStatus('Đã xóa tệp khỏi bộ nhớ.', 'neutral');
             updateButtonStates();
         });
 
-        // Hàm chạy khi tải trang để kiểm tra xem có tệp nào đã lưu không
-        const loadFileFromStorage = () => {
-            const storedFile = localStorage.getItem('tempFile');
+        function loadFileFromStorage() {
+            var storedFile = localStorage.getItem('tempFile');
             if (storedFile) {
-                try {
-                    const fileObject = JSON.parse(storedFile);
-                    fileNameDisplay.textContent = `Tệp đã lưu: ${fileObject.name}`;
-                    displayPreview(fileObject.type, fileObject.dataUrl, fileObject.name);
-                    statusMessage.textContent = 'Đã tải tệp từ bộ nhớ trình duyệt.';
-                    statusMessage.className = 'text-center text-blue-600 dark:text-blue-400 font-medium h-6';
-                } catch (e) {
-                    statusMessage.textContent = 'Lỗi khi đọc tệp đã lưu.';
-                    statusMessage.className = 'text-center text-red-600 dark:text-red-400 font-medium h-6';
-                    localStorage.removeItem('tempFile'); // Xóa dữ liệu hỏng
-                }
+                var fileObject = JSON.parse(storedFile);
+                fileNameDisplay.textContent = 'Tệp đã lưu: ' + fileObject.name;
+                // Chuyển đổi dataUrl trở lại thành File object để có thể xử lý
+                fetch(fileObject.dataUrl).then(function(res) {
+                    return res.blob();
+                }).then(function(blob) {
+                    selectedFile = new File([blob], fileObject.name, { type: fileObject.type });
+                    displayPreview(selectedFile);
+                    setStatus('Đã tải tệp từ bộ nhớ trình duyệt.', 'info');
+                    updateButtonStates();
+                });
             }
-            updateButtonStates();
         };
 
-        // Tải tệp từ bộ nhớ khi trang được mở
-        window.addEventListener('load', loadFileFromStorage);
+        // --- Xử lý iLovePDF API ---
+
+        // Sử dụng phương pháp lấy token từ server - cách làm đúng chuẩn cho client-side.
+        async function getApiToken(publicKey) {
+            var API_URL = 'https://api.ilovepdf.com/v1';
+            var authFormData = new FormData();
+            authFormData.append('public_key', publicKey);
+
+            var response = await fetch(API_URL + '/auth', {
+                method: 'POST',
+                body: authFormData
+            });
+
+            if (!response.ok) {
+                var errorText = await response.text();
+                console.error("Lỗi xác thực:", errorText);
+                throw new Error('Lỗi lấy token. Vui lòng kiểm tra lại Public Key hoặc cài đặt bộ lọc trong tài khoản iLovePDF của bạn.');
+            }
+
+            var data = await response.json();
+            return data.token;
+        }
+
+        processButton.addEventListener('click', async function() {
+            if (!selectedFile) {
+                setStatus('Vui lòng chọn một tệp.', 'warning');
+                return;
+            }
+
+            showLoader(true);
+            resultContainer.classList.add('hidden');
+            
+            var publicKey = 'project_public_b518756fab3a8e6942a9330c23a7859a_YUAga5611529e21b17310f7e19ec3547395e1';
+            var tool = apiToolSelect.value;
+            var API_URL = 'https://api.ilovepdf.com/v1';
+            var taskData = null;
+
+            try {
+                // 1. Lấy token từ server iLovePDF
+                setStatus('Đang lấy token xác thực...', 'info');
+                var token = await getApiToken(publicKey);
+                var authHeader = 'Bearer ' + token;
+
+                // 2. Bắt đầu tác vụ
+                setStatus('Đang khởi tạo tác vụ...', 'info');
+                var startResponse = await fetch(API_URL + '/start/' + tool, {
+                    headers: { 'Authorization': authHeader }
+                });
+                
+                if (!startResponse.ok) {
+                    throw new Error('Lỗi khởi tạo: ' + await startResponse.text());
+                }
+                
+                taskData = await startResponse.json();
+                
+                // 3. Tải tệp lên
+                setStatus('Đang tải tệp lên...', 'info');
+                var formData = new FormData();
+                formData.append('task', taskData.task);
+                formData.append('file', selectedFile);
+
+                var uploadResponse = await fetch('https://' + taskData.server + '/v1/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': authHeader },
+                    body: formData
+                });
+                if (!uploadResponse.ok) {
+                    throw new Error('Lỗi tải lên: ' + await uploadResponse.text());
+                }
+                var uploadData = await uploadResponse.json();
+
+                // 4. Xử lý tệp
+                setStatus('Đang xử lý tệp...', 'info');
+                var processBody = {
+                    task: taskData.task,
+                    tool: tool,
+                    files: [{ server_filename: uploadData.server_filename, filename: selectedFile.name }]
+                };
+                 // Thêm mật khẩu nếu là tác vụ protect
+                if (tool === 'protect') {
+                    processBody.password = '1234'; // Mật khẩu ví dụ
+                }
+
+                var processResponse = await fetch('https://' + taskData.server + '/v1/process', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(processBody)
+                });
+                if (!processResponse.ok) {
+                    throw new Error('Lỗi xử lý: ' + await processResponse.text());
+                }
+                var processData = await processResponse.json();
+
+                // 5. Hoàn thành và hiển thị link tải
+                if (processData.status === 'TaskSuccess') {
+                    setStatus('Xử lý thành công! Sẵn sàng để tải về.', 'success');
+                    // Lưu thông tin cần thiết để tải về
+                    finalDownloadUrl = 'https://' + taskData.server + '/v1/download/' + taskData.task;
+                    finalDownloadFilename = processData.download_filename;
+                    downloadAuthHeader = authHeader; // Lưu lại header xác thực
+
+                    // Hiển thị nút tải
+                    downloadLink.textContent = 'Tải: ' + finalDownloadFilename;
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    throw new Error('Tác vụ thất bại: ' + (processData.status_text || 'Lỗi không xác định'));
+                }
+
+            } catch (error) {
+                console.error('API Error:', error);
+                setStatus('Lỗi: ' + error.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        // FIX: Thêm sự kiện click để xử lý việc tải về đúng cách
+        downloadLink.addEventListener('click', async function(event) {
+            event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a>
+
+            if (!finalDownloadUrl || !downloadAuthHeader) {
+                setStatus('Không có thông tin để tải về. Vui lòng xử lý lại.', 'error');
+                return;
+            }
+
+            setStatus('Đang tải tệp về...', 'info');
+            // Bạn có thể bật lại loader ở đây nếu muốn
+            // showLoader(true);
+
+            try {
+                var response = await fetch(finalDownloadUrl, {
+                    headers: { 'Authorization': downloadAuthHeader }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Lỗi khi tải tệp: ' + response.statusText);
+                }
+
+                var blob = await response.blob();
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = finalDownloadFilename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                setStatus('Tải tệp thành công!', 'success');
+
+            } catch (error) {
+                console.error('Download Error:', error);
+                setStatus('Lỗi khi tải về: ' + error.message, 'error');
+            } finally {
+                // showLoader(false);
+            }
+        });
+
+
+        // --- Khởi tạo ---
+        window.addEventListener('load', function() {
+            loadFileFromStorage();
+            updateButtonStates();
+        });
+
     </script>
 </body>
 </html>
