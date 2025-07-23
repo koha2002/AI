@@ -1,9 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công cụ xử lý PDF & Ảnh - iLovePDF API</title>
+    <!-- FIX: Favicon link points to your logo.png file -->
+    <link rel="icon" type="image/png" href="logo.png">
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Sử dụng font Inter -->
@@ -11,216 +14,128 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+        }
         .transition-all { transition: all 0.3s ease-in-out; }
         .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #3498db; width: 24px; height: 24px; animation: spin 2s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .file-item { cursor: grab; }
         .file-item:active { cursor: grabbing; }
         .dragging { opacity: 0.5; }
-        #watermarkPreview { position: relative; display: inline-block; }
-        #watermarkOverlay { position: absolute; pointer-events: none; white-space: nowrap; }
+        /* Styles for Image Preview */
+        .preview-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .preview-image { max-width: 100%; max-height: 100%; display: block; object-fit: contain; }
+        #watermarkOverlay, #cropOverlay { position: absolute; pointer-events: none; }
+        #cropOverlay { border: 2px dashed rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); }
+        /* FIX: Black borders for form elements */
+        .form-input, .form-select, .form-color {
+            border-width: 2px;
+            border-color: #000000 !important;
+        }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 text-gray-800">
+    
+    <!-- Header Placeholder -->
+    <header id="page-header"></header>
 
-    <div class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
-        <!-- Tiêu đề -->
-        <div class="text-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Công cụ xử lý PDF & Ảnh</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">Tích hợp iLovePDF API</p>
-        </div>
-
-        <!-- Vùng tải tệp lên -->
-        <div id="uploadBox" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center space-y-4">
-             <div class="flex justify-center"><svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" /></svg></div>
-            <input type="file" id="fileInput" class="hidden" multiple>
-            <label for="fileInput" class="cursor-pointer font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">Chọn tệp</label>
-            <p id="fileName" class="text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được chọn</p>
-        </div>
-        
-        <!-- Danh sách tệp đã chọn -->
-        <div id="fileListContainer" class="hidden mt-4 space-y-2">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Các tệp đã chọn (kéo để sắp xếp):</h3>
-            <div id="fileList" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600 max-h-60 overflow-auto"></div>
-        </div>
-
-        <!-- Công cụ API và Tùy chọn -->
-        <div class="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
-             <div>
-                <label for="apiTool" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chọn công cụ</label>
-                <select id="apiTool" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <optgroup label="Công cụ PDF">
-                        <option value="compress">Nén PDF</option>
-                        <option value="merge">Gộp PDF</option>
-                        <option value="split">Tách PDF</option>
-                        <option value="unlock">Mở khóa PDF</option>
-                        <option value="protect">Bảo vệ PDF</option>
-                        <option value="rotate">Xoay PDF</option>
-                        <option value="watermark">Đóng dấu PDF</option>
-                        <option value="pdfa">PDF sang PDF/A</option>
-                        <option value="wordpdf">Word sang PDF</option>
-                        <option value="powerpointpdf">PowerPoint sang PDF</option>
-                        <option value="excelpdf">Excel sang PDF</option>
-                        <option value="pdfjpg">PDF sang JPG</option>
-                        <option value="imagepdf">Ảnh sang PDF</option>
-                        <option value="pagenumber">Đánh số trang</option>
-                        <option value="extract">Trích xuất dữ liệu</option>
-                        <option value="repair">Sửa chữa PDF</option>
-                    </optgroup>
-                    <optgroup label="Công cụ Hình ảnh">
-                        <option value="compressimage">Nén ảnh</option>
-                        <option value="resizeimage">Thay đổi kích thước ảnh</option>
-                        <option value="cropimage">Cắt ảnh</option>
-                        <option value="rotateimage">Xoay ảnh</option>
-                        <option value="convertimage">Chuyển đổi định dạng ảnh</option>
-                        <option value="watermarkimage">Đóng dấu ảnh</option>
-                        <option value="removebackgroundimage">Xóa nền ảnh</option>
-                    </optgroup>
-                </select>
-             </div>
-             
-             <!-- Vùng tùy chọn cho từng công cụ -->
-             <div id="toolOptions" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hidden">
-                <!-- Tùy chọn Nén -->
-                <div id="compressOptions" class="hidden space-y-2">
-                    <label class="block text-sm font-medium">Mức độ nén</label>
-                    <select id="compressionLevel" class="block w-full rounded-md sm:text-sm">
-                        <option value="low">Nén thấp (chất lượng cao)</option>
-                        <option value="recommended" selected>Khuyến nghị</option>
-                        <option value="extreme">Nén cao (kích thước nhỏ)</option>
-                    </select>
-                </div>
-                <!-- Tùy chọn Tách PDF -->
-                <div id="splitOptions" class="hidden space-y-2">
-                    <label class="block text-sm font-medium">Tách theo trang</label>
-                    <input type="text" id="splitRange" placeholder="VD: 1-3,5,8-10" class="block w-full rounded-md sm:text-sm" />
-                    <p class="text-xs text-gray-500">Nhập trang hoặc khoảng trang cần tách.</p>
-                </div>
-                <!-- Tùy chọn Xoay -->
-                <div id="rotateOptions" class="hidden space-y-2">
-                    <label class="block text-sm font-medium">Góc xoay</label>
-                    <select id="rotateAngle" class="block w-full rounded-md sm:text-sm">
-                        <option value="90">90 độ (phải)</option>
-                        <option value="180">180 độ</option>
-                        <option value="270">270 độ (trái)</option>
-                    </select>
-                </div>
-                <!-- Tùy chọn Đóng dấu -->
-                <div id="watermarkOptions" class="hidden space-y-4">
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium">Loại dấu</label>
-                            <select id="watermarkMode" class="block w-full rounded-md sm:text-sm">
-                                <option value="text">Văn bản</option>
-                                <option value="image">Hình ảnh</option>
-                            </select>
-                        </div>
-                        <div id="watermarkTextInputContainer">
-                            <label class="block text-sm font-medium">Nội dung</label>
-                            <input type="text" id="watermarkText" value="iLovePDF" class="block w-full rounded-md sm:text-sm" />
-                        </div>
-                        <div id="watermarkImageInputContainer" class="hidden">
-                            <label class="block text-sm font-medium">Tệp ảnh dấu</label>
-                            <input type="file" id="watermarkImageInput" class="block w-full text-sm" accept="image/*" />
-                        </div>
-                     </div>
-                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium">Vị trí</label>
-                            <select id="watermarkPosition" class="block w-full rounded-md sm:text-sm">
-                                <option value="middle-center">Giữa</option>
-                                <option value="top-left">Trên-Trái</option>
-                                <option value="top-center">Trên-Giữa</option>
-                                <option value="top-right">Trên-Phải</option>
-                                <option value="middle-left">Giữa-Trái</option>
-                                <option value="middle-right">Giữa-Phải</option>
-                                <option value="bottom-left">Dưới-Trái</option>
-                                <option value="bottom-center">Dưới-Giữa</option>
-                                <option value="bottom-right">Dưới-Phải</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Độ trong suốt</label>
-                            <select id="watermarkTransparency" class="block w-full rounded-md sm:text-sm">
-                                <option value="100">100% (Rõ nét)</option>
-                                <option value="75">75%</option>
-                                <option value="50" selected>50%</option>
-                                <option value="25">25%</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Góc xoay</label>
-                            <input type="number" id="watermarkRotation" value="0" class="block w-full rounded-md sm:text-sm" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Kích thước chữ</label>
-                            <input type="number" id="watermarkFontSize" value="48" class="block w-full rounded-md sm:text-sm" />
-                        </div>
-                     </div>
-                     <div id="watermarkPreviewContainer" class="hidden">
-                         <label class="block text-sm font-medium">Xem trước dấu trên ảnh đầu tiên</label>
-                         <div id="watermarkPreview" class="mt-2 bg-gray-200 dark:bg-gray-600 max-w-xs mx-auto rounded">
-                            <img id="watermarkPreviewImage" class="max-w-full max-h-48 rounded opacity-70" />
-                            <div id="watermarkOverlay"></div>
-                         </div>
-                     </div>
-                </div>
-                <!-- Tùy chọn Mật khẩu -->
-                <div id="passwordOptions" class="hidden space-y-2">
-                    <label for="passwordInput" class="block text-sm font-medium">Mật khẩu</label>
-                    <input type="password" id="passwordInput" class="block w-full rounded-md sm:text-sm" placeholder="Nhập mật khẩu..."/>
-                </div>
-                <!-- Tùy chọn Cắt ảnh -->
-                <div id="cropImageOptions" class="hidden space-y-2">
-                    <label class="block text-sm font-medium">Tọa độ cắt (px)</label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <input type="number" id="cropX" placeholder="x" class="block w-full rounded-md sm:text-sm" />
-                        <input type="number" id="cropY" placeholder="y" class="block w-full rounded-md sm:text-sm" />
-                        <input type="number" id="cropWidth" placeholder="rộng" class="block w-full rounded-md sm:text-sm" />
-                        <input type="number" id="cropHeight" placeholder="cao" class="block w-full rounded-md sm:text-sm" />
-                    </div>
-                </div>
-                 <!-- Tùy chọn Chuyển đổi ảnh -->
-                <div id="convertImageOptions" class="hidden space-y-2">
-                    <label class="block text-sm font-medium">Chuyển sang định dạng</label>
-                    <select id="convertTo" class="block w-full rounded-md sm:text-sm">
-                        <option value="jpg">JPG</option><option value="png">PNG</option><option value="gif">GIF</option>
-                    </select>
-                </div>
-                <!-- Tùy chọn Thay đổi kích thước ảnh -->
-                <div id="resizeImageOptions" class="hidden space-y-2">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="resizeWidth" placeholder="Chiều rộng (px)" class="block w-full rounded-md sm:text-sm" />
-                        <input type="number" id="resizeHeight" placeholder="Chiều cao (px)" class="block w-full rounded-md sm:text-sm" />
-                    </div>
-                    <div class="flex items-center">
-                        <input id="maintainAspectRatio" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <label for="maintainAspectRatio" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Giữ nguyên tỷ lệ</label>
-                    </div>
-                </div>
-                <!-- Mô tả cho các công cụ đơn giản -->
-                <p id="toolDescription" class="text-sm text-gray-600 dark:text-gray-300 hidden"></p>
-             </div>
-        </div>
-
-        <!-- Các nút hành động -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
-            <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all col-span-1 sm:col-span-2 lg:col-span-1">Xóa tất cả</button>
-            <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-2 lg:col-span-2">
-                <span id="processButtonText">Xử lý</span><div id="loader" class="loader hidden"></div>
-            </button>
-        </div>
-
-        <!-- Thông báo trạng thái -->
-        <div id="statusMessage" class="text-center font-medium h-12 flex items-center justify-center p-2 rounded-lg"></div>
-        
-        <!-- Vùng kết quả API -->
-        <div id="resultContainer" class="hidden mt-4 text-center">
-            <h3 class="text-lg font-semibold">Xử lý thành công!</h3>
-            <a id="downloadLink" href="#" class="mt-2 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 cursor-pointer">Tải tệp kết quả</a>
-        </div>
+<main class="min-h-screen w-full bg-white p-6 md:p-8 space-y-6 flex flex-col">
+    <div class="text-center flex-shrink-0">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Công cụ xử lý PDF & Ảnh</h1>
+        <p class="text-gray-500 mt-2">Tích hợp iLovePDF API</p>
     </div>
+
+    <div class="flex-grow flex flex-col md:flex-row gap-8 overflow-hidden">
+                <!-- Left Column: Options -->
+                <div class="w-full md:w-2/5 lg:w-1/3 space-y-6 flex-shrink-0 overflow-y-auto pr-4">
+                    <!-- Upload Area -->
+                    <div id="uploadBox" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center space-y-4">
+                         <div class="flex justify-center"><svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.33-2.125 5.25 5.25 0 011.065 10.91A4.5 4.5 0 0112 19.5z" /></svg></div>
+                        <input type="file" id="fileInput" class="hidden" multiple>
+                        <label for="fileInput" class="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500">Chọn tệp</label>
+                        <p id="fileName" class="text-sm text-gray-500">Chưa có tệp nào được chọn</p>
+                    </div>
+
+                    <!-- API Tool and Options -->
+                    <div class="space-y-4">
+                         <div>
+                            <label for="apiTool" class="block text-sm font-medium text-gray-700">Chọn công cụ</label>
+                            <select id="apiTool" class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 form-select">
+                                <optgroup label="Công cụ PDF">
+                                    <option value="compress">Nén PDF</option>
+                                    <option value="merge">Gộp PDF</option>
+                                    <option value="split">Tách PDF</option>
+                                    <option value="unlock">Mở khóa PDF</option>
+                                    <option value="protect">Bảo vệ PDF</option>
+                                    <option value="rotate">Xoay PDF</option>
+                                    <option value="watermark">Đóng dấu PDF</option>
+                                    <option value="pdfa">PDF sang PDF/A</option>
+                                    <option value="wordpdf">Word sang PDF</option>
+                                    <option value="powerpointpdf">PowerPoint sang PDF</option>
+                                    <option value="excelpdf">Excel sang PDF</option>
+                                    <option value="pdfjpg">PDF sang JPG</option>
+                                    <option value="imagepdf">Ảnh sang PDF</option>
+                                    <option value="pagenumber">Đánh số trang</option>
+                                    <option value="extract">Trích xuất dữ liệu</option>
+                                    <option value="repair">Sửa chữa PDF</option>
+                                </optgroup>
+                                <optgroup label="Công cụ Hình ảnh">
+                                    <option value="compressimage">Nén ảnh</option>
+                                    <option value="resizeimage">Thay đổi kích thước ảnh</option>
+                                    <option value="cropimage">Cắt ảnh</option>
+                                    <option value="rotateimage">Xoay ảnh</option>
+                                    <option value="convertimage">Chuyển đổi định dạng ảnh</option>
+                                    <option value="watermarkimage">Đóng dấu ảnh</option>
+                                    <option value="removebackgroundimage">Xóa nền ảnh</option>
+                                </optgroup>
+                            </select>
+                         </div>
+                         
+                         <div id="toolOptions" class="p-4 bg-gray-50 rounded-lg border-2 border-black hidden">
+                            <!-- Options will be injected here by JS -->
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Preview & File List -->
+                <div class="w-full md:w-3/5 lg:w-2/3 flex flex-col overflow-hidden">
+                    <!-- File List for multi-file tools -->
+                    <div id="fileListContainer" class="hidden mb-4 space-y-2 flex-shrink-0">
+                        <h3 class="text-lg font-semibold text-gray-800">Các tệp đã chọn (kéo để sắp xếp):</h3>
+                        <div id="fileList" class="bg-gray-50 rounded-lg p-3 border-2 border-black max-h-48 overflow-auto"></div>
+                    </div>
+                    <!-- Image Preview Area -->
+                    <div id="previewArea" class="hidden flex-grow flex items-center justify-center bg-gray-200 rounded-lg p-4 min-h-0">
+                         <div class="preview-container">
+                            <img id="previewImage" class="preview-image rounded" />
+                            <div id="watermarkOverlay" class="flex items-center justify-center" style="white-space: normal; text-align: center; line-height: 1;"></div>
+                            <div id="cropOverlay"></div>
+                        </div>
+                        <p id="previewInfo" class="text-sm text-gray-500 mt-2"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-200 pt-6 flex-shrink-0">
+                <button id="clearButton" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-all">Xóa tất cả</button>
+                <button id="processButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-2">
+                    <span id="processButtonText">Xử lý</span><div id="loader" class="loader hidden"></div>
+                </button>
+            </div>
+
+            <!-- Status & Result -->
+            <div id="statusMessage" class="text-center font-medium h-12 flex items-center justify-center p-2 rounded-lg flex-shrink-0"></div>
+            <div id="resultContainer" class="hidden mt-4 text-center flex-shrink-0">
+                <h3 class="text-lg font-semibold">Xử lý thành công!</h3>
+                <a id="downloadLink" href="#" class="mt-2 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 cursor-pointer">Tải tệp kết quả</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Placeholder -->
+    <footer id="page-footer"></footer>
 
     <script>
         // --- DOM Elements ---
@@ -237,6 +152,11 @@
         var processButtonText = document.getElementById('processButtonText');
         var resultContainer = document.getElementById('resultContainer');
         var downloadLink = document.getElementById('downloadLink');
+        var previewArea = document.getElementById('previewArea');
+        var previewImage = document.getElementById('previewImage');
+        var previewInfo = document.getElementById('previewInfo');
+        var watermarkOverlay = document.getElementById('watermarkOverlay');
+        var cropOverlay = document.getElementById('cropOverlay');
 
         // --- State Variables ---
         var selectedFiles = [];
@@ -245,40 +165,17 @@
         var finalDownloadUrl = null;
         var finalDownloadFilename = null;
 
-        // --- Tool Options Elements & Config ---
-        var optionDivs = {
-            compress: document.getElementById('compressOptions'),
-            compressimage: document.getElementById('compressOptions'),
-            split: document.getElementById('splitOptions'),
-            rotate: document.getElementById('rotateOptions'),
-            rotateimage: document.getElementById('rotateOptions'),
-            watermark: document.getElementById('watermarkOptions'),
-            watermarkimage: document.getElementById('watermarkOptions'),
-            protect: document.getElementById('passwordOptions'),
-            unlock: document.getElementById('passwordOptions'),
-            cropimage: document.getElementById('cropImageOptions'),
-            convertimage: document.getElementById('convertImageOptions'),
-            resizeimage: document.getElementById('resizeImageOptions'),
-            description: document.getElementById('toolDescription')
-        };
-        var toolDescriptions = {
-            extract: 'Trích xuất toàn bộ văn bản và hình ảnh từ tệp PDF của bạn vào một tệp ZIP.',
-            repair: 'Cố gắng sửa chữa và khôi phục dữ liệu từ các tệp PDF bị hỏng.',
-            removebackgroundimage: 'Tự động xóa nền khỏi hình ảnh. Hoạt động tốt nhất với các đối tượng rõ ràng.',
-            pdfa: 'Chuyển đổi PDF sang định dạng PDF/A để lưu trữ lâu dài.',
-            pagenumber: 'Tự động thêm số trang vào tệp PDF của bạn.'
-        };
+        // --- Config ---
         var fileAcceptMap = {
-            'default': '*/*',
-            'pdf': 'application/pdf',
-            'image': 'image/*',
+            'default': '*/*', 'pdf': 'application/pdf', 'image': 'image/*',
             'wordpdf': '.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'powerpointpdf': '.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'excelpdf': '.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         };
         var multiFileTools = ['merge', 'imagepdf', 'watermark', 'watermarkimage'];
-        var pdfTools = ['compress', 'merge', 'split', 'unlock', 'protect', 'rotate', 'watermark', 'pdfa', 'pdfjpg', 'pagenumber', 'extract', 'repair'];
+        var pdfTools = ['compress', 'merge', 'split', 'unlock', 'protect', 'rotate', 'watermark', 'pdfa', 'pdfjpg', 'pagenumber', 'extract', 'repair', 'wordpdf', 'powerpointpdf', 'excelpdf'];
         var imageTools = ['compressimage', 'resizeimage', 'cropimage', 'rotateimage', 'convertimage', 'watermarkimage', 'removebackgroundimage'];
+        var previewTools = ['resizeimage', 'cropimage', 'rotateimage', 'watermarkimage'];
         
         // --- Event Listeners ---
         fileInput.addEventListener('change', handleFileSelect);
@@ -287,51 +184,96 @@
         downloadLink.addEventListener('click', downloadResult);
         clearButton.addEventListener('click', resetAll);
         
-        // Watermark Preview Listeners
-        document.getElementById('watermarkMode').addEventListener('change', updateWatermarkPreview);
-        document.getElementById('watermarkText').addEventListener('input', updateWatermarkPreview);
-        document.getElementById('watermarkImageInput').addEventListener('change', handleWatermarkFileSelect);
-        document.getElementById('watermarkPosition').addEventListener('change', updateWatermarkPreview);
-        document.getElementById('watermarkTransparency').addEventListener('change', updateWatermarkPreview);
-        document.getElementById('watermarkRotation').addEventListener('change', updateWatermarkPreview);
-        document.getElementById('watermarkFontSize').addEventListener('change', updateWatermarkPreview);
-
-        // FIX: Add missing function definitions here
         // --- UI Functions ---
         function setStatus(message, type) {
-            if (type === undefined) {
-                type = 'info';
-            }
+            if (type === undefined) { type = 'info'; }
             statusMessage.textContent = message;
             var colors = {
-                info: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900',
-                success: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900',
-                warning: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900',
-                error: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900',
-                neutral: 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700'
+                info: 'text-blue-600', success: 'text-green-600', error: 'text-red-600',
             };
-            statusMessage.className = 'text-center font-medium h-12 flex items-center justify-center p-2 rounded-lg transition-all ' + (colors[type] || colors.neutral);
-        };
-        
+            statusMessage.className = 'text-center font-medium h-6 ' + (colors[type] || colors.info);
+        }
+
         function showLoader(show) {
-            if (show) {
-                loader.classList.remove('hidden');
-                processButtonText.classList.add('hidden');
-                processButton.disabled = true;
-            } else {
-                loader.classList.add('hidden');
-                processButtonText.classList.remove('hidden');
-                processButton.disabled = false;
+            loader.style.display = show ? 'block' : 'none';
+            processButtonText.style.display = show ? 'none' : 'block';
+            processButton.disabled = show;
+        }
+
+        function generateOptionsHTML(tool) {
+            var commonClasses = "block w-full rounded-md sm:text-sm border-2 border-black";
+            switch(tool) {
+                case 'compress': case 'compressimage':
+                    return `<label class="block text-sm font-medium">Mức độ nén</label><select id="compressionLevel" class="${commonClasses}"><option value="low">Nén thấp (chất lượng cao)</option><option value="recommended" selected>Khuyến nghị</option><option value="extreme">Nén cao (kích thước nhỏ)</option></select>`;
+                case 'split':
+                     return `<label class="block text-sm font-medium">Tách theo trang</label><input type="text" id="splitRange" placeholder="VD: 1-3,5,8-10" class="${commonClasses}" /><p class="text-xs text-gray-500">Nhập trang hoặc khoảng trang cần tách.</p>`;
+                case 'rotate': case 'rotateimage':
+                     return `<label class="block text-sm font-medium">Góc xoay</label><select id="rotateAngle" class="${commonClasses}"><option value="90">90 độ (phải)</option><option value="180">180 độ</option><option value="270">270 độ (trái)</option></select>`;
+                case 'watermark': case 'watermarkimage':
+                    return `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium">Loại dấu</label><select id="watermarkMode" class="${commonClasses}"><option value="text">Văn bản</option><option value="image">Hình ảnh</option></select></div>
+                            <div id="watermarkTextInputContainer"><label class="block text-sm font-medium">Nội dung</label><input type="text" id="watermarkText" value="iLovePDF" class="${commonClasses}" /></div>
+                            <div id="watermarkImageInputContainer" class="hidden"><label class="block text-sm font-medium">Tệp ảnh dấu</label><input type="file" id="watermarkImageInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" accept="image/*" /></div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 items-end">
+                            <div><label class="block text-sm font-medium">Vị trí</label><select id="watermarkPosition" class="${commonClasses}"><option value="middle-center">Giữa</option><option value="top-left">Trên-Trái</option><option value="top-right">Trên-Phải</option><option value="bottom-left">Dưới-Trái</option><option value="bottom-right">Dưới-Phải</option></select></div>
+                            <div><label class="block text-sm font-medium">Độ trong suốt</label><select id="watermarkTransparency" class="${commonClasses}"><option value="100">100%</option><option value="75">75%</option><option value="50" selected>50%</option><option value="25">25%</option></select></div>
+                            <div><label class="block text-sm font-medium">Góc xoay</label><input type="number" id="watermarkRotation" value="0" class="${commonClasses}" /></div>
+                        </div>
+                        <div id="watermarkTextOptions" class="grid grid-cols-2 md:grid-cols-2 gap-4 items-end mt-4">
+                            <div><label class="block text-sm font-medium">Cỡ chữ</label><input type="number" id="watermarkFontSize" value="48" class="${commonClasses}" /></div>
+                            <div><label class="block text-sm font-medium">Màu chữ</label><input type="color" id="watermarkFontColor" value="#000000" class="block w-full rounded-md" /></div>
+                        </div>
+                        <div id="watermarkImageOptions" class="hidden grid-cols-2 md:grid-cols-2 gap-4 items-end mt-4">
+                             <div><label class="block text-sm font-medium">Kích thước ảnh dấu (%)</label><input type="number" id="watermarkImageScale" value="50" min="1" max="500" class="${commonClasses}" /></div>
+                        </div>
+                    `;
+                case 'protect': case 'unlock':
+                    return `<label for="passwordInput" class="block text-sm font-medium">Mật khẩu</label><input type="password" id="passwordInput" class="${commonClasses}" placeholder="Nhập mật khẩu..."/>`;
+                case 'cropimage':
+                     return `<label class="block text-sm font-medium">Tọa độ cắt (px)</label><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><input type="number" id="cropX" placeholder="x" value="0" class="${commonClasses}" /><input type="number" id="cropY" placeholder="y" value="0" class="${commonClasses}" /><input type="number" id="cropWidth" placeholder="rộng" class="${commonClasses}" /><input type="number" id="cropHeight" placeholder="cao" class="${commonClasses}" /></div>`;
+                case 'convertimage':
+                     return `<label class="block text-sm font-medium">Chuyển sang định dạng</label><select id="convertTo" class="${commonClasses}"><option value="jpg">JPG</option><option value="png">PNG</option><option value="gif">GIF</option></select>`;
+                case 'resizeimage':
+                     return `<div class="grid grid-cols-2 gap-4"><input type="number" id="resizeWidth" placeholder="Chiều rộng (px)" class="${commonClasses}" /><input type="number" id="resizeHeight" placeholder="Chiều cao (px)" class="${commonClasses}" /></div><div class="flex items-center mt-2"><input id="maintainAspectRatio" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="maintainAspectRatio" class="ml-2 block text-sm">Giữ nguyên tỷ lệ</label></div>`;
+                default:
+                    var toolDescriptions = {
+                        extract: 'Trích xuất toàn bộ văn bản và hình ảnh từ tệp PDF của bạn vào một tệp ZIP.',
+                        repair: 'Cố gắng sửa chữa và khôi phục dữ liệu từ các tệp PDF bị hỏng.',
+                        removebackgroundimage: 'Tự động xóa nền khỏi hình ảnh. Hoạt động tốt nhất với các đối tượng rõ ràng.',
+                        pdfa: 'Chuyển đổi PDF sang định dạng PDF/A để lưu trữ lâu dài.',
+                        pagenumber: 'Tự động thêm số trang vào tệp PDF của bạn.'
+                    };
+                    var desc = toolDescriptions[tool] || '';
+                    return `<p class="text-sm text-gray-600">${desc}</p>`;
             }
-        };
+        }
+
+        function setupOptionEventListeners(tool) {
+            if (tool === 'watermark' || tool === 'watermarkimage') {
+                document.getElementById('watermarkMode').addEventListener('change', updateImagePreview);
+                document.getElementById('watermarkText').addEventListener('input', updateImagePreview);
+                document.getElementById('watermarkImageInput').addEventListener('change', handleWatermarkFileSelect);
+                document.getElementById('watermarkPosition').addEventListener('change', updateImagePreview);
+                document.getElementById('watermarkTransparency').addEventListener('change', updateImagePreview);
+                document.getElementById('watermarkRotation').addEventListener('change', updateImagePreview);
+                document.getElementById('watermarkFontSize').addEventListener('change', updateImagePreview);
+                document.getElementById('watermarkFontColor').addEventListener('input', updateImagePreview);
+                document.getElementById('watermarkImageScale').addEventListener('input', updateImagePreview);
+            }
+            if (tool === 'rotateimage') { document.getElementById('rotateAngle').addEventListener('change', updateImagePreview); }
+            if (tool === 'cropimage') { ['cropX', 'cropY', 'cropWidth', 'cropHeight'].forEach(id => document.getElementById(id).addEventListener('input', updateImagePreview)); }
+            if (tool === 'resizeimage') { ['resizeWidth', 'resizeHeight'].forEach(id => document.getElementById(id).addEventListener('input', updateImagePreview)); }
+        }
 
         function updateUiForTool() {
             var tool = apiToolSelect.value;
-            Object.values(optionDivs).forEach(function(div) { div.classList.add('hidden'); });
-            toolOptions.classList.add('hidden');
-            fileListContainer.classList.add('hidden');
-            
-            // Cập nhật bộ lọc tệp
+            var optionsHTML = generateOptionsHTML(tool);
+            toolOptions.innerHTML = optionsHTML;
+            toolOptions.classList.remove('hidden');
+            setupOptionEventListeners(tool);
+
             var acceptType = 'default';
             if (pdfTools.includes(tool)) acceptType = 'pdf';
             if (imageTools.includes(tool) || tool === 'imagepdf') acceptType = 'image';
@@ -339,28 +281,15 @@
             fileInput.accept = fileAcceptMap[acceptType] || fileAcceptMap['default'];
 
             fileInput.multiple = multiFileTools.includes(tool);
-            if (fileInput.multiple && selectedFiles.length > 0) {
-                fileListContainer.classList.remove('hidden');
-            }
-            
-            if (optionDivs[tool]) {
-                optionDivs[tool].classList.remove('hidden');
-                toolOptions.classList.remove('hidden');
-            } else if (toolDescriptions[tool]) {
-                optionDivs.description.textContent = toolDescriptions[tool];
-                optionDivs.description.classList.remove('hidden');
-                toolOptions.classList.remove('hidden');
-            }
-            updateWatermarkPreview(); // Cập nhật preview khi đổi tool
+            fileListContainer.style.display = fileInput.multiple && selectedFiles.length > 0 ? 'block' : 'none';
+            previewArea.style.display = previewTools.includes(tool) && selectedFiles.length > 0 && selectedFiles[0].type.startsWith('image/') ? 'block' : 'none';
+            updateImagePreview();
         }
 
         function handleFileSelect(event) {
             var newFiles = Array.from(event.target.files);
-            if(fileInput.multiple) {
-                selectedFiles = selectedFiles.concat(newFiles);
-            } else {
-                selectedFiles = newFiles.length > 0 ? [newFiles[0]] : [];
-            }
+            if(fileInput.multiple) { selectedFiles = selectedFiles.concat(newFiles); } 
+            else { selectedFiles = newFiles.length > 0 ? [newFiles[0]] : []; }
             
             if (selectedFiles.length === 0) {
                 fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
@@ -373,63 +302,114 @@
                 fileNameDisplay.textContent = selectedFiles[0].name;
                 fileListContainer.classList.add('hidden');
             }
-            updateWatermarkPreview();
+            
+            var tool = apiToolSelect.value;
+            if (previewTools.includes(tool) && selectedFiles.length > 0 && selectedFiles[0].type.startsWith('image/')) {
+                previewArea.style.display = 'flex';
+                updateImagePreview();
+            } else {
+                previewArea.style.display = 'none';
+            }
             setStatus('Đã chọn tệp. Sẵn sàng để xử lý.', 'info');
         }
-        
-        function handleWatermarkFileSelect(event) {
-            watermarkFile = event.target.files[0];
-            updateWatermarkPreview();
-        }
 
+        function updateImagePreview() {
+            var tool = apiToolSelect.value;
+            if (!previewTools.includes(tool) || selectedFiles.length === 0 || !selectedFiles[0].type.startsWith('image/')) {
+                previewArea.style.display = 'none';
+                return;
+            }
+            previewArea.style.display = 'flex'; 
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewImage.style.opacity = '1';
+                watermarkOverlay.style.cssText = 'position: absolute; display: flex; align-items: center; justify-content: center;';
+                cropOverlay.style.cssText = 'position: absolute;';
+                previewImage.style.transform = '';
+                previewInfo.textContent = '';
+
+                switch(tool) {
+                    case 'watermarkimage':
+                        var mode = document.getElementById('watermarkMode').value;
+                        document.getElementById('watermarkTextInputContainer').style.display = mode === 'text' ? 'block' : 'none';
+                        document.getElementById('watermarkImageInputContainer').style.display = mode === 'image' ? 'block' : 'none';
+                        document.getElementById('watermarkTextOptions').style.display = mode === 'text' ? 'grid' : 'none';
+                        document.getElementById('watermarkImageOptions').style.display = mode === 'image' ? 'grid' : 'none';
+
+                        watermarkOverlay.style.backgroundImage = '';
+                        watermarkOverlay.textContent = '';
+
+                        if (mode === 'text') {
+                            watermarkOverlay.textContent = document.getElementById('watermarkText').value;
+                            watermarkOverlay.style.fontSize = document.getElementById('watermarkFontSize').value + 'px';
+                            watermarkOverlay.style.color = document.getElementById('watermarkFontColor').value;
+                        } else if (watermarkFile) {
+                            var wmReader = new FileReader();
+                            wmReader.onload = function(ev) {
+                                watermarkOverlay.style.backgroundImage = 'url(' + ev.target.result + ')';
+                                watermarkOverlay.style.backgroundSize = 'contain';
+                                watermarkOverlay.style.backgroundPosition = 'center';
+                                watermarkOverlay.style.backgroundRepeat = 'no-repeat';
+                                var scale = document.getElementById('watermarkImageScale').value || 50;
+                                watermarkOverlay.style.width = scale + '%';
+                                watermarkOverlay.style.height = scale + '%';
+                            };
+                            wmReader.readAsDataURL(watermarkFile);
+                        }
+                        
+                        var position = document.getElementById('watermarkPosition').value.split('-');
+                        watermarkOverlay.style.top = position[0] === 'top' ? '5%' : position[0] === 'bottom' ? 'auto' : '50%';
+                        watermarkOverlay.style.bottom = position[0] === 'bottom' ? '5%' : 'auto';
+                        watermarkOverlay.style.left = position[1] === 'left' ? '5%' : position[1] === 'right' ? 'auto' : '50%';
+                        watermarkOverlay.style.right = position[1] === 'right' ? '5%' : 'auto';
+                        watermarkOverlay.style.transform = `translate(${position[1] === 'center' ? '-50%' : '0'}, ${position[0] === 'middle' ? '-50%' : '0'}) rotate(${document.getElementById('watermarkRotation').value}deg)`;
+                        watermarkOverlay.style.opacity = document.getElementById('watermarkTransparency').value / 100;
+                        break;
+                    case 'rotateimage':
+                        previewImage.style.transform = `rotate(${document.getElementById('rotateAngle').value}deg)`;
+                        break;
+                    case 'cropimage':
+                        var x = parseInt(document.getElementById('cropX').value) || 0;
+                        var y = parseInt(document.getElementById('cropY').value) || 0;
+                        var w = parseInt(document.getElementById('cropWidth').value) || 0;
+                        var h = parseInt(document.getElementById('cropHeight').value) || 0;
+                        cropOverlay.style.left = x + 'px'; cropOverlay.style.top = y + 'px';
+                        cropOverlay.style.width = w + 'px'; cropOverlay.style.height = h + 'px';
+                        cropOverlay.style.display = (w > 0 && h > 0) ? 'block' : 'none';
+                        break;
+                    case 'resizeimage':
+                        var width = document.getElementById('resizeWidth').value;
+                        var height = document.getElementById('resizeHeight').value;
+                        if (width || height) { previewInfo.textContent = `Kích thước mới: ${width || 'auto'} x ${height || 'auto'}px`; }
+                        break;
+                }
+            };
+            reader.readAsDataURL(selectedFiles[0]);
+        }
+        
+        function handleWatermarkFileSelect(event) { watermarkFile = event.target.files[0]; updateImagePreview(); }
+        
         function renderFileList() {
-            // Logic kéo thả để sắp xếp
             let draggedItem = null;
             fileList.innerHTML = '';
             selectedFiles.forEach(function(file, index) {
                 var item = document.createElement('div');
-                item.className = 'file-item bg-white dark:bg-gray-800 p-2 rounded border flex justify-between items-center';
+                item.className = 'file-item bg-white p-2 rounded border flex justify-between items-center';
                 item.textContent = file.name;
                 item.draggable = true;
                 item.dataset.index = index;
                 
-                item.addEventListener('dragstart', function(e) {
-                    draggedItem = item;
-                    setTimeout(function() { item.classList.add('dragging'); }, 0);
-                });
-                item.addEventListener('dragend', function() {
-                    setTimeout(function() {
-                        if (draggedItem) {
-                            draggedItem.classList.remove('dragging');
-                        }
-                        draggedItem = null;
-                    }, 0);
-                });
-                fileList.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    var afterElement = getDragAfterElement(fileList, e.clientY);
-                    if (afterElement == null) {
-                        fileList.appendChild(draggedItem);
-                    } else {
-                        fileList.insertBefore(draggedItem, afterElement);
-                    }
-                });
-                fileList.addEventListener('drop', function() {
-                    var newOrder = Array.from(fileList.children).map(function(child) {
-                        return selectedFiles[parseInt(child.dataset.index)];
-                    });
-                    selectedFiles = newOrder;
-                    renderFileList(); // Re-render để cập nhật index
-                });
+                item.addEventListener('dragstart', function(e) { draggedItem = item; setTimeout(function() { item.classList.add('dragging'); }, 0); });
+                item.addEventListener('dragend', function() { setTimeout(function() { if (draggedItem) { draggedItem.classList.remove('dragging'); } draggedItem = null; }, 0); });
+                fileList.addEventListener('dragover', function(e) { e.preventDefault(); var afterElement = getDragAfterElement(fileList, e.clientY); if (afterElement == null) { fileList.appendChild(draggedItem); } else { fileList.insertBefore(draggedItem, afterElement); } });
+                fileList.addEventListener('drop', function() { var newOrder = Array.from(fileList.children).map(function(child) { return selectedFiles[parseInt(child.dataset.index)]; }); selectedFiles = newOrder; renderFileList(); });
 
                 var removeBtn = document.createElement('button');
                 removeBtn.textContent = 'Xóa';
                 removeBtn.className = 'text-red-500 text-xs ml-4 flex-shrink-0';
-                removeBtn.onclick = function() {
-                    selectedFiles.splice(index, 1);
-                    renderFileList();
-                    fileNameDisplay.textContent = selectedFiles.length + ' tệp đã được chọn';
-                };
+                removeBtn.onclick = function() { selectedFiles.splice(index, 1); renderFileList(); fileNameDisplay.textContent = selectedFiles.length + ' tệp đã được chọn'; };
                 item.appendChild(removeBtn);
                 fileList.appendChild(item);
             });
@@ -440,86 +420,23 @@
             return draggableElements.reduce(function(closest, child) {
                 var box = child.getBoundingClientRect();
                 var offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
+                if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } 
+                else { return closest; }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
         function resetAll() {
-            selectedFiles = [];
-            watermarkFile = null;
-            fileInput.value = '';
-            document.getElementById('watermarkImageInput').value = '';
+            selectedFiles = []; watermarkFile = null; fileInput.value = '';
+            var wmInput = document.getElementById('watermarkImageInput'); if(wmInput) wmInput.value = '';
             fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
-            fileListContainer.classList.add('hidden');
+            fileListContainer.style.display = 'none';
             resultContainer.classList.add('hidden');
+            previewArea.style.display = 'none';
             setStatus('');
         }
 
-        function updateWatermarkPreview() {
-            var container = document.getElementById('watermarkPreviewContainer');
-            var tool = apiToolSelect.value;
-            if ((tool !== 'watermark' && tool !== 'watermarkimage') || selectedFiles.length === 0 || !selectedFiles[0].type.startsWith('image/')) {
-                container.classList.add('hidden');
-                return;
-            }
-            container.classList.remove('hidden');
-
-            var previewImg = document.getElementById('watermarkPreviewImage');
-            var overlay = document.getElementById('watermarkOverlay');
-            var mode = document.getElementById('watermarkMode').value;
-            
-            // Hiển thị ảnh đầu tiên làm nền
-            var reader = new FileReader();
-            reader.onload = function(e) { previewImg.src = e.target.result; };
-            reader.readAsDataURL(selectedFiles[0]);
-
-            // Cập nhật overlay
-            overlay.style.backgroundImage = '';
-            overlay.textContent = '';
-            
-            if (mode === 'text') {
-                document.getElementById('watermarkTextInputContainer').classList.remove('hidden');
-                document.getElementById('watermarkImageInputContainer').classList.add('hidden');
-                overlay.textContent = document.getElementById('watermarkText').value;
-                overlay.style.fontSize = document.getElementById('watermarkFontSize').value + 'px';
-                overlay.style.color = 'rgba(0,0,0,0.7)'; // Demo color
-            } else { // image mode
-                document.getElementById('watermarkTextInputContainer').classList.add('hidden');
-                document.getElementById('watermarkImageInputContainer').classList.remove('hidden');
-                if (watermarkFile) {
-                    var wmReader = new FileReader();
-                    wmReader.onload = function(e) {
-                        overlay.style.backgroundImage = 'url(' + e.target.result + ')';
-                        overlay.style.backgroundSize = 'contain';
-                        overlay.style.backgroundRepeat = 'no-repeat';
-                        overlay.style.width = '50%'; // Demo size
-                        overlay.style.height = '50%'; // Demo size
-                    };
-                    wmReader.readAsDataURL(watermarkFile);
-                }
-            }
-            
-            // Cập nhật thuộc tính chung
-            var position = document.getElementById('watermarkPosition').value.split('-');
-            overlay.style.top = position[0] === 'top' ? '5%' : position[0] === 'bottom' ? 'auto' : '50%';
-            overlay.style.bottom = position[0] === 'bottom' ? '5%' : 'auto';
-            overlay.style.left = position[1] === 'left' ? '5%' : position[1] === 'right' ? 'auto' : '50%';
-            overlay.style.right = position[1] === 'right' ? '5%' : 'auto';
-            overlay.style.transform = `translate(${position[1] === 'center' ? '-50%' : '0'}, ${position[0] === 'middle' ? '-50%' : '0'}) rotate(${document.getElementById('watermarkRotation').value}deg)`;
-            overlay.style.opacity = document.getElementById('watermarkTransparency').value / 100;
-        }
-
-        // --- API Logic ---
         async function getApiToken(publicKey) {
-            var response = await fetch('https://api.ilovepdf.com/v1/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ public_key: publicKey })
-            });
+            var response = await fetch('https://api.ilovepdf.com/v1/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ public_key: publicKey }) });
             if (!response.ok) throw new Error('Lỗi lấy token xác thực.');
             var data = await response.json();
             return data.token;
@@ -531,10 +448,7 @@
             resultContainer.classList.add('hidden');
             var publicKey = 'project_public_b518756fab3a8e6942a9330c23a7859a_YUAga5611529e21b17310f7e19ec3547395e1';
             var tool = apiToolSelect.value;
-            // Map UI tool to API tool
-            if (tool === 'wordpdf' || tool === 'powerpointpdf' || tool === 'excelpdf') {
-                tool = 'officepdf';
-            }
+            var apiTool = (tool === 'wordpdf' || tool === 'powerpointpdf' || tool === 'excelpdf') ? 'officepdf' : tool;
 
             try {
                 setStatus('Đang lấy token...', 'info');
@@ -542,13 +456,12 @@
                 var authHeader = 'Bearer ' + token;
 
                 setStatus('Đang khởi tạo tác vụ...', 'info');
-                var startResponse = await fetch('https://api.ilovepdf.com/v1/start/' + tool, { headers: { 'Authorization': authHeader } });
+                var startResponse = await fetch('https://api.ilovepdf.com/v1/start/' + apiTool, { headers: { 'Authorization': authHeader } });
                 if (!startResponse.ok) throw new Error('Lỗi khởi tạo: ' + await startResponse.text());
                 var taskData = await startResponse.json();
 
-                // Upload watermark image first if needed
                 var watermarkServerFilename = null;
-                if ((tool === 'watermark' || tool === 'watermarkimage') && document.getElementById('watermarkMode').value === 'image' && watermarkFile) {
+                if ((apiTool === 'watermark' || apiTool === 'watermarkimage') && document.getElementById('watermarkMode').value === 'image' && watermarkFile) {
                     setStatus('Đang tải lên ảnh dấu...', 'info');
                     var wmFormData = new FormData();
                     wmFormData.append('task', taskData.task);
@@ -572,11 +485,9 @@
                 }
 
                 setStatus('Đang xử lý tệp...', 'info');
-                var processBody = { task: taskData.task, tool: tool, files: serverFilenames };
+                var processBody = { task: taskData.task, tool: apiTool, files: serverFilenames };
 
-                // Add tool-specific options
-                var uiTool = apiToolSelect.value;
-                switch(uiTool) {
+                switch(tool) {
                     case 'protect': case 'unlock': processBody.password = document.getElementById('passwordInput').value; break;
                     case 'split': processBody.ranges = document.getElementById('splitRange').value; break;
                     case 'rotate': case 'rotateimage': processBody.rotate = document.getElementById('rotateAngle').value; break;
@@ -596,8 +507,10 @@
                         if (processBody.mode === 'text') {
                             processBody.text = document.getElementById('watermarkText').value;
                             processBody.font_size = document.getElementById('watermarkFontSize').value;
+                            processBody.font_color = document.getElementById('watermarkFontColor').value;
                         } else if (watermarkServerFilename) {
                             processBody.image = watermarkServerFilename;
+                            processBody.scale = document.getElementById('watermarkImageScale').value;
                         }
                         processBody.vertical_position = document.getElementById('watermarkPosition').value.split('-')[0];
                         processBody.horizontal_position = document.getElementById('watermarkPosition').value.split('-')[1];
@@ -650,9 +563,18 @@
             }
         }
         
-        // --- Init ---
+        // --- Init & External Content Loading ---
         window.addEventListener('load', function() {
             updateUiForTool();
+            // FIX: Re-enable fetching header and footer
+            fetch('mini-header.html')
+                .then(function(response) { return response.text(); })
+                .then(function(data) { document.getElementById('page-header').innerHTML = data; })
+                .catch(function(err) { console.warn('Could not load header.html', err); });
+            fetch('footer.html')
+                .then(function(response) { return response.text(); })
+                .then(function(data) { document.getElementById('page-footer').innerHTML = data; })
+                .catch(function(err) { console.warn('Could not load footer.html', err); });
         });
     </script>
 </body>
