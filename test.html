@@ -733,7 +733,7 @@
     });
 
     Promise.all([
-      loadPartial('header.html', headerSlot),
+      loadPartial('mini-header.html', headerSlot),
       loadPartial('footer.html', footerSlot)
     ]).finally(() => {
       syncFuelDateDefault();
