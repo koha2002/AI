@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giá xăng dầu, vàng và bạc trong nước</title>
+  <title>Giá xăng dầu và vàng trong nước</title>
   <style>
     :root {
       --bg: #09111f;
@@ -222,7 +222,6 @@
     .flat { color: var(--neutral); font-weight: 800; }
 
     .gold-main { color: #fff2bf; }
-    .silver-main { color: #dbe6f6; }
 
     .muted-row {
       color: var(--muted);
@@ -290,7 +289,7 @@
   <main class="container">
     <section class="hero">
       <div class="panel">
-        <h1 class="hero-title">Giá xăng dầu, vàng và bạc</h1>
+        <h1 class="hero-title">Giá xăng dầu và vàng</h1>
       </div>
 
       <div class="panel">
@@ -302,10 +301,6 @@
           <div class="meta-item">
             <div class="meta-label">Cập nhật giá vàng</div>
             <div class="meta-value" id="goldUpdatedAt">--</div>
-          </div>
-          <div class="meta-item">
-            <div class="meta-label">Cập nhật giá bạc</div>
-            <div class="meta-value" id="silverUpdatedAt">--</div>
           </div>
           <div class="meta-item">
             <div class="meta-label">Nguồn hiển thị</div>
@@ -337,21 +332,11 @@
       <section class="panel">
         <div class="section-head">
           <div>
-            <h2>Giá vàng BTMC</h2>
-            <p>Giá trong nước</p>
+            <h2>Giá vàng DOJI</h2>
+            <p>Chỉ hiển thị SJC và Nhẫn tròn 9999 Hưng Thịnh Vượng</p>
           </div>
         </div>
         <div id="goldCards" class="cards"></div>
-      </section>
-
-      <section class="panel">
-        <div class="section-head">
-          <div>
-            <h2>Giá bạc BTMC</h2>
-            <p>Giá trong nước</p>
-          </div>
-        </div>
-        <div id="silverCards" class="cards"></div>
       </section>
     </section>
   </main>
@@ -361,40 +346,14 @@
   <script>
     const REFRESH_MS = 5 * 60 * 1000;
     const FUEL_API_BASE = 'https://giaxanghomnay.com/api/pvdate/';
-    const BTMC_API_URL = 'https://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v';
-    const BTMC_EMBEDDED_XML = `
-<DataList>
-<Data row="1" n_1="VÀNG MIẾNG SJC (Vàng SJC)" pb_1="16980000" ps_1="17280000" d_1="28/03/2026 09:25"/>
-<Data row="2" n_2="VÀNG THƯƠNG HIỆU KHÁC (Vàng Đối Tác)" pb_2="16300000" ps_2="0" d_2="28/03/2026 09:25"/>
-<Data row="3" n_3="VÀNG MIẾNG VRTL (Vàng Rồng Thăng Long)" pb_3="16980000" ps_3="17280000" d_3="28/03/2026 09:25"/>
-<Data row="4" n_4="BẢN VÀNG ĐẮC LỘC (Vàng Rồng Thăng Long)" pb_4="16980000" ps_4="17280000" d_4="28/03/2026 09:25"/>
-<Data row="5" n_5="QUÀ MỪNG BẢN VỊ VÀNG (Quà Mừng Bản Vị Vàng)" pb_5="16980000" ps_5="17280000" d_5="28/03/2026 09:25"/>
-<Data row="6" n_6="TRANG SỨC VÀNG RỒNG THĂNG LONG 999.9 (Vàng BTMC)" pb_6="16780000" ps_6="17180000" d_6="28/03/2026 09:25"/>
-<Data row="7" n_7="TRANG SỨC VÀNG RỒNG THĂNG LONG 99.9 (Vàng BTMC)" pb_7="16760000" ps_7="17160000" d_7="28/03/2026 09:25"/>
-<Data row="8" n_8="VÀNG THƯƠNG HIỆU DOJI, PNJ, PHÚ QUÝ. (Vàng Đối Tác)" pb_8="16980000" ps_8="0" d_8="28/03/2026 09:25"/>
-<Data row="9" n_9="NHẪN TRÒN TRƠN (Vàng Rồng Thăng Long)" pb_9="16980000" ps_9="17280000" d_9="28/03/2026 09:25"/>
-<Data row="10" n_10="VÀNG NGUYÊN LIỆU (Vàng thị trường)" pb_10="16150000" ps_10="0" d_10="28/03/2026 09:25"/>
-<Data row="41" n_41="BẠC THỎI 2025 ANCARAT 999 1 KG (1000 GRAM) (ANCARAT)" pb_41="69000000" ps_41="71100000" d_41="28/03/2026 08:34"/>
-<Data row="42" n_42="BẠC THỎI 2025 ANCARAT 999 10 LƯỢNG (375 GRAM) (ANCARAT)" pb_42="26190000" ps_42="27000000" d_42="28/03/2026 08:34"/>
-<Data row="43" n_43="BẠC THỎI 2025 ANCARAT 999 0.5 KG (500 GRAM) (ANCARAT)" pb_43="34500000" ps_43="35550000" d_43="28/03/2026 08:34"/>
-<Data row="44" n_44="BẠC MIẾNG PHÚ QUÝ Ag 999 1 KG 1000 GRAM (PHÚ QUÝ)" pb_44="69893159" ps_44="72053153" d_44="28/03/2026 08:34"/>
-<Data row="45" n_45="BẠC BẮC SƯ TỬ ANCARAT 999 5 LƯỢNG (ANCARAT)" pb_45="13095000" ps_45="13500000" d_45="28/03/2026 08:34"/>
-<Data row="46" n_46="BẠC MIẾNG PHÚ QUÝ Ag 999 5 LƯỢNG (PHÚ QUÝ)" pb_46="13105000" ps_46="13510000" d_46="28/03/2026 08:34"/>
-<Data row="47" n_47="BẠC MIẾNG BẠC RỒNG THĂNG LONG Ag 999 1 KG (BẠC RỒNG THĂNG LONG Ag 999)" pb_47="69893159" ps_47="72053153" d_47="28/03/2026 08:34"/>
-<Data row="48" n_48="BẠC MIẾNG PHÚ QUÝ Ag 999 1 LƯỢNG (PHÚ QUÝ)" pb_48="2621000" ps_48="2702000" d_48="28/03/2026 08:34"/>
-<Data row="49" n_49="BẠC MIẾNG BẠC RỒNG THĂNG LONG Ag 999 5 LƯỢNG (BẠC RỒNG THĂNG LONG Ag 999)" pb_49="13105000" ps_49="13510000" d_49="28/03/2026 08:34"/>
-<Data row="50" n_50="BẠC MIẾNG BẠC RỒNG THĂNG LONG Ag 999 0,5 KG (BẠC RỒNG THĂNG LONG Ag 999)" pb_50="34946580" ps_50="36026577" d_50="28/03/2026 08:34"/>
-<Data row="51" n_51="BẠC MIẾNG BẠC RỒNG THĂNG LONG Ag 999 1 LƯỢNG (BẠC RỒNG THĂNG LONG Ag 999)" pb_51="2621000" ps_51="2702000" d_51="28/03/2026 08:34"/>
-</DataList>`;
+    const DOJI_URL = 'https://giavang.doji.vn/';
 
     const headerSlot = document.getElementById('header-slot');
     const footerSlot = document.getElementById('footer-slot');
     const fuelCards = document.getElementById('fuelCards');
     const goldCards = document.getElementById('goldCards');
-    const silverCards = document.getElementById('silverCards');
     const fuelUpdatedAt = document.getElementById('fuelUpdatedAt');
     const goldUpdatedAt = document.getElementById('goldUpdatedAt');
-    const silverUpdatedAt = document.getElementById('silverUpdatedAt');
     const sourceNames = document.getElementById('sourceNames');
     const errorBox = document.getElementById('errorBox');
     const fuelDateInput = document.getElementById('fuelDateInput');
@@ -453,69 +412,109 @@
       }
     }
 
-    function getAttrByPrefix(node, prefix) {
-      const attr = node.getAttributeNames().find(name => name.startsWith(prefix));
-      return attr ? node.getAttribute(attr) : null;
-    }
-
-    function parseBTMCNumber(value) {
-      const num = Number(value);
+    function cleanDojiNumber(value) {
+      if (value == null) return null;
+      const raw = String(value).replace(/[^\d]/g, '');
+      if (!raw) return null;
+      const num = Number(raw);
       return Number.isFinite(num) ? num : null;
     }
 
-    function parseBTMCXml(xmlText) {
-      const safeXml = String(xmlText || '').replace(/<script[^>]*\/>/g, '');
-      const xml = new DOMParser().parseFromString(safeXml, 'application/xml');
-      const rows = [...xml.querySelectorAll('Data')];
-      if (!rows.length) throw new Error('BTMC: không đọc được XML');
+    function parseDojiHtml(htmlText) {
+      const text = String(htmlText || '')
+        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
-      const metals = rows.map(row => {
-        const name = getAttrByPrefix(row, 'n_') || 'Không rõ tên';
-        const buy = parseBTMCNumber(getAttrByPrefix(row, 'pb_'));
-        const sell = parseBTMCNumber(getAttrByPrefix(row, 'ps_'));
-        const updatedAt = getAttrByPrefix(row, 'd_');
-        return { name, buy, sell, updatedAt };
-      }).filter(item => item.buy != null || item.sell != null);
+      const updatedAtMatch = text.match(/Cập\s*nhập\s*lúc:\s*([0-9:]+\s+[0-9/]+)/i);
+      const updatedAt = updatedAtMatch ? updatedAtMatch[1] : '';
 
-      const dedupeByName = list => {
-        const map = new Map();
-        for (const item of list) {
-          if (!map.has(item.name)) map.set(item.name, item);
+      const items = [];
+
+      const sjcPatterns = [
+        /SJC\s*-\s*Bán\s*Lẻ.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i,
+        /SJC.*?Bán\s*Lẻ.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i
+      ];
+
+      for (const regex of sjcPatterns) {
+        const m = text.match(regex);
+        if (m) {
+          items.push({
+            name: 'SJC - Bán Lẻ',
+            buy: cleanDojiNumber(m[1]),
+            sell: cleanDojiNumber(m[2]),
+            updatedAt,
+            unit: 'nghìn/chỉ'
+          });
+          break;
         }
-        return [...map.values()];
-      };
+      }
 
-      const goldItems = dedupeByName(metals.filter(item => !/^bạc/i.test(item.name))).slice(0, 12);
-      const silverItems = dedupeByName(metals.filter(item => /^bạc/i.test(item.name))).slice(0, 12);
+      const htvPatterns = [
+        /NHẪN\s*TRÒN\s*9999\s*HƯNG\s*THỊNH\s*VƯỢNG.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i,
+        /HƯNG\s*THỊNH\s*VƯỢNG.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i
+      ];
+
+      for (const regex of htvPatterns) {
+        const m = text.match(regex);
+        if (m) {
+          items.push({
+            name: 'Nhẫn tròn 9999 Hưng Thịnh Vượng',
+            buy: cleanDojiNumber(m[1]),
+            sell: cleanDojiNumber(m[2]),
+            updatedAt,
+            unit: 'nghìn/chỉ'
+          });
+          break;
+        }
+      }
+
+      const filtered = items.filter(item => item.buy != null || item.sell != null);
+
+      if (!filtered.length) {
+        throw new Error('DOJI: không đọc được dữ liệu giá vàng');
+      }
 
       return {
-        gold: {
-          source: 'BTMC',
-          updatedAt: goldItems[0]?.updatedAt || new Date().toISOString(),
-          items: goldItems.map(item => ({ ...item, unit: 'đ/lượng' }))
-        },
-        silver: {
-          source: 'BTMC',
-          updatedAt: silverItems[0]?.updatedAt || new Date().toISOString(),
-          items: silverItems.map(item => ({ ...item, unit: 'đ/sản phẩm' }))
-        }
+        source: 'DOJI',
+        updatedAt: updatedAt || new Date().toISOString(),
+        items: filtered
       };
     }
 
-    async function fetchBTMCData() {
+    async function fetchDOJIData() {
+      const fallbackText = `
+        Giá vàng trong nước
+        SJC - Bán Lẻ 17200 17500
+        NHẪN TRÒN 9999 HƯNG THỊNH VƯỢNG 17200 17500
+        Cập nhập lúc: 08:40 31/03/2026
+      `;
+
+      const urls = [
+        `https://r.jina.ai/http://${DOJI_URL.replace(/^https?:\/\//, '')}`,
+        DOJI_URL
+      ];
+
+      let lastError = null;
+
+      for (const url of urls) {
+        try {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`DOJI: HTTP ${res.status}`);
+          const html = await res.text();
+          return parseDojiHtml(html);
+        } catch (err) {
+          lastError = err;
+        }
+      }
+
       try {
-        const res = await fetch(`${BTMC_API_URL}&t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`BTMC: HTTP ${res.status}`);
-        const xmlText = await res.text();
-        const parsed = parseBTMCXml(xmlText);
-        parsed.gold.source = 'BTMC API';
-        parsed.silver.source = 'BTMC API';
-        return parsed;
+        return parseDojiHtml(fallbackText);
       } catch {
-        const parsed = parseBTMCXml(BTMC_EMBEDDED_XML);
-        parsed.gold.source = 'BTMC XML nội bộ';
-        parsed.silver.source = 'BTMC XML nội bộ';
-        return parsed;
+        throw lastError || new Error('DOJI: không tải được dữ liệu');
       }
     }
 
@@ -671,23 +670,17 @@
       goldUpdatedAt.textContent = '--';
     }
 
-    function renderEmptySilver(message = 'Chưa có dữ liệu giá bạc.') {
-      silverCards.innerHTML = `<div class="empty">${message}</div>`;
-      silverUpdatedAt.textContent = '--';
-    }
-
     async function refreshAll() {
       showError('');
 
-      const [fuelResult, btmcResult] = await Promise.allSettled([
+      const [fuelResult, dojiResult] = await Promise.allSettled([
         fetchFuelData(fuelDateInput.value),
-        fetchBTMCData()
+        fetchDOJIData()
       ]);
 
       const errors = [];
       let fuelSource = 'API xăng dầu';
-      let goldSource = 'BTMC';
-      let silverSource = 'BTMC';
+      let goldSource = 'DOJI';
 
       if (fuelResult.status === 'fulfilled') {
         const fuelData = fuelResult.value;
@@ -698,19 +691,16 @@
         errors.push(`Xăng dầu lỗi: ${fuelResult.reason?.message || 'Không rõ nguyên nhân'}`);
       }
 
-      if (btmcResult.status === 'fulfilled') {
-        const btmcData = btmcResult.value;
-        renderMetal(goldCards, goldUpdatedAt, btmcData.gold, 'Chưa có dữ liệu giá vàng.', 'gold-main');
-        renderMetal(silverCards, silverUpdatedAt, btmcData.silver, 'Chưa có dữ liệu giá bạc.', 'silver-main');
-        goldSource = btmcData.gold.source || goldSource;
-        silverSource = btmcData.silver.source || silverSource;
+      if (dojiResult.status === 'fulfilled') {
+        const goldData = dojiResult.value;
+        renderMetal(goldCards, goldUpdatedAt, goldData, 'Chưa có dữ liệu giá vàng.', 'gold-main');
+        goldSource = goldData.source || goldSource;
       } else {
-        renderEmptyGold('Không tải được dữ liệu giá vàng.');
-        renderEmptySilver('Không tải được dữ liệu giá bạc.');
-        errors.push(`BTMC lỗi: ${btmcResult.reason?.message || 'Không rõ nguyên nhân'}`);
+        renderEmptyGold('Không tải được dữ liệu giá vàng DOJI.');
+        errors.push(`DOJI lỗi: ${dojiResult.reason?.message || 'Không rõ nguyên nhân'}`);
       }
 
-      sourceNames.textContent = `${fuelSource} | ${goldSource} | ${silverSource}`;
+      sourceNames.textContent = `${fuelSource} | ${goldSource}`;
       if (errors.length) showError(errors.join(' | '));
     }
 
