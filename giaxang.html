@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Giá xăng dầu và vàng trong nước</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="shortcut icon" href="logo.png" />
   <style>
     :root {
       --bg: #09111f;
@@ -254,6 +256,10 @@
       padding: 24px;
     }
 
+    .is-loading {
+      opacity: 0.78;
+    }
+
     @media (max-width: 1100px) {
       .hero { grid-template-columns: 1fr; }
       .container { width: min(100% - 24px, 1280px); }
@@ -333,7 +339,7 @@
         <div class="section-head">
           <div>
             <h2>Giá vàng DOJI</h2>
-            <p>Chỉ hiển thị SJC và Nhẫn tròn 9999 Hưng Thịnh Vượng</p>
+            <p>Hiển thị SJC và Nhẫn tròn 9999 Hưng Thịnh Vượng</p>
           </div>
         </div>
         <div id="goldCards" class="cards"></div>
@@ -347,6 +353,16 @@
     const REFRESH_MS = 5 * 60 * 1000;
     const FUEL_API_BASE = 'https://giaxanghomnay.com/api/pvdate/';
     const DOJI_URL = 'https://giavang.doji.vn/';
+    const DOJI_PROXY_URL = `https://r.jina.ai/http://${DOJI_URL.replace(/^https?:\/\//, '')}`;
+
+    const CACHE_KEYS = {
+      fuel: 'depdocla_price_fuel_cache_v3',
+      gold: 'depdocla_price_gold_cache_v3'
+    };
+
+    const NETWORK_TIMEOUT_MS = 2500;
+    const GOLD_TIMEOUT_MS = 2200;
+    const FUEL_FALLBACK_DAYS = 2;
 
     const headerSlot = document.getElementById('header-slot');
     const footerSlot = document.getElementById('footer-slot');
@@ -358,6 +374,9 @@
     const errorBox = document.getElementById('errorBox');
     const fuelDateInput = document.getElementById('fuelDateInput');
     const fuelTodayBtn = document.getElementById('fuelTodayBtn');
+
+    let currentFuelSource = '--';
+    let currentGoldSource = '--';
 
     function formatDateTime(value) {
       if (!value) return '--';
@@ -410,6 +429,159 @@
       } catch {
         target.innerHTML = '';
       }
+    }
+
+    function safeJsonParse(value) {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return null;
+      }
+    }
+
+    function setCache(key, data) {
+      try {
+        localStorage.setItem(key, JSON.stringify({
+          savedAt: Date.now(),
+          data
+        }));
+      } catch {}
+    }
+
+    function getCache(key, maxAgeMs = 12 * 60 * 60 * 1000) {
+      try {
+        const parsed = safeJsonParse(localStorage.getItem(key));
+        if (!parsed?.data || !parsed?.savedAt) return null;
+        if (Date.now() - Number(parsed.savedAt) > maxAgeMs) return null;
+        return parsed.data;
+      } catch {
+        return null;
+      }
+    }
+
+    function withTimeout(promiseFactory, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return promiseFactory(controller.signal).finally(() => clearTimeout(timer));
+    }
+
+    function formatDateForApi(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function minusDays(date, days) {
+      const next = new Date(date);
+      next.setDate(next.getDate() - days);
+      return next;
+    }
+
+    function showError(message) {
+      if (!message) {
+        errorBox.textContent = '';
+        errorBox.style.display = 'none';
+        return;
+      }
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    }
+
+    function addError(message) {
+      if (!message) return;
+      const oldText = errorBox.style.display === 'block' ? errorBox.textContent : '';
+      showError(oldText ? `${oldText} | ${message}` : message);
+    }
+
+    function updateSourceNames() {
+      if (!sourceNames) return;
+      sourceNames.textContent = `${currentFuelSource} | ${currentGoldSource}`;
+    }
+
+    function setFuelSource(value) {
+      currentFuelSource = value || '--';
+      updateSourceNames();
+    }
+
+    function setGoldSource(value) {
+      currentGoldSource = value || '--';
+      updateSourceNames();
+    }
+
+    function setLoading(el, isLoading) {
+      if (!el) return;
+      el.classList.toggle('is-loading', !!isLoading);
+    }
+
+    function renderEmptyFuel(message = 'Chưa có dữ liệu xăng dầu.') {
+      fuelCards.innerHTML = `<div class="empty">${message}</div>`;
+      fuelUpdatedAt.textContent = '--';
+    }
+
+    function renderEmptyGold(message = 'Chưa có dữ liệu giá vàng.') {
+      goldCards.innerHTML = `<div class="empty">${message}</div>`;
+      goldUpdatedAt.textContent = '--';
+    }
+
+    function renderFuel(data) {
+      const items = Array.isArray(data?.items) ? data.items : [];
+      fuelCards.innerHTML = '';
+
+      if (!items.length) {
+        renderEmptyFuel();
+        return;
+      }
+
+      items.forEach(item => {
+        const zone2ChangeText = item.zone2_change == null
+          ? ''
+          : `<div class="muted-row ${deltaClass(item.zone2_change)}">Vùng 2: ${item.zone2_change > 0 ? '▲ Tăng' : item.zone2_change < 0 ? '▼ Giảm' : '— Không đổi'}${item.zone2_change === 0 ? '' : ` ${formatMoney(Math.abs(item.zone2_change), 'đ/lít')}`}</div>`;
+
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-title">${item.name || 'Không rõ tên'}</div>
+          <div class="card-price">${formatMoney(item.price, item.unit)}</div>
+          <div class="card-sub ${deltaClass(item.change)}">${deltaText(item)}</div>
+          ${item.note ? `<div class="muted-row">${item.note}</div>` : ''}
+          ${item.prev_price != null ? `<div class="muted-row">Kỳ trước: ${formatMoney(item.prev_price, item.unit)}</div>` : ''}
+          ${zone2ChangeText}
+        `;
+        fuelCards.appendChild(card);
+      });
+
+      fuelUpdatedAt.textContent = formatDateTime(data.updatedAt);
+    }
+
+    function renderGold(data) {
+      const items = Array.isArray(data?.items) ? data.items : [];
+      goldCards.innerHTML = '';
+
+      if (!items.length) {
+        renderEmptyGold();
+        return;
+      }
+
+      items.forEach(item => {
+        const spread = Number.isFinite(Number(item.buy)) && Number.isFinite(Number(item.sell))
+          ? Number(item.sell) - Number(item.buy)
+          : null;
+
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-title">${item.name || 'Không rõ tên'}</div>
+          <div class="card-price gold-main">Giá mua: ${formatMoney(item.buy, item.unit)}</div>
+          <div class="card-sub">Giá bán: ${formatMoney(item.sell, item.unit)}</div>
+          <div class="card-sub ${spread === null ? 'flat' : deltaClass(spread)}">
+            ${spread === null ? '' : `Chênh lệch ${formatMoney(spread, item.unit)}`}
+          </div>
+        `;
+        goldCards.appendChild(card);
+      });
+
+      goldUpdatedAt.textContent = formatDateTime(data.updatedAt);
     }
 
     function cleanDojiNumber(value) {
@@ -485,7 +657,14 @@
       };
     }
 
-    async function fetchDOJIData() {
+    async function fetchDojiFrom(url, signal) {
+      const res = await fetch(url, { cache: 'no-store', signal });
+      if (!res.ok) throw new Error(`DOJI: HTTP ${res.status}`);
+      const html = await res.text();
+      return parseDojiHtml(html);
+    }
+
+    async function fetchGoldData() {
       const fallbackText = `
         Giá vàng trong nước
         SJC - Bán Lẻ 17200 17500
@@ -493,215 +672,157 @@
         Cập nhập lúc: 08:40 31/03/2026
       `;
 
-      const urls = [
-        `https://r.jina.ai/http://${DOJI_URL.replace(/^https?:\/\//, '')}`,
-        DOJI_URL
-      ];
-
-      let lastError = null;
-
-      for (const url of urls) {
+      try {
+        return await withTimeout(signal => fetchDojiFrom(DOJI_PROXY_URL, signal), GOLD_TIMEOUT_MS);
+      } catch (firstErr) {
         try {
-          const res = await fetch(url, { cache: 'no-store' });
-          if (!res.ok) throw new Error(`DOJI: HTTP ${res.status}`);
-          const html = await res.text();
-          return parseDojiHtml(html);
-        } catch (err) {
-          lastError = err;
+          return await withTimeout(signal => fetchDojiFrom(DOJI_URL, signal), GOLD_TIMEOUT_MS);
+        } catch (secondErr) {
+          const cached = getCache(CACHE_KEYS.gold, 24 * 60 * 60 * 1000);
+          if (cached) {
+            return { ...cached, source: `${cached.source || 'DOJI'} (cache)` };
+          }
+          try {
+            return parseDojiHtml(fallbackText);
+          } catch {
+            throw secondErr || firstErr || new Error('DOJI: không tải được dữ liệu');
+          }
         }
       }
+    }
 
-      try {
-        return parseDojiHtml(fallbackText);
-      } catch {
-        throw lastError || new Error('DOJI: không tải được dữ liệu');
+    async function fetchFuelOnce(dateStr, signal) {
+      const res = await fetch(`${FUEL_API_BASE}${dateStr}?t=${Date.now()}`, {
+        cache: 'no-store',
+        signal
+      });
+
+      if (!res.ok) {
+        throw new Error(`Xăng dầu: HTTP ${res.status}`);
       }
-    }
 
-    function formatDateForApi(date) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
+      const raw = await res.json();
+      const currentRows = Array.isArray(raw?.[0]) ? raw[0] : [];
+      const previousRows = Array.isArray(raw?.[2]) ? raw[2] : [];
 
-    function minusDays(date, days) {
-      const next = new Date(date);
-      next.setDate(next.getDate() - days);
-      return next;
+      if (!currentRows.length) {
+        throw new Error('Xăng dầu: không có dữ liệu');
+      }
+
+      const previousMap = new Map(previousRows.map(item => [normalizeFuelName(item.title), item]));
+
+      const items = currentRows.map(item => {
+        const prev = previousMap.get(normalizeFuelName(item.title));
+        const zone1 = Number(item.zone1_price ?? item.price ?? 0);
+        const zone2 = Number(item.zone2_price ?? 0);
+        const prevZone1 = Number(prev?.zone1_price ?? prev?.price ?? zone1);
+        const prevZone2 = Number(prev?.zone2_price ?? zone2);
+
+        return {
+          name: item.title || 'Không rõ tên',
+          price: zone1,
+          unit: 'đ/lít',
+          zone2_price: item.zone2_price ?? null,
+          change: zone1 - prevZone1,
+          prev_price: prevZone1,
+          zone2_change: item.zone2_price != null && prev ? zone2 - prevZone2 : null,
+          note: item.zone2_price != null ? `Vùng 2: ${formatMoney(zone2, 'đ/lít')}` : ''
+        };
+      });
+
+      return {
+        source: 'giaxanghomnay.com',
+        updatedAt: currentRows[0]?.updated_at || currentRows[0]?.date || new Date().toISOString(),
+        items
+      };
     }
 
     async function fetchFuelData(selectedDateValue = '') {
-      const today = selectedDateValue ? new Date(`${selectedDateValue}T00:00:00`) : new Date();
+      const baseDate = selectedDateValue
+        ? new Date(`${selectedDateValue}T00:00:00`)
+        : new Date();
+
       let lastError = null;
 
-      for (let i = 0; i < 7; i++) {
-        const candidate = minusDays(today, i);
+      for (let i = 0; i <= FUEL_FALLBACK_DAYS; i++) {
+        const candidate = minusDays(baseDate, i);
         const dateStr = formatDateForApi(candidate);
-        const url = `${FUEL_API_BASE}${dateStr}`;
 
         try {
-          const res = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
-          if (!res.ok) {
-            lastError = new Error(`Xăng dầu: HTTP ${res.status}`);
-            continue;
-          }
-
-          const raw = await res.json();
-          const currentRows = Array.isArray(raw?.[0]) ? raw[0] : [];
-          const previousRows = Array.isArray(raw?.[2]) ? raw[2] : [];
-
-          if (!currentRows.length) {
-            lastError = new Error('Xăng dầu: không có dữ liệu');
-            continue;
-          }
-
-          const previousMap = new Map(previousRows.map(item => [normalizeFuelName(item.title), item]));
-
-          const items = currentRows.map(item => {
-            const prev = previousMap.get(normalizeFuelName(item.title));
-            const zone1 = Number(item.zone1_price ?? item.price ?? 0);
-            const zone2 = Number(item.zone2_price ?? 0);
-            const prevZone1 = Number(prev?.zone1_price ?? prev?.price ?? zone1);
-            const prevZone2 = Number(prev?.zone2_price ?? zone2);
-
-            return {
-              name: item.title || 'Không rõ tên',
-              price: zone1,
-              unit: 'đ/lít',
-              zone2_price: item.zone2_price ?? null,
-              change: zone1 - prevZone1,
-              prev_price: prevZone1,
-              zone2_change: item.zone2_price != null && prev ? zone2 - prevZone2 : null,
-              note: item.zone2_price != null ? `Vùng 2: ${formatMoney(zone2, 'đ/lít')}` : ''
-            };
-          });
-
-          return {
-            source: 'giaxanghomnay.com',
-            updatedAt: currentRows[0]?.updated_at || currentRows[0]?.date || new Date().toISOString(),
-            items
-          };
+          return await withTimeout(
+            signal => fetchFuelOnce(dateStr, signal),
+            NETWORK_TIMEOUT_MS
+          );
         } catch (error) {
           lastError = error;
         }
       }
 
-      throw lastError || new Error('Xăng dầu: không tải được dữ liệu gần nhất');
-    }
-
-    function renderFuel(data) {
-      const items = Array.isArray(data?.items) ? data.items : [];
-      fuelCards.innerHTML = '';
-
-      if (!items.length) {
-        fuelCards.innerHTML = '<div class="empty">Chưa có dữ liệu xăng dầu.</div>';
-        fuelUpdatedAt.textContent = '--';
-        return;
+      const cached = getCache(CACHE_KEYS.fuel, 24 * 60 * 60 * 1000);
+      if (cached) {
+        return { ...cached, source: `${cached.source || 'giaxanghomnay.com'} (cache)` };
       }
 
-      items.forEach(item => {
-        const zone2ChangeText = item.zone2_change == null
-          ? ''
-          : `<div class="muted-row ${deltaClass(item.zone2_change)}">Vùng 2: ${item.zone2_change > 0 ? '▲ Tăng' : item.zone2_change < 0 ? '▼ Giảm' : '— Không đổi'}${item.zone2_change === 0 ? '' : ` ${formatMoney(Math.abs(item.zone2_change), 'đ/lít')}`}</div>`;
-
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="card-title">${item.name || 'Không rõ tên'}</div>
-          <div class="card-price">${formatMoney(item.price, item.unit)}</div>
-          <div class="card-sub ${deltaClass(item.change)}">${deltaText(item)}</div>
-          ${item.note ? `<div class="muted-row">${item.note}</div>` : ''}
-          ${item.prev_price != null ? `<div class="muted-row">Kỳ trước: ${formatMoney(item.prev_price, item.unit)}</div>` : ''}
-          ${zone2ChangeText}
-        `;
-        fuelCards.appendChild(card);
-      });
-
-      fuelUpdatedAt.textContent = formatDateTime(data.updatedAt);
+      throw lastError || new Error('Xăng dầu: không tải được dữ liệu');
     }
 
-    function renderMetal(cardsEl, updatedEl, data, emptyText, mainClass) {
-      const items = Array.isArray(data?.items) ? data.items : [];
-      cardsEl.innerHTML = '';
+    function renderCachedDataImmediately() {
+      const cachedFuel = getCache(CACHE_KEYS.fuel, 24 * 60 * 60 * 1000);
+      const cachedGold = getCache(CACHE_KEYS.gold, 24 * 60 * 60 * 1000);
 
-      if (!items.length) {
-        cardsEl.innerHTML = `<div class="empty">${emptyText}</div>`;
-        updatedEl.textContent = '--';
-        return;
+      if (cachedFuel?.items?.length) {
+        renderFuel(cachedFuel);
+        setFuelSource(`${cachedFuel.source || 'giaxanghomnay.com'} (cache)`);
+      } else {
+        renderEmptyFuel('Đang tải dữ liệu xăng dầu...');
       }
 
-      items.forEach(item => {
-        const spread = Number.isFinite(Number(item.buy)) && Number.isFinite(Number(item.sell))
-          ? Number(item.sell) - Number(item.buy)
-          : null;
-
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="card-title">${item.name || 'Không rõ tên'}</div>
-          <div class="card-price ${mainClass}">Mua ${formatMoney(item.buy, item.unit)}</div>
-          <div class="card-sub">Bán ${formatMoney(item.sell, item.unit)}</div>
-          <div class="card-sub ${spread === null ? 'flat' : deltaClass(spread)}">${spread === null ? '' : `Chênh lệch ${formatMoney(spread, item.unit)}`}</div>
-        `;
-        cardsEl.appendChild(card);
-      });
-
-      updatedEl.textContent = formatDateTime(data.updatedAt);
-    }
-
-    function showError(message) {
-      if (!message) {
-        errorBox.textContent = '';
-        errorBox.style.display = 'none';
-        return;
+      if (cachedGold?.items?.length) {
+        renderGold(cachedGold);
+        setGoldSource(`${cachedGold.source || 'DOJI'} (cache)`);
+      } else {
+        renderEmptyGold('Đang tải dữ liệu giá vàng...');
       }
-      errorBox.textContent = message;
-      errorBox.style.display = 'block';
     }
 
-    function renderEmptyFuel(message = 'Chưa có dữ liệu xăng dầu.') {
-      fuelCards.innerHTML = `<div class="empty">${message}</div>`;
-      fuelUpdatedAt.textContent = '--';
-    }
-
-    function renderEmptyGold(message = 'Chưa có dữ liệu giá vàng.') {
-      goldCards.innerHTML = `<div class="empty">${message}</div>`;
-      goldUpdatedAt.textContent = '--';
-    }
-
-    async function refreshAll() {
-      showError('');
-
-      const [fuelResult, dojiResult] = await Promise.allSettled([
-        fetchFuelData(fuelDateInput.value),
-        fetchDOJIData()
-      ]);
-
-      const errors = [];
-      let fuelSource = 'API xăng dầu';
-      let goldSource = 'DOJI';
-
-      if (fuelResult.status === 'fulfilled') {
-        const fuelData = fuelResult.value;
+    async function refreshFuelOnly() {
+      setLoading(fuelCards, true);
+      try {
+        const fuelData = await fetchFuelData(fuelDateInput.value);
         renderFuel(fuelData);
-        fuelSource = fuelData.source || fuelSource;
-      } else {
-        renderEmptyFuel('Không tải được dữ liệu xăng dầu.');
-        errors.push(`Xăng dầu lỗi: ${fuelResult.reason?.message || 'Không rõ nguyên nhân'}`);
+        setCache(CACHE_KEYS.fuel, fuelData);
+        setFuelSource(fuelData.source || 'giaxanghomnay.com');
+      } catch (err) {
+        if (!fuelCards.children.length) {
+          renderEmptyFuel('Không tải được dữ liệu xăng dầu.');
+        }
+        addError(`Xăng dầu lỗi: ${err?.message || 'Không rõ nguyên nhân'}`);
+      } finally {
+        setLoading(fuelCards, false);
       }
+    }
 
-      if (dojiResult.status === 'fulfilled') {
-        const goldData = dojiResult.value;
-        renderMetal(goldCards, goldUpdatedAt, goldData, 'Chưa có dữ liệu giá vàng.', 'gold-main');
-        goldSource = goldData.source || goldSource;
-      } else {
-        renderEmptyGold('Không tải được dữ liệu giá vàng DOJI.');
-        errors.push(`DOJI lỗi: ${dojiResult.reason?.message || 'Không rõ nguyên nhân'}`);
+    async function refreshGoldOnly() {
+      setLoading(goldCards, true);
+      try {
+        const goldData = await fetchGoldData();
+        renderGold(goldData);
+        setCache(CACHE_KEYS.gold, goldData);
+        setGoldSource(goldData.source || 'DOJI');
+      } catch (err) {
+        if (!goldCards.children.length) {
+          renderEmptyGold('Không tải được dữ liệu giá vàng DOJI.');
+        }
+        addError(`DOJI lỗi: ${err?.message || 'Không rõ nguyên nhân'}`);
+      } finally {
+        setLoading(goldCards, false);
       }
+    }
 
-      sourceNames.textContent = `${fuelSource} | ${goldSource}`;
-      if (errors.length) showError(errors.join(' | '));
+    function refreshAll() {
+      showError('');
+      refreshFuelOnly();
+      refreshGoldOnly();
     }
 
     function syncFuelDateDefault() {
@@ -714,12 +835,14 @@
     }
 
     fuelDateInput.addEventListener('change', () => {
-      refreshAll();
+      showError('');
+      refreshFuelOnly();
     });
 
     fuelTodayBtn.addEventListener('click', () => {
       syncFuelDateDefault();
-      refreshAll();
+      showError('');
+      refreshFuelOnly();
     });
 
     Promise.all([
@@ -727,6 +850,8 @@
       loadPartial('footer.html', footerSlot)
     ]).finally(() => {
       syncFuelDateDefault();
+      updateSourceNames();
+      renderCachedDataImmediately();
       refreshAll();
       setInterval(refreshAll, REFRESH_MS);
     });
