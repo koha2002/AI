@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV | Nguyễn Lê Khánh Hòa</title>
-  <meta name="description" content="Trang hiển thị CV PDF" />
+  <meta name="description" content="Trang hiển thị CV online" />
   <link rel="icon" type="image/png" href="logo.png" />
 
   <style>
@@ -17,7 +17,6 @@
       --muted: #cbd5e1;
       --primary: #4f6bff;
       --primary-2: #6f86ff;
-      --white: #ffffff;
       --shadow: 0 12px 40px rgba(0,0,0,0.22);
       --radius: 24px;
     }
@@ -113,37 +112,13 @@
       line-height: 1.6;
     }
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
+    .badge {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 0 18px;
+      min-height: 42px;
+      padding: 0 16px;
       border-radius: 999px;
-      text-decoration: none;
       font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn-light {
-      background: #fff;
-      color: #111827;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.16);
-    }
-
-    .btn-primary {
       background: linear-gradient(135deg, var(--primary), var(--primary-2));
       color: #fff;
       box-shadow: 0 6px 18px rgba(79,107,255,0.35);
@@ -153,17 +128,8 @@
       padding: 18px;
     }
 
-    .viewer-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
     .viewer-top h2 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       font-size: 1.1rem;
     }
 
@@ -173,47 +139,23 @@
       line-height: 1.6;
     }
 
-    .status {
-      margin: 10px 0 0;
-      color: #bfdbfe;
-      font-size: 0.95rem;
-    }
-
-    .pdf-stage {
-      min-height: 520px;
+    .cv-stage {
+      margin-top: 16px;
+      padding: 18px;
       border-radius: 18px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
-      padding: 18px;
-    }
-
-    .pdf-list {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      align-items: center;
-    }
-
-    .pdf-page {
-      width: 100%;
       display: flex;
       justify-content: center;
     }
 
-    .pdf-page canvas {
-      max-width: 100%;
-      height: auto !important;
+    .cv-image {
+      width: min(100%, 900px);
+      height: auto;
       display: block;
-      border-radius: 12px;
+      border-radius: 14px;
       background: #fff;
       box-shadow: 0 10px 26px rgba(0,0,0,0.18);
-    }
-
-    .loading-box,
-    .error-box {
-      text-align: center;
-      padding: 40px 16px;
-      color: var(--muted);
     }
 
     .message-box {
@@ -245,8 +187,8 @@
         height: 50px;
       }
 
-      .pdf-stage {
-        padding: 12px;
+      .cv-stage {
+        padding: 10px;
       }
     }
   </style>
@@ -262,29 +204,26 @@
         </div>
         <div class="hero-text">
           <h1>CV Nguyễn Lê Khánh Hòa</h1>
-          <p>Trang CV hiển thị trực tiếp từ file PDF, có header, footer và logo tab.</p>
+          <p>Trang CV chỉ để xem online, không dùng PDF nhúng để tránh lỗi bị trình duyệt hoặc extension bắt tải xuống.</p>
         </div>
       </div>
 
-      <div class="actions">
-        <a class="btn btn-light" href="cv.pdf" target="_blank" rel="noopener noreferrer">Mở PDF riêng</a>
-        <a class="btn btn-primary" href="cv.pdf" download>Tải CV</a>
-      </div>
+      <div class="badge">Xem online</div>
     </section>
 
     <section class="viewer">
       <div class="viewer-top">
-        <div>
-          <h2>Xem CV PDF</h2>
-          <p>Trang này render PDF trực tiếp thành ảnh từng trang để tránh lỗi khung trắng.</p>
-          <div id="statusText" class="status">Đang tải PDF...</div>
-        </div>
+        <h2>Xem CV</h2>
+        <p>CV được hiển thị trực tiếp dưới dạng ảnh toàn trang để tránh lỗi trắng khung và lỗi ép tải file PDF.</p>
       </div>
 
-      <div class="pdf-stage">
-        <div id="pdfContainer" class="pdf-list">
-          <div class="loading-box">Đang tải nội dung CV...</div>
-        </div>
+      <div class="cv-stage">
+        <img
+          src="cv.webp"
+          alt="CV Nguyễn Lê Khánh Hòa"
+          class="cv-image"
+          loading="eager"
+        />
       </div>
     </section>
 
@@ -293,19 +232,10 @@
 
   <div id="footer-slot"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
-
-  <script type="module">
-    import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
-
+  <script>
     const headerSlot = document.getElementById("header-slot");
     const footerSlot = document.getElementById("footer-slot");
     const messageBox = document.getElementById("messageBox");
-    const pdfContainer = document.getElementById("pdfContainer");
-    const statusText = document.getElementById("statusText");
 
     async function loadPartial(fileName, target) {
       try {
@@ -333,79 +263,7 @@
       }
     }
 
-    async function fetchPdfData(url) {
-      const response = await fetch(url, {
-        method: "GET",
-        cache: "no-store"
-      });
-
-      if (!response.ok) {
-        throw new Error("Không tải được file PDF. Mã lỗi: " + response.status);
-      }
-
-      return await response.arrayBuffer();
-    }
-
-    async function renderPdf() {
-      try {
-        statusText.textContent = "Đang tải file PDF...";
-        const pdfData = await fetchPdfData("cv.pdf");
-
-        statusText.textContent = "Đang render các trang...";
-        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-        const pdf = await loadingTask.promise;
-
-        pdfContainer.innerHTML = "";
-        statusText.textContent = `Tải thành công ${pdf.numPages} trang.`;
-
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-          const page = await pdf.getPage(pageNumber);
-
-          const desiredWidth = Math.min(window.innerWidth * 0.82, 900);
-          const baseViewport = page.getViewport({ scale: 1 });
-          const scale = desiredWidth / baseViewport.width;
-          const viewport = page.getViewport({ scale });
-
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          const pageWrap = document.createElement("div");
-          pageWrap.className = "pdf-page";
-          pageWrap.appendChild(canvas);
-          pdfContainer.appendChild(pageWrap);
-
-          await page.render({
-            canvasContext: context,
-            viewport
-          }).promise;
-        }
-      } catch (error) {
-        console.error(error);
-        statusText.textContent = "Không render được PDF.";
-        pdfContainer.innerHTML = `
-          <div class="error-box">
-            <p>Không hiển thị được CV PDF.</p>
-            <p>${error.message}</p>
-            <p style="margin-top:14px;">
-              <a class="btn btn-primary" href="cv.pdf" target="_blank" rel="noopener noreferrer">Mở PDF riêng</a>
-            </p>
-          </div>
-        `;
-      }
-    }
-
-    await initPartials();
-    await renderPdf();
-
-    window.addEventListener("resize", () => {
-      clearTimeout(window.__pdfResizeTimer);
-      window.__pdfResizeTimer = setTimeout(() => {
-        renderPdf();
-      }, 300);
-    });
+    initPartials();
   </script>
 </body>
 </html>
