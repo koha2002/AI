@@ -4,57 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV | Nguyễn Lê Khánh Hòa</title>
-  <meta name="description" content="Trang hiển thị CV PDF của Nguyễn Lê Khánh Hòa" />
+  <meta name="description" content="Trang hiển thị CV PDF có header, footer và logo tab" />
 
   <!-- Logo tab -->
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <defs>
-        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stop-color="%23185adb"/>
-          <stop offset="100%" stop-color="%234f46e5"/>
-        </linearGradient>
-      </defs>
-      <rect width="64" height="64" rx="16" fill="url(%23g)"/>
-      <path d="M20 14h18l10 10v26a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V18a4 4 0 0 1 4-4z" fill="white"/>
-      <path d="M38 14v10h10" fill="%23dbeafe"/>
-      <path d="M24 30h16M24 37h16M24 44h10" stroke="%23185adb" stroke-width="3" stroke-linecap="round"/>
-    </svg>'
-  />
+  <link rel="icon" type="image/png" href="logo.png" />
 
   <style>
     :root {
       --bg: #f3f6fb;
       --card-bg: rgba(255, 255, 255, 0.82);
-      --border: rgba(255, 255, 255, 0.65);
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --border: rgba(255, 255, 255, 0.7);
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
       --text: #1f2937;
       --muted: #6b7280;
       --primary: #185adb;
       --primary-2: #4f46e5;
-      --header-bg: rgba(255, 255, 255, 0.75);
-      --footer-bg: rgba(255, 255, 255, 0.82);
-      --icon-bg: #ffffff;
-      --icon-hover: #f8fafc;
+      --glass: blur(12px);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #0f172a;
-        --card-bg: rgba(15, 23, 42, 0.68);
-        --border: rgba(148, 163, 184, 0.18);
-        --shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+        --card-bg: rgba(15, 23, 42, 0.72);
+        --border: rgba(148, 163, 184, 0.14);
+        --shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
         --text: #e5e7eb;
         --muted: #94a3b8;
         --primary: #93c5fd;
         --primary-2: #a5b4fc;
-        --header-bg: rgba(15, 23, 42, 0.62);
-        --footer-bg: rgba(15, 23, 42, 0.72);
-        --icon-bg: rgba(30, 41, 59, 0.9);
-        --icon-hover: rgba(51, 65, 85, 0.95);
       }
     }
 
@@ -70,7 +47,7 @@
       color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(24,90,219,0.15), transparent 28%),
-        radial-gradient(circle at top right, rgba(79,70,229,0.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(79,70,229,0.12), transparent 24%),
         var(--bg);
     }
 
@@ -79,119 +56,29 @@
       flex-direction: column;
     }
 
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: var(--header-bg);
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
-    }
-
-    .header-wrap {
-      width: min(1200px, calc(100% - 24px));
-      margin: 0 auto;
-      min-height: 78px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 12px 0;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .brand-logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, #185adb, #4f46e5);
-      box-shadow: 0 8px 18px rgba(24, 90, 219, 0.24);
-    }
-
-    .brand-logo svg {
-      width: 30px;
-      height: 30px;
-    }
-
-    .brand-text {
-      min-width: 0;
-    }
-
-    .brand-text h1 {
-      margin: 0;
-      font-size: 1.08rem;
-      line-height: 1.2;
-      color: var(--text);
-    }
-
-    .brand-text p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.94rem;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: 1px solid rgba(24, 90, 219, 0.12);
-      background: var(--card-bg);
-      color: var(--text);
-      text-decoration: none;
-      padding: 11px 16px;
-      border-radius: 999px;
-      font-weight: 600;
-      box-shadow: var(--shadow);
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #185adb, #4f46e5);
-      color: #fff;
-      border-color: transparent;
+    #header-slot,
+    #footer-slot {
+      width: 100%;
     }
 
     .page {
       width: min(1200px, calc(100% - 24px));
-      margin: 22px auto;
-      flex: 1;
+      margin: 20px auto 24px;
       display: flex;
       flex-direction: column;
       gap: 18px;
+      flex: 1;
     }
 
     .hero-card,
-    .viewer-card {
+    .viewer-card,
+    .fallback-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border-radius: 24px;
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
     }
 
     .hero-card {
@@ -199,11 +86,28 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
-    .hero-text h2 {
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .site-logo {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 8px 20px rgba(24, 90, 219, 0.18);
+      background: #fff;
+      flex: 0 0 auto;
+    }
+
+    .hero-text h1 {
       margin: 0 0 8px;
       font-size: clamp(1.4rem, 2vw, 2rem);
       line-height: 1.2;
@@ -212,28 +116,41 @@
     .hero-text p {
       margin: 0;
       color: var(--muted);
+      line-height: 1.6;
       max-width: 760px;
-      line-height: 1.65;
     }
 
-    .badge-row {
+    .hero-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 14px;
     }
 
-    .badge {
+    .btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
       border-radius: 999px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--primary);
-      background: rgba(24, 90, 219, 0.08);
+      text-decoration: none;
+      font-weight: 700;
       border: 1px solid rgba(24, 90, 219, 0.12);
+      background: rgba(255,255,255,0.75);
+      color: var(--text);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #185adb, #4f46e5);
+      color: #fff;
+      border-color: transparent;
     }
 
     .viewer-card {
@@ -242,212 +159,113 @@
 
     .viewer-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
       margin-bottom: 14px;
     }
 
-    .viewer-top-left h3 {
-      margin: 0;
-      font-size: 1.06rem;
+    .viewer-top h2 {
+      margin: 0 0 6px;
+      font-size: 1.08rem;
     }
 
-    .viewer-top-left p {
-      margin: 6px 0 0;
+    .viewer-top p {
+      margin: 0;
       color: var(--muted);
       font-size: 0.95rem;
     }
 
-    .pdf-frame-wrap {
+    .pdf-wrap {
       width: 100%;
       height: 78vh;
       min-height: 620px;
-      border-radius: 18px;
       overflow: hidden;
+      border-radius: 18px;
       border: 1px solid rgba(148, 163, 184, 0.18);
-      background: #e5e7eb;
+      background: #dbe3ef;
     }
 
     .pdf-frame {
       width: 100%;
       height: 100%;
       border: 0;
-      background: white;
+      background: #fff;
     }
 
-    .site-footer {
-      width: min(1200px, calc(100% - 24px));
-      margin: 0 auto 0;
-      padding: 18px 24px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      background: var(--footer-bg);
-      border-top: 1.5px solid var(--border);
-      box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
-      border-radius: 24px 24px 0 0;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .fallback-card {
+      padding: 18px 20px;
+      display: none;
     }
 
-    .site-footer-copy {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text);
-      text-align: center;
+    .fallback-card.show {
+      display: block;
     }
 
-    .site-footer-copy .brand-name {
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .site-footer-copy .separator {
+    .fallback-card p {
+      margin: 0;
       color: var(--muted);
-      margin: 0 4px;
-    }
-
-    .site-footer-copy a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .footer-links {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .footer-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--icon-bg);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-      text-decoration: none;
-    }
-
-    .footer-icon:hover {
-      transform: translateY(-3px);
-      background: var(--icon-hover);
-      box-shadow: 0 8px 18px rgba(24, 90, 219, 0.16);
-    }
-
-    .footer-text-link {
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 999px;
-      background: var(--icon-bg);
-      text-decoration: none;
-      color: var(--primary);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-    }
-
-    .footer-text-link:hover {
-      transform: translateY(-3px);
-      background: var(--icon-hover);
-      box-shadow: 0 8px 18px rgba(24, 90, 219, 0.16);
+      line-height: 1.6;
     }
 
     @media (max-width: 768px) {
-      .header-wrap,
-      .hero-card,
-      .viewer-top {
+      .page {
+        width: min(100%, calc(100% - 12px));
+      }
+
+      .hero-card {
+        padding: 18px;
+      }
+
+      .hero-left {
         align-items: flex-start;
       }
 
-      .header-wrap,
-      .hero-card {
-        flex-direction: column;
+      .site-logo {
+        width: 52px;
+        height: 52px;
       }
 
-      .header-actions {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .pdf-frame-wrap {
+      .pdf-wrap {
         height: 72vh;
-        min-height: 520px;
-      }
-
-      .site-footer {
-        padding-left: 16px;
-        padding-right: 16px;
+        min-height: 500px;
       }
     }
   </style>
 </head>
 <body>
-
-  <header class="site-header">
-    <div class="header-wrap">
-      <div class="brand">
-        <div class="brand-logo" aria-hidden="true">
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 12h18l10 10v24a6 6 0 0 1-6 6H18a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6z" fill="white"/>
-            <path d="M36 12v10h10" fill="#DBEAFE"/>
-            <path d="M22 29h20M22 36h20M22 43h12" stroke="#185ADB" stroke-width="4" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <div class="brand-text">
-          <h1>CV Nguyễn Lê Khánh Hòa</h1>
-          <p>Trang hiển thị hồ sơ cá nhân dạng PDF</p>
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <a class="btn" href="cv.pdf" target="_blank">Mở PDF riêng</a>
-        <a class="btn btn-primary" href="cv.pdf" download>Tải CV</a>
-      </div>
-    </div>
-  </header>
+  <div id="header-slot"></div>
 
   <main class="page">
     <section class="hero-card">
-      <div class="hero-text">
-        <h2>Hồ sơ CV trực tuyến</h2>
-        <p>
-          Đây là trang HTML gọn đẹp để hiển thị trực tiếp file CV PDF của bạn.
-          Người xem có thể đọc ngay trên web, mở ra tab riêng hoặc tải xuống rất tiện.
-        </p>
-
-        <div class="badge-row">
-          <span class="badge">PDF nhúng trực tiếp</span>
-          <span class="badge">Header + Footer hoàn chỉnh</span>
-          <span class="badge">Có logo tab</span>
+      <div class="hero-left">
+        <img src="logo.png" alt="Logo website" class="site-logo" />
+        <div class="hero-text">
+          <h1>CV Nguyễn Lê Khánh Hòa</h1>
+          <p>
+            Trang CV hiển thị trực tiếp file PDF, có header, footer và logo tab riêng.
+            Bạn có thể xem online, mở tab riêng hoặc tải xuống.
+          </p>
         </div>
+      </div>
+
+      <div class="hero-actions">
+        <a class="btn" href="cv.pdf" target="_blank" rel="noopener noreferrer">Mở PDF riêng</a>
+        <a class="btn btn-primary" href="cv.pdf" download>Tải CV</a>
       </div>
     </section>
 
     <section class="viewer-card">
       <div class="viewer-top">
-        <div class="viewer-top-left">
-          <h3>Xem CV PDF</h3>
-          <p>Nếu PDF không hiển thị trên một số trình duyệt, hãy bấm “Mở PDF riêng” ở phía trên.</p>
+        <div>
+          <h2>Xem CV PDF</h2>
+          <p>Nếu trình duyệt không hiển thị PDF, hãy dùng nút “Mở PDF riêng”.</p>
         </div>
-
-        <a class="btn" href="cv.pdf" target="_blank">Xem toàn màn hình</a>
+        <a class="btn" href="cv.pdf" target="_blank" rel="noopener noreferrer">Xem toàn màn hình</a>
       </div>
 
-      <div class="pdf-frame-wrap">
+      <div class="pdf-wrap">
         <iframe
           class="pdf-frame"
           src="cv.pdf#toolbar=1&navpanes=0&scrollbar=1"
@@ -455,34 +273,47 @@
         ></iframe>
       </div>
     </section>
+
+    <section id="fallbackCard" class="fallback-card">
+      <p>
+        Không tải được <strong>mini-header.html</strong> hoặc <strong>footer.html</strong>.
+        Hãy kiểm tra xem các file này có nằm cùng thư mục với <strong>index.html</strong> hay không.
+      </p>
+    </section>
   </main>
 
-  <footer class="site-footer">
-    <span class="site-footer-copy">
-      &copy; 2025 <span class="brand-name">Tra Cứu Học Thuật &amp; AI</span>
-      <span class="separator">&bull;</span>
-      <span>Thiết kế bởi <a href="https://www.facebook.com/KOHA2002/" target="_blank">KoHa</a></span>
-    </span>
+  <div id="footer-slot"></div>
 
-    <span class="footer-links">
-      <a href="cv.pdf" target="_blank" class="footer-text-link" title="Xem CV">CV</a>
+  <script>
+    const headerSlot = document.getElementById('header-slot');
+    const footerSlot = document.getElementById('footer-slot');
+    const fallbackCard = document.getElementById('fallbackCard');
 
-      <a href="https://www.youtube.com/channel/UCH-j549S-5EHFTchh0deQmQ" target="_blank" title="YouTube KoHa" class="footer-icon">
-        <svg viewBox="0 0 32 32" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="16" fill="white"/>
-          <path d="M24.8 11.9c-.2-.7-.7-1.2-1.4-1.3-1.7-.3-6.7-.3-6.7-.3s-5 0-6.7.3c-.7.1-1.2.6-1.4 1.3-.3 1.5-.3 4.7-.3 4.7s0 3.2.3 4.7c.2.7.7 1.2 1.4 1.3 1.7.3 6.7.3 6.7.3s5 0 6.7-.3c.7-.1 1.2-.6 1.4-1.3.3-1.5.3-4.7.3-4.7s0-3.2-.3-4.7z" fill="#FF0000"/>
-          <path d="M14.2 18.8l5.2-2.8-5.2-2.8v5.6z" fill="white"/>
-        </svg>
-      </a>
+    async function loadPartial(fileName, target) {
+      try {
+        const res = await fetch(fileName, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Không tải được ${fileName}`);
+        target.innerHTML = await res.text();
+        return true;
+      } catch (error) {
+        console.warn(error);
+        target.innerHTML = '';
+        return false;
+      }
+    }
 
-      <a href="https://www.facebook.com/koha2002/" target="_blank" title="Facebook KoHa" class="footer-icon">
-        <svg viewBox="0 0 32 32" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="16" fill="white"/>
-          <path d="M18.1 16.9h1.7l.3-2.1h-2V13.5c0-.6.2-.9.9-.9h1.2V11h-1.6c-1.8 0-2.4.8-2.4 2.2v1.5h-1.1v2.1h1.1v5.1h2.3v-5.1z" fill="#185adb"/>
-        </svg>
-      </a>
-    </span>
-  </footer>
+    async function initPartials() {
+      const [headerOk, footerOk] = await Promise.all([
+        loadPartial('mini-header.html', headerSlot),
+        loadPartial('footer.html', footerSlot)
+      ]);
 
+      if (!headerOk || !footerOk) {
+        fallbackCard.classList.add('show');
+      }
+    }
+
+    initPartials();
+  </script>
 </body>
 </html>
