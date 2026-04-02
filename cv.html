@@ -4,65 +4,250 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV | Nguyễn Lê Khánh Hòa</title>
+  <meta name="description" content="Trang hiển thị CV PDF" />
   <link rel="icon" type="image/png" href="logo.png" />
+
   <style>
+    :root {
+      --bg: #08133b;
+      --bg-soft: #1f2b5a;
+      --card: rgba(255,255,255,0.10);
+      --card-border: rgba(255,255,255,0.10);
+      --text: #ffffff;
+      --muted: #cbd5e1;
+      --primary: #4f6bff;
+      --primary-2: #6f86ff;
+      --white: #ffffff;
+      --shadow: 0 12px 40px rgba(0,0,0,0.22);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      background: #0b1437;
+      min-height: 100%;
       font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79,107,255,0.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(111,134,255,0.14), transparent 20%),
+        var(--bg);
+      color: var(--text);
     }
-    #header-slot, #footer-slot {
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #header-slot,
+    #footer-slot {
       width: 100%;
     }
+
     .page {
-      width: min(1200px, calc(100% - 24px));
-      margin: 20px auto;
+      width: min(1100px, calc(100% - 24px));
+      margin: 18px auto 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
     }
-    .viewer {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: 16px;
+
+    .hero,
+    .viewer,
+    .message-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-    .viewer h2 {
-      color: #fff;
-      margin: 0 0 8px;
+
+    .hero {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
-    .viewer p {
-      color: #cbd5e1;
-      margin: 0 0 12px;
+
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
     }
-    .pdf-box {
-      height: 78vh;
-      min-height: 620px;
-      border-radius: 18px;
+
+    .logo-box {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
       overflow: hidden;
       background: #fff;
+      flex: 0 0 auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
-    .pdf-box iframe {
+
+    .logo-box img {
       width: 100%;
       height: 100%;
-      border: 0;
+      object-fit: cover;
+      display: block;
     }
-    .btns {
-      margin-bottom: 12px;
+
+    .hero-text h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.2;
+    }
+
+    .hero-text p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 42px;
-      padding: 0 16px;
+      min-height: 44px;
+      padding: 0 18px;
       border-radius: 999px;
       text-decoration: none;
       font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-light {
       background: #fff;
       color: #111827;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(79,107,255,0.35);
+    }
+
+    .viewer {
+      padding: 18px;
+    }
+
+    .viewer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .viewer-top h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+    }
+
+    .viewer-top p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status {
+      margin: 10px 0 0;
+      color: #bfdbfe;
+      font-size: 0.95rem;
+    }
+
+    .pdf-stage {
+      min-height: 520px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 18px;
+    }
+
+    .pdf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .pdf-page {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .pdf-page canvas {
+      max-width: 100%;
+      height: auto !important;
+      display: block;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+    }
+
+    .loading-box,
+    .error-box {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--muted);
+    }
+
+    .message-box {
+      display: none;
+      padding: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .message-box.show {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        width: min(100%, calc(100% - 12px));
+      }
+
+      .hero {
+        padding: 16px;
+      }
+
+      .hero-left {
+        align-items: flex-start;
+      }
+
+      .logo-box {
+        width: 50px;
+        height: 50px;
+      }
+
+      .pdf-stage {
+        padding: 12px;
+      }
     }
   </style>
 </head>
@@ -70,38 +255,157 @@
   <div id="header-slot"></div>
 
   <main class="page">
-    <section class="viewer">
-      <h2>Xem CV PDF</h2>
-      <p>Nếu file PDF bị server ép tải xuống, dùng PDF.js viewer sẽ ổn hơn.</p>
-
-      <div class="btns">
-        <a class="btn" href="cv.pdf" target="_blank">Mở PDF riêng</a>
+    <section class="hero">
+      <div class="hero-left">
+        <div class="logo-box">
+          <img src="logo.png" alt="Logo website">
+        </div>
+        <div class="hero-text">
+          <h1>CV Nguyễn Lê Khánh Hòa</h1>
+          <p>Trang CV hiển thị trực tiếp từ file PDF, có header, footer và logo tab.</p>
+        </div>
       </div>
 
-      <div class="pdf-box">
-        <iframe
-          src="https://mozilla.github.io/pdf.js/web/viewer.html?file=https://koha.io.vn/cv.pdf"
-          title="CV PDF"
-        ></iframe>
+      <div class="actions">
+        <a class="btn btn-light" href="cv.pdf" target="_blank" rel="noopener noreferrer">Mở PDF riêng</a>
+        <a class="btn btn-primary" href="cv.pdf" download>Tải CV</a>
       </div>
     </section>
+
+    <section class="viewer">
+      <div class="viewer-top">
+        <div>
+          <h2>Xem CV PDF</h2>
+          <p>Trang này render PDF trực tiếp thành ảnh từng trang để tránh lỗi khung trắng.</p>
+          <div id="statusText" class="status">Đang tải PDF...</div>
+        </div>
+      </div>
+
+      <div class="pdf-stage">
+        <div id="pdfContainer" class="pdf-list">
+          <div class="loading-box">Đang tải nội dung CV...</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="messageBox" class="message-box"></section>
   </main>
 
   <div id="footer-slot"></div>
 
-  <script>
-    async function loadPartial(fileName, targetId) {
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+
+  <script type="module">
+    import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+    const headerSlot = document.getElementById("header-slot");
+    const footerSlot = document.getElementById("footer-slot");
+    const messageBox = document.getElementById("messageBox");
+    const pdfContainer = document.getElementById("pdfContainer");
+    const statusText = document.getElementById("statusText");
+
+    async function loadPartial(fileName, target) {
       try {
         const res = await fetch(fileName, { cache: "no-store" });
-        if (!res.ok) throw new Error(fileName);
-        document.getElementById(targetId).innerHTML = await res.text();
-      } catch (e) {
-        console.warn("Không tải được:", fileName);
+        if (!res.ok) throw new Error("Không tải được " + fileName);
+        target.innerHTML = await res.text();
+        return true;
+      } catch (error) {
+        console.warn(error);
+        target.innerHTML = "";
+        return false;
       }
     }
 
-    loadPartial("mini-header.html", "header-slot");
-    loadPartial("footer.html", "footer-slot");
+    async function initPartials() {
+      const [headerOk, footerOk] = await Promise.all([
+        loadPartial("mini-header.html", headerSlot),
+        loadPartial("footer.html", footerSlot)
+      ]);
+
+      if (!headerOk || !footerOk) {
+        messageBox.classList.add("show");
+        messageBox.innerHTML =
+          "Không tải được <strong>mini-header.html</strong> hoặc <strong>footer.html</strong>. Hãy kiểm tra 2 file này có nằm cùng thư mục với <strong>cv.html</strong> hay không.";
+      }
+    }
+
+    async function fetchPdfData(url) {
+      const response = await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error("Không tải được file PDF. Mã lỗi: " + response.status);
+      }
+
+      return await response.arrayBuffer();
+    }
+
+    async function renderPdf() {
+      try {
+        statusText.textContent = "Đang tải file PDF...";
+        const pdfData = await fetchPdfData("cv.pdf");
+
+        statusText.textContent = "Đang render các trang...";
+        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+        const pdf = await loadingTask.promise;
+
+        pdfContainer.innerHTML = "";
+        statusText.textContent = `Tải thành công ${pdf.numPages} trang.`;
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+          const page = await pdf.getPage(pageNumber);
+
+          const desiredWidth = Math.min(window.innerWidth * 0.82, 900);
+          const baseViewport = page.getViewport({ scale: 1 });
+          const scale = desiredWidth / baseViewport.width;
+          const viewport = page.getViewport({ scale });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          const pageWrap = document.createElement("div");
+          pageWrap.className = "pdf-page";
+          pageWrap.appendChild(canvas);
+          pdfContainer.appendChild(pageWrap);
+
+          await page.render({
+            canvasContext: context,
+            viewport
+          }).promise;
+        }
+      } catch (error) {
+        console.error(error);
+        statusText.textContent = "Không render được PDF.";
+        pdfContainer.innerHTML = `
+          <div class="error-box">
+            <p>Không hiển thị được CV PDF.</p>
+            <p>${error.message}</p>
+            <p style="margin-top:14px;">
+              <a class="btn btn-primary" href="cv.pdf" target="_blank" rel="noopener noreferrer">Mở PDF riêng</a>
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    await initPartials();
+    await renderPdf();
+
+    window.addEventListener("resize", () => {
+      clearTimeout(window.__pdfResizeTimer);
+      window.__pdfResizeTimer = setTimeout(() => {
+        renderPdf();
+      }, 300);
+    });
   </script>
 </body>
 </html>
