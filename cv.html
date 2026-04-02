@@ -4,227 +4,65 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV | Nguyễn Lê Khánh Hòa</title>
-  <meta name="description" content="Trang hiển thị CV PDF có header, footer và logo tab" />
   <link rel="icon" type="image/png" href="logo.png" />
-
   <style>
-    :root {
-      --bg: #f3f6fb;
-      --card-bg: rgba(255, 255, 255, 0.82);
-      --border: rgba(255, 255, 255, 0.7);
-      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-      --text: #1f2937;
-      --muted: #6b7280;
-      --primary: #185adb;
-      --primary-2: #4f46e5;
-      --glass: blur(12px);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f172a;
-        --card-bg: rgba(15, 23, 42, 0.72);
-        --border: rgba(148, 163, 184, 0.14);
-        --shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
-        --text: #e5e7eb;
-        --muted: #94a3b8;
-        --primary: #93c5fd;
-        --primary-2: #a5b4fc;
-      }
-    }
-
-    * { box-sizing: border-box; }
-
     html, body {
       margin: 0;
       padding: 0;
-      min-height: 100%;
-      font-family: "Montserrat", Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(24,90,219,0.15), transparent 28%),
-        radial-gradient(circle at top right, rgba(79,70,229,0.12), transparent 24%),
-        var(--bg);
+      height: 100%;
+      background: #0b1437;
+      font-family: Arial, sans-serif;
     }
-
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
     #header-slot, #footer-slot {
       width: 100%;
     }
-
     .page {
       width: min(1200px, calc(100% - 24px));
-      margin: 20px auto 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      flex: 1;
+      margin: 20px auto;
     }
-
-    .hero-card, .viewer-card, .fallback-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
+    .viewer {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 24px;
-      backdrop-filter: var(--glass);
-      -webkit-backdrop-filter: var(--glass);
+      padding: 16px;
     }
-
-    .hero-card {
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .hero-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      min-width: 0;
-    }
-
-    .site-logo {
-      width: 62px;
-      height: 62px;
-      border-radius: 18px;
-      object-fit: cover;
-      box-shadow: 0 8px 20px rgba(24, 90, 219, 0.18);
-      background: #fff;
-      flex: 0 0 auto;
-    }
-
-    .hero-text h1 {
+    .viewer h2 {
+      color: #fff;
       margin: 0 0 8px;
-      font-size: clamp(1.4rem, 2vw, 2rem);
-      line-height: 1.2;
     }
-
-    .hero-text p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-      max-width: 760px;
+    .viewer p {
+      color: #cbd5e1;
+      margin: 0 0 12px;
     }
-
-    .hero-actions {
+    .pdf-box {
+      height: 78vh;
+      min-height: 620px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .pdf-box iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .btns {
+      margin-bottom: 12px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
-
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 44px;
+      min-height: 42px;
       padding: 0 16px;
       border-radius: 999px;
       text-decoration: none;
       font-weight: 700;
-      border: 1px solid rgba(24, 90, 219, 0.12);
-      background: rgba(255,255,255,0.75);
-      color: var(--text);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.1);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #185adb, #4f46e5);
-      color: #fff;
-      border-color: transparent;
-    }
-
-    .viewer-card {
-      padding: 16px;
-    }
-
-    .viewer-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .viewer-top h2 {
-      margin: 0 0 6px;
-      font-size: 1.08rem;
-    }
-
-    .viewer-top p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .pdf-wrap {
-      width: 100%;
-      height: 78vh;
-      min-height: 620px;
-      overflow: hidden;
-      border-radius: 18px;
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      background: #dbe3ef;
-    }
-
-    .pdf-frame {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
       background: #fff;
-    }
-
-    .fallback-card {
-      padding: 18px 20px;
-      display: none;
-    }
-
-    .fallback-card.show {
-      display: block;
-    }
-
-    .fallback-card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    @media (max-width: 768px) {
-      .page {
-        width: min(100%, calc(100% - 12px));
-      }
-
-      .hero-card {
-        padding: 18px;
-      }
-
-      .hero-left {
-        align-items: flex-start;
-      }
-
-      .site-logo {
-        width: 52px;
-        height: 52px;
-      }
-
-      .pdf-wrap {
-        height: 72vh;
-        min-height: 500px;
-      }
+      color: #111827;
     }
   </style>
 </head>
@@ -232,88 +70,38 @@
   <div id="header-slot"></div>
 
   <main class="page">
-    <section class="hero-card">
-      <div class="hero-left">
-        <img src="logo.png" alt="Logo website" class="site-logo" />
-        <div class="hero-text">
-          <h1>CV Nguyễn Lê Khánh Hòa</h1>
-          <p>
-            Trang CV hiển thị trực tiếp file PDF, có header, footer và logo tab riêng.
-          </p>
-        </div>
+    <section class="viewer">
+      <h2>Xem CV PDF</h2>
+      <p>Nếu file PDF bị server ép tải xuống, dùng PDF.js viewer sẽ ổn hơn.</p>
+
+      <div class="btns">
+        <a class="btn" href="cv.pdf" target="_blank">Mở PDF riêng</a>
       </div>
 
-      <div class="hero-actions">
-        <a class="btn" href="cv.pdf" target="_blank" rel="noopener noreferrer">Mở PDF riêng</a>
-        <a class="btn btn-primary" href="cv.pdf" download>Tải CV</a>
+      <div class="pdf-box">
+        <iframe
+          src="https://mozilla.github.io/pdf.js/web/viewer.html?file=https://koha.io.vn/cv.pdf"
+          title="CV PDF"
+        ></iframe>
       </div>
-    </section>
-
-    <section class="viewer-card">
-      <div class="viewer-top">
-        <div>
-          <h2>Xem CV PDF</h2>
-          <p>Nếu vẫn không hiện, lỗi nằm ở cấu hình server trả file PDF.</p>
-        </div>
-        <a class="btn" href="cv.pdf" target="_blank" rel="noopener noreferrer">Xem toàn màn hình</a>
-      </div>
-
-      <div class="pdf-wrap">
-        <object
-          data="cv.pdf#toolbar=1&navpanes=0&scrollbar=1"
-          type="application/pdf"
-          class="pdf-frame"
-        >
-          <div style="padding:24px; text-align:center;">
-            <p>Trình duyệt không hiển thị được PDF.</p>
-            <a class="btn btn-primary" href="cv.pdf" target="_blank" rel="noopener noreferrer">
-              Mở PDF riêng
-            </a>
-          </div>
-        </object>
-      </div>
-    </section>
-
-    <section id="fallbackCard" class="fallback-card">
-      <p>
-        Không tải được <strong>mini-header.html</strong> hoặc <strong>footer.html</strong>.
-        Hãy kiểm tra file có nằm cùng thư mục với <strong>index.html</strong>.
-      </p>
     </section>
   </main>
 
   <div id="footer-slot"></div>
 
   <script>
-    const headerSlot = document.getElementById('header-slot');
-    const footerSlot = document.getElementById('footer-slot');
-    const fallbackCard = document.getElementById('fallbackCard');
-
-    async function loadPartial(fileName, target) {
+    async function loadPartial(fileName, targetId) {
       try {
-        const res = await fetch(fileName, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`Không tải được ${fileName}`);
-        target.innerHTML = await res.text();
-        return true;
-      } catch (error) {
-        console.warn(error);
-        target.innerHTML = '';
-        return false;
+        const res = await fetch(fileName, { cache: "no-store" });
+        if (!res.ok) throw new Error(fileName);
+        document.getElementById(targetId).innerHTML = await res.text();
+      } catch (e) {
+        console.warn("Không tải được:", fileName);
       }
     }
 
-    async function initPartials() {
-      const [headerOk, footerOk] = await Promise.all([
-        loadPartial('mini-header.html', headerSlot),
-        loadPartial('footer.html', footerSlot)
-      ]);
-
-      if (!headerOk || !footerOk) {
-        fallbackCard.classList.add('show');
-      }
-    }
-
-    initPartials();
+    loadPartial("mini-header.html", "header-slot");
+    loadPartial("footer.html", "footer-slot");
   </script>
 </body>
 </html>
