@@ -1,7 +1,3 @@
-<!-- HƯỚNG DẪN SỬ DỤNG: -->
-<!-- 1. Sao chép toàn bộ khối <style>...</style> và dán vào trong thẻ <head> của trang chính. -->
-<!-- 2. Sao chép khối <footer class="ai-footer">...</footer> và dán vào vị trí bạn muốn hiển thị footer (thường là ngay trước thẻ đóng </body>). -->
-
 <style>
     /* ----- Ý TƯỞNG THIẾT KẾ MỚI -----
      * Giao diện Sáng: Giữ phong cách tối giản, tinh chỉnh lại bóng đổ và màu sắc cho nhẹ nhàng hơn.
@@ -9,9 +5,9 @@
      * Bố cục: Luôn căn giữa nội dung trên mọi kích thước màn hình.
     */
 
-    /* Định nghĩa các biến màu cho giao diện SÁNG (tinh chỉnh lại) */
+    /* Định nghĩa các biến màu cho giao diện SÁNG */
     :root {
-        --footer-bg: rgba(255, 255, 255, 0.85); /* Hơi trong suốt một chút */
+        --footer-bg: rgba(255, 255, 255, 0.85);
         --footer-border: #e5e7eb;
         --footer-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
         --footer-text-primary: #185adb;
@@ -23,13 +19,13 @@
         --footer-icon-hover-shadow: 0 4px 8px rgba(24, 90, 219, 0.15);
     }
 
-    /* Định nghĩa lại các biến màu cho giao diện TỐI (hiệu ứng Glassmorphism) */
+    /* Định nghĩa lại các biến màu cho giao diện TỐI */
     @media (prefers-color-scheme: dark) {
         :root {
-            --footer-bg: rgba(15, 23, 42, 0.7); /* Nền xanh-xám trong mờ */
+            --footer-bg: rgba(15, 23, 42, 0.7);
             --footer-border: rgba(45, 55, 72, 0.5);
             --footer-shadow: 0 -2px 16px rgba(0,0,0,0.2);
-            --footer-text-primary: #a5b4fc; /* Màu xanh tím nhạt */
+            --footer-text-primary: #a5b4fc;
             --footer-text-secondary: #cbd5e1;
             --footer-text-tertiary: #64748b;
             --footer-icon-bg: rgba(30, 41, 59, 0.8);
@@ -38,8 +34,6 @@
             --footer-icon-hover-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
     }
-    
-    /* ----- Tái cấu trúc CSS cho Footer ----- */
 
     .ai-footer {
         width: 100%;
@@ -47,20 +41,16 @@
         margin: 0 auto;
         display: flex;
         align-items: center;
-        justify-content: center; /* Căn giữa trên mọi màn hình */
+        justify-content: center;
         gap: 20px;
         flex-wrap: wrap;
         box-sizing: border-box;
         font-family: 'Montserrat', Arial, sans-serif;
-        
-        /* Áp dụng các biến màu */
         background: var(--footer-bg);
         border-top: 1.5px solid var(--footer-border);
         box-shadow: var(--footer-shadow);
         border-radius: 24px 24px 0 0;
         transition: background-color 0.3s, border-color 0.3s;
-
-        /* Hiệu ứng Glassmorphism */
         -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
     }
@@ -69,7 +59,7 @@
         font-size: 1rem;
         font-weight: 500;
         color: var(--footer-text-secondary);
-        text-align: center; /* Đảm bảo text cũng căn giữa nếu bị xuống dòng */
+        text-align: center;
     }
 
     .ai-footer-copyright .brand {
@@ -87,7 +77,7 @@
         text-decoration: none;
         font-weight: 600;
     }
-    
+
     .ai-footer-social-links {
         display: flex;
         align-items: center;
@@ -104,34 +94,53 @@
         background: var(--footer-icon-bg);
         box-shadow: var(--footer-icon-shadow);
         transition: transform 0.2s ease-in-out, box-shadow .17s, background .13s;
+        text-decoration: none;
     }
 
     .ai-footer-social-icon:hover,
     .ai-footer-social-icon:focus {
-        transform: translateY(-3px); /* Hiệu ứng nhấc lên khi hover */
+        transform: translateY(-3px);
         background: var(--footer-icon-hover-bg) !important;
         box-shadow: var(--footer-icon-hover-shadow) !important;
     }
-    
-    /* SVG fill color for dark mode */
+
+    .ai-footer-cv svg {
+        display: block;
+    }
+
     @media (prefers-color-scheme: dark) {
         .yt-icon-play {
             fill: var(--footer-icon-bg);
         }
         .fb-icon-f {
-             fill: var(--footer-text-primary);
+            fill: var(--footer-text-primary);
+        }
+        .cv-icon-line {
+            stroke: var(--footer-text-primary);
         }
     }
-
 </style>
 
 <footer class="ai-footer">
     <span class="ai-footer-copyright">
         &copy; 2025 <span class="brand">Tra Cứu Học Thuật &amp; AI</span>
         <span class="separator">&bull;</span>
-        <span class="designer">Thiết kế bởi <a href="https://www.facebook.com/KOHA2002/" target="_blank">KoHa</a></span>
+        <span class="designer">
+            Thiết kế bởi <a href="https://www.facebook.com/KOHA2002/" target="_blank">KoHa</a>
+        </span>
     </span>
+
     <span class="ai-footer-social-links">
+        <!-- CV -->
+        <a href="cv.pdf" target="_blank" title="Xem CV của tôi" class="ai-footer-social-icon ai-footer-cv">
+            <svg viewBox="0 0 32 32" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="4" width="16" height="24" rx="3" fill="var(--footer-icon-bg)" stroke="var(--footer-text-primary)" stroke-width="1.6"/>
+                <path class="cv-icon-line" d="M12 11H20" stroke="var(--footer-text-primary)" stroke-width="2" stroke-linecap="round"/>
+                <path class="cv-icon-line" d="M12 16H20" stroke="var(--footer-text-primary)" stroke-width="2" stroke-linecap="round"/>
+                <path class="cv-icon-line" d="M12 21H17" stroke="var(--footer-text-primary)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </a>
+
         <!-- YouTube -->
         <a href="https://www.youtube.com/channel/UCH-j549S-5EHFTchh0deQmQ" target="_blank" title="YouTube KoHa" class="ai-footer-social-icon">
             <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -140,6 +149,7 @@
                 <path class="yt-icon-play" d="M14.2 18.8l5.2-2.8-5.2-2.8v5.6z" fill="#fff"/>
             </svg>
         </a>
+
         <!-- Facebook -->
         <a href="https://www.facebook.com/koha2002/" target="_blank" title="Facebook KoHa" class="ai-footer-social-icon">
             <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
