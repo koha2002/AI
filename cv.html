@@ -4,20 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV | Nguyễn Lê Khánh Hòa</title>
-  <meta name="description" content="Trang hiển thị CV online" />
+  <meta name="description" content="CV Nguyễn Lê Khánh Hòa" />
   <link rel="icon" type="image/png" href="logo.png" />
 
   <style>
     :root {
       --bg: #08133b;
-      --bg-soft: #1f2b5a;
-      --card: rgba(255,255,255,0.10);
-      --card-border: rgba(255,255,255,0.10);
+      --card: rgba(255, 255, 255, 0.10);
+      --card-border: rgba(255, 255, 255, 0.10);
       --text: #ffffff;
-      --muted: #cbd5e1;
-      --primary: #4f6bff;
-      --primary-2: #6f86ff;
-      --shadow: 0 12px 40px rgba(0,0,0,0.22);
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
       --radius: 24px;
     }
 
@@ -31,8 +27,8 @@
       min-height: 100%;
       font-family: Arial, sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(79,107,255,0.18), transparent 24%),
-        radial-gradient(circle at top right, rgba(111,134,255,0.14), transparent 20%),
+        radial-gradient(circle at top left, rgba(79, 107, 255, 0.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(111, 134, 255, 0.14), transparent 20%),
         var(--bg);
       color: var(--text);
     }
@@ -70,17 +66,9 @@
     .hero {
       padding: 20px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .hero-left {
-      display: flex;
       align-items: center;
       gap: 14px;
-      min-width: 0;
+      flex-wrap: wrap;
     }
 
     .logo-box {
@@ -90,7 +78,7 @@
       overflow: hidden;
       background: #fff;
       flex: 0 0 auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
     }
 
     .logo-box img {
@@ -100,51 +88,17 @@
       display: block;
     }
 
-    .hero-text h1 {
-      margin: 0 0 6px;
+    .hero h1 {
+      margin: 0;
       font-size: clamp(1.4rem, 2vw, 2rem);
       line-height: 1.2;
-    }
-
-    .hero-text p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 42px;
-      padding: 0 16px;
-      border-radius: 999px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: #fff;
-      box-shadow: 0 6px 18px rgba(79,107,255,0.35);
     }
 
     .viewer {
       padding: 18px;
     }
 
-    .viewer-top h2 {
-      margin: 0 0 8px;
-      font-size: 1.1rem;
-    }
-
-    .viewer-top p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
     .cv-stage {
-      margin-top: 16px;
-      padding: 18px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
       display: flex;
       justify-content: center;
     }
@@ -155,14 +109,14 @@
       display: block;
       border-radius: 14px;
       background: #fff;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
     }
 
     .message-box {
       display: none;
       padding: 18px;
-      color: var(--muted);
       line-height: 1.6;
+      color: #fff;
     }
 
     .message-box.show {
@@ -178,17 +132,9 @@
         padding: 16px;
       }
 
-      .hero-left {
-        align-items: flex-start;
-      }
-
       .logo-box {
         width: 50px;
         height: 50px;
-      }
-
-      .cv-stage {
-        padding: 10px;
       }
     }
   </style>
@@ -198,25 +144,13 @@
 
   <main class="page">
     <section class="hero">
-      <div class="hero-left">
-        <div class="logo-box">
-          <img src="logo.png" alt="Logo website">
-        </div>
-        <div class="hero-text">
-          <h1>CV Nguyễn Lê Khánh Hòa</h1>
-          <p>Trang CV chỉ để xem online, không dùng PDF nhúng để tránh lỗi bị trình duyệt hoặc extension bắt tải xuống.</p>
-        </div>
+      <div class="logo-box">
+        <img src="logo.png" alt="Logo website" />
       </div>
-
-      <div class="badge">Xem online</div>
+      <h1>CV Nguyễn Lê Khánh Hòa</h1>
     </section>
 
     <section class="viewer">
-      <div class="viewer-top">
-        <h2>Xem CV</h2>
-        <p>CV được hiển thị trực tiếp dưới dạng ảnh toàn trang để tránh lỗi trắng khung và lỗi ép tải file PDF.</p>
-      </div>
-
       <div class="cv-stage">
         <img
           src="cv.webp"
@@ -258,8 +192,7 @@
 
       if (!headerOk || !footerOk) {
         messageBox.classList.add("show");
-        messageBox.innerHTML =
-          "Không tải được <strong>mini-header.html</strong> hoặc <strong>footer.html</strong>. Hãy kiểm tra 2 file này có nằm cùng thư mục với <strong>cv.html</strong> hay không.";
+        messageBox.textContent = "Không tải được mini-header.html hoặc footer.html.";
       }
     }
 
