@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Footer có nút Xem CV</title>
+    <title>Footer có nút xem CV</title>
 
     <style>
-        /* ----- Ý TƯỞNG THIẾT KẾ MỚI -----
-         * Giao diện Sáng: Giữ phong cách tối giản, tinh chỉnh lại bóng đổ và màu sắc cho nhẹ nhàng hơn.
-         * Giao diện Tối: Áp dụng hiệu ứng "Glassmorphism" (Thủy tinh mờ) hiện đại.
-         * Bố cục: Luôn căn giữa nội dung trên mọi màn hình.
-        */
-
-        /* Định nghĩa các biến màu cho giao diện SÁNG */
         :root {
             --footer-bg: rgba(255, 255, 255, 0.85);
             --footer-border: #e5e7eb;
@@ -31,7 +24,6 @@
             --footer-btn-shadow: 0 2px 8px rgba(24, 90, 219, 0.18);
         }
 
-        /* Giao diện TỐI */
         @media (prefers-color-scheme: dark) {
             :root {
                 --footer-bg: rgba(15, 23, 42, 0.7);
@@ -57,18 +49,12 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background: #f3f4f6;
+            background: transparent;
             font-family: 'Montserrat', Arial, sans-serif;
         }
 
         .page-content {
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            color: #374151;
-            text-align: center;
         }
 
         .ai-footer {
@@ -81,6 +67,7 @@
             gap: 20px;
             flex-wrap: wrap;
             box-sizing: border-box;
+            font-family: 'Montserrat', Arial, sans-serif;
             background: var(--footer-bg);
             border-top: 1.5px solid var(--footer-border);
             box-shadow: var(--footer-shadow);
@@ -143,7 +130,6 @@
             align-items: center;
             justify-content: center;
             padding: 10px 18px;
-            min-height: 42px;
             border-radius: 999px;
             background: var(--footer-btn-bg);
             color: var(--footer-btn-text);
@@ -162,15 +148,9 @@
         }
 
         @media (prefers-color-scheme: dark) {
-            body {
-                background: #0f172a;
-                color: #e5e7eb;
-            }
-
             .yt-icon-play {
                 fill: var(--footer-icon-bg);
             }
-
             .fb-icon-f {
                 fill: var(--footer-text-primary);
             }
@@ -179,12 +159,7 @@
 </head>
 <body>
 
-    <main class="page-content">
-        <div>
-            <h1>Trang của bạn</h1>
-            <p>Nút trong footer bên dưới sẽ mở file CV PDF ở tab mới.</p>
-        </div>
-    </main>
+    <main class="page-content"></main>
 
     <footer class="ai-footer">
         <span class="ai-footer-copyright">
@@ -193,11 +168,10 @@
             <span class="designer">Thiết kế bởi <a href="https://www.facebook.com/KOHA2002/" target="_blank" rel="noopener noreferrer">KoHa</a></span>
         </span>
 
-        <a href="./cv.pdf?v=1" target="_blank" rel="noopener noreferrer" class="ai-footer-btn">Xem CV</a>
+        <a class="ai-footer-btn" href="/cv.pdf" target="_blank" rel="noopener noreferrer">Xem CV</a>
 
         <span class="ai-footer-social-links">
-            <!-- YouTube -->
-            <a href="https://www.youtube.com/channel/UCH-j549S-5EHFTchh0deQmQ" target="_blank" rel="noopener noreferrer" title="YouTube KoHa" class="ai-footer-social-icon">
+            <a href="https://www.youtube.com/channel/UCH-j549S-5EHFTchh0deQmQ" target="_blank" title="YouTube KoHa" class="ai-footer-social-icon" rel="noopener noreferrer">
                 <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="16" cy="16" r="16" fill="var(--footer-icon-bg)"/>
                     <path d="M24.8 11.9c-.2-.7-.7-1.2-1.4-1.3-1.7-.3-6.7-.3-6.7-.3s-5 0-6.7.3c-.7.1-1.2.6-1.4 1.3-.3 1.5-.3 4.7-.3 4.7s0 3.2.3 4.7c.2.7.7 1.2 1.4 1.3 1.7.3 6.7.3 6.7.3s5 0 6.7-.3c.7-.1 1.2-.6 1.4-1.3.3-1.5.3-4.7.3-4.7s0-3.2-.3-4.7z" fill="#FF0000"/>
@@ -205,8 +179,7 @@
                 </svg>
             </a>
 
-            <!-- Facebook -->
-            <a href="https://www.facebook.com/koha2002/" target="_blank" rel="noopener noreferrer" title="Facebook KoHa" class="ai-footer-social-icon">
+            <a href="https://www.facebook.com/koha2002/" target="_blank" title="Facebook KoHa" class="ai-footer-social-icon" rel="noopener noreferrer">
                 <svg viewBox="0 0 32 32" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="16" cy="16" r="16" fill="var(--footer-icon-bg)"/>
                     <path class="fb-icon-f" d="M18.1 16.9h1.7l.3-2.1h-2V13.5c0-.6.2-.9.9-.9h1.2V11h-1.6c-1.8 0-2.4.8-2.4 2.2v1.5h-1.1v2.1h1.1v5.1h2.3v-5.1z" fill="#185adb"/>
