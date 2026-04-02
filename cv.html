@@ -15,6 +15,8 @@
       --text: #ffffff;
       --shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
       --radius: 24px;
+      --btn-bg: linear-gradient(135deg, #4f6bff, #6f86ff);
+      --btn-shadow: 0 8px 24px rgba(79, 107, 255, 0.35);
     }
 
     * {
@@ -67,8 +69,16 @@
       padding: 20px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      justify-content: space-between;
+      gap: 16px;
       flex-wrap: wrap;
+    }
+
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
     }
 
     .logo-box {
@@ -92,6 +102,34 @@
       margin: 0;
       font-size: clamp(1.4rem, 2vw, 2rem);
       line-height: 1.2;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .detail-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: var(--btn-bg);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: var(--btn-shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .detail-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.96;
+      box-shadow: 0 12px 30px rgba(79, 107, 255, 0.42);
     }
 
     .viewer {
@@ -132,9 +170,18 @@
         padding: 16px;
       }
 
+      .hero-left {
+        align-items: center;
+      }
+
       .logo-box {
         width: 50px;
         height: 50px;
+      }
+
+      .hero-actions {
+        width: 100%;
+        justify-content: flex-start;
       }
     }
   </style>
@@ -144,10 +191,16 @@
 
   <main class="page">
     <section class="hero">
-      <div class="logo-box">
-        <img src="logo.png" alt="Logo website" />
+      <div class="hero-left">
+        <div class="logo-box">
+          <img src="logo.png" alt="Logo website" />
+        </div>
+        <h1>Curriculum Vitae Nguyen Le Khanh Hoa</h1>
       </div>
-      <h1>Curriculum Vitae Nguyen Le Khanh Hoa</h1>
+
+      <div class="hero-actions">
+        <a href="cv2.html" class="detail-btn">Hiển thị chi tiết</a>
+      </div>
     </section>
 
     <section class="viewer">
