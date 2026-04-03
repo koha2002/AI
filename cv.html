@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Curriculum Vitae | Nguyen Le Khanh Hoa</title>
   <meta name="description" content="CV Nguyễn Lê Khánh Hòa" />
@@ -10,34 +11,53 @@
   <style>
     :root {
       --bg: #08133b;
-      --card: rgba(255, 255, 255, 0.10);
-      --card-border: rgba(255, 255, 255, 0.10);
+      --card: rgba(255, 255, 255, 0.1);
+      --card-solid: rgba(255, 255, 255, 0.12);
+      --card-border: rgba(255, 255, 255, 0.14);
       --text: #ffffff;
+      --muted: rgba(255, 255, 255, 0.88);
       --shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
       --radius: 24px;
+      --radius-sm: 16px;
       --btn-bg: linear-gradient(135deg, #4f6bff, #6f86ff);
       --btn-shadow: 0 8px 24px rgba(79, 107, 255, 0.35);
+      --container: 1100px;
+      --space: clamp(12px, 2vw, 20px);
     }
 
     * {
       box-sizing: border-box;
+      min-width: 0;
     }
 
-    html, body {
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
       margin: 0;
-      padding: 0;
-      min-height: 100%;
-      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(79, 107, 255, 0.18), transparent 24%),
         radial-gradient(circle at top right, rgba(111, 134, 255, 0.14), transparent 20%),
         var(--bg);
-      color: var(--text);
-    }
-
-    body {
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    a,
+    button {
+      -webkit-tap-highlight-color: transparent;
     }
 
     #header-slot,
@@ -46,27 +66,37 @@
     }
 
     .page {
-      width: min(1100px, calc(100% - 24px));
+      width: min(var(--container), calc(100% - 32px));
       margin: 18px auto 28px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: var(--space);
       flex: 1;
     }
 
     .hero,
     .viewer,
     .message-box {
-      background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--card-solid);
+      overflow: hidden;
+    }
+
+    /* Dùng blur nếu trình duyệt hỗ trợ */
+    @supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+      .hero,
+      .viewer,
+      .message-box {
+        background: var(--card);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
     }
 
     .hero {
-      padding: 20px;
+      padding: clamp(16px, 2.2vw, 24px);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -78,15 +108,16 @@
       display: flex;
       align-items: center;
       gap: 14px;
+      flex: 1 1 420px;
       min-width: 0;
     }
 
     .logo-box {
-      width: 58px;
-      height: 58px;
+      width: clamp(50px, 6vw, 60px);
+      height: clamp(50px, 6vw, 60px);
       border-radius: 16px;
       overflow: hidden;
-      background: #fff;
+      background: #ffffff;
       flex: 0 0 auto;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
     }
@@ -95,19 +126,35 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
+    }
+
+    .hero-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
 
     .hero h1 {
       margin: 0;
-      font-size: clamp(1.4rem, 2vw, 2rem);
-      line-height: 1.2;
+      font-size: clamp(1.15rem, 2.3vw, 2rem);
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .hero-subtext {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(0.92rem, 1.6vw, 1rem);
+      line-height: 1.5;
     }
 
     .hero-actions {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 12px;
+      flex: 0 1 auto;
       flex-wrap: wrap;
     }
 
@@ -115,15 +162,18 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      min-height: 46px;
       padding: 12px 20px;
       border-radius: 999px;
       background: var(--btn-bg);
       color: #fff;
       text-decoration: none;
       font-weight: 700;
+      font-size: 0.98rem;
       box-shadow: var(--btn-shadow);
       transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
       white-space: nowrap;
+      text-align: center;
     }
 
     .detail-btn:hover {
@@ -132,22 +182,30 @@
       box-shadow: 0 12px 30px rgba(79, 107, 255, 0.42);
     }
 
+    .detail-btn:focus-visible {
+      outline: 2px solid #ffffff;
+      outline-offset: 3px;
+    }
+
     .viewer {
-      padding: 18px;
+      padding: clamp(12px, 2vw, 20px);
     }
 
     .cv-stage {
       display: flex;
       justify-content: center;
+      align-items: center;
+      width: 100%;
+      overflow: hidden;
     }
 
     .cv-image {
       width: min(100%, 900px);
       height: auto;
-      display: block;
       border-radius: 14px;
       background: #fff;
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+      object-fit: contain;
     }
 
     .message-box {
@@ -155,33 +213,84 @@
       padding: 18px;
       line-height: 1.6;
       color: #fff;
+      word-break: break-word;
     }
 
     .message-box.show {
       display: block;
     }
 
-    @media (max-width: 768px) {
+    /* Tablet */
+    @media (max-width: 992px) {
       .page {
-        width: min(100%, calc(100% - 12px));
+        width: min(var(--container), calc(100% - 24px));
       }
 
       .hero {
-        padding: 16px;
-      }
-
-      .hero-left {
-        align-items: center;
-      }
-
-      .logo-box {
-        width: 50px;
-        height: 50px;
+        align-items: flex-start;
       }
 
       .hero-actions {
         width: 100%;
         justify-content: flex-start;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      :root {
+        --radius: 18px;
+      }
+
+      .page {
+        width: calc(100% - 16px);
+        margin: 12px auto 20px;
+      }
+
+      .hero {
+        padding: 14px;
+        gap: 14px;
+      }
+
+      .hero-left {
+        flex: 1 1 100%;
+        align-items: flex-start;
+      }
+
+      .hero-actions {
+        width: 100%;
+      }
+
+      .detail-btn {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .viewer {
+        padding: 12px;
+      }
+
+      .cv-image {
+        border-radius: 12px;
+      }
+    }
+
+    /* Màn hình rất nhỏ */
+    @media (max-width: 420px) {
+      .hero-left {
+        gap: 10px;
+      }
+
+      .hero h1 {
+        font-size: 1.05rem;
+      }
+
+      .hero-subtext {
+        font-size: 0.9rem;
+      }
+
+      .logo-box {
+        border-radius: 12px;
       }
     }
   </style>
@@ -195,7 +304,11 @@
         <div class="logo-box">
           <img src="logo.png" alt="Logo website" />
         </div>
-        <h1>Curriculum Vitae Nguyen Le Khanh Hoa</h1>
+
+        <div class="hero-title">
+          <h1>Curriculum Vitae Nguyen Le Khanh Hoa</h1>
+          <p class="hero-subtext">Giao diện tự thích nghi với điện thoại, máy tính bảng và máy tính</p>
+        </div>
       </div>
 
       <div class="hero-actions">
