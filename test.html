@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện Đề</title>
-    <link rel="icon" type="image/png" href="logo.png">
+    <script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
@@ -165,12 +165,12 @@
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body class="dark:bg-gray-900 text-black">
- 
+
     <header id="main-header"></header>
- 
+
     <div class="app-container">
         <div class="w-full max-w-screen-xl mx-auto z-10">
- 
+
             <div id="home-screen" class="card p-8 rounded-2xl shadow-2xl text-black">
                 <div class="text-center flex-shrink-0">
                     <i class="fas fa-rocket text-5xl text-purple-500 mb-4"></i>
@@ -195,7 +195,7 @@
                     <input type="file" id="import-file-input" class="hidden" accept=".json">
                 </div>
             </div>
- 
+
             <div id="player-name-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-center text-black justify-center">
                  <h1 class="text-3xl font-bold mb-4">Sẵn sàng chơi!</h1>
                  <p class="mb-6 text-lg">Nhập tên và chọn chế độ chơi.</p>
@@ -210,7 +210,7 @@
                                <label class="custom-control custom-radio flex items-center gap-2 cursor-pointer"><input type="radio" name="game-mode" value="practice"><span></span>Luyện tập</label>
                            </div>
                       </div>
- 
+
                       <div class="text-left">
                         <h3 class="font-bold text-lg mb-2">Tùy chọn</h3>
                         <div class="flex flex-col sm:flex-row gap-4">
@@ -218,7 +218,7 @@
                             <label class="custom-control custom-checkbox flex items-center gap-2 cursor-pointer"><input type="checkbox" id="shuffle-answers-enabled" checked><span></span>Trộn đáp án</label>
                         </div>
                    </div>
- 
+
                       <div id="timer-settings" class="text-left">
                            <h3 class="font-bold text-lg mb-2">Cài đặt thời gian</h3>
                            <div class="flex items-center gap-2 mb-2">
@@ -233,7 +233,7 @@
                                <span>/ câu</span>
                            </div>
                       </div>
- 
+
                       <div class="flex flex-col sm:flex-row gap-4 pt-4">
                           <button id="back-from-player-name-btn" class="btn w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 shadow-lg"><i class="fas fa-arrow-left mr-2"></i>Quay lại</button>
                           <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
@@ -258,7 +258,7 @@
                     <div class="text-center mb-4">
                         <img id="quiz-question-image" src="" alt="Ảnh câu hỏi" class="max-h-60 mx-auto rounded-lg shadow-md hidden">
                     </div>
- 
+
                     <div id="question-text" class="text-2xl md:text-3xl font-bold my-6 text-center"></div>
                     <div id="answer-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
                     <div id="submit-multiple-choice-container" class="mt-6 text-center hidden">
@@ -266,7 +266,7 @@
                     </div>
                 </div>
             </div>
- 
+
             <div id="end-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-black flex flex-col">
                 <div class="text-center">
                     <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
@@ -278,13 +278,13 @@
                         <span class="font-semibold text-red-600">Sai: <span id="wrong-count">0</span></span>)
                     </p>
                 </div>
- 
+
                 <div id="wrong-answers-container" class="hidden mt-4 pt-4 border-t-2 border-gray-200 flex-grow flex flex-col min-h-0">
                     <h3 class="text-xl font-bold mb-2 text-center flex-shrink-0">Xem lại các câu sai từ lần đầu</h3>
                     <div id="wrong-answers-list" class="space-y-2 overflow-y-auto pr-2">
                     </div>
                 </div>
- 
+
                 <div class="mt-auto pt-6 text-center flex-shrink-0 flex flex-col sm:flex-row justify-center items-center gap-4">
                     <button id="export-wrong-btn" class="hidden btn bg-orange-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-600 shadow-lg w-full sm:w-auto">
                         <i class="fas fa-file-export mr-2"></i>Xuất file câu sai
@@ -294,18 +294,18 @@
                     </button>
                 </div>
             </div>
- 
+
             <div id="creator-screen" class="hidden card p-8 rounded-2xl shadow-2xl text-black">
                 <div class="flex-shrink-0">
                     <h1 id="creator-title" class="text-3xl font-bold mb-6 text-center">Tạo Quiz Mới</h1>
                 </div>
- 
+
                 <div class="flex-grow min-h-0 overflow-y-auto -mr-6 pr-6">
                     <div class="mb-6">
                         <label for="quiz-title" class="block text-lg font-medium mb-2">Tên bộ câu hỏi:</label>
                         <input type="text" id="quiz-title" placeholder="Ví dụ: Lịch sử Việt Nam" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
- 
+
                     <div class="border-t border-gray-300 pt-6">
                         <h2 id="question-editor-title" class="text-2xl font-bold mb-4">Thêm câu hỏi mới</h2>
                         <div class="space-y-4">
@@ -333,7 +333,7 @@
                                     <label class="flex items-center gap-2 text-sm"><input type="radio" name="answer-type" value="multiple"> Nhiều đáp án</label>
                                 </div>
                             </div>
- 
+
                             <div class="flex items-start gap-4">
                                 <div id="answer-editor-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
                                 </div>
@@ -343,7 +343,7 @@
                             <button id="add-question-btn" class="btn w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600">Thêm câu hỏi này</button>
                         </div>
                     </div>
- 
+
                     <div class="mt-8">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="text-xl font-bold">Các câu hỏi đã thêm: <span id="question-count">0</span></h3>
@@ -356,7 +356,7 @@
                         </div>
                     </div>
                 </div>
- 
+
                 <div class="flex-shrink-0 pt-4 mt-auto">
                     <div class="flex justify-between">
                         <button id="cancel-creation-btn" class="btn bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600">Hủy</button>
@@ -366,7 +366,7 @@
             </div>
         </div>
     </div>
- 
+
     <!-- Export Modal -->
     <div id="export-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-2xl text-black">
@@ -407,7 +407,7 @@
                     </div>
                 </div>
             </div>
- 
+
             <div class="mt-6 pt-4 border-t flex flex-wrap gap-4 justify-center">
                 <button id="export-pdf-btn" class="btn bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button>
                 <button id="export-doc-btn" class="btn bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-file-word mr-2"></i>Xuất Word (.docx)</button>
@@ -422,14 +422,14 @@
                 <h2 class="text-2xl font-bold">Chuyển đổi file từ Word</h2>
                 <button id="close-word-converter-btn" class="text-2xl text-gray-500 hover:text-red-500">&times;</button>
             </div>
- 
+
             <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4 p-4 overflow-hidden flex-1">
                 <div class="space-y-4 overflow-y-auto pr-2">
                     <div>
                         <label class="block font-semibold mb-2">Tiêu đề bộ câu hỏi</label>
                         <input id="word-quiz-title" type="text" value="Bộ câu hỏi chuyển đổi" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300">
                     </div>
- 
+
                     <div>
                         <label class="block font-semibold mb-2">Tải file .docx</label>
                         <input id="word-file-input" type="file" accept=".docx" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 bg-white">
@@ -437,7 +437,7 @@
                             <button id="word-clear-file-btn" class="btn bg-gray-200 text-black px-4 py-2 rounded-lg">Xóa file đã chọn</button>
                         </div>
                     </div>
- 
+
                     <div>
                         <label class="block font-semibold mb-2">Hoặc dán nội dung thô</label>
                         <textarea id="word-raw-input" rows="8" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300" placeholder="Dán nội dung ở đây nếu không dùng file .docx..."></textarea>
@@ -445,14 +445,14 @@
                             <button id="word-clear-raw-btn" class="btn bg-gray-200 text-black px-4 py-2 rounded-lg">Xóa nội dung nhập tay</button>
                         </div>
                     </div>
- 
+
                     <div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input id="word-default-false" type="checkbox" checked>
                             <span>Nếu không phát hiện đáp án đúng theo màu đã chọn, gán các đáp án là false</span>
                         </label>
                     </div>
- 
+
                     <div>
                         <label class="block font-semibold mb-2">Màu mẫu nhận diện đáp án đúng</label>
                         <select id="word-color-preset" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300">
@@ -468,27 +468,27 @@
                             <option value="custom">Tự chọn bên dưới</option>
                         </select>
                     </div>
- 
+
                     <div>
                         <label class="block font-semibold mb-2">Hoặc chọn màu tùy chỉnh</label>
                         <input id="word-color-input" type="color" value="#ff0000" class="w-full h-12 rounded-lg border-2 border-gray-300">
                     </div>
- 
+
                     <div class="flex flex-wrap gap-2">
                         <button id="word-convert-btn" class="btn bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700">Chuyển đổi</button>
                         <button id="word-import-as-quiz-btn" class="btn bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Nhập vào danh sách quiz</button>
                         <button id="word-load-into-creator-btn" class="btn bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Đưa vào màn tạo quiz</button>
                     </div>
- 
+
                     <div class="flex flex-wrap gap-2 text-sm">
                         <div class="px-3 py-1 rounded-full border">Câu hỏi: <span id="word-q-count">0</span></div>
                         <div class="px-3 py-1 rounded-full border">Đáp án: <span id="word-a-count">0</span></div>
                         <div class="px-3 py-1 rounded-full border">Đáp án đúng nhận diện: <span id="word-correct-count">0</span></div>
                     </div>
- 
+
                     <div id="word-status" class="text-sm text-gray-700">Sẵn sàng.</div>
                 </div>
- 
+
                 <div class="overflow-hidden flex flex-col">
                     <label class="block font-semibold mb-2">Kết quả JSON</label>
                     <pre id="word-json-preview" class="flex-1 overflow-auto bg-gray-100 rounded-xl p-4 text-sm whitespace-pre-wrap">Chưa có dữ liệu.</pre>
@@ -496,10 +496,10 @@
             </div>
         </div>
     </div>
- 
+
     <footer id="main-footer"></footer>
- 
- 
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loadComponents = () => {
@@ -516,7 +516,7 @@
                 })
                 .catch(error => console.error('Error loading components:', error));
             };
- 
+
             // --- DOM ELEMENTS ---
             const screens = { home: document.getElementById('home-screen'), playerName: document.getElementById('player-name-screen'), quiz: document.getElementById('quiz-screen'), end: document.getElementById('end-screen'), creator: document.getElementById('creator-screen') };
             const playerNameInput = document.getElementById('player-name');
@@ -533,7 +533,7 @@
             const timeUnitSelect = document.getElementById('time-unit');
             const shuffleQuestionsCheckbox = document.getElementById('shuffle-questions-enabled');
             const shuffleAnswersCheckbox = document.getElementById('shuffle-answers-enabled');
- 
+
             // Quiz UI
             const questionProgress = document.getElementById('question-progress');
             const scorePercentDisplay = document.getElementById('score-percent');
@@ -564,7 +564,7 @@
             const cancelExportBtn = document.getElementById('cancel-export-btn');
             const randomQuestionCountInput = document.getElementById('random-question-count');
             const randomOptionsContainer = document.getElementById('random-options-container');
- 
+
             // Creator UI
             const goToCreatorBtn = document.getElementById('go-to-creator-btn');
             const importQuizBtn = document.getElementById('import-quiz-btn');
@@ -586,7 +586,7 @@
             const importQuestionsBtn = document.getElementById('import-questions-btn');
             const importQuestionsInput = document.getElementById('import-questions-input');
             const richTextToolbar = document.querySelector('.rich-text-toolbar');
- 
+
             const openWordConverterBtn = document.getElementById('open-word-converter-btn');
             const wordConverterModal = document.getElementById('word-converter-modal');
             const closeWordConverterBtn = document.getElementById('close-word-converter-btn');
@@ -606,9 +606,9 @@
             const wordCorrectCount = document.getElementById('word-correct-count');
             const wordStatus = document.getElementById('word-status');
             const wordJsonPreview = document.getElementById('word-json-preview');
- 
+
             let latestConvertedQuiz = null;
- 
+
             // --- QUIZ DATA & STATE ---
             const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", multiple: false, answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", multiple: false, answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
             let allQuizzes = [];
@@ -624,12 +624,12 @@
             let currentQuestionImageBase64 = null;
             let draggedItemIndex = null;
             let quizToExportIndex = null;
- 
+
             // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
             function loadQuizzesFromStorage() { const storedQuizzes = localStorage.getItem('allQuizzes'); try { allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz; } catch (e) { allQuizzes = defaultQuiz; } renderQuizList(); }
             function saveQuizzesToStorage() { localStorage.setItem('allQuizzes', JSON.stringify(allQuizzes)); }
- 
+
             function renderQuizList() {
                 quizListContainer.innerHTML = '';
                 if (allQuizzes.length === 0) { quizListContainer.innerHTML = `<p class="text-center text-gray-500 col-span-full">Chưa có quiz nào. Hãy tạo một cái!</p>`; return; }
@@ -644,7 +644,7 @@
                     exportDocBtn.innerHTML = '<i class="fas fa-file-alt fa-xs"></i>';
                     exportDocBtn.title = 'Xuất câu hỏi + đáp án làm tài liệu';
                     exportDocBtn.addEventListener('click', (e) => { e.stopPropagation(); showExportOptions(index); });
- 
+
                     const editBtn = document.createElement('button'); editBtn.className = 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center btn'; editBtn.innerHTML = '<i class="fas fa-pencil-alt fa-xs"></i>'; editBtn.title = 'Sửa quiz này'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); startEditingQuiz(index); });
                     
                     const deleteBtn = document.createElement('button'); deleteBtn.className = 'bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center btn'; deleteBtn.innerHTML = '<i class="fas fa-trash-alt fa-xs"></i>'; deleteBtn.title = 'Xóa quiz này'; deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); if (confirm(`Bạn có chắc muốn xóa bộ câu hỏi "${quiz.title}" không?`)) { deleteQuiz(index); } });
@@ -657,10 +657,10 @@
                     quizListContainer.appendChild(quizCardContainer);
                 });
             }
- 
+
             function deleteQuiz(index) { allQuizzes.splice(index, 1); saveQuizzesToStorage(); renderQuizList(); }
             function exportQuizToJson(quizData) { const dataStr = JSON.stringify(quizData, null, 2); const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${quizData.title.replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
- 
+
             // --- QUIZ GAME LOGIC ---
             function startGame() {
                 playerName = playerNameInput.value || "Người chơi";
@@ -671,7 +671,7 @@
                 
                 let timeValue = parseInt(timeValueInput.value) || 15;
                 timePerQuestion = timeUnitSelect.value === 'minutes' ? timeValue * 60 : timeValue;
- 
+
                 let questionsToPlay = [...allQuizzes[selectedQuizIndex].questions];
                 if (isShuffleQuestionsEnabled) {
                     questionsToPlay.sort(() => Math.random() - 0.5);
@@ -689,7 +689,7 @@
                 firstRoundCorrectAnswers = 0;
                 currentQuestionIndex = 0;
                 practiceRoundNotification.classList.add('hidden');
- 
+
                 currentQuizData.forEach(q => {
                     questionAttemptCounts[q.question] = 1;
                 });
@@ -697,7 +697,7 @@
                 showScreen('quiz');
                 setNextQuestion();
             }
- 
+
             function setNextQuestion() {
                 resetState();
                 if (currentQuestionIndex < currentQuizData.length) {
@@ -714,7 +714,7 @@
                         currentQuizData.forEach(q => {
                             questionAttemptCounts[q.question]++;
                         });
- 
+
                         totalQuestionsInRound = currentQuizData.length;
                         wronglyAnsweredQuestions = [];
                         currentQuestionIndex = 0;
@@ -744,7 +744,7 @@
                 if (isShuffleAnswersEnabled) {
                     answersToDisplay.sort(() => Math.random() - 0.5);
                 }
- 
+
                 answersToDisplay.forEach((answer, index) => {
                     const button = document.createElement('button');
                     button.className = `answer-btn w-full font-bold py-3 px-4 rounded-lg text-left flex flex-col items-center justify-center text-lg btn`;
@@ -766,13 +766,13 @@
                     }
                     answerButtonsContainer.appendChild(button);
                 });
- 
+
                 if (questionData.multiple) {
                     submitMultipleChoiceContainer.classList.remove('hidden');
                 } else {
                     submitMultipleChoiceContainer.classList.add('hidden');
                 }
- 
+
                 if (gameMode === 'test' && isTimerEnabled) {
                     timerContainer.classList.remove('hidden');
                     startTimer();
@@ -780,7 +780,7 @@
                     timerContainer.classList.add('hidden');
                 }
             }
- 
+
             function resetState() {
                 clearInterval(timerInterval);
                 answerButtonsContainer.innerHTML = '';
@@ -788,15 +788,15 @@
                 quizQuestionImage.src = '';
                 submitMultipleChoiceContainer.classList.add('hidden');
             }
- 
+
             function toggleMultipleChoiceAnswer(selectedBtn) {
                 selectedBtn.classList.toggle('selected');
             }
- 
+
             function selectSingleAnswer(selectedBtn, isCorrect) {
                 checkAnswers([{ btn: selectedBtn, correct: isCorrect }]);
             }
- 
+
             function submitMultipleAnswers() {
                 const selectedButtons = answerButtonsContainer.querySelectorAll('.answer-btn.selected');
                 const answers = Array.from(selectedButtons).map(btn => {
@@ -806,13 +806,13 @@
                 });
                 checkAnswers(answers, true);
             }
- 
+
             function checkAnswers(selectedAnswers, isMultiple = false) {
                 clearInterval(timerInterval);
                 let allCorrect = true;
                 const questionData = currentQuizData[currentQuestionIndex];
                 const correctAnswers = questionData.answers.filter(a => a.correct);
- 
+
                 if (isMultiple) {
                     if (selectedAnswers.length !== correctAnswers.length) {
                         allCorrect = false;
@@ -822,7 +822,7 @@
                 } else {
                     allCorrect = selectedAnswers.length === 1 && selectedAnswers[0].correct;
                 }
- 
+
                 if (allCorrect) {
                     correctAnswersCount++;
                 } else {
@@ -842,19 +842,19 @@
                     }
                     button.disabled = true;
                 });
- 
+
                 selectedAnswers.forEach(({ btn, correct }) => {
                     if (!correct) {
                         btn.classList.add('wrong');
                     }
                 });
- 
+
                 setTimeout(() => {
                     currentQuestionIndex++;
                     setNextQuestion();
                 }, 1500);
             }
- 
+
             function startTimer() {
                 let timeLeft = timePerQuestion;
                 timerBar.style.width = '100%'; timerBar.style.backgroundPosition = '0%';
@@ -872,7 +872,7 @@
                     }
                 }, 1000);
             }
- 
+
             function endGame() {
                 showScreen('end');
                 playerNameFinal.textContent = playerName;
@@ -890,7 +890,7 @@
                     correctCountDisplay.textContent = firstRoundCorrectAnswers;
                     wrongCountDisplay.textContent = wrongCount;
                 }
- 
+
                 wrongAnswersList.innerHTML = '';
                 if (initialWrongAnswers.length > 0) {
                     wrongAnswersContainer.classList.remove('hidden');
@@ -906,7 +906,7 @@
                                 ${ans.text ? `<span>${ans.text}</span>` : ''}
                             </div>
                         `).join('');
- 
+
                         item.innerHTML = `
                             <div class="flex justify-between items-start">
                                 <div class="font-bold text-gray-800 dark:text-gray-200 flex-1 pr-2">${q.question}</div>
@@ -923,7 +923,7 @@
                     exportWrongBtn.classList.add('hidden');
                 }
             }
- 
+
             function exportWrongAnswersQuiz() {
                 if (initialWrongAnswers.length === 0) return;
                 const originalQuizTitle = allQuizzes[selectedQuizIndex].title;
@@ -933,7 +933,7 @@
                 };
                 exportQuizToJson(wrongAnswersQuiz);
             }
- 
+
             // --- EXPORT DOCUMENT LOGIC ---
             function showExportOptions(index) {
                 quizToExportIndex = index;
@@ -948,7 +948,7 @@
                 exportJsonBtn.classList.add('hidden');
                 exportModal.classList.remove('hidden');
             }
- 
+
             async function generateExportHtml(quiz, options = {}) {
                 const { markAnswers = false, includeAllAnswers = false } = options;
                 let questions = JSON.parse(JSON.stringify(quiz.questions));
@@ -958,7 +958,7 @@
                     const textB = new DOMParser().parseFromString(b.question, "text/html").body.textContent || "";
                     return textA.localeCompare(textB, 'vi');
                 });
- 
+
                 let contentHtml = `<div style="font-family: Arial, sans-serif; line-height: 1.6;"><h1>${quiz.title}</h1>`;
                 for (const q of questions) {
                     contentHtml += `<div style="margin-bottom: 20px; page-break-inside: avoid;">`;
@@ -966,7 +966,7 @@
                     if (q.image) {
                         contentHtml += `<img src="${q.image}" style="max-width: 300px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;">`;
                     }
- 
+
                     if (includeAllAnswers) {
                         contentHtml += '<ul>';
                         for (const ans of q.answers) {
@@ -991,7 +991,7 @@
                 contentHtml += `</div>`;
                 return contentHtml;
             }
- 
+
             function preloadImages(element) {
                 const images = element.getElementsByTagName('img');
                 const promises = [];
@@ -1006,14 +1006,14 @@
                 }
                 return Promise.all(promises);
             }
- 
+
             async function exportAsDocument(format) {
                 const quiz = allQuizzes[quizToExportIndex];
                 const exportType = document.querySelector('input[name="export-type"]:checked').value;
                 let quizToExport = quiz;
                 let options = {};
                 let fileName = quiz.title;
- 
+
                 switch(exportType) {
                     case 'marked':
                         options = { markAnswers: true, includeAllAnswers: true };
@@ -1047,7 +1047,7 @@
                         }
                         break;
                 }
- 
+
                 const contentHtml = await generateExportHtml(quizToExport, options);
                 
                 if (format === 'pdf') {
@@ -1065,11 +1065,10 @@
                     const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
                         "xmlns:w='urn:schemas-microsoft-com:office:word' "+
                         "xmlns='http://www.w3.org/TR/REC-html40'>"+
-                        "<head><meta charset='utf-8'><title>Export HTML to Word</title>    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-</head><body>";
+                        "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
                     const footer = "</body></html>";
                     const sourceHTML = header + contentHtml + footer;
- 
+
                     const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
                     const fileDownload = document.createElement("a");
                     document.body.appendChild(fileDownload);
@@ -1079,7 +1078,7 @@
                     document.body.removeChild(fileDownload);
                 }
             }
- 
+
             // --- QUIZ CREATOR LOGIC ---
             function setupAnswerEditors() {
                 answerEditorContainer.innerHTML = '';
@@ -1087,7 +1086,7 @@
                     addAnswerEditor();
                 }
             }
- 
+
             function addAnswerEditor(answer = { text: '', image: null, correct: false }) {
                 const index = answerEditorContainer.querySelectorAll('.answer-editor-item').length;
                 const editorDiv = document.createElement('div');
@@ -1113,7 +1112,7 @@
                     </div>
                 `;
                 answerEditorContainer.appendChild(editorDiv);
- 
+
                 // Re-attach listeners for the new element
                 const newEditor = answerEditorContainer.lastElementChild;
                 newEditor.querySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove());
@@ -1123,7 +1122,7 @@
                 newEditor.querySelector('input[name="answer-image-input"]').addEventListener('change', (e) => handleAnswerImageUpload(e, newEditor));
                 newEditor.querySelector('button[name="remove-answer-image-btn"]').addEventListener('click', () => removeAnswerImage(newEditor));
             }
- 
+
             function handleAnswerImageUpload(event, editorDiv) {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -1138,7 +1137,7 @@
                 };
                 reader.readAsDataURL(file);
             }
- 
+
             function removeAnswerImage(editorDiv) {
                 const input = editorDiv.querySelector(`input[name="answer-image-input"]`);
                 const preview = editorDiv.querySelector(`img[name="answer-image-preview"]`);
@@ -1149,7 +1148,7 @@
                 preview.classList.add('hidden');
                 removeBtn.classList.add('hidden');
             }
- 
+
             function resetCreatorForm() { 
                 editingQuizIndex = null;
                 creatorTitle.textContent = 'Tạo Quiz Mới';
@@ -1203,7 +1202,7 @@
                 if (editBtn) { loadQuestionForEdit(parseInt(editBtn.dataset.editQuestion)); }
                 if (deleteBtn) { if (confirm('Bạn có chắc muốn xóa câu hỏi này?')) { deleteQuestion(parseInt(deleteBtn.dataset.deleteQuestion)); } }
             });
- 
+
             function loadQuestionForEdit(index) {
                 resetQuestionForm();
                 editingQuestionIndex = index;
@@ -1220,7 +1219,7 @@
                     removeImageBtn.classList.remove('hidden');
                     currentQuestionImageBase64 = questionData.image;
                 }
- 
+
                 document.querySelector(`input[name="answer-type"][value="${questionData.multiple ? 'multiple' : 'single'}"]`).checked = true;
                 answerEditorContainer.innerHTML = '';
                 questionData.answers.forEach(ans => addAnswerEditor(ans));
@@ -1239,7 +1238,7 @@
                 updateQuestionPreview();
                 showScreen('creator');
             }
- 
+
             addQuestionBtn.addEventListener('click', () => {
                 const question = newQuestionDiv.innerHTML.trim();
                 const isMultiple = document.querySelector('input[name="answer-type"]:checked').value === 'multiple';
@@ -1251,7 +1250,7 @@
                     const correct = item.querySelector('input[name="correct-answer"]').checked;
                     return { text, image, correct };
                 });
- 
+
                 if (!question || question === '<br>') {
                     alert('Vui lòng nhập nội dung câu hỏi.');
                     return;
@@ -1285,7 +1284,7 @@
                 resetQuestionForm();
                 newQuestionDiv.focus();
             });
- 
+
             saveQuizBtn.addEventListener('click', () => {
                 const title = quizTitleInput.value.trim();
                 if (!title) { alert('Vui lòng nhập tên cho bộ câu hỏi.'); return; }
@@ -1347,7 +1346,7 @@
                 removeImageBtn.classList.add('hidden');
                 currentQuestionImageBase64 = null;
             });
- 
+
             // --- DRAG AND DROP LOGIC ---
             questionsPreview.addEventListener('dragstart', e => {
                 if (e.target.classList.contains('question-preview-item')) {
@@ -1355,7 +1354,7 @@
                     e.target.classList.add('dragging');
                 }
             });
- 
+
             questionsPreview.addEventListener('dragend', e => {
                 if (e.target.classList.contains('question-preview-item')) {
                     e.target.classList.remove('dragging');
@@ -1363,7 +1362,7 @@
                     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
                 }
             });
- 
+
             questionsPreview.addEventListener('dragover', e => {
                 e.preventDefault();
                 const target = e.target.closest('.question-preview-item');
@@ -1379,7 +1378,7 @@
                     target.classList.remove('drag-over');
                  }
             });
- 
+
             questionsPreview.addEventListener('drop', e => {
                 e.preventDefault();
                 const target = e.target.closest('.question-preview-item');
@@ -1417,13 +1416,13 @@
                 reader.readAsText(file);
                 importQuestionsInput.value = '';
             });
- 
- 
+
+
             function setWordStatus(text, type = 'normal') {
                 wordStatus.className = 'text-sm ' + (type === 'ok' ? 'text-green-600' : type === 'warn' ? 'text-red-500' : 'text-gray-700');
                 wordStatus.textContent = text;
             }
- 
+
             function normalizeWordText(text) {
                 return String(text || '')
                     .replace(/\r/g, '\n')
@@ -1433,17 +1432,17 @@
                     .replace(/\n{3,}/g, '\n\n')
                     .trim();
             }
- 
+
             function wordXmlChildrenByLocalName(node, localName) {
                 return Array.from(node?.childNodes || []).filter(
                     n => n.nodeType === 1 && (n.localName === localName || String(n.nodeName).endsWith(':' + localName))
                 );
             }
- 
+
             function wordFirstChildByLocalName(node, localName) {
                 return wordXmlChildrenByLocalName(node, localName)[0] || null;
             }
- 
+
             function wordGetAttr(node, attrNames) {
                 for (const name of attrNames) {
                     const value = node?.getAttribute?.(name);
@@ -1451,7 +1450,7 @@
                 }
                 return null;
             }
- 
+
             function wordHexToRgb(hexValue) {
                 const hex = String(hexValue || '').replace(/^#/, '').trim().toUpperCase();
                 if (!/^[0-9A-F]{6}$/.test(hex)) return null;
@@ -1461,19 +1460,19 @@
                     b: parseInt(hex.slice(4, 6), 16)
                 };
             }
- 
+
             function wordIsTargetHex(value) {
                 const source = wordHexToRgb(value);
                 const target = wordHexToRgb(wordColorInput.value || '#FF0000');
                 if (!source || !target) return false;
- 
+
                 const dr = source.r - target.r;
                 const dg = source.g - target.g;
                 const db = source.b - target.b;
                 const distance = Math.sqrt(dr * dr + dg * dg + db * db);
                 return distance <= 90;
             }
- 
+
             function wordIsTargetTheme(themeName) {
                 if (!themeName) return false;
                 const t = String(themeName).toLowerCase();
@@ -1484,12 +1483,12 @@
                 }
                 return false;
             }
- 
+
             function parseWordNumbering(xmlText) {
                 const numbering = { numToAbstract: new Map(), abstractFormats: new Map() };
                 if (!xmlText) return numbering;
                 const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
- 
+
                 const nums = Array.from(doc.getElementsByTagName('*')).filter(n => n.localName === 'num');
                 for (const num of nums) {
                     const numId = wordGetAttr(num, ['w:numId', 'numId']);
@@ -1497,7 +1496,7 @@
                     const absId = wordGetAttr(abs, ['w:val', 'val']);
                     if (numId && absId) numbering.numToAbstract.set(numId, absId);
                 }
- 
+
                 const abstracts = Array.from(doc.getElementsByTagName('*')).filter(n => n.localName === 'abstractNum');
                 for (const abs of abstracts) {
                     const absId = wordGetAttr(abs, ['w:abstractNumId', 'abstractNumId']);
@@ -1513,7 +1512,7 @@
                 }
                 return numbering;
             }
- 
+
             function parseWordStyles(xmlText) {
                 const styles = new Map();
                 if (!xmlText) return styles;
@@ -1532,7 +1531,7 @@
                 }
                 return styles;
             }
- 
+
             function resolveWordParagraphListFormat(p, numbering) {
                 const pPr = wordFirstChildByLocalName(p, 'pPr');
                 const numPr = wordFirstChildByLocalName(pPr, 'numPr');
@@ -1545,14 +1544,14 @@
                 const formatMap = numbering.abstractFormats.get(absId);
                 return formatMap?.get(ilvl) || null;
             }
- 
+
             function wordRunMatchesColor(run, styleMap) {
                 const rPr = wordFirstChildByLocalName(run, 'rPr');
                 const colorNode = wordFirstChildByLocalName(rPr, 'color');
                 const colorVal = wordGetAttr(colorNode, ['w:val', 'val']);
                 const themeColor = wordGetAttr(colorNode, ['w:themeColor', 'themeColor']);
                 if (wordIsTargetHex(colorVal) || wordIsTargetTheme(themeColor)) return true;
- 
+
                 const rStyle = wordFirstChildByLocalName(rPr, 'rStyle');
                 const styleId = wordGetAttr(rStyle, ['w:val', 'val']);
                 if (styleId && styleMap.has(styleId)) {
@@ -1561,7 +1560,7 @@
                 }
                 return false;
             }
- 
+
             function extractWordTextFromRun(run) {
                 let text = '';
                 for (const child of Array.from(run.childNodes || [])) {
@@ -1573,13 +1572,13 @@
                 }
                 return text;
             }
- 
+
             function parseWordParagraph(p, numbering, styleMap) {
                 const listFmt = resolveWordParagraphListFormat(p, numbering);
                 const directRuns = wordXmlChildrenByLocalName(p, 'r');
                 const hyperlinks = wordXmlChildrenByLocalName(p, 'hyperlink');
                 const segments = [];
- 
+
                 for (const run of directRuns) {
                     const text = extractWordTextFromRun(run);
                     if (text) segments.push({ text, match: wordRunMatchesColor(run, styleMap) });
@@ -1591,34 +1590,34 @@
                         if (text) segments.push({ text, match: wordRunMatchesColor(run, styleMap) });
                     }
                 }
- 
+
                 let text = segments.map(s => s.text).join('');
                 text = text.replace(/\s+/g, ' ').trim();
                 if (!text) return null;
- 
+
                 if (listFmt === 'upperLetter' || listFmt === 'lowerLetter') {
                     const match = text.match(/^([A-Da-d])[\.)]\s*(.*)$/);
                     if (match) text = match[1].toUpperCase() + '.' + match[2].trim();
                 }
- 
+
                 const isMatch = segments.some(s => s.match && s.text.trim());
                 return { text, isMatch };
             }
- 
+
             function looksLikeWordQuestionStart(text) {
                 return /^Câu\s*\d+\s*:?$/i.test(text) || /^Câu\s*\d+\s*:/i.test(text);
             }
- 
+
             function looksLikeWordAnswer(text) {
                 return /^[A-D]\s*[\.)]/.test(text) || /^[A-D]\./.test(text);
             }
- 
+
             function normalizeWordAnswerPrefix(text) {
                 return String(text)
                     .replace(/^([A-D])\)/, '$1.')
                     .replace(/^([A-D])\s*\./, '$1.');
             }
- 
+
             function finalizeWordQuestion(current, questions) {
                 if (!current) return;
                 current.question = normalizeWordText(current.question);
@@ -1629,13 +1628,13 @@
                         correct: a.correct
                     }))
                     .filter(a => a.text);
- 
+
                 const hasTrue = current.answers.some(a => a.correct === true);
                 current.answers = current.answers.map(a => ({
                     ...a,
                     correct: hasTrue ? a.correct === true : (wordDefaultFalse.checked ? false : null)
                 }));
- 
+
                 questions.push({
                     question: current.question,
                     image: null,
@@ -1643,30 +1642,30 @@
                     answers: current.answers
                 });
             }
- 
+
             function parseWordDocumentXml(xmlText, numbering, styleMap) {
                 const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
                 const body = Array.from(doc.getElementsByTagName('*')).find(n => n.localName === 'body');
                 const children = Array.from(body?.childNodes || []).filter(n => n.nodeType === 1);
- 
+
                 const questions = [];
                 let current = null;
                 let pendingQuestionLabel = false;
- 
+
                 for (const node of children) {
                     if (!(node.localName === 'p' || String(node.nodeName).endsWith(':p'))) continue;
                     const para = parseWordParagraph(node, numbering, styleMap);
                     if (!para || !para.text) continue;
- 
+
                     if (looksLikeWordQuestionStart(para.text)) {
                         finalizeWordQuestion(current, questions);
                         current = { question: '', answers: [] };
                         pendingQuestionLabel = true;
                         continue;
                     }
- 
+
                     if (!current) continue;
- 
+
                     if (looksLikeWordAnswer(para.text)) {
                         current.answers.push({
                             text: normalizeWordAnswerPrefix(para.text),
@@ -1676,7 +1675,7 @@
                         pendingQuestionLabel = false;
                         continue;
                     }
- 
+
                     if (pendingQuestionLabel || current.answers.length === 0) {
                         current.question = current.question ? current.question + ' ' + para.text : para.text;
                     } else {
@@ -1685,15 +1684,15 @@
                         if (para.isMatch) last.correct = true;
                     }
                 }
- 
+
                 finalizeWordQuestion(current, questions);
                 return questions;
             }
- 
+
             function parseWordRawTextToSchema(text, title) {
                 const normalized = normalizeWordText(text).replace(/(?:^|\n)Câu\s*(\d+)\s*:/g, '\n@@QUESTION_$1@@ ');
                 const chunks = normalized.split(/\n@@QUESTION_\d+@@\s*/).map(s => s.trim()).filter(Boolean);
- 
+
                 const questions = chunks.map(chunk => {
                     const compact = chunk.replace(/\n+/g, ' ').trim();
                     const answerMatches = Array.from(compact.matchAll(/([A-D])\.(.*?)(?=\s+[A-D]\.|$)/g));
@@ -1704,34 +1703,34 @@
                         image: null,
                         correct: wordDefaultFalse.checked ? false : null
                     }));
- 
+
                     return { question: questionText, image: null, multiple: false, answers };
                 });
- 
+
                 return { title: title?.trim() || 'Bộ câu hỏi chuyển đổi', questions };
             }
- 
+
             async function readWordDocxToSchema(file, title) {
                 const arrayBuffer = await file.arrayBuffer();
                 const zip = await JSZip.loadAsync(arrayBuffer);
- 
+
                 const documentEntry = zip.file('word/document.xml');
                 if (!documentEntry) throw new Error('Không tìm thấy word/document.xml trong file .docx.');
- 
+
                 const documentXml = await documentEntry.async('string');
                 const numberingXml = await zip.file('word/numbering.xml')?.async('string');
                 const stylesXml = await zip.file('word/styles.xml')?.async('string');
- 
+
                 const numbering = parseWordNumbering(numberingXml || '');
                 const styleMap = parseWordStyles(stylesXml || '');
                 const questions = parseWordDocumentXml(documentXml, numbering, styleMap);
- 
+
                 return {
                     title: title?.trim() || 'Bộ câu hỏi chuyển đổi',
                     questions
                 };
             }
- 
+
             function renderWordJson(data) {
                 latestConvertedQuiz = data;
                 wordJsonPreview.textContent = JSON.stringify(data, null, 2);
@@ -1741,14 +1740,14 @@
                 wordACount.textContent = String(answerTotal);
                 wordCorrectCount.textContent = String(detectedTotal);
             }
- 
+
             async function runWordConvert() {
                 try {
                     setWordStatus('Đang xử lý...');
                     const raw = wordRawInput.value.trim();
                     const file = wordFileInput.files?.[0];
                     let data;
- 
+
                     if (file) {
                         if (!file.name.toLowerCase().endsWith('.docx')) throw new Error('Chỉ hỗ trợ file .docx.');
                         data = await readWordDocxToSchema(file, wordQuizTitleInput.value);
@@ -1757,21 +1756,21 @@
                         setWordStatus('Đã chuyển đổi ' + data.questions.length + ' câu hỏi, nhận diện ' + detectedTotal + ' đáp án đúng.', 'ok');
                         return data;
                     }
- 
+
                     if (raw) {
                         data = parseWordRawTextToSchema(raw, wordQuizTitleInput.value);
                         renderWordJson(data);
                         setWordStatus('Đã chuyển đổi ' + data.questions.length + ' câu hỏi từ nội dung nhập tay.', 'ok');
                         return data;
                     }
- 
+
                     throw new Error('Bạn chưa chọn file hoặc dán nội dung.');
                 } catch (err) {
                     setWordStatus(err?.message || 'Có lỗi xảy ra khi chuyển đổi.', 'warn');
                     return null;
                 }
             }
- 
+
             // --- EVENT LISTENERS ---
             startBtn.addEventListener('click', startGame);
             backToHomeBtn.addEventListener('click', () => showScreen('home'));
@@ -1811,14 +1810,14 @@
                     exportJsonBtn.classList.toggle('hidden', !isRandom);
                 });
             });
- 
+
             randomQuestionCountInput.addEventListener('input', (e) => {
                 const max = parseInt(e.target.max);
                 if (parseInt(e.target.value) > max) {
                     e.target.value = max;
                 }
             });
- 
+
             addAnswerBtn.addEventListener('click', () => addAnswerEditor());
             document.querySelectorAll('input[name="answer-type"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
@@ -1835,7 +1834,7 @@
                     });
                 });
             });
- 
+
             richTextToolbar.addEventListener('click', (e) => {
                 const command = e.target.dataset.command;
                 if (command) {
@@ -1853,45 +1852,45 @@
                     btn.classList.toggle('active', document.queryCommandState(btn.dataset.command));
                 });
             });
- 
+
             submitMultipleChoiceBtn.addEventListener('click', submitMultipleAnswers);
- 
+
             openWordConverterBtn.addEventListener('click', () => {
                 wordConverterModal.classList.remove('hidden');
             });
- 
+
             closeWordConverterBtn.addEventListener('click', () => {
                 wordConverterModal.classList.add('hidden');
             });
- 
+
             wordClearFileBtn.addEventListener('click', () => {
                 wordFileInput.value = '';
                 setWordStatus('Đã xóa file đã chọn.', 'ok');
             });
- 
+
             wordClearRawBtn.addEventListener('click', () => {
                 wordRawInput.value = '';
                 setWordStatus('Đã xóa nội dung nhập tay.', 'ok');
             });
- 
+
             wordColorPreset.addEventListener('change', () => {
                 if (wordColorPreset.value !== 'custom') {
                     wordColorInput.value = wordColorPreset.value;
                 }
                 setWordStatus('Đã chọn màu nhận diện đáp án đúng: ' + wordColorInput.value, 'ok');
             });
- 
+
             wordColorInput.addEventListener('input', () => {
                 const presetValues = ['#c00000', '#ff0000', '#ffc000', '#92d050', '#00b050', '#00b0f0', '#0070c0', '#002060', '#7030a0'];
                 const current = wordColorInput.value.toLowerCase();
                 wordColorPreset.value = presetValues.includes(current) ? current : 'custom';
                 setWordStatus('Đã đổi màu nhận diện đáp án đúng sang ' + wordColorInput.value, 'ok');
             });
- 
+
             wordConvertBtn.addEventListener('click', async () => {
                 await runWordConvert();
             });
- 
+
             wordImportAsQuizBtn.addEventListener('click', async () => {
                 const data = latestConvertedQuiz || await runWordConvert();
                 if (!data) return;
@@ -1905,7 +1904,7 @@
                 alert('Đã nhập quiz mới từ file Word: ' + data.title);
                 wordConverterModal.classList.add('hidden');
             });
- 
+
             wordLoadIntoCreatorBtn.addEventListener('click', async () => {
                 const data = latestConvertedQuiz || await runWordConvert();
                 if (!data) return;
@@ -1916,7 +1915,7 @@
                 wordConverterModal.classList.add('hidden');
                 showScreen('creator');
             });
- 
+
             // --- INITIALIZATION ---
             loadComponents();
             loadQuizzesFromStorage();
