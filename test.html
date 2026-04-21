@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOCX -> Quiz JSON</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0b1020;
+      --panel: #121933;
+      --muted: #9fb0ff;
+      --text: #eef2ff;
+      --accent: #7aa2ff;
+      --ok: #7ee787;
+      --warn: #ffcc66;
+      --border: #2a3566;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #121933 100%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    h1 {
+      margin: 0 0 20px;
+      font-size: 32px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .card {
+      background: rgba(18, 25, 51, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+    .left-col,
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    input[type="text"], input[type="file"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #0d1430;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font: inherit;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 48px;
+      border: 1px solid var(--border);
+      background: #0d1430;
+      border-radius: 12px;
+      padding: 4px;
+      cursor: pointer;
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .row { margin-bottom: 16px; }
+    .row:last-child { margin-bottom: 0; }
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    button {
+      border: 1px solid var(--border);
+      background: #18224a;
+      color: var(--text);
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #06122f;
+      border-color: transparent;
+    }
+    button:hover { filter: brightness(1.07); }
+    .meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: #dfe7ff;
+      background: #0d1430;
+      font-size: 14px;
+    }
+    .status {
+      color: var(--muted);
+      line-height: 1.5;
+      min-height: 24px;
+    }
+    .preview {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #091024;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 520px;
+      max-height: 72vh;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .hint {
+      color: #bac7ff;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>DOCX → Quiz JSON</h1>
+
+    <div class="grid">
+      <div class="left-col">
+        <div class="card">
+          <div class="row">
+            <label for="titleInput">Tiêu đề bộ câu hỏi</label>
+            <input id="titleInput" type="text" value="Bộ câu hỏi chuyển đổi" />
+          </div>
+
+          <div class="row">
+            <label for="fileInput">Tải file .docx</label>
+            <input id="fileInput" type="file" accept=".docx" />
+            <div class="btns">
+              <button type="button" id="clearFileBtn">Xóa file đã chọn</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="rawInput">Hoặc dán nội dung thô</label>
+            <textarea id="rawInput" placeholder="Dán nội dung ở đây nếu không dùng file .docx..."></textarea>
+            <div class="btns">
+              <button type="button" id="clearRawBtn">Xóa nội dung nhập tay</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <label>
+              <input id="defaultFalse" type="checkbox" checked />
+              Nếu không phát hiện đáp án đúng theo màu đã chọn, gán các đáp án là <code>false</code>
+            </label>
+          </div>
+
+          <div class="row">
+            <label for="colorPresetSelect">Màu mẫu nhận diện đáp án đúng</label>
+            <select id="colorPresetSelect">
+              <option value="#c00000">Đỏ đậm</option>
+              <option value="#ff0000">Đỏ</option>
+              <option value="#ffc000">Vàng cam</option>
+              <option value="#92d050">Xanh lá nhạt</option>
+              <option value="#00b050">Xanh lá</option>
+              <option value="#00b0f0">Xanh da trời</option>
+              <option value="#0070c0">Xanh dương</option>
+              <option value="#002060">Xanh navy</option>
+              <option value="#7030a0">Tím</option>
+              <option value="custom">Tự chọn bên dưới</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="answerColorInput">Hoặc chọn màu tùy chỉnh</label>
+            <input id="answerColorInput" type="color" value="#ff0000" />
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="card">
+          <div class="btns" style="margin-top:0; margin-bottom:16px;">
+            <button class="primary" id="convertBtn">Chuyển đổi</button>
+            <button id="downloadBtn">Tải JSON</button>
+            <button id="copyBtn">Copy JSON</button>
+            <button id="sampleBtn">Nạp ví dụ</button>
+          </div>
+
+          <div class="meta" style="margin-bottom:12px;">
+            <div class="pill">Câu hỏi: <span id="qCount">0</span></div>
+            <div class="pill">Đáp án: <span id="aCount">0</span></div>
+            <div class="pill">Đáp án đúng nhận diện: <span id="redCount">0</span></div>
+          </div>
+
+          <div id="status" class="status">Sẵn sàng.</div>
+        </div>
+
+        <div class="card">
+          <label for="preview">Kết quả JSON</label>
+          <div id="preview" class="preview">Chưa có dữ liệu.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const rawInput = document.getElementById("rawInput");
+    const titleInput = document.getElementById("titleInput");
+    const preview = document.getElementById("preview");
+    const statusEl = document.getElementById("status");
+    const qCountEl = document.getElementById("qCount");
+    const aCountEl = document.getElementById("aCount");
+    const redCountEl = document.getElementById("redCount");
+    const defaultFalseEl = document.getElementById("defaultFalse");
+    const answerColorInput = document.getElementById("answerColorInput");
+    const colorPresetSelect = document.getElementById("colorPresetSelect");
+    const clearFileBtn = document.getElementById("clearFileBtn");
+    const clearRawBtn = document.getElementById("clearRawBtn");
+
+    let latestJson = null;
+
+    function setStatus(text, type = "normal") {
+      statusEl.className = "status" + (type === "ok" ? " ok" : type === "warn" ? " warn" : "");
+      statusEl.textContent = text;
+    }
+
+    function normalizeText(text) {
+      return String(text || "")
+        .replace(/\r/g, "\n")
+        .replace(/\u00A0/g, " ")
+        .replace(/[ \t]+/g, " ")
+        .replace(/ ?\n ?/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    function xmlChildrenByLocalName(node, localName) {
+      return Array.from(node?.childNodes || []).filter(
+        (n) => n.nodeType === 1 && (n.localName === localName || String(n.nodeName).endsWith(":" + localName))
+      );
+    }
+
+    function firstChildByLocalName(node, localName) {
+      return xmlChildrenByLocalName(node, localName)[0] || null;
+    }
+
+    function getAttr(node, attrNames) {
+      for (const name of attrNames) {
+        const value = node?.getAttribute?.(name);
+        if (value != null) return value;
+      }
+      return null;
+    }
+
+    function hexToRgb(hexValue) {
+      const hex = String(hexValue || "").replace(/^#/, "").trim().toUpperCase();
+      if (!/^[0-9A-F]{6}$/.test(hex)) return null;
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16)
+      };
+    }
+
+    function isTargetHex(value) {
+      const source = hexToRgb(value);
+      const target = hexToRgb(answerColorInput.value || "#FF0000");
+      if (!source || !target) return false;
+
+      const dr = source.r - target.r;
+      const dg = source.g - target.g;
+      const db = source.b - target.b;
+      const distance = Math.sqrt(dr * dr + dg * dg + db * db);
+      return distance <= 90;
+    }
+
+    function isTargetTheme(themeName) {
+      if (!themeName) return false;
+      const t = String(themeName).toLowerCase();
+      const selected = String(answerColorInput.value || "#FF0000").toLowerCase();
+      const redLike = ["#c00000", "#ff0000", "#ee0000", "#dc143c"];
+      if (redLike.includes(selected)) {
+        return t.includes("red") || t.includes("accent2") || t.includes("hyperlink") || t.includes("followedhyperlink");
+      }
+      return false;
+    }
+
+    function parseNumbering(xmlText) {
+      const numbering = { numToAbstract: new Map(), abstractFormats: new Map() };
+      if (!xmlText) return numbering;
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+
+      const nums = Array.from(doc.getElementsByTagName("*")).filter((n) => n.localName === "num");
+      for (const num of nums) {
+        const numId = getAttr(num, ["w:numId", "numId"]);
+        const abs = firstChildByLocalName(num, "abstractNumId");
+        const absId = getAttr(abs, ["w:val", "val"]);
+        if (numId && absId) numbering.numToAbstract.set(numId, absId);
+      }
+
+      const abstracts = Array.from(doc.getElementsByTagName("*")).filter((n) => n.localName === "abstractNum");
+      for (const abs of abstracts) {
+        const absId = getAttr(abs, ["w:abstractNumId", "abstractNumId"]);
+        const levels = xmlChildrenByLocalName(abs, "lvl");
+        const map = new Map();
+        for (const lvl of levels) {
+          const ilvl = getAttr(lvl, ["w:ilvl", "ilvl"]) || "0";
+          const numFmt = firstChildByLocalName(lvl, "numFmt");
+          const fmtVal = getAttr(numFmt, ["w:val", "val"]) || "";
+          map.set(ilvl, fmtVal);
+        }
+        if (absId) numbering.abstractFormats.set(absId, map);
+      }
+      return numbering;
+    }
+
+    function parseStyles(xmlText) {
+      const styles = new Map();
+      if (!xmlText) return styles;
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const styleNodes = Array.from(doc.getElementsByTagName("*")).filter((n) => n.localName === "style");
+      for (const style of styleNodes) {
+        const styleId = getAttr(style, ["w:styleId", "styleId"]);
+        const rPr = firstChildByLocalName(style, "rPr");
+        const colorNode = firstChildByLocalName(rPr, "color");
+        if (styleId) {
+          styles.set(styleId, {
+            colorVal: getAttr(colorNode, ["w:val", "val"]),
+            themeColor: getAttr(colorNode, ["w:themeColor", "themeColor"])
+          });
+        }
+      }
+      return styles;
+    }
+
+    function resolveParagraphListFormat(p, numbering) {
+      const pPr = firstChildByLocalName(p, "pPr");
+      const numPr = firstChildByLocalName(pPr, "numPr");
+      if (!numPr) return null;
+      const numIdNode = firstChildByLocalName(numPr, "numId");
+      const ilvlNode = firstChildByLocalName(numPr, "ilvl");
+      const numId = getAttr(numIdNode, ["w:val", "val"]);
+      const ilvl = getAttr(ilvlNode, ["w:val", "val"]) || "0";
+      const absId = numbering.numToAbstract.get(numId);
+      const formatMap = numbering.abstractFormats.get(absId);
+      return formatMap?.get(ilvl) || null;
+    }
+
+    function runIsTargetColor(run, styleMap) {
+      const rPr = firstChildByLocalName(run, "rPr");
+      const colorNode = firstChildByLocalName(rPr, "color");
+      const colorVal = getAttr(colorNode, ["w:val", "val"]);
+      const themeColor = getAttr(colorNode, ["w:themeColor", "themeColor"]);
+      if (isTargetHex(colorVal) || isTargetTheme(themeColor)) return true;
+
+      const rStyle = firstChildByLocalName(rPr, "rStyle");
+      const styleId = getAttr(rStyle, ["w:val", "val"]);
+      if (styleId && styleMap.has(styleId)) {
+        const style = styleMap.get(styleId);
+        if (isTargetHex(style.colorVal) || isTargetTheme(style.themeColor)) return true;
+      }
+      return false;
+    }
+
+    function extractTextFromRun(run) {
+      let text = "";
+      for (const child of Array.from(run.childNodes || [])) {
+        if (child.nodeType !== 1) continue;
+        const name = child.localName || child.nodeName;
+        if (name === "t" || String(name).endsWith(":t")) text += child.textContent || "";
+        else if (name === "tab" || String(name).endsWith(":tab")) text += "\t";
+        else if (name === "br" || String(name).endsWith(":br")) text += "\n";
+      }
+      return text;
+    }
+
+    function parseParagraph(p, numbering, styleMap) {
+      const listFmt = resolveParagraphListFormat(p, numbering);
+      const directRuns = xmlChildrenByLocalName(p, "r");
+      const hyperlinks = xmlChildrenByLocalName(p, "hyperlink");
+      const segments = [];
+
+      for (const run of directRuns) {
+        const text = extractTextFromRun(run);
+        if (text) segments.push({ text, match: runIsTargetColor(run, styleMap) });
+      }
+      for (const hyperlink of hyperlinks) {
+        const linkedRuns = xmlChildrenByLocalName(hyperlink, "r");
+        for (const run of linkedRuns) {
+          const text = extractTextFromRun(run);
+          if (text) segments.push({ text, match: runIsTargetColor(run, styleMap) });
+        }
+      }
+
+      let text = segments.map((s) => s.text).join("");
+      text = text.replace(/\s+/g, " ").trim();
+      if (!text) return null;
+
+      if (listFmt === "upperLetter" || listFmt === "lowerLetter") {
+        const match = text.match(/^([A-Da-d])[\.)]\s*(.*)$/);
+        if (match) text = match[1].toUpperCase() + "." + match[2].trim();
+      }
+
+      const isMatch = segments.some((s) => s.match && s.text.trim());
+      return { text, isMatch };
+    }
+
+    function looksLikeQuestionStart(text) {
+      return /^Câu\s*\d+\s*:?$/i.test(text) || /^Câu\s*\d+\s*:/i.test(text);
+    }
+
+    function looksLikeAnswer(text) {
+      return /^[A-D]\s*[\.)]/.test(text) || /^[A-D]\./.test(text);
+    }
+
+    function normalizeAnswerPrefix(text) {
+      return String(text)
+        .replace(/^([A-D])\)/, "$1.")
+        .replace(/^([A-D])\s*\./, "$1.");
+    }
+
+    function finalizeQuestion(current, questions) {
+      if (!current) return;
+      current.question = normalizeText(current.question);
+      current.answers = current.answers
+        .map((a) => ({
+          text: normalizeText(normalizeAnswerPrefix(a.text)),
+          image: null,
+          correct: a.correct
+        }))
+        .filter((a) => a.text);
+
+      const hasTrue = current.answers.some((a) => a.correct === true);
+      current.answers = current.answers.map((a) => ({
+        ...a,
+        correct: hasTrue ? a.correct === true : (defaultFalseEl.checked ? false : null)
+      }));
+
+      questions.push({
+        question: current.question,
+        image: null,
+        multiple: false,
+        answers: current.answers
+      });
+    }
+
+    function parseDocumentXml(xmlText, numbering, styleMap) {
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const body = Array.from(doc.getElementsByTagName("*")).find((n) => n.localName === "body");
+      const children = Array.from(body?.childNodes || []).filter((n) => n.nodeType === 1);
+
+      const questions = [];
+      let current = null;
+      let pendingQuestionLabel = false;
+
+      for (const node of children) {
+        if (!(node.localName === "p" || String(node.nodeName).endsWith(":p"))) continue;
+        const para = parseParagraph(node, numbering, styleMap);
+        if (!para || !para.text) continue;
+
+        if (looksLikeQuestionStart(para.text)) {
+          finalizeQuestion(current, questions);
+          current = { question: "", answers: [] };
+          pendingQuestionLabel = true;
+          continue;
+        }
+
+        if (!current) continue;
+
+        if (looksLikeAnswer(para.text)) {
+          current.answers.push({
+            text: normalizeAnswerPrefix(para.text),
+            image: null,
+            correct: para.isMatch
+          });
+          pendingQuestionLabel = false;
+          continue;
+        }
+
+        if (pendingQuestionLabel || current.answers.length === 0) {
+          current.question = current.question ? current.question + " " + para.text : para.text;
+        } else {
+          const last = current.answers[current.answers.length - 1];
+          last.text = last.text + " " + para.text;
+          if (para.isMatch) last.correct = true;
+        }
+      }
+
+      finalizeQuestion(current, questions);
+      return questions;
+    }
+
+    function parseRawTextToSchema(text, title) {
+      const normalized = normalizeText(text).replace(/(?:^|\n)Câu\s*(\d+)\s*:/g, "\n@@QUESTION_$1@@ ");
+      const chunks = normalized.split(/\n@@QUESTION_\d+@@\s*/).map((s) => s.trim()).filter(Boolean);
+
+      const questions = chunks.map((chunk) => {
+        const compact = chunk.replace(/\n+/g, " ").trim();
+        const answerMatches = Array.from(compact.matchAll(/([A-D])\.(.*?)(?=\s+[A-D]\.|$)/g));
+        const answerStart = compact.search(/\bA\./);
+        const questionText = answerStart === -1 ? compact : compact.slice(0, answerStart).trim();
+        const answers = answerMatches.map((m) => ({
+          text: m[1] + "." + m[2].trim(),
+          image: null,
+          correct: defaultFalseEl.checked ? false : null
+        }));
+
+        return { question: questionText, image: null, multiple: false, answers };
+      });
+
+      return { title: title?.trim() || "Bộ câu hỏi chuyển đổi", questions };
+    }
+
+    async function readDocxToSchema(file, title) {
+      const arrayBuffer = await file.arrayBuffer();
+      const zip = await JSZip.loadAsync(arrayBuffer);
+
+      const documentEntry = zip.file("word/document.xml");
+      if (!documentEntry) throw new Error("Không tìm thấy word/document.xml trong file .docx.");
+
+      const documentXml = await documentEntry.async("string");
+      const numberingXml = await zip.file("word/numbering.xml")?.async("string");
+      const stylesXml = await zip.file("word/styles.xml")?.async("string");
+
+      const numbering = parseNumbering(numberingXml || "");
+      const styleMap = parseStyles(stylesXml || "");
+      const questions = parseDocumentXml(documentXml, numbering, styleMap);
+
+      return {
+        title: title?.trim() || "Bộ câu hỏi chuyển đổi",
+        questions
+      };
+    }
+
+    function renderJson(data) {
+      latestJson = data;
+      preview.textContent = JSON.stringify(data, null, 2);
+      const answerTotal = data.questions.reduce((sum, q) => sum + q.answers.length, 0);
+      const detectedTotal = data.questions.reduce((sum, q) => sum + q.answers.filter((a) => a.correct === true).length, 0);
+      qCountEl.textContent = String(data.questions.length);
+      aCountEl.textContent = String(answerTotal);
+      redCountEl.textContent = String(detectedTotal);
+    }
+
+    async function runConvert() {
+      try {
+        setStatus("Đang xử lý...");
+        const raw = rawInput.value.trim();
+        const file = fileInput.files?.[0];
+        let data;
+
+        if (file) {
+          if (!file.name.toLowerCase().endsWith(".docx")) {
+            throw new Error("Chế độ này hỗ trợ file .docx.");
+          }
+          data = await readDocxToSchema(file, titleInput.value);
+          renderJson(data);
+
+          const detectedTotal = data.questions.reduce((sum, q) => sum + q.answers.filter((a) => a.correct === true).length, 0);
+          if (!data.questions.length) {
+            setStatus("Không tách được câu hỏi nào từ file .docx.", "warn");
+          } else if (detectedTotal > 0) {
+            setStatus("Đã chuyển đổi " + data.questions.length + " câu hỏi từ file và nhận diện " + detectedTotal + " đáp án đúng theo màu đã chọn.", "ok");
+          } else {
+            setStatus("Đã chuyển đổi " + data.questions.length + " câu hỏi từ file nhưng chưa phát hiện đáp án đúng theo màu đã chọn.", "warn");
+          }
+          return;
+        }
+
+        if (raw) {
+          data = parseRawTextToSchema(raw, titleInput.value);
+          renderJson(data);
+          setStatus("Đã chuyển đổi " + data.questions.length + " câu hỏi từ văn bản thô. Chế độ này không nhận diện màu.", data.questions.length ? "ok" : "warn");
+          return;
+        }
+
+        throw new Error("Bạn chưa chọn file hoặc dán nội dung.");
+      } catch (err) {
+        setStatus(err?.message || "Có lỗi xảy ra khi chuyển đổi.", "warn");
+      }
+    }
+
+    document.getElementById("convertBtn").addEventListener("click", runConvert);
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      setStatus("Đã chọn file: " + file.name + ". Nhấn Chuyển đổi để xử lý file này.", "ok");
+    });
+
+    clearFileBtn.addEventListener("click", () => {
+      fileInput.value = "";
+      setStatus("Đã xóa file đã chọn. Bây giờ bạn có thể nhập tay và chạy bằng nội dung trong ô nhập.", "ok");
+    });
+
+    clearRawBtn.addEventListener("click", () => {
+      rawInput.value = "";
+      setStatus("Đã xóa nội dung nhập tay. Bây giờ bạn có thể chọn file và chạy mà không bị lẫn dữ liệu cũ.", "ok");
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      if (!latestJson) {
+        setStatus("Chưa có JSON để copy.", "warn");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(latestJson, null, 2));
+        setStatus("Đã copy JSON vào clipboard.", "ok");
+      } catch {
+        setStatus("Không thể copy tự động trên trình duyệt này.", "warn");
+      }
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      if (!latestJson) {
+        setStatus("Chưa có JSON để tải.", "warn");
+        return;
+      }
+      const blob = new Blob([JSON.stringify(latestJson, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "quiz_converted.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setStatus("Đã tải file JSON.", "ok");
+    });
+
+    colorPresetSelect.addEventListener("change", () => {
+      if (colorPresetSelect.value !== "custom") {
+        answerColorInput.value = colorPresetSelect.value;
+      }
+      setStatus("Đã chọn màu nhận diện đáp án đúng: " + answerColorInput.value + ". Hãy bấm Chuyển đổi để áp dụng.", "ok");
+    });
+
+    answerColorInput.addEventListener("input", () => {
+      const presetValues = ["#c00000", "#ff0000", "#ffc000", "#92d050", "#00b050", "#00b0f0", "#0070c0", "#002060", "#7030a0"];
+      const current = answerColorInput.value.toLowerCase();
+      if (presetValues.includes(current)) {
+        colorPresetSelect.value = current;
+      } else {
+        colorPresetSelect.value = "custom";
+      }
+      setStatus("Đã đổi màu nhận diện đáp án đúng sang " + answerColorInput.value + ". Hãy bấm Chuyển đổi để áp dụng.", "ok");
+    });
+
+    document.getElementById("sampleBtn").addEventListener("click", () => {
+      rawInput.value = `Câu 1:
+Nói phát triển bản thân là một quá trình liên tục ...
+A.vì mỗi người chỉ cần cải thiện một kỹ năng là đủ.
+B.vì phát triển bản thân chỉ cần diễn ra khi cần tìm việc.
+C.vì phát triển bản thân không ảnh hưởng đến thành công cá nhân.
+D.vì xã hội luôn thay đổi, đòi hỏi mỗi cá nhân phải cập nhật và thích nghi.
+
+Câu 2:
+Lựa chọn công việc phù hợp với khả năng giúp:
+A.Nâng cao thu nhập của bản thân.
+B.Không thất nghiệp.
+C.Tăng cường sở thích với công việc.
+D.Đạt hiệu quả cao trong thực hiện công việc.`;
+      if (fileInput.value) fileInput.value = "";
+      setStatus("Đã nạp ví dụ văn bản thô. Nếu muốn dùng nhập tay, bạn có thể bấm Chuyển đổi ngay.", "ok");
+    });
+  </script>
+</body>
+</html>
