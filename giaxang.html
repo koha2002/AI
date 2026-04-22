@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giá xăng dầu và vàng trong nước</title>
+  <title>Giá xăng dầu trong nước</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="shortcut icon" href="logo.png" />
   <style>
@@ -16,7 +16,6 @@
       --muted: #aab7d3;
       --line: rgba(255, 255, 255, 0.08);
       --accent: #4c8dff;
-      --gold: #f7d25c;
       --up: #98f0bb;
       --down: #ffb8b8;
       --neutral: #ffe08a;
@@ -33,7 +32,6 @@
       color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(76, 141, 255, 0.18), transparent 26%),
-        radial-gradient(circle at top right, rgba(247, 210, 92, 0.14), transparent 18%),
         linear-gradient(180deg, #07101d 0%, #0b1425 100%);
       min-height: 100vh;
     }
@@ -69,10 +67,6 @@
       line-height: 1.08;
       letter-spacing: -0.02em;
     }
-
-    .hero-sub,
-    .hero-badges,
-    .badge { display: none; }
 
     .meta-grid {
       display: grid;
@@ -223,8 +217,6 @@
     .down { color: var(--down); font-weight: 800; }
     .flat { color: var(--neutral); font-weight: 800; }
 
-    .gold-main { color: #fff2bf; }
-
     .muted-row {
       color: var(--muted);
       font-size: 13px;
@@ -295,7 +287,7 @@
   <main class="container">
     <section class="hero">
       <div class="panel">
-        <h1 class="hero-title">Giá xăng dầu và vàng</h1>
+        <h1 class="hero-title">Giá xăng dầu</h1>
       </div>
 
       <div class="panel">
@@ -303,10 +295,6 @@
           <div class="meta-item">
             <div class="meta-label">Cập nhật xăng dầu</div>
             <div class="meta-value" id="fuelUpdatedAt">--</div>
-          </div>
-          <div class="meta-item">
-            <div class="meta-label">Cập nhật giá vàng</div>
-            <div class="meta-value" id="goldUpdatedAt">--</div>
           </div>
           <div class="meta-item">
             <div class="meta-label">Nguồn hiển thị</div>
@@ -334,16 +322,6 @@
         </div>
         <div id="fuelCards" class="cards"></div>
       </section>
-
-      <section class="panel">
-        <div class="section-head">
-          <div>
-            <h2>Giá vàng DOJI</h2>
-            <p>Hiển thị SJC và Nhẫn tròn 9999 Hưng Thịnh Vượng</p>
-          </div>
-        </div>
-        <div id="goldCards" class="cards"></div>
-      </section>
     </section>
   </main>
 
@@ -352,31 +330,23 @@
   <script>
     const REFRESH_MS = 5 * 60 * 1000;
     const FUEL_API_BASE = 'https://giaxanghomnay.com/api/pvdate/';
-    const DOJI_URL = 'https://giavang.doji.vn/';
-    const DOJI_PROXY_URL = `https://r.jina.ai/http://${DOJI_URL.replace(/^https?:\/\//, '')}`;
-
     const CACHE_KEYS = {
-      fuel: 'depdocla_price_fuel_cache_v3',
-      gold: 'depdocla_price_gold_cache_v3'
+      fuel: 'depdocla_price_fuel_cache_v3'
     };
 
     const NETWORK_TIMEOUT_MS = 2500;
-    const GOLD_TIMEOUT_MS = 2200;
     const FUEL_FALLBACK_DAYS = 2;
 
     const headerSlot = document.getElementById('header-slot');
     const footerSlot = document.getElementById('footer-slot');
     const fuelCards = document.getElementById('fuelCards');
-    const goldCards = document.getElementById('goldCards');
     const fuelUpdatedAt = document.getElementById('fuelUpdatedAt');
-    const goldUpdatedAt = document.getElementById('goldUpdatedAt');
     const sourceNames = document.getElementById('sourceNames');
     const errorBox = document.getElementById('errorBox');
     const fuelDateInput = document.getElementById('fuelDateInput');
     const fuelTodayBtn = document.getElementById('fuelTodayBtn');
 
     let currentFuelSource = '--';
-    let currentGoldSource = '--';
 
     function formatDateTime(value) {
       if (!value) return '--';
@@ -496,16 +466,11 @@
 
     function updateSourceNames() {
       if (!sourceNames) return;
-      sourceNames.textContent = `${currentFuelSource} | ${currentGoldSource}`;
+      sourceNames.textContent = currentFuelSource || '--';
     }
 
     function setFuelSource(value) {
       currentFuelSource = value || '--';
-      updateSourceNames();
-    }
-
-    function setGoldSource(value) {
-      currentGoldSource = value || '--';
       updateSourceNames();
     }
 
@@ -517,11 +482,6 @@
     function renderEmptyFuel(message = 'Chưa có dữ liệu xăng dầu.') {
       fuelCards.innerHTML = `<div class="empty">${message}</div>`;
       fuelUpdatedAt.textContent = '--';
-    }
-
-    function renderEmptyGold(message = 'Chưa có dữ liệu giá vàng.') {
-      goldCards.innerHTML = `<div class="empty">${message}</div>`;
-      goldUpdatedAt.textContent = '--';
     }
 
     function renderFuel(data) {
@@ -552,143 +512,6 @@
       });
 
       fuelUpdatedAt.textContent = formatDateTime(data.updatedAt);
-    }
-
-    function renderGold(data) {
-      const items = Array.isArray(data?.items) ? data.items : [];
-      goldCards.innerHTML = '';
-
-      if (!items.length) {
-        renderEmptyGold();
-        return;
-      }
-
-      items.forEach(item => {
-        const spread = Number.isFinite(Number(item.buy)) && Number.isFinite(Number(item.sell))
-          ? Number(item.sell) - Number(item.buy)
-          : null;
-
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="card-title">${item.name || 'Không rõ tên'}</div>
-          <div class="card-price gold-main">Giá mua: ${formatMoney(item.buy, item.unit)}</div>
-          <div class="card-sub">Giá bán: ${formatMoney(item.sell, item.unit)}</div>
-          <div class="card-sub ${spread === null ? 'flat' : deltaClass(spread)}">
-            ${spread === null ? '' : `Chênh lệch ${formatMoney(spread, item.unit)}`}
-          </div>
-        `;
-        goldCards.appendChild(card);
-      });
-
-      goldUpdatedAt.textContent = formatDateTime(data.updatedAt);
-    }
-
-    function cleanDojiNumber(value) {
-      if (value == null) return null;
-      const raw = String(value).replace(/[^\d]/g, '');
-      if (!raw) return null;
-      const num = Number(raw);
-      return Number.isFinite(num) ? num : null;
-    }
-
-    function parseDojiHtml(htmlText) {
-      const text = String(htmlText || '')
-        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      const updatedAtMatch = text.match(/Cập\s*nhập\s*lúc:\s*([0-9:]+\s+[0-9/]+)/i);
-      const updatedAt = updatedAtMatch ? updatedAtMatch[1] : '';
-
-      const items = [];
-
-      const sjcPatterns = [
-        /SJC\s*-\s*Bán\s*Lẻ.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i,
-        /SJC.*?Bán\s*Lẻ.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i
-      ];
-
-      for (const regex of sjcPatterns) {
-        const m = text.match(regex);
-        if (m) {
-          items.push({
-            name: 'SJC - Bán Lẻ',
-            buy: cleanDojiNumber(m[1]),
-            sell: cleanDojiNumber(m[2]),
-            updatedAt,
-            unit: 'nghìn/chỉ'
-          });
-          break;
-        }
-      }
-
-      const htvPatterns = [
-        /NHẪN\s*TRÒN\s*9999\s*HƯNG\s*THỊNH\s*VƯỢNG.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i,
-        /HƯNG\s*THỊNH\s*VƯỢNG.*?([0-9]{4,6}(?:,[0-9]{3})?)\s+([0-9]{4,6}(?:,[0-9]{3})?)/i
-      ];
-
-      for (const regex of htvPatterns) {
-        const m = text.match(regex);
-        if (m) {
-          items.push({
-            name: 'Nhẫn tròn 9999 Hưng Thịnh Vượng',
-            buy: cleanDojiNumber(m[1]),
-            sell: cleanDojiNumber(m[2]),
-            updatedAt,
-            unit: 'nghìn/chỉ'
-          });
-          break;
-        }
-      }
-
-      const filtered = items.filter(item => item.buy != null || item.sell != null);
-
-      if (!filtered.length) {
-        throw new Error('DOJI: không đọc được dữ liệu giá vàng');
-      }
-
-      return {
-        source: 'DOJI',
-        updatedAt: updatedAt || new Date().toISOString(),
-        items: filtered
-      };
-    }
-
-    async function fetchDojiFrom(url, signal) {
-      const res = await fetch(url, { cache: 'no-store', signal });
-      if (!res.ok) throw new Error(`DOJI: HTTP ${res.status}`);
-      const html = await res.text();
-      return parseDojiHtml(html);
-    }
-
-    async function fetchGoldData() {
-      const fallbackText = `
-        Giá vàng trong nước
-        SJC - Bán Lẻ 17200 17500
-        NHẪN TRÒN 9999 HƯNG THỊNH VƯỢNG 17200 17500
-        Cập nhập lúc: 08:40 31/03/2026
-      `;
-
-      try {
-        return await withTimeout(signal => fetchDojiFrom(DOJI_PROXY_URL, signal), GOLD_TIMEOUT_MS);
-      } catch (firstErr) {
-        try {
-          return await withTimeout(signal => fetchDojiFrom(DOJI_URL, signal), GOLD_TIMEOUT_MS);
-        } catch (secondErr) {
-          const cached = getCache(CACHE_KEYS.gold, 24 * 60 * 60 * 1000);
-          if (cached) {
-            return { ...cached, source: `${cached.source || 'DOJI'} (cache)` };
-          }
-          try {
-            return parseDojiHtml(fallbackText);
-          } catch {
-            throw secondErr || firstErr || new Error('DOJI: không tải được dữ liệu');
-          }
-        }
-      }
     }
 
     async function fetchFuelOnce(dateStr, signal) {
@@ -768,20 +591,12 @@
 
     function renderCachedDataImmediately() {
       const cachedFuel = getCache(CACHE_KEYS.fuel, 24 * 60 * 60 * 1000);
-      const cachedGold = getCache(CACHE_KEYS.gold, 24 * 60 * 60 * 1000);
 
       if (cachedFuel?.items?.length) {
         renderFuel(cachedFuel);
         setFuelSource(`${cachedFuel.source || 'giaxanghomnay.com'} (cache)`);
       } else {
         renderEmptyFuel('Đang tải dữ liệu xăng dầu...');
-      }
-
-      if (cachedGold?.items?.length) {
-        renderGold(cachedGold);
-        setGoldSource(`${cachedGold.source || 'DOJI'} (cache)`);
-      } else {
-        renderEmptyGold('Đang tải dữ liệu giá vàng...');
       }
     }
 
@@ -802,27 +617,9 @@
       }
     }
 
-    async function refreshGoldOnly() {
-      setLoading(goldCards, true);
-      try {
-        const goldData = await fetchGoldData();
-        renderGold(goldData);
-        setCache(CACHE_KEYS.gold, goldData);
-        setGoldSource(goldData.source || 'DOJI');
-      } catch (err) {
-        if (!goldCards.children.length) {
-          renderEmptyGold('Không tải được dữ liệu giá vàng DOJI.');
-        }
-        addError(`DOJI lỗi: ${err?.message || 'Không rõ nguyên nhân'}`);
-      } finally {
-        setLoading(goldCards, false);
-      }
-    }
-
     function refreshAll() {
       showError('');
       refreshFuelOnly();
-      refreshGoldOnly();
     }
 
     function syncFuelDateDefault() {
