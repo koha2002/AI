@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện Đề</title>
-    <script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
+    <script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947180636&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000021872088c7ef2a7946d413a%26ts%3D493596%26p%3Dfs%26cid%3D1%26sig%3D37ca06d74307de62c49f361547dc7f5a5651ec2e96db240a9b1b6468b860f43b%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947180636&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
@@ -610,7 +610,7 @@
             let latestConvertedQuiz = null;
 
             // --- QUIZ DATA & STATE ---
-            const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", multiple: false, answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", multiple: false, answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
+            const defaultQuiz = [{ id: "default_quiz_1", title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", multiple: false, answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", multiple: false, answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
             let allQuizzes = [];
             let currentQuizData = [];
             let newQuizQuestions = [];
@@ -624,11 +624,170 @@
             let currentQuestionImageBase64 = null;
             let draggedItemIndex = null;
             let quizToExportIndex = null;
+            const QUIZ_PROGRESS_PREFIX = 'quizProgress_';
 
             // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
-            function loadQuizzesFromStorage() { const storedQuizzes = localStorage.getItem('allQuizzes'); try { allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz; } catch (e) { allQuizzes = defaultQuiz; } renderQuizList(); }
+            function normalizeQuizTitle(title) {
+                return String(title || '')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ');
+            }
+
+            function generateQuizId() {
+                return 'quiz_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+            }
+
+            function ensureQuizHasId(quiz) {
+                if (!quiz.id) {
+                    quiz.id = generateQuizId();
+                }
+                return quiz;
+            }
+
+            function isDuplicateQuiz(importedQuiz, excludeIndex = null) {
+                const importedId = importedQuiz?.id || null;
+                const importedTitle = normalizeQuizTitle(importedQuiz?.title);
+
+                return allQuizzes.some((quiz, index) => {
+                    if (excludeIndex !== null && index === excludeIndex) return false;
+
+                    const existingId = quiz?.id || null;
+                    const existingTitle = normalizeQuizTitle(quiz?.title);
+
+                    if (importedId && existingId && importedId === existingId) return true;
+                    if (importedTitle && existingTitle && importedTitle === existingTitle) return true;
+
+                    return false;
+                });
+            }
+
+            function loadQuizzesFromStorage() {
+                const storedQuizzes = localStorage.getItem('allQuizzes');
+                try {
+                    allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz;
+                } catch (e) {
+                    allQuizzes = defaultQuiz;
+                }
+                allQuizzes = allQuizzes.map(q => ensureQuizHasId(q));
+                saveQuizzesToStorage();
+                renderQuizList();
+            }
             function saveQuizzesToStorage() { localStorage.setItem('allQuizzes', JSON.stringify(allQuizzes)); }
+
+            function getQuizProgressKey(quizIdentifier) {
+                return `${QUIZ_PROGRESS_PREFIX}${quizIdentifier}`;
+            }
+
+            function saveQuizProgress() {
+                if (selectedQuizIndex === null || selectedQuizIndex === undefined) return;
+
+                const progressData = {
+                    selectedQuizIndex,
+                    currentQuizData,
+                    wronglyAnsweredQuestions,
+                    initialWrongAnswers,
+                    questionAttemptCounts,
+                    correctAnswersCount,
+                    totalQuestionsInRound,
+                    originalTotalQuestions,
+                    firstRoundCorrectAnswers,
+                    currentQuestionIndex,
+                    playerName,
+                    isInitialRound,
+                    gameMode,
+                    isTimerEnabled,
+                    timePerQuestion,
+                    isShuffleQuestionsEnabled,
+                    isShuffleAnswersEnabled,
+                    savedAt: new Date().toISOString()
+                };
+
+                const quizId = allQuizzes[selectedQuizIndex]?.id;
+                if (!quizId) return;
+                localStorage.setItem(getQuizProgressKey(quizId), JSON.stringify(progressData));
+            }
+
+            function loadQuizProgress(quizIndex) {
+                const quizId = allQuizzes[quizIndex]?.id;
+                if (!quizId) return null;
+                const raw = localStorage.getItem(getQuizProgressKey(quizId));
+                if (!raw) return null;
+
+                try {
+                    return JSON.parse(raw);
+                } catch (e) {
+                    localStorage.removeItem(getQuizProgressKey(quizId));
+                    return null;
+                }
+            }
+
+            function clearQuizProgress(quizIndex) {
+                const quizId = allQuizzes[quizIndex]?.id;
+                if (!quizId) return;
+                localStorage.removeItem(getQuizProgressKey(quizId));
+            }
+
+            function resumeQuizProgress(progress) {
+                selectedQuizIndex = progress.selectedQuizIndex;
+                currentQuizData = progress.currentQuizData || [];
+                wronglyAnsweredQuestions = progress.wronglyAnsweredQuestions || [];
+                initialWrongAnswers = progress.initialWrongAnswers || [];
+                questionAttemptCounts = progress.questionAttemptCounts || {};
+                correctAnswersCount = progress.correctAnswersCount || 0;
+                totalQuestionsInRound = progress.totalQuestionsInRound || 0;
+                originalTotalQuestions = progress.originalTotalQuestions || 0;
+                firstRoundCorrectAnswers = progress.firstRoundCorrectAnswers || 0;
+                currentQuestionIndex = progress.currentQuestionIndex || 0;
+                playerName = progress.playerName || "Người chơi";
+                isInitialRound = progress.isInitialRound ?? true;
+                gameMode = progress.gameMode || 'test';
+                isTimerEnabled = progress.isTimerEnabled ?? true;
+                timePerQuestion = progress.timePerQuestion || 15;
+                isShuffleQuestionsEnabled = progress.isShuffleQuestionsEnabled ?? true;
+                isShuffleAnswersEnabled = progress.isShuffleAnswersEnabled ?? true;
+
+                if (!currentQuizData.length || currentQuestionIndex >= currentQuizData.length) {
+                    clearQuizProgress(progress.selectedQuizIndex);
+                    selectedQuizIndex = progress.selectedQuizIndex;
+                    showScreen('playerName');
+                    return;
+                }
+
+                if (!isInitialRound) {
+                    practiceRoundNotification.classList.remove('hidden');
+                } else {
+                    practiceRoundNotification.classList.add('hidden');
+                }
+
+                showScreen('quiz');
+                showQuestion(currentQuizData[currentQuestionIndex]);
+            }
+
+            function handleQuizSelection(index) {
+                const savedProgress = loadQuizProgress(index);
+
+                if (!savedProgress) {
+                    selectedQuizIndex = index;
+                    showScreen('playerName');
+                    return;
+                }
+
+                const action = confirm(
+                    `Bạn đang làm dở quiz "${allQuizzes[index].title}".\n\n` +
+                    `Bấm OK để tiếp tục.\n` +
+                    `Bấm Cancel để làm lại từ đầu.`
+                );
+
+                if (action) {
+                    resumeQuizProgress(savedProgress);
+                } else {
+                    clearQuizProgress(index);
+                    selectedQuizIndex = index;
+                    showScreen('playerName');
+                }
+            }
 
             function renderQuizList() {
                 quizListContainer.innerHTML = '';
@@ -636,7 +795,7 @@
                 allQuizzes.forEach((quiz, index) => {
                     const quizCardContainer = document.createElement('div'); quizCardContainer.className = 'relative group';
                     const quizCard = document.createElement('div'); quizCard.className = 'p-4 rounded-lg text-white text-center cursor-pointer btn h-full flex flex-col justify-center min-h-[120px]'; quizCard.style.background = `linear-gradient(45deg, hsl(${index*50}, 60%, 50%), hsl(${index*50 + 60}, 60%, 50%))`; quizCard.innerHTML = `<h3 class="text-xl font-bold">${quiz.title}</h3><p>${quiz.questions.length} câu hỏi</p>`;
-                    quizCard.addEventListener('click', () => { selectedQuizIndex = index; showScreen('playerName'); });
+                    quizCard.addEventListener('click', () => { handleQuizSelection(index); });
                     const controls = document.createElement('div'); controls.className = 'absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity';
                     
                     const exportDocBtn = document.createElement('button');
@@ -658,7 +817,12 @@
                 });
             }
 
-            function deleteQuiz(index) { allQuizzes.splice(index, 1); saveQuizzesToStorage(); renderQuizList(); }
+            function deleteQuiz(index) { 
+                clearQuizProgress(index);
+                allQuizzes.splice(index, 1); 
+                saveQuizzesToStorage(); 
+                renderQuizList(); 
+            }
             function exportQuizToJson(quizData) { const dataStr = JSON.stringify(quizData, null, 2); const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${quizData.title.replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
 
             // --- QUIZ GAME LOGIC ---
@@ -693,7 +857,8 @@
                 currentQuizData.forEach(q => {
                     questionAttemptCounts[q.question] = 1;
                 });
-                
+
+                saveQuizProgress();
                 showScreen('quiz');
                 setNextQuestion();
             }
@@ -701,6 +866,7 @@
             function setNextQuestion() {
                 resetState();
                 if (currentQuestionIndex < currentQuizData.length) {
+                    saveQuizProgress();
                     showQuestion(currentQuizData[currentQuestionIndex]);
                 } else {
                     if (isInitialRound) {
@@ -718,6 +884,7 @@
                         totalQuestionsInRound = currentQuizData.length;
                         wronglyAnsweredQuestions = [];
                         currentQuestionIndex = 0;
+                        saveQuizProgress();
                         setNextQuestion();
                     } else {
                         endGame();
@@ -730,7 +897,7 @@
                 
                 const percent = originalTotalQuestions > 0 ? Math.round((correctAnswersCount / originalTotalQuestions) * 100) : 0;
                 scorePercentDisplay.textContent = `${percent}%`;
-                questionText.innerHTML = questionData.question; // Use innerHTML for rich text
+                questionText.innerHTML = questionData.question;
                 
                 if (questionData.image) {
                     quizQuestionImage.src = questionData.image;
@@ -833,6 +1000,8 @@
                         wronglyAnsweredQuestions.push(questionData);
                     }
                 }
+
+                saveQuizProgress();
                 
                 Array.from(answerButtonsContainer.children).forEach(button => {
                     const originalIndex = parseInt(button.dataset.originalIndex);
@@ -874,6 +1043,7 @@
             }
 
             function endGame() {
+                clearQuizProgress(selectedQuizIndex);
                 showScreen('end');
                 playerNameFinal.textContent = playerName;
                 const finalPercent = originalTotalQuestions > 0 ? Math.round((firstRoundCorrectAnswers / originalTotalQuestions) * 100) : 0;
@@ -980,7 +1150,7 @@
                             contentHtml += '</li>';
                         }
                         contentHtml += '</ul>';
-                    } else { // Q&A format
+                    } else {
                         const correctAnswers = q.answers.filter(a => a.correct);
                         let answersText = correctAnswers.map(ans => (ans.text || '') + (ans.image ? ` <img src="${ans.image}" style="max-width: 150px; vertical-align: middle; border-radius: 4px;">` : '')).join(', ');
                         contentHtml += `<div style="color: #28a745;"><b>&rArr;</b> ${answersText}</div>`;
@@ -1073,7 +1243,7 @@
                     const fileDownload = document.createElement("a");
                     document.body.appendChild(fileDownload);
                     fileDownload.href = source;
-                    fileDownload.download = `${fileName}.doc`; // Use .doc for better compatibility
+                    fileDownload.download = `${fileName}.doc`;
                     fileDownload.click();
                     document.body.removeChild(fileDownload);
                 }
@@ -1113,7 +1283,6 @@
                 `;
                 answerEditorContainer.appendChild(editorDiv);
 
-                // Re-attach listeners for the new element
                 const newEditor = answerEditorContainer.lastElementChild;
                 newEditor.querySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove());
                 newEditor.querySelector('button[data-answer-index]').addEventListener('click', (e) => {
@@ -1162,9 +1331,10 @@
             function resetQuestionForm() {
                 editingQuestionIndex = null;
                 questionEditorTitle.textContent = 'Thêm câu hỏi mới';
-                addQuestionBtn.textContent = 'Thêm câu hỏi này';
+                addQuestionBtn.textContent = 'Cập nhật câu hỏi';
                 addQuestionBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
                 addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                addQuestionBtn.textContent = 'Thêm câu hỏi này';
                 newQuestionDiv.innerHTML = '';
                 
                 newQuestionImageInput.value = '';
@@ -1289,9 +1459,21 @@
                 const title = quizTitleInput.value.trim();
                 if (!title) { alert('Vui lòng nhập tên cho bộ câu hỏi.'); return; }
                 if (newQuizQuestions.length === 0) { alert('Vui lòng thêm ít nhất một câu hỏi.'); return; }
-                const newQuiz = { title: title, questions: newQuizQuestions };
+                const newQuiz = {
+                    id: editingQuizIndex !== null ? allQuizzes[editingQuizIndex].id : null,
+                    title: title,
+                    questions: newQuizQuestions
+                };
+                ensureQuizHasId(newQuiz);
+
+                if (isDuplicateQuiz(newQuiz, editingQuizIndex)) {
+                    alert('Tên quiz hoặc ID quiz đã tồn tại. Vui lòng đổi tên khác.');
+                    return;
+                }
+
                 if (editingQuizIndex !== null) {
                     allQuizzes[editingQuizIndex] = newQuiz;
+                    clearQuizProgress(editingQuizIndex);
                     alert('Đã cập nhật quiz thành công!');
                 } else {
                     allQuizzes.push(newQuiz);
@@ -1310,6 +1492,11 @@
                     try {
                         const importedQuiz = JSON.parse(e.target.result);
                         if (importedQuiz.title && Array.isArray(importedQuiz.questions)) {
+                            ensureQuizHasId(importedQuiz);
+                            if (isDuplicateQuiz(importedQuiz)) {
+                                alert(`Quiz "${importedQuiz.title}" đã tồn tại, không thể import trùng.`);
+                                return;
+                            }
                             allQuizzes.push(importedQuiz);
                             saveQuizzesToStorage();
                             renderQuizList();
@@ -1896,6 +2083,11 @@
                 if (!data) return;
                 if (!data.title || !Array.isArray(data.questions)) {
                     alert('Dữ liệu chuyển đổi không hợp lệ.');
+                    return;
+                }
+                ensureQuizHasId(data);
+                if (isDuplicateQuiz(data)) {
+                    alert('Quiz này đã tồn tại trong danh sách. Không thể nhập trùng.');
                     return;
                 }
                 allQuizzes.push(data);
