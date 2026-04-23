@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện Đề</title>
-    <script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947150069&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000a2d4720a9d0f536f281f40eb%26ts%3D493596%26p%3Dfs%26cid%3D1%26sig%3D74197a250562375a8121ba829f32b6d0cdac591b567658c10a9f9318a058f496%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947150069&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
+    <script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947180636&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000021872088c7ef2a7946d413a%26ts%3D493596%26p%3Dfs%26cid%3D1%26sig%3D37ca06d74307de62c49f361547dc7f5a5651ec2e96db240a9b1b6468b860f43b%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947180636&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
@@ -610,7 +610,7 @@
             let latestConvertedQuiz = null;
 
             // --- QUIZ DATA & STATE ---
-            const defaultQuiz = [{ title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", multiple: false, answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", multiple: false, answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
+            const defaultQuiz = [{ id: "default_quiz_1", title: "Kiến Thức Chung", questions: [ { question: "Đâu là thủ đô của Việt Nam?", multiple: false, answers: [{ text: "TP. Hồ Chí Minh", correct: false, image: null }, { text: "Đà Nẵng", correct: false, image: null }, { text: "Hà Nội", correct: true, image: null }, { text: "Hải Phòng", correct: false, image: null }] }, { question: "Hành tinh nào được biết đến với tên gọi 'Hành tinh Đỏ'?", multiple: false, answers: [{ text: "Sao Kim", correct: false, image: null }, { text: "Sao Hỏa", correct: true, image: null }, { text: "Sao Mộc", correct: false, image: null }, { text: "Sao Thổ", correct: false, image: null }] } ] }];
             let allQuizzes = [];
             let currentQuizData = [];
             let newQuizQuestions = [];
@@ -628,11 +628,56 @@
 
             // --- CORE FUNCTIONS ---
             function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName].classList.remove('hidden'); }
-            function loadQuizzesFromStorage() { const storedQuizzes = localStorage.getItem('allQuizzes'); try { allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz; } catch (e) { allQuizzes = defaultQuiz; } renderQuizList(); }
+            function normalizeQuizTitle(title) {
+                return String(title || '')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ');
+            }
+
+            function generateQuizId() {
+                return 'quiz_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+            }
+
+            function ensureQuizHasId(quiz) {
+                if (!quiz.id) {
+                    quiz.id = generateQuizId();
+                }
+                return quiz;
+            }
+
+            function isDuplicateQuiz(importedQuiz, excludeIndex = null) {
+                const importedId = importedQuiz?.id || null;
+                const importedTitle = normalizeQuizTitle(importedQuiz?.title);
+
+                return allQuizzes.some((quiz, index) => {
+                    if (excludeIndex !== null && index === excludeIndex) return false;
+
+                    const existingId = quiz?.id || null;
+                    const existingTitle = normalizeQuizTitle(quiz?.title);
+
+                    if (importedId && existingId && importedId === existingId) return true;
+                    if (importedTitle && existingTitle && importedTitle === existingTitle) return true;
+
+                    return false;
+                });
+            }
+
+            function loadQuizzesFromStorage() {
+                const storedQuizzes = localStorage.getItem('allQuizzes');
+                try {
+                    allQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : defaultQuiz;
+                } catch (e) {
+                    allQuizzes = defaultQuiz;
+                }
+                allQuizzes = allQuizzes.map(q => ensureQuizHasId(q));
+                saveQuizzesToStorage();
+                renderQuizList();
+            }
             function saveQuizzesToStorage() { localStorage.setItem('allQuizzes', JSON.stringify(allQuizzes)); }
 
-            function getQuizProgressKey(quizIndex) {
-                return `${QUIZ_PROGRESS_PREFIX}${quizIndex}`;
+            function getQuizProgressKey(quizIdentifier) {
+                return `${QUIZ_PROGRESS_PREFIX}${quizIdentifier}`;
             }
 
             function saveQuizProgress() {
@@ -659,23 +704,29 @@
                     savedAt: new Date().toISOString()
                 };
 
-                localStorage.setItem(getQuizProgressKey(selectedQuizIndex), JSON.stringify(progressData));
+                const quizId = allQuizzes[selectedQuizIndex]?.id;
+                if (!quizId) return;
+                localStorage.setItem(getQuizProgressKey(quizId), JSON.stringify(progressData));
             }
 
             function loadQuizProgress(quizIndex) {
-                const raw = localStorage.getItem(getQuizProgressKey(quizIndex));
+                const quizId = allQuizzes[quizIndex]?.id;
+                if (!quizId) return null;
+                const raw = localStorage.getItem(getQuizProgressKey(quizId));
                 if (!raw) return null;
 
                 try {
                     return JSON.parse(raw);
                 } catch (e) {
-                    localStorage.removeItem(getQuizProgressKey(quizIndex));
+                    localStorage.removeItem(getQuizProgressKey(quizId));
                     return null;
                 }
             }
 
             function clearQuizProgress(quizIndex) {
-                localStorage.removeItem(getQuizProgressKey(quizIndex));
+                const quizId = allQuizzes[quizIndex]?.id;
+                if (!quizId) return;
+                localStorage.removeItem(getQuizProgressKey(quizId));
             }
 
             function resumeQuizProgress(progress) {
@@ -1408,7 +1459,18 @@
                 const title = quizTitleInput.value.trim();
                 if (!title) { alert('Vui lòng nhập tên cho bộ câu hỏi.'); return; }
                 if (newQuizQuestions.length === 0) { alert('Vui lòng thêm ít nhất một câu hỏi.'); return; }
-                const newQuiz = { title: title, questions: newQuizQuestions };
+                const newQuiz = {
+                    id: editingQuizIndex !== null ? allQuizzes[editingQuizIndex].id : null,
+                    title: title,
+                    questions: newQuizQuestions
+                };
+                ensureQuizHasId(newQuiz);
+
+                if (isDuplicateQuiz(newQuiz, editingQuizIndex)) {
+                    alert('Tên quiz hoặc ID quiz đã tồn tại. Vui lòng đổi tên khác.');
+                    return;
+                }
+
                 if (editingQuizIndex !== null) {
                     allQuizzes[editingQuizIndex] = newQuiz;
                     clearQuizProgress(editingQuizIndex);
@@ -1430,6 +1492,11 @@
                     try {
                         const importedQuiz = JSON.parse(e.target.result);
                         if (importedQuiz.title && Array.isArray(importedQuiz.questions)) {
+                            ensureQuizHasId(importedQuiz);
+                            if (isDuplicateQuiz(importedQuiz)) {
+                                alert(`Quiz "${importedQuiz.title}" đã tồn tại, không thể import trùng.`);
+                                return;
+                            }
                             allQuizzes.push(importedQuiz);
                             saveQuizzesToStorage();
                             renderQuizList();
@@ -2016,6 +2083,11 @@
                 if (!data) return;
                 if (!data.title || !Array.isArray(data.questions)) {
                     alert('Dữ liệu chuyển đổi không hợp lệ.');
+                    return;
+                }
+                ensureQuizHasId(data);
+                if (isDuplicateQuiz(data)) {
+                    alert('Quiz này đã tồn tại trong danh sách. Không thể nhập trùng.');
                     return;
                 }
                 allQuizzes.push(data);
