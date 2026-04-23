@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện Đề</title>
-    <script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
+    <script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947150069&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000a2d4720a9d0f536f281f40eb%26ts%3D493596%26p%3Dfs%26cid%3D1%26sig%3D74197a250562375a8121ba829f32b6d0cdac591b567658c10a9f9318a058f496%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="676c4e6e95314cf8a57a13e6a06" src="//local.adguard.org?ts=1776947150069&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006494720886d48b2b9203dda9%26ts%3D493554%26p%3Dfs%26cid%3D1%26sig%3Dc368715d615f5025097fdfa8fbe828a398341d2e7160e8e00318dd4abeb5cce2%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-dnt"></script><script type="text/javascript" nonce="3fefebbbbf894d5f8e2132d6c91" src="//local.adguard.org?ts=1776794058211&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" href="logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
@@ -239,8 +239,7 @@
                           <button id="start-btn" class="btn w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 shadow-lg">Bắt đầu<i class="fas fa-play ml-2"></i></button>
                       </div>
                  </div>
-            </d
-iv>
+            </div>
             
             <div id="quiz-screen" class="hidden card p-6 sm:p-8 rounded-2xl shadow-2xl text-black overflow-hidden flex flex-col">
                 <div class="flex-shrink-0">
@@ -410,8 +409,7 @@ iv>
             </div>
 
             <div class="mt-6 pt-4 border-t flex flex-wrap gap-4 justify-center">
-                <button id="export-pdf-btn" class="btn bg-red-500 text-white font-bold py-2 px-4 rou
-nded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button>
+                <button id="export-pdf-btn" class="btn bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button>
                 <button id="export-doc-btn" class="btn bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-file-word mr-2"></i>Xuất Word (.docx)</button>
                 <button id="export-json-btn" class="btn bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 hidden"><i class="fas fa-file-code mr-2"></i>Xuất JSON</button>
             </div>
@@ -583,8 +581,7 @@ nded-lg hover:bg-red-600"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF</button
             const addQuestionBtn = document.getElementById('add-question-btn');
             const questionsPreview = document.getElementById('questions-preview');
             const questionCount = document.getElementById('question-count');
-            const saveQuizBtn = document.getElementById('save-qu
-iz-btn');
+            const saveQuizBtn = document.getElementById('save-quiz-btn');
             const cancelCreationBtn = document.getElementById('cancel-creation-btn');
             const importQuestionsBtn = document.getElementById('import-questions-btn');
             const importQuestionsInput = document.getElementById('import-questions-input');
@@ -775,8 +772,7 @@ iz-btn');
                 saveQuizzesToStorage(); 
                 renderQuizList(); 
             }
-            function exportQuizToJson(quizData) { const dataStr = JSON.stringify(quizData, null, 2); const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${quizData.title.replace(/\s+/g, '_'
-)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+            function exportQuizToJson(quizData) { const dataStr = JSON.stringify(quizData, null, 2); const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${quizData.title.replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
 
             // --- QUIZ GAME LOGIC ---
             function startGame() {
@@ -1026,8 +1022,7 @@ iz-btn');
                         let answersHtml = correctAnswers.map(ans => `
                             <div class="flex items-center gap-2">
                                 ${ans.image ? `<img src="${ans.image}" class="max-h-16 rounded-md my-1">` : ''}
-                                ${ans.text ? `<span>${ans.text}</span>` : 
-''}
+                                ${ans.text ? `<span>${ans.text}</span>` : ''}
                             </div>
                         `).join('');
 
@@ -1238,8 +1233,7 @@ iz-btn');
                 answerEditorContainer.appendChild(editorDiv);
 
                 const newEditor = answerEditorContainer.lastElementChild;
-                newEditor.quer
-ySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove());
+                newEditor.querySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove());
                 newEditor.querySelector('button[data-answer-index]').addEventListener('click', (e) => {
                     newEditor.querySelector('input[name="answer-image-input"]').click();
                 });
@@ -1464,7 +1458,6 @@ ySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove
                 reader.readAsDataURL(file);
             });
             
-
             removeImageBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 newQuestionImageInput.value = '';
@@ -1708,8 +1701,7 @@ ySelector('.remove-answer-btn').addEventListener('click', () => newEditor.remove
 
                 for (const run of directRuns) {
                     const text = extractWordTextFromRun(run);
-                    if (text) segments.push({ text, match: wordRunM
-atchesColor(run, styleMap) });
+                    if (text) segments.push({ text, match: wordRunMatchesColor(run, styleMap) });
                 }
                 for (const hyperlink of hyperlinks) {
                     const linkedRuns = wordXmlChildrenByLocalName(hyperlink, 'r');
@@ -1955,8 +1947,7 @@ atchesColor(run, styleMap) });
                         if (newType === 'radio') {
                             const firstChecked = answerEditorContainer.querySelector('input[name="correct-answer"]:checked');
                             if (firstChecked) {
-                                answerEditorContainer.querySelectorAll('input[name="correct-answer"]').forEach(r =
-> r.checked = false);
+                                answerEditorContainer.querySelectorAll('input[name="correct-answer"]').forEach(r => r.checked = false);
                                 firstChecked.checked = true;
                             }
                         }
@@ -2054,4 +2045,3 @@ atchesColor(run, styleMap) });
     </script>
 </body>
 </html>
-
