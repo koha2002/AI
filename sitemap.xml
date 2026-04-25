@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://koha.io.vn/</loc>
     <priority>1.0</priority>
@@ -40,5 +39,4 @@
     <loc>https://koha.io.vn/app.html</loc>
     <priority>0.7</priority>
   </url>
-
 </urlset>
